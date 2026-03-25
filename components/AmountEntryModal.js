@@ -6,7 +6,6 @@ export default function AmountEntryModal({
   isOpen,
   onClose,
   onSubmit,
-  appName,
 }) {
   const [amount, setAmount] = useState("");
   const [error, setError] = useState("");

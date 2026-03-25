@@ -11,7 +11,7 @@ export default function ZeroRiskClaimModal({
   maxAmount,
   isLoading,
   error,
-  xamanBalance = 0,
+  primaryVaultBalance = 0,
   lpBalance = 0,
   isFirstLPMade = false,
 }) {
@@ -22,8 +22,9 @@ export default function ZeroRiskClaimModal({
   const [uniqueTransactionId, setUniqueTransactionId] = useState(null);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const willExceedXamanBalance = parseFloat(amount || 0) > xamanBalance;
-  const showLimitWarning = isFirstLPMade && willExceedXamanBalance;
+  const willExceedPrimaryVault =
+    parseFloat(amount || 0) > primaryVaultBalance;
+  const showLimitWarning = isFirstLPMade && willExceedPrimaryVault;
 
   React.useEffect(() => {
     if (isOpen) {

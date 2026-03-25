@@ -19,7 +19,7 @@ export default function LedgerHistoryTable({ filters }) {
   const formatWalletName = (name) => {
     if (!name) return "N/A";
     const formatted = name.toUpperCase();
-    if (formatted === "XAMAN_WALLET" || formatted === "SYSTEM_WALLET" || formatted === "XAMAN") return "Primary Vault";
+    if (formatted === "USDT_WALLET" || formatted === "SYSTEM_WALLET" || formatted === "USDT") return "Primary Vault";
     if (formatted === "LP_WALLET" || formatted === "LP") return "Liquidity Pool";
     if (formatted === "ZERO_RISK") return "Stable Pool";
     if (formatted === "AIRDROP") return "Airdrop Node";

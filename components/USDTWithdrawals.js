@@ -112,21 +112,25 @@ export default function USDTWithdrawals() {
                     <th>Transaction ID</th>
                     <th>Amount (USDT)</th>
                     <th>Status</th>
-                    <th>Destination Address</th>
+                    <th>Wallet Source</th>
                   </tr>
                 </thead>
                 <tbody>
                   {withdrawals.map((withdrawal) => (
-                    <tr key={withdrawal._id}>
+                    <tr key={withdrawal.transactionId || withdrawal.uniqueTransactionId}>
                       <td>{new Date(withdrawal.timestamp).toLocaleString()}</td>
-                      <td className="highlight">{withdrawal.transactionId}</td>
-                      <td className="negative-amount">-{parseFloat(withdrawal.amount).toFixed(2)} USDT</td>
+                      <td className="highlight">
+                        {withdrawal.txHash || withdrawal.uniqueTransactionId}
+                      </td>
+                      <td className="negative-amount">
+                        -{parseFloat(withdrawal.amount).toFixed(6)} USDT
+                      </td>
                       <td>
                         <span className={`status-${withdrawal.status.toLowerCase()}`}>
                           {withdrawal.status}
                         </span>
                       </td>
-                      <td>{withdrawal.destinationAddress}</td>
+                      <td>{withdrawal.walletFrom}</td>
                     </tr>
                   ))}
                 </tbody>

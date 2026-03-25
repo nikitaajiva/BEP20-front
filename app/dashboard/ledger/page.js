@@ -10,7 +10,7 @@ import styles from "./ledger.module.css";
 
 const allowedWallets = [
   "SWIFT",
-  "XAMAN",
+  "USDT",
   "LP",
   "ZERO_RISK",
   "AIRDROP",

@@ -1,446 +1,426 @@
 "use client";
-import React, { useState, useEffect, useContext, useCallback } from 'react';
-import AuthGuard from '@/components/auth/AuthGuard';
-import DashboardLayout from '@/components/DashboardLayout';
-import AmountEntryModal from '@/components/AmountEntryModal';
-import { Xumm } from 'xumm';
-import { useAuth } from '@/context/AuthContext';
-
-// TODO: Replace with your actual API key, ideally from an environment variable
-const XUMM_API_KEY = process.env.NEXT_PUBLIC_XUMM_API_KEY || '72b5fba2-b2d4-4c12-a1b8-598003f6c568'; 
-const XUMM_API_SECRET = process.env.NEXT_PUBLIC_XUMM_API_SECRET || '3816f256-e44c-41c3-ba57-78a7456af2db'; 
-// Function to get the correct redirect URL for dashboard
-const getDashboardRedirectUrl = () => {
-  // Always use the staging URL with dashboard path to ensure proper redirect
-  return `${process.env.NEXT_PUBLIC_API_URL}/dashboard`;
-};
-
-// Function to ensure Xumm is properly initialized
-const ensureXummInitialized = () => {
-  if (!xumm) {
-    const dashboardUrl = getDashboardRedirectUrl();
-    xumm = new Xumm(XUMM_API_KEY, XUMM_API_SECRET, {
-      pkce: {
-        redirectUrl: dashboardUrl
-      }
-    });
-    console.log("Initialized Xumm with redirect URL:", dashboardUrl);
-  }
-  return xumm;
-};
-
-// Initialize Xumm variable
-let xumm; 
-
-const SYSTEM_DEPOSIT_WALLET_ADDRESS = process.env.NEXT_PUBLIC_SYSTEM_DEPOSIT_WALLET_ADDRESS || 'rKHFUy7FE3pSajAcrMj7L6LEvCriNGgnUj'; // Define system deposit address
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import AuthGuard from "@/components/auth/AuthGuard";
+import DashboardLayout from "@/components/DashboardLayout";
+import AmountEntryModal from "@/components/AmountEntryModal";
+import QrDepositModal from "@/components/QrDepositModal";
+import { useAuth } from "@/context/AuthContext";
+import {
+  getEthereum,
+  requestAccounts,
+  switchToBsc,
+  readUsdtBalance,
+  sendUsdtTransfer,
+} from "@/utils/bscWallet";
 
 export default function DashboardPage() {
   const { user, API_URL } = useAuth();
-  const [account, setAccount] = useState('');
-  const [payloadUuid, setPayloadUuid] = useState('');
-  const [lastPayloadUpdate, setLastPayloadUpdate] = useState('');
-  const [appName, setAppName] = useState('');
+  const [walletAccount, setWalletAccount] = useState("");
+  const [primaryVaultBalance, setPrimaryVaultBalance] = useState("0");
   const [isAmountModalOpen, setIsAmountModalOpen] = useState(false);
-  const [transactionStatus, setTransactionStatus] = useState('');
-  const [xamanDepositBalance, setXamanDepositBalance] = useState(0);
-  const [debugMessage, setDebugMessage] = useState('');
+  const [transactionStatus, setTransactionStatus] = useState("");
+  const [debugMessage, setDebugMessage] = useState("");
+  const [qrModalOpen, setQrModalOpen] = useState(false);
+  const [qrPayload, setQrPayload] = useState("");
+  const [qrDisplayData, setQrDisplayData] = useState(null);
+  const [qrStatus, setQrStatus] = useState("pending");
+  const [qrTimeLeft, setQrTimeLeft] = useState(0);
+  const qrPollRef = useRef(null);
+  const qrTimerRef = useRef(null);
+  const qrReferenceRef = useRef("");
 
-  // State for Ledger Data
   const [ledgerDetails, setLedgerDetails] = useState(null);
   const [loadingLedger, setLoadingLedger] = useState(true);
-  const [ledgerError, setLedgerError] = useState('');
+  const [ledgerError, setLedgerError] = useState("");
 
-  // Refactored and memoized fetchLedgerDetails
   const fetchLedgerDetails = useCallback(async () => {
-    if (!user) { // Check if user is available before fetching
-      // console.log("[fetchLedgerDetails] No user, skipping fetch.");
-      // Optionally clear ledger details if user logs out, though useEffect handles this
-      // setLedgerDetails(null);
-      // setLoadingLedger(false); // Or true if you want to show loading until user is back
-      return;
-    }
-    console.log("[fetchLedgerDetails] Attempting to fetch ledger details.");
+    if (!user) return;
     setLoadingLedger(true);
-    setLedgerError('');
-    const token = localStorage.getItem('token'); // Or preferably get token from AuthContext if available
+    setLedgerError("");
+    const token = localStorage.getItem("token");
     if (!token) {
-      setLedgerError('Authentication token not found.');
+      setLedgerError("Authentication token not found.");
       setLoadingLedger(false);
       return;
     }
 
     try {
-      console.log(`[fetchLedgerDetails] Fetching ledger details from ${API_URL}/ledger`);
       const response = await fetch(`${API_URL}/ledger`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
       const data = await response.json();
       if (response.ok && data.success) {
         setLedgerDetails(data.data);
-        console.log("[fetchLedgerDetails] Ledger details fetched:", data.data);
       } else {
-        throw new Error(data.message || 'Failed to fetch ledger details');
+        throw new Error(data.message || "Failed to fetch ledger details");
       }
     } catch (error) {
-      console.error("[fetchLedgerDetails] Error fetching ledger details:", error);
       setLedgerError(error.message);
-      setLedgerDetails(null); // Or keep previous state if preferred on error
+      setLedgerDetails(null);
     } finally {
       setLoadingLedger(false);
     }
-  }, [user, API_URL]); // Dependencies for useCallback
+  }, [user, API_URL]);
 
-  // Centralized function to handle backend verification of a transaction
-  const handleBackendVerification = useCallback(async (txid, userAccount) => {
-    setTransactionStatus(`Transaction Signed! TXID: ${txid}. Verifying with backend...`);
-    const token = localStorage.getItem('token');
-    if (!token) {
-      setTransactionStatus("Authentication error: No token found. Please re-login.");
-      return;
-    }
-
-    try {
-      const backendResponse = await fetch(`${API_URL}/deposits/USDT`, { 
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` 
-        },
-        body: JSON.stringify({
-          transactionId: txid,
-          USDTAddress: userAccount 
-        })
-      });
-      const backendData = await backendResponse.json();
-
-      if (backendData.success) {
-        setTransactionStatus(` ${backendData.message || 'Deposit successfully recorded!'}`);
-        if (backendData.updatedXamanBalance !== undefined) {
-          setXamanDepositBalance(parseFloat(backendData.updatedXamanBalance));
-        }
-        // Refresh ledger details to show updated balances on dashboard
-        fetchLedgerDetails();
-      } else {
-        setTransactionStatus(`Backend error: ${backendData.message || 'Failed to record deposit.'}`);
+  const handleBackendVerification = useCallback(
+    async (txHash, userAccount) => {
+      setTransactionStatus(
+        `Transaction sent! TX Hash: ${txHash}. Verifying with backend...`
+      );
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setTransactionStatus(
+          "Authentication error: No token found. Please re-login."
+        );
+        return;
       }
-    } catch (apiError) {
-      console.error("API call to record deposit failed:", apiError);
-      setTransactionStatus(`API Error: Failed to communicate with backend. ${apiError.message}`);
+
+      try {
+        const backendResponse = await fetch(`${API_URL}/deposits/usdt`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            tx_hash: txHash,
+            wallet_address: userAccount,
+          }),
+        });
+        const backendData = await backendResponse.json();
+
+        if (backendData.success) {
+          setTransactionStatus(
+            `${backendData.message || "Deposit successfully recorded!"}`
+          );
+          fetchLedgerDetails();
+        } else {
+          setTransactionStatus(
+            `Backend error: ${backendData.message || "Failed to record deposit."}`
+          );
+        }
+      } catch (apiError) {
+        setTransactionStatus(
+          `API Error: Failed to communicate with backend. ${apiError.message}`
+        );
+      }
+    },
+    [API_URL, fetchLedgerDetails]
+  );
+
+  const resolveDepositAddress = useCallback(async () => {
+    const configured = process.env.NEXT_PUBLIC_BSC_SYSTEM_DEPOSIT_ADDRESS;
+    if (configured) return configured;
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      throw new Error("Authentication error: No token found. Please re-login.");
     }
-  }, [API_URL, fetchLedgerDetails]); // Dependencies for useCallback
+
+    const response = await fetch(`${API_URL}/deposits/address`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const result = await response.json();
+    if (!result.success || !result.deposit_address) {
+      throw new Error(result.message || "Failed to get deposit address.");
+    }
+    return result.deposit_address.wallet_address;
+  }, [API_URL]);
 
   useEffect(() => {
     if (user) {
-      // Check for a pending payload UUID from a previous session on page load
-      const pendingPayloadUuid = localStorage.getItem('pendingPayloadUuid');
-      if (pendingPayloadUuid) {
-        console.log("Found pending payload UUID on page load:", pendingPayloadUuid);
-        setTransactionStatus("Found a pending transaction, checking its status...");
-        const xummInstance = ensureXummInitialized();
+      const ethereum = getEthereum();
+      if (ethereum) {
+        ethereum
+          .request({ method: "eth_accounts" })
+          .then((accounts) => {
+            if (accounts?.length) setWalletAccount(accounts[0]);
+          })
+          .catch(() => {
+            setWalletAccount("");
+          });
 
-        xummInstance.payload.get(pendingPayloadUuid).then(payload => {
-          console.log("Status of pending payload:", payload);
-          if (payload.meta.resolved) {
-            if (payload.meta.signed) {
-              const userAccountAddress = payload.response.account;
-              handleBackendVerification(payload.response.txid, userAccountAddress);
-            } else {
-              setTransactionStatus("The pending transaction was rejected in Xaman.");
-            }
-            localStorage.removeItem('pendingPayloadUuid'); // Clean up after handling
-          } else if (payload.meta.expired) {
-            setTransactionStatus("The pending transaction has expired. Please try again.");
-            localStorage.removeItem('pendingPayloadUuid'); // Clean up expired
-          } else {
-            setTransactionStatus("Your transaction is still pending. Please check your Xaman app to sign it.");
-          }
-        }).catch(err => {
-          console.error("Error fetching status for pending payload:", err);
-          setTransactionStatus("Error checking status of a pending transaction. It may have been invalid.");
-          localStorage.removeItem('pendingPayloadUuid'); // Clean up on error
-        });
+        const handleAccountsChanged = (accounts) => {
+          setWalletAccount(accounts?.[0] || "");
+        };
+
+        const handleChainChanged = () => {
+          setTransactionStatus("Network changed. Please reconnect if needed.");
+        };
+
+        ethereum.on("accountsChanged", handleAccountsChanged);
+        ethereum.on("chainChanged", handleChainChanged);
+
+        return () => {
+          ethereum.removeListener("accountsChanged", handleAccountsChanged);
+          ethereum.removeListener("chainChanged", handleChainChanged);
+        };
       }
 
-      console.log("[useEffect] User detected. Attempting to get Xaman account details silently.");
-      console.log("[useEffect] Calling xumm.user.account...");
-      const xummInstance = ensureXummInitialized();
-      xummInstance.user.account.then(xamanAccountDetails => {
-        console.log("[useEffect] xumm.user.account response:", xamanAccountDetails);
-        if (typeof xamanAccountDetails === 'string' && xamanAccountDetails.startsWith('r')) {
-          console.log("[useEffect] Detected valid Xaman account string:", xamanAccountDetails);
-          setAccount(xamanAccountDetails);
-        } else if (xamanAccountDetails && (xamanAccountDetails.account || xamanAccountDetails.address)) {
-          const userAccountAddress = xamanAccountDetails.account || xamanAccountDetails.address;
-          console.log("[useEffect] Detected Xaman account object, address:", userAccountAddress);
-          setAccount(userAccountAddress);
-        } else {
-          console.log("[useEffect] No valid Xaman account details found or in unexpected format.");
-          setAccount('');
-        }
-      }).catch(err => {
-        console.warn("[useEffect] Error fetching Xumm user account silently:", err);
-        setAccount('');
-      });
-
-      console.log("[useEffect] Calling xumm.environment.jwt...");
-      xummInstance.environment.jwt?.then(j => {
-        console.log("[useEffect] xumm.environment.jwt response:", j);
-        setAppName(j?.app_name ?? '')
-      }).catch(envError => {
-        console.warn("[useEffect] Error fetching Xumm environment details:", envError);
-      });
-
-      if (user.xamanBalance !== undefined) {
-        setXamanDepositBalance(user.xamanBalance);
-      } else {
-        setXamanDepositBalance(0);
-      }
-
-      // Fetch Ledger Details - now called directly
       fetchLedgerDetails();
-
     } else {
-      if (account || appName) {
-        console.log("Main user logged out, calling xumm.logout() and clearing Xaman related states.");
-        xumm.logout();
-        setAccount('');
-        setAppName('');
-        setPayloadUuid('');
-        setLastPayloadUpdate('');
-        setTransactionStatus('');
-      }
-      // Clear ledger details on logout
+      setWalletAccount("");
+      setPrimaryVaultBalance("0");
+      setTransactionStatus("");
       setLedgerDetails(null);
       setLoadingLedger(true);
-      setLedgerError('');
+      setLedgerError("");
     }
-  }, [user, API_URL, fetchLedgerDetails, handleBackendVerification]); // Added fetchLedgerDetails and new handler to dependency array
+  }, [user, API_URL, fetchLedgerDetails]);
 
-  const xamanLogin = async () => {
-    console.log("Attempting Xaman login...");
-    setTransactionStatus('Initiating Xaman connection...');
-    setLastPayloadUpdate('');
-    try {
-      // Clear any existing instance and create fresh one
-      xumm = null;
-      const xummInstance = ensureXummInitialized();
-      
-      console.log("Calling xumm.authorize()...");
-      await xummInstance.authorize();
-      console.log("xumm.authorize() success (or no immediate error). Fetching account details...");
-      console.log("Calling xumm.user.account...");
-      const xamanAccountDetails = await xummInstance.user.account;
-      console.log("xumm.user.account response (after authorize):", xamanAccountDetails);
-      console.log("Full xamanAccountDetails object (after authorize):", JSON.stringify(xamanAccountDetails, null, 2));
-
-      if (typeof xamanAccountDetails === 'string' && xamanAccountDetails.startsWith('r')) {
-        console.log("[xamanLogin] Detected valid Xaman account string:", xamanAccountDetails);
-        setAccount(xamanAccountDetails);
-        console.log("[xamanLogin] setAccount called with string:", xamanAccountDetails);
-      } else if (xamanAccountDetails && (xamanAccountDetails.account || xamanAccountDetails.address)) {
-        const userAccountAddress = xamanAccountDetails.account || xamanAccountDetails.address;
-        console.log("[xamanLogin] Extracted userAccountAddress from object:", userAccountAddress);
-        setAccount(userAccountAddress ?? '');
-        console.log("[xamanLogin] setAccount called with extracted address:", userAccountAddress ?? '');
-      } else {
-        console.log("[xamanLogin] xamanAccountDetails is null, undefined, or in an unexpected format after authorize.");
-        setAccount('');
+  useEffect(() => {
+    const loadPrimaryVaultBalance = async () => {
+      if (!walletAccount) {
+        setPrimaryVaultBalance("0");
+        return;
       }
-      setTransactionStatus('Xaman wallet connected/authorized.');
-    } catch (err) {
-      console.error("Xumm authorize error:", err);
-      setTransactionStatus('Failed to connect Xaman wallet.');
-    }
-  };
+      try {
+        const balance = await readUsdtBalance(walletAccount);
+        setPrimaryVaultBalance(balance);
+      } catch (error) {
+        setPrimaryVaultBalance("0");
+      }
+    };
 
-  const xamanLogout = () => {
-    setTransactionStatus('Disconnecting Xaman wallet...');
-    xumm.logout();
-    setAccount('');
-    setAppName('');
-    setPayloadUuid('');
-    setLastPayloadUpdate('');
-    setTransactionStatus('Xaman wallet disconnected.');
+    loadPrimaryVaultBalance();
+  }, [walletAccount]);
+
+  const stopQrPolling = useCallback(() => {
+    if (qrPollRef.current) {
+      clearInterval(qrPollRef.current);
+      qrPollRef.current = null;
+    }
+    if (qrTimerRef.current) {
+      clearInterval(qrTimerRef.current);
+      qrTimerRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      stopQrPolling();
+    };
+  }, [stopQrPolling]);
+
+  const connectWallet = async () => {
+    setTransactionStatus("Connecting MetaMask...");
+    try {
+      await switchToBsc();
+      const accounts = await requestAccounts();
+      setWalletAccount(accounts[0]);
+      setTransactionStatus("Wallet connected.");
+    } catch (err) {
+      setTransactionStatus(err.message || "Failed to connect wallet.");
+    }
   };
 
   const handleOpenAmountModal = () => {
-    setTransactionStatus('');
-    setLastPayloadUpdate('');
+    setTransactionStatus("");
     setIsAmountModalOpen(true);
   };
 
-  const createPayload = async (amountUSDT) => {
+  const createPayload = async (amount) => {
     setIsAmountModalOpen(false);
-    if (!account) {
-      alert("Please sign in first by connecting your Xaman wallet.");
-      setDebugMessage("Debug: User not signed in with Xaman.");
-      return;
-    }
-    if (!amountUSDT || parseFloat(amountUSDT) <= 0) {
+    if (!amount || parseFloat(amount) <= 0) {
       alert("Invalid amount provided.");
       setDebugMessage("Debug: Invalid amount for payload.");
       return;
     }
+    const ethereum = getEthereum();
+    if (!ethereum) {
+      await startQrDeposit(amount);
+      return;
+    }
+    if (!walletAccount) {
+      alert("Please connect your wallet first.");
+      setDebugMessage("Debug: Wallet not connected.");
+      return;
+    }
 
-    const amountInDrops = String(parseFloat(amountUSDT) * 1000000);
-
-    setTransactionStatus(`Preparing transaction for ${amountUSDT} USDT...`);
-    setLastPayloadUpdate('');
-    setDebugMessage('');
-
-// 🧩 Step: Request the server to allocate and store a new deposit address
-setTransactionStatus("Requesting deposit address from server...");
-const token = localStorage.getItem("token");
-const response = await fetch(`${API_URL}/deposits/address`, {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    "Authorization": `Bearer ${token}`,
-  },
-});
-const result = await response.json();
-
-if (!result.success || !result.deposit_address) {
-  throw new Error(result.message || "Failed to get deposit address.");
-}
-
-const { wallet_address: liveWalletAddress, destination_tag: liveDestinationTag } =
-  result.deposit_address;
-
-console.log("✅ Got live deposit address:", liveWalletAddress, liveDestinationTag);
-
-
+    setTransactionStatus(`Preparing transfer for ${amount} USDT...`);
+    setDebugMessage("");
 
     try {
-      const xummInstance = ensureXummInitialized();
-      const DASHBOARD_URL = process.env.NEXT_PUBLIC_DASHBOARD_URL;
-      const payloadPayload = {
-            // txjson: {
-            //   TransactionType: 'Payment',
-            //   Destination: SYSTEM_DEPOSIT_WALLET_ADDRESS,
-            //   Account: account,
-            //   Amount: amountInDrops,
-            // },
-          txjson: {
-                    TransactionType: "Payment",
-                    Destination: "rGPty1yQisw4z5soKZauz1Dc3xzeoyoMe3", //liveWalletAddress,
-                    DestinationTag: liveDestinationTag,
-                    Account: account,
-                    Amount: amountInDrops,
-                  },
-            options: {
-              submit: true,
-              return_url: {
-                app: `${DASHBOARD_URL}/dashboard`,
-                web: `${DASHBOARD_URL}/dashboard`, // browser redirect
-              },
-            },
-          };
+      await switchToBsc();
+      const depositAddress = await resolveDepositAddress();
+      setTransactionStatus("Please confirm the transfer in MetaMask...");
 
+      const txHash = await sendUsdtTransfer({
+        from: walletAccount,
+        to: depositAddress,
+        amount,
+      });
 
-      setLastPayloadUpdate(`Transaction Payload: ${JSON.stringify(payloadPayload, null, 2)}`);
-
-      const subscription = await xummInstance.payload?.createAndSubscribe(
-        payloadPayload,
-        async event => {
-          setLastPayloadUpdate(prev => `${prev}\nEvent Data: ${JSON.stringify(event.data, null, 2)}`);
-          if (event.data.opened) {
-            setTransactionStatus("Transaction opened in Xaman. Please check your Xaman app to sign.");
-          }
-          if (event.data.signed === true) {
-            setTransactionStatus("Transaction signed successfully! Processing...");
-          }
-          if (event.data.signed === false) {
-            setTransactionStatus("Transaction rejected/cancelled in Xaman.");
-          }
-          if (Object.prototype.hasOwnProperty.call(event.data, 'signed')) {
-            return event.data;
-          }
-        }
+      await handleBackendVerification(txHash, walletAccount);
+    } catch (error) {
+      setTransactionStatus(
+        `Error: ${error.message || "An unknown error occurred."}`
       );
+    }
+  };
 
-      if (!subscription) {
-        setTransactionStatus("Failed to create Xaman payload. Please try again.");
+  const verifyQrDeposit = useCallback(
+    async (referenceId) => {
+      if (!referenceId) return;
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      try {
+        const response = await fetch(
+          `${API_URL}/deposits/verify?referenceId=${encodeURIComponent(referenceId)}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const data = await response.json();
+        if (data.success && data.status === "completed") {
+          setQrStatus("completed");
+          stopQrPolling();
+          fetchLedgerDetails();
+          return;
+        }
+
+        if (data.status === "expired") {
+          setQrStatus("expired");
+          stopQrPolling();
+          return;
+        }
+
+        if (data.status === "failed") {
+        setQrStatus("failed");
+        stopQrPolling();
+      }
+    } catch (error) {
+      setQrStatus("failed");
+      stopQrPolling();
+    }
+  },
+  [API_URL, fetchLedgerDetails, stopQrPolling]
+);
+
+  const startQrDeposit = useCallback(
+    async (amount) => {
+      setTransactionStatus("No wallet detected. Generating QR deposit...");
+      setQrStatus("pending");
+
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setTransactionStatus("Authentication error: No token found. Please re-login.");
         return;
       }
 
-      setPayloadUuid(subscription.created.uuid);
-      localStorage.setItem('pendingPayloadUuid', subscription.created.uuid);
+      try {
+        const response = await fetch(`${API_URL}/deposits/intent`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            amount,
+            wallet_address: user?.wallet_address,
+          }),
+        });
 
-      setTransactionStatus("Processing Xaman request... Opening Xaman app.");
-      if (xummInstance.runtime.xapp) {
-        xummInstance.xapp?.openSignRequest(subscription.created);
-      } else if (subscription.created.next?.always) {
-        const deepLinkUrl = subscription.created.next.always;
-        window.open(deepLinkUrl);
-      }
+        const data = await response.json();
+        if (!response.ok || !data.success) {
+          throw new Error(data.message || "Failed to create deposit intent.");
+        }
 
-      const resolution = await subscription.resolved;
-      setLastPayloadUpdate(prev => `${prev}\nResolution Data: ${JSON.stringify(resolution, null, 2)}`);
+        const payload = JSON.stringify({
+          network: "BSC",
+          address: data.deposit_address,
+          amount: data.amount,
+          referenceId: data.referenceId,
+        });
 
-      if (resolution.signed) {
-        let txid = resolution.txid;
+        setQrPayload(payload);
+        setQrDisplayData({
+          amount: data.amount,
+          depositAddress: data.deposit_address,
+          referenceId: data.referenceId,
+          network: data.network || "BSC",
+        });
+        setQrStatus("pending");
+        setQrModalOpen(true);
+        qrReferenceRef.current = data.referenceId;
 
-        // ⏳ if txid missing, poll Xumm until it appears
-        if (!txid) {
-          setTransactionStatus("Waiting for transaction to be validated on USDTL...");
-          for (let i = 0; i < 10; i++) {
-            const payloadStatus = await xummInstance.payload.get(subscription.created.uuid);
-            if (payloadStatus?.response?.txid) {
-              txid = payloadStatus.response.txid;
-              break;
+        const expiresAt = new Date(data.expiresAt).getTime();
+        const updateTimer = () => {
+          const secondsLeft = Math.max(
+            0,
+            Math.ceil((expiresAt - Date.now()) / 1000)
+          );
+          setQrTimeLeft(secondsLeft);
+          if (secondsLeft <= 0) {
+            setQrStatus("expired");
+            stopQrPolling();
+            if (qrReferenceRef.current) {
+              verifyQrDeposit(qrReferenceRef.current);
             }
-            await new Promise(r => setTimeout(r, 3000)); // wait 3s before next poll
           }
-        }
+        };
 
-        if (txid) {
-          await handleBackendVerification(txid, account);
+        stopQrPolling();
+        updateTimer();
 
-          // // ✅ Redirect after backend verification
-          // window.location.href = "/dashboard"; 
-          // or use Next.js router.push("/dashboard") if you want client-side navigation
-        } else {
-          setTransactionStatus("Error: Could not retrieve transaction ID from Xaman.");
-        }
-      } else {
-        setTransactionStatus("Transaction was not signed or was rejected by Xaman.");
+        qrTimerRef.current = setInterval(updateTimer, 1000);
+        qrPollRef.current = setInterval(async () => {
+          await verifyQrDeposit(data.referenceId);
+        }, 3000);
+      } catch (error) {
+        setTransactionStatus(error.message || "Failed to start QR deposit.");
+        setQrStatus("failed");
       }
-
-      localStorage.removeItem('pendingPayloadUuid');
-
-    } catch (error) {
-      console.error("Error creating Xumm payload:", error);
-      setTransactionStatus(`Error: ${error.message || "An unknown error occurred."}`);
-      localStorage.removeItem('pendingPayloadUuid');
-    }
-  };
+    },
+    [API_URL, stopQrPolling, user, verifyQrDeposit]
+  );
 
   return (
     <AuthGuard>
       <DashboardLayout
-        xummAccount={account}
-        xummAppName={appName}
-        xummLastPayloadUpdate={lastPayloadUpdate}
-        xummTransactionStatus={transactionStatus}
-        xummDebugMessage={debugMessage}
-        onXummLogin={xamanLogin}
-        onXummLogout={xamanLogout}
+        walletAccount={walletAccount}
+        walletTransactionStatus={transactionStatus}
+        walletDebugMessage={debugMessage}
+        onWalletConnect={connectWallet}
         onOpenAmountModal={handleOpenAmountModal}
-        xamanDepositBalance={ledgerDetails?.xamanWallet?.balance || xamanDepositBalance}
+        primaryVaultBalance={primaryVaultBalance}
         ledgerDetails={ledgerDetails}
         loadingLedger={loadingLedger}
         ledgerError={ledgerError}
         refreshLedgerDetails={fetchLedgerDetails}
-      >
-      </DashboardLayout>
+      ></DashboardLayout>
       <AmountEntryModal
         isOpen={isAmountModalOpen}
         onClose={() => setIsAmountModalOpen(false)}
         onSubmit={createPayload}
-        appName={appName}
+      />
+      <QrDepositModal
+        isOpen={qrModalOpen}
+        onClose={() => {
+          stopQrPolling();
+          setQrModalOpen(false);
+        }}
+        payload={qrPayload}
+        displayData={qrDisplayData}
+        status={qrStatus}
+        timeLeft={qrTimeLeft}
+        onRetry={() => {
+          stopQrPolling();
+          setQrModalOpen(false);
+          if (qrDisplayData?.amount) {
+            startQrDeposit(qrDisplayData.amount);
+          }
+        }}
       />
     </AuthGuard>
   );

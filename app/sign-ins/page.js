@@ -5,11 +5,24 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import styles from "./signin.module.css";
 import { useAuth } from "@/context/AuthContext";
+import {
+  getEthereum,
+  requestAccounts,
+  switchToBsc,
+} from "@/utils/bscWallet";
 
 export default function SignInPage() {
   const router = useRouter();
 
-  const { login, error, loading: authLoading } = useAuth();
+  const {
+    API_URL,
+    setUser,
+    setToken,
+    setError,
+    error,
+    loading: authLoading,
+    setLoading,
+  } = useAuth();
 
   const canvasRef = useRef(null);
   useEffect(() => {
@@ -130,23 +143,49 @@ export default function SignInPage() {
     };
   }, []);
 
-  const DASHBOARD_URL = process.env.NEXT_PUBLIC_DASHBOARD_URL;
+  const handleWalletLogin = async () => {
+    setError(null);
+    setLoading(true);
+    try {
+      await switchToBsc();
+      const accounts = await requestAccounts();
+      const walletAddress = accounts[0];
+      const ethereum = getEthereum();
+      if (!ethereum) throw new Error("MetaMask is not available.");
 
-  const xamanAuthUrl =
-    `https://oauth2.xumm.app/auth` +
-    `?client_id=041487e6-e951-44e8-9da4-76617bb51470` +
-    `&redirect_uri=${encodeURIComponent(`${DASHBOARD_URL}/auth/callback`)}` +
-    `&response_type=token` +
-    `&force_network=MAINNET` +
-    `&signers=bf0650d4-eb0e-4cb7-9f82-ce992dc6f937`;
+      const message = `BEPVault login ${new Date().toISOString()}`;
+      const signature = await ethereum.request({
+        method: "personal_sign",
+        params: [message, walletAddress],
+      });
 
-//  const xamanAuthUrl =
-//   `https://oauth2.xumm.app/auth` +
-//   `?client_id=041487e6-e951-44e8-9da4-76617bb51470` +
-//   `&redirect_uri=${encodeURIComponent(
-//     `https://app.bepvault.io/auth/callback`
-//   )}` +
-//   `&response_type=code`;
+      const response = await fetch(`${API_URL}/auth/walletlogin`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          wallet_address: walletAddress,
+          signature,
+          message,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Wallet login failed.");
+      }
+
+      localStorage.setItem("token", data.token);
+      setToken(data.token);
+      setUser(data.user);
+      router.replace("/dashboard");
+    } catch (err) {
+      setError(err.message || "Wallet login failed.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <>
@@ -184,9 +223,9 @@ export default function SignInPage() {
                   type="button"
                   className={`${styles.button} ${styles.signInButton}`}
                   disabled={authLoading}
-                  onClick={() => (window.location.href = xamanAuthUrl)}
+                  onClick={handleWalletLogin}
                 >
-                  {authLoading ? "Redirecting..." : "Sign In with Xaman"}
+                  {authLoading ? "Connecting..." : "Sign In with MetaMask"}
                 </button>
 
                 {error && <p className={styles.errorText}>{error}</p>}

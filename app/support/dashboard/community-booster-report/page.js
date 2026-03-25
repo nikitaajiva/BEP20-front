@@ -68,9 +68,10 @@ function CommunityBoosterReport() {
 
   const formatUSDT = (amount) => {
     if (!amount) return '0.000000 USDT';
+    // Handle Decimal128 format
     const value = amount.$numberDecimal ? parseFloat(amount.$numberDecimal) : parseFloat(amount);
     if (isNaN(value)) return '0.000000 USDT';
-    return `${value.toFixed(6)} USDT`;
+    return value === 0 ? '0.000000 USDT' : `${value.toFixed(6)} USDT`;
   };
 
   const fetchTeamDetails = async () => {
@@ -152,11 +153,173 @@ function CommunityBoosterReport() {
             {loading ? 'Initializing Audit...' : <><SearchIcon size={16} className="inline mr-2" /> Execute Trace</>}
           </button>
         </div>
+
+        {error && (
+          <div style={{ 
+            background: 'rgba(255, 77, 77, 0.1)',
+            border: '1px solid rgba(255, 77, 77, 0.2)',
+            borderRadius: '12px',
+            padding: '1rem',
+            marginBottom: '1rem',
+            color: '#ff4d4d'
+          }}>
+            {error}
+          </div>
+        )}
+
+        {summary && (
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', color: '#fff' }}>
+              <thead>
+                <tr style={{ background: 'rgba(79, 140, 255, 0.1)' }}>
+                  <th style={{ padding: '1rem', textAlign: 'left', color: '#b3baff' }}>User</th>
+                  <th style={{ padding: '1rem', textAlign: 'right', color: '#b3baff' }}>Direct Volume</th>
+                  <th style={{ padding: '1rem', textAlign: 'right', color: '#b3baff' }}>Team Volume</th>
+                  <th style={{ padding: '1rem', textAlign: 'left', color: '#b3baff' }}>Qualified Tiers</th>
+                  <th style={{ padding: '1rem', textAlign: 'right', color: '#b3baff' }}>Total Credited</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style={{ borderBottom: '1px solid rgba(79, 140, 255, 0.1)' }}>
+                  <td style={{ padding: '1rem' }}>{summary.user.username} ({summary.user.uhid})</td>
+                  <td style={{ padding: '1rem', textAlign: 'right' }}>
+                    {formatUSDT(summary.volumes?.directVolume)}
+                    {/* <FaEye 
+                      style={{ cursor: 'pointer', marginLeft: 6, color: '#4f8cff' }} 
+                      title="View team details"
+                      onClick={handleViewTeamLP}
+                    /> */}
+                  </td>
+                  <td style={{ padding: '1rem', textAlign: 'right' }}>
+                    {formatUSDT(summary.volumes?.teamVolume)}
+                    {/* <FaEye 
+                      style={{ cursor: 'pointer', marginLeft: 6, color: '#4f8cff' }} 
+                      title="View team details"
+                      onClick={handleViewTeamLP}
+                    /> */}
+                  </td>
+                  <td style={{ padding: '1rem', cursor: 'pointer' }} onClick={handleViewQualification}>
+                    {summary.qualifiedTiers?.length > 0 
+                      ? summary.qualifiedTiers.map(tier => 
+                          `Tier ${tier.tier} (Level ${tier.bonusLevel} @ ${(tier.rate * 100).toFixed(0)}%)`
+                        ).join(', ')
+                      : 'None'
+                    }
+                    <div style={{ fontSize: '0.9em', color: '#b3baff', marginTop: '0.5rem' }}>
+                      Directs: {summary.conditions?.directs || 0}, Self LP: {formatUSDT(summary.conditions?.selfLP)}
+                    </div>
+                    <FaEye 
+                      style={{ marginLeft: 6, color: '#4f8cff' }} 
+                      title="View qualification details"
+                    />
+                  </td>
+                  <td style={{ padding: '1rem', textAlign: 'right' }}>
+                    {formatUSDT(summary.credited?.total)}
+                    <FaEye 
+                      style={{ cursor: 'pointer', marginLeft: 6, color: '#4f8cff' }} 
+                      title="View events"
+                      onClick={handleViewEvents}
+                    />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
-      {error && (
-        <div className="p-4 mb-8 bg-red-500/10 border border-red-500/20 text-red-500 rounded-xl flex items-center gap-3">
-          <XCircle size={18} /> {error}
+      {/* Team Volume Modal */}
+      {showTeamLPModal && (
+        <div style={modalStyle}>
+          <div style={modalContentStyle}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <h3 style={{ color: '#4f8cff', margin: 0 }}>Team Volume Details</h3>
+              <button
+                onClick={() => setShowTeamLPModal(false)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#b3baff',
+                  fontSize: '1.5rem',
+                  cursor: 'pointer'
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            {modalLoading && <div style={{ textAlign: 'center', padding: '2rem', color: '#b3baff' }}>Loading...</div>}
+            {modalError && (
+              <div style={{
+                background: 'rgba(255, 77, 77, 0.1)',
+                border: '1px solid rgba(255, 77, 77, 0.2)',
+                borderRadius: '12px',
+                padding: '1rem',
+                marginBottom: '1rem',
+                color: '#ff4d4d'
+              }}>
+                {modalError}
+              </div>
+            )}
+            
+            {modalData?.members && (
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', color: '#fff' }}>
+                  <thead>
+                    <tr style={{ background: 'rgba(79, 140, 255, 0.1)' }}>
+                      <th style={{ padding: '1rem', textAlign: 'left', color: '#b3baff' }}>Username</th>
+                      <th style={{ padding: '1rem', textAlign: 'center', color: '#b3baff' }}>Level</th>
+                      <th style={{ padding: '1rem', textAlign: 'right', color: '#b3baff' }}>Volume</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {modalData.members.map((member, index) => {
+                      if (member.isTotal) {
+                        return (
+                          <tr key={`total-${index}`} style={{
+                            background: 'rgba(79, 140, 255, 0.2)',
+                            borderTop: '2px solid rgba(79, 140, 255, 0.3)',
+                            fontWeight: 'bold'
+                          }}>
+                            <td colSpan="2" style={{ padding: '1rem', color: '#4f8cff' }}>
+                              Total Team Volume
+                            </td>
+                            <td style={{ padding: '1rem', textAlign: 'right', color: '#4f8cff' }}>
+                              {formatUSDT(member.lpSum)}
+                            </td>
+                          </tr>
+                        );
+                      }
+                      
+                      if (member.isLevelSum) {
+                        return (
+                          <tr key={`sum-${index}`} style={{
+                            background: 'rgba(79, 140, 255, 0.1)',
+                            borderBottom: '1px solid rgba(79, 140, 255, 0.2)'
+                          }}>
+                            <td colSpan="2" style={{ padding: '1rem', color: '#4f8cff', fontStyle: 'italic' }}>
+                              Level {member.level} Sum
+                            </td>
+                            <td style={{ padding: '1rem', textAlign: 'right', color: '#4f8cff', fontWeight: 'bold' }}>
+                              {formatUSDT(member.lpSum)}
+                            </td>
+                          </tr>
+                        );
+                      }
+
+                      return (
+                        <tr key={index} style={{ borderBottom: '1px solid rgba(79, 140, 255, 0.1)' }}>
+                          <td style={{ padding: '1rem' }}>{member.username}</td>
+                          <td style={{ padding: '1rem', textAlign: 'center' }}>Level {member.level}</td>
+                          <td style={{ padding: '1rem', textAlign: 'right' }}>{formatUSDT(member.lp)}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
@@ -245,18 +408,16 @@ function CommunityBoosterReport() {
                     </tr>
                   </thead>
                   <tbody>
-                    {modalData.members.map((member, index) => (
-                      <tr key={index} style={{ 
-                        background: member.isTotal ? 'rgba(0, 255, 136, 0.05)' : member.isLevelSum ? 'rgba(79, 140, 255, 0.05)' : 'transparent',
-                        fontWeight: (member.isTotal || member.isLevelSum) ? 900 : 400
-                      }}>
-                        <td>
-                          {member.isTotal ? <span className="text-green-400">TOTAL COHORT VOLUME</span> :
-                           member.isLevelSum ? <span className="text-blue-400 italic">SEGMENT L{member.level} SUMMARY</span> :
-                           member.username}
-                        </td>
-                        <td className="text-center">{member.level ? `Depth L${member.level}` : '-'}</td>
-                        <td className="text-right" style={{ color: member.isTotal ? '#00ff88' : '#fff' }}>{formatUSDT(member.lp || member.lpSum)}</td>
+                    {modalData.events.map((event, index) => (
+                      <tr key={index} style={{ borderBottom: '1px solid rgba(79, 140, 255, 0.1)' }}>
+                        <td style={{ padding: '1rem' }}>{new Date(event.ts).toLocaleString()}</td>
+                        <td style={{ padding: '1rem' }}>{new Date(event.triggeringDate).toLocaleString()}</td>
+                        <td style={{ padding: '1rem' }}>{event.from}</td>
+                        <td style={{ padding: '1rem', textAlign: 'right' }}>{formatUSDT(event.triggeringAmount)}</td>
+                        <td style={{ padding: '1rem', textAlign: 'right' }}>{formatUSDT(event.amount)}</td>
+                        <td style={{ padding: '1rem', textAlign: 'center' }}>Level {event.level}</td>
+                        <td style={{ padding: '1rem', textAlign: 'center' }}>Tier {event.tier}</td>
+                        <td style={{ padding: '1rem', textAlign: 'right' }}>{(parseFloat(event.rate.$numberDecimal || event.rate) * 100).toFixed(0)}%</td>
                       </tr>
                     ))}
                   </tbody>
@@ -359,8 +520,18 @@ function CommunityBoosterReport() {
                </div>
             </div>
 
-            <div className={styles.summaryTableWrapper}>
-              <table className={styles.table}>
+            <div style={{ overflowX: 'auto' }}>
+              <div style={{ marginBottom: '1rem', color: '#b3baff' }}>
+                <strong>Your Current Stats:</strong>
+                <ul style={{ listStyle: 'none', padding: 0 }}>
+                  <li>Direct Referrals: {summary.conditions?.directs || 0}</li>
+                  <li>Self LP: {formatUSDT(summary.conditions?.selfLP)}</li>
+                  <li>Direct Volume: {formatUSDT(summary.volumes?.directVolume)}</li>
+                  <li>Team Volume: {formatUSDT(summary.volumes?.teamVolume)}</li>
+                </ul>
+              </div>
+
+              <table style={{ width: '100%', borderCollapse: 'collapse', color: '#fff' }}>
                 <thead>
                   <tr>
                     <th>Tier Vector</th>
@@ -390,20 +561,14 @@ function CommunityBoosterReport() {
                         <td className="text-center">
                           <span style={{ color: summary.conditions?.directs >= tierReq.minDirects ? '#00ff88' : '#ff4d4d' }}>{tierReq.minDirects}</span>
                         </td>
-                        <td className="text-right">
-                          <span style={{ color: parseFloat(summary.conditions?.selfLP) >= tierReq.minSelfLP ? '#00ff88' : '#ff4d4d' }}>{tierReq.minSelfLP}</span>
+                        <td style={{ padding: '1rem', textAlign: 'right', color: parseFloat(summary.conditions?.selfLP) >= tierReq.minSelfLP ? '#4caf50' : '#ff4d4d' }}>
+                          {tierReq.minSelfLP} ({formatUSDT(summary.conditions?.selfLP)})
                         </td>
-                        <td className="text-right">
-                          <div className="flex flex-col">
-                            <span style={{ fontSize: '12px', color: meetsDirectVolume ? '#00ff88' : '#ff4d4d' }}>{tierReq.directRequired}</span>
-                            <span style={{ fontSize: '9px', opacity: 0.5 }}>Req USDT</span>
-                          </div>
+                        <td style={{ padding: '1rem', textAlign: 'right', color: meetsDirectVolume ? '#4caf50' : '#ff4d4d' }}>
+                          {formatUSDT(tierReq.directRequired)} ({formatUSDT(summary.volumes?.directVolume)})
                         </td>
-                        <td className="text-right">
-                          <div className="flex flex-col">
-                            <span style={{ fontSize: '12px', color: meetsTeamVolume ? '#00ff88' : '#ff4d4d' }}>{tierReq.teamRequired}</span>
-                            <span style={{ fontSize: '9px', opacity: 0.5 }}>Req USDT</span>
-                          </div>
+                        <td style={{ padding: '1rem', textAlign: 'right', color: meetsTeamVolume ? '#4caf50' : '#ff4d4d' }}>
+                          {formatUSDT(tierReq.teamRequired)} ({formatUSDT(summary.volumes?.teamVolume)})
                         </td>
                         <td className="text-center">
                           {isQualified ? <CheckCircle2 size={16} color="#00ff88" className="inline" /> : <XCircle size={16} color="#ff4d4d" className="inline" />}

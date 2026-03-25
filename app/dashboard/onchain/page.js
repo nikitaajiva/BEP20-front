@@ -10,7 +10,7 @@ import styles from "./onchain.module.css";
 
 const allowedWallets = [
   "SWIFT",
-  "XAMAN",
+  "USDT",
   "LP",
   "ZERO_RISK",
   "AIRDROP",

@@ -63,7 +63,7 @@ export default function AddLPModal({
   isOpen,
   onClose,
   onSubmit,
-  xamanBalance = 0,
+  primaryVaultBalance = 0,
   swiftBalance = 0,
   isFirstLP = false,
   isLoading = false,
@@ -97,7 +97,7 @@ export default function AddLPModal({
   }, [transferAmount, airdropConfig]);
 
   const handlePercentageClick = (percentage) => {
-    const numericBalance = parseFloat(xamanBalance);
+    const numericBalance = parseFloat(primaryVaultBalance);
     if (isNaN(numericBalance) || numericBalance <= 0) {
       setTransferAmount("0");
       return;
@@ -116,7 +116,7 @@ export default function AddLPModal({
       return;
     }
 
-    if (parseFloat(transferAmount) > xamanBalance) {
+    if (parseFloat(transferAmount) > primaryVaultBalance) {
       return;
     }
 

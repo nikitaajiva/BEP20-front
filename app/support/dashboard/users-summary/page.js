@@ -37,7 +37,7 @@ const UsersSummaryTerminal = () => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [totalRecords, setTotalRecords] = useState(0);
-    const [filters, setFilters] = useState({ username: '', uhid: '', USDTAddress: '' });
+    const [filters, setFilters] = useState({ username: '', uhid: '', wallet_address: '' });
     const debouncedFilters = useDebounce(filters, 500);
     const [modals, setModals] = useState([]);
     const [calcValues, setCalcValues] = useState([]);
@@ -130,26 +130,46 @@ const UsersSummaryTerminal = () => {
                 </div>
             </header>
 
-            <div className={styles.searchForm}>
-                <div className={styles.filterGrid}>
-                    <div className={styles.inputGroup}>
-                        <label><Users size={12} className="inline mr-2" /> Identity Trace</label>
-                        <input type="text" placeholder="Username..." value={filters.username} onChange={handleFilterChange('username')} className={styles.inputField} />
-                    </div>
-                    <div className={styles.inputGroup}>
-                        <label><History size={12} className="inline mr-2" /> UHID Protocol</label>
-                        <input type="text" placeholder="UHID..." value={filters.uhid} onChange={handleFilterChange('uhid')} className={styles.inputField} />
-                    </div>
-                    <div className={styles.inputGroup}>
-                        <label><Wallet size={12} className="inline mr-2" /> Wallet Address</label>
-                        <input type="text" placeholder="Address..." value={filters.USDTAddress} onChange={handleFilterChange('USDTAddress')} className={styles.inputField} />
-                    </div>
-                    <div className={styles.inputGroup}>
-                       <label><LayoutGrid size={12} className="inline mr-2" /> Records Limit</label>
-                       <select value={rowsPerPage} onChange={handleChangeRowsPerPage} className={styles.inputField}>
-                           {[10, 25, 50, 100].map(pz => <option key={pz} value={pz}>{pz} Rows Per Segment</option>)}
-                       </select>
-                    </div>
+            <div style={{
+                marginBottom: '2rem',
+                padding: '1.5rem',
+                borderRadius: '16px',
+                border: '1px solid rgba(79, 140, 255, 0.2)',
+                background: 'rgba(16,25,53,0.5)'
+            }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '1rem', alignItems: 'flex-end' }}>
+                    <input
+                        type="text"
+                        placeholder="Username"
+                        value={filters.username}
+                        onChange={handleFilterChange('username')}
+                        style={inputStyle}
+                    />
+                    <input
+                        type="text"
+                        placeholder="UHID"
+                        value={filters.uhid}
+                        onChange={handleFilterChange('uhid')}
+                        style={inputStyle}
+                    />
+                    <input
+                        type="text"
+                        placeholder="Wallet Address"
+                        value={filters.wallet_address}
+                        onChange={handleFilterChange('wallet_address')}
+                        style={inputStyle}
+                    />
+                    <select
+                        value={rowsPerPage}
+                        onChange={handleChangeRowsPerPage}
+                        style={inputStyle}
+                    >
+                        {[10, 25, 50, 100].map(pageSize => (
+                            <option key={pageSize} value={pageSize}>
+                                {pageSize} rows per page
+                            </option>
+                        ))}
+                    </select>
                 </div>
             </div>
 
@@ -164,25 +184,26 @@ const UsersSummaryTerminal = () => {
             <div className={styles.tableWrapper}>
                 <table className={styles.table}>
                     <thead>
-                        <tr>
-                            <th>Administrative Core</th>
-                            <th>Xaman Deposits</th>
-                            <th>Xaman Balance</th>
-                            <th>Zero Risk</th>
-                            <th>LP Balance</th>
-                            <th>5X Consumption</th>
-                            <th>Chain Deposits</th>
-                            <th>Chain Withdrawals</th>
-                            <th>Ecosystem Fees</th>
-                            <th>Auto positioning</th>
-                            <th>Community Units</th>
-                            <th>Cascade units</th>
-                            <th>Booster Delta</th>
-                            <th>X Bonus Trace</th>
-                            <th>Total Rewards</th>
-                            <th>Claims Audit</th>
-                            <th>Redeems Audit</th>
-                            <th>Total Outflow</th>
+                        <tr style={{ borderBottom: '1px solid rgba(79, 140, 255, 0.2)' }}>
+                            <th style={{ ...thStyle, textAlign: 'left' }}>Username</th>
+                            <th style={thStyle}>USDT Deposits</th>
+                            <th style={thStyle}>USDT Balance</th>
+                            <th style={thStyle}>Zero Risk</th>
+                            <th style={thStyle}>LP Balance</th>
+                            <th style={thStyle}>5X Used</th>
+                            <th style={thStyle}>Chain Deposits</th>
+                            <th style={thStyle}>Chain Withdrawals</th>
+                            <th style={thStyle}>EcoFees</th>
+                            <th style={thStyle}>Auto Position</th>
+                            <th style={thStyle}>Community Rewards</th>
+                            <th style={thStyle}>Cascade Rewards</th>
+                            <th style={thStyle}>Booster Bonus</th>
+                            <th style={thStyle}>X Bonus</th>
+                            <th style={thStyle}>Total Rewards</th>
+                            <th style={thStyle}>Claims</th>
+                            <th style={thStyle}>Redeems</th>
+                            <th style={thStyle}>Withdrawals</th>
+                            
                         </tr>
                     </thead>
                     <tbody>
@@ -190,30 +211,72 @@ const UsersSummaryTerminal = () => {
                             <tr><td colSpan={18} className="text-center p-20 opacity-40 italic">Audit Signal Lost - No Data Records</td></tr>
                         ) : (
                             data.map((row) => (
-                                <tr key={row.userId} className={styles.row}>
-                                    <td><div className="font-black text-gold-400">{row.username}</div></td>
-                                    <td><ValueWithEye value={row.xamanDeposits} onDetail={() => openDetail(row.userId,'xamanDeposits')} /></td>
-                                    <td><span className={styles.calcValue} onClick={(e) => addToCalc(toNumber(row.xaman), e.metaKey || e.ctrlKey)}>{formatDecimal(row.xaman)}</span></td>
-                                    <td><span className={styles.calcValue} onClick={(e) => addToCalc(toNumber(row.zeroRisk), e.metaKey || e.ctrlKey)}>{formatDecimal(row.zeroRisk)}</span></td>
-                                    <td>
-                                        <div className="flex flex-col items-end">
-                                            <span className={styles.calcValue} onClick={(e) => addToCalc(toNumber(row.lp), e.metaKey || e.ctrlKey)}>{formatDecimal(row.lp)}</span>
-                                            {row.firstLpDeposit && <span className={styles.timestamp}>{new Date(row.firstLpDeposit).toLocaleDateString('en-GB')}</span>}
-                                        </div>
+                                <tr key={row.userId} style={{ borderBottom: '1px solid rgba(79, 140, 255, 0.1)' }}>
+                                    <td style={{ ...tdStyle, textAlign: 'left' }}>{row.username}</td>
+                                    <td style={tdStyle}>
+                                        <ValueWithEye value={row.usdtDeposits} onDetail={() => openDetail(row.userId,'usdtDeposits')} />
                                     </td>
-                                    <td><span className={styles.calcValue} onClick={(e) => addToCalc(toNumber(row.fiveXLimitUsed), e.metaKey || e.ctrlKey)}>{formatDecimal(row.fiveXLimitUsed)}</span></td>
-                                    <td><ValueWithEye value={row.chainDeposits} onDetail={() => openDetail(row.userId,'chainDeposits')} /></td>
-                                    <td><ValueWithEye value={row.chainWithdrawals} onDetail={() => openDetail(row.userId,'chainWithdrawals')} /></td>
-                                    <td><ValueWithEye value={row.ecoFeesTotal} onDetail={() => openDetail(row.userId,'ecosystemfees')} /></td>
-                                    <td><ValueWithEye value={row.autoPositioning} onDetail={() => openDetail(row.userId,'autoPositioning')} /></td>
-                                    <td><ValueWithEye value={row.communityRewardsCredited} formatted={`${formatDecimal(row.communityRewardsCredited)} (${formatDecimal(row.communityRewards)})`} onDetail={() => openDetail(row.userId,'communityRewards')} /></td>
-                                    <td><span className={styles.calcValue} onClick={(e) => addToCalc(toNumber(row.cascadeRewards), e.metaKey || e.ctrlKey)}>{formatDecimal(row.cascadeRewards)}</span></td>
-                                    <td><ValueWithEye value={row.communityBoosterCredited} formatted={`${formatDecimal(row.communityBoosterCredited)} (${formatDecimal(row.communityBoosterBonus)})`} onDetail={() => openDetail(row.userId,'boosterBonus')} /></td>
-                                    <td><ValueWithEye value={row.xBonusCredited} formatted={`${formatDecimal(row.xBonusCredited)} (${formatDecimal(row.xBonus)})`} onDetail={() => openDetail(row.userId,'xBonus')} /></td>
-                                    <td><span className={styles.calcValue} onClick={(e) => addToCalc(toNumber(row.communityRewardsTotal), e.metaKey || e.ctrlKey)}>{formatDecimal(row.communityRewardsTotal)}</span></td>
-                                    <td><ValueWithEye value={row.claims} onDetail={() => openDetail(row.userId,'claims')} /></td>
-                                    <td><ValueWithEye value={row.redeems} onDetail={() => openDetail(row.userId,'redeems')} /></td>
-                                    <td><ValueWithEye value={toNumber(row.claims)+toNumber(row.redeems)+toNumber(row.autoPositioning)} onDetail={() => openDetail(row.userId,'withdrawals')} /></td>
+                                    <td style={tdStyle}><ClickableNumber value={row.usdt} /></td>
+                                    <td style={tdStyle}><ClickableNumber value={row.zeroRisk} /></td>
+                                    <td style={tdStyle}><ClickableNumber value={row.lp} />
+                                    <div>  
+                                    {row.firstLpDeposit
+                                    ? new Date(row.firstLpDeposit).toLocaleString("en-GB", {
+                                        dateStyle: "medium",
+                                        timeStyle: "short",
+                                        })
+                                    : "-"}</div></td>
+                                    <td style={tdStyle}><ClickableNumber value={row.fiveXLimitUsed} /></td>
+                                    <td style={tdStyle}>
+                                        <ValueWithEye value={row.chainDeposits} onDetail={() => openDetail(row.userId,'chainDeposits')} />
+                                    </td>
+                                    <td style={tdStyle}>
+                                        <ValueWithEye value={row.chainWithdrawals} onDetail={() => openDetail(row.userId,'chainWithdrawals')} />
+                                    </td>
+                                    <td style={tdStyle}>
+                                        {(() => { const w = toNumber(row.ecoFeesTotal); return (
+                                          <ValueWithEye value={w} onDetail={() => openDetail(row.userId,'ecosystemfees')} /> ); })()}
+                                    </td>
+                                     <td style={tdStyle}>
+                                        {(() => { const w = toNumber(row.autoPositioning); return (
+                                          <ValueWithEye value={w} onDetail={() => openDetail(row.userId,'autoPositioning')} /> ); })()}
+                                    </td>
+                                    <td style={tdStyle}>
+                                         <ValueWithEye 
+                                             value={row.communityRewardsCredited}
+                                             formatted={`${formatDecimal(row.communityRewardsCredited)} (${formatDecimal(row.communityRewards)})`} 
+                                             onDetail={() => openDetail(row.userId,'communityRewards')} />
+                                    </td>
+
+                                    <td style={tdStyle}><ClickableNumber value={row.cascadeRewards} /></td>
+
+                                    <td style={tdStyle}>
+                                         <ValueWithEye 
+                                             value={row.communityBoosterCredited}
+                                             formatted={`${formatDecimal(row.communityBoosterCredited)} (${formatDecimal(row.communityBoosterBonus)})`} 
+                                             onDetail={() => openDetail(row.userId,'boosterBonus')} />
+                                    </td>
+                                    <td style={tdStyle}>
+                                         <ValueWithEye 
+                                             value={row.xBonusCredited}
+                                             formatted={`${formatDecimal(row.xBonusCredited)} (${formatDecimal(row.xBonus)})`} 
+                                             onDetail={() => openDetail(row.userId,'xBonus')} />
+                                    </td>
+
+                                    <td style={tdStyle}><ClickableNumber value={row.communityRewardsTotal} /></td>
+                           
+                                   
+                                    <td style={tdStyle}>
+                                        <ValueWithEye value={row.claims} onDetail={() => openDetail(row.userId,'claims')} />
+                                    </td>
+                                    <td style={tdStyle}>
+                                        <ValueWithEye value={row.redeems} onDetail={() => openDetail(row.userId,'redeems')} />
+                                    </td>
+                                    <td style={tdStyle}>
+                                        {(() => { const w = toNumber(row.claims)+toNumber(row.redeems)+toNumber(row.autoPositioning); return (
+                                          <ValueWithEye value={w} onDetail={() => openDetail(row.userId,'withdrawals')} /> ); })()}
+                                    </td>
+                                    
                                 </tr>
                             ))
                         )}
@@ -236,10 +299,4 @@ const UsersSummaryTerminal = () => {
     );
 };
 
-export default function UsersSummaryTerminalPage() {
-    return (
-        <Suspense fallback={<div className="text-center p-20 text-gold-500 animate-pulse">Establishing Audit Buffer...</div>}>
-            <UsersSummaryTerminal />
-        </Suspense>
-    );
-}
+export default UsersSummary; 

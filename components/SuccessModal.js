@@ -1,6 +1,8 @@
 import React from "react";
 import styles from "./SuccessModal.module.css";
 import { CheckCircle, X, ExternalLink } from "lucide-react";
+import { FaCheckCircle } from "react-icons/fa";
+import { getTxUrl } from "@/utils/explorer";
 
 export default function SuccessModal({
   isOpen,
@@ -23,19 +25,28 @@ export default function SuccessModal({
         <h4 className={styles.title}>{title || "Transaction Success"}</h4>
         <p className={styles.message}>{message || "Your transaction has been processed successfully."}</p>
 
-        {transactionHash && (
-          <div className={styles.hashBox}>
-            <span className={styles.hashLabel}>Transaction Hash</span>
-            <a
-              href={`https://xrpscan.com/tx/${transactionHash}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.hashLink}
-            >
-              {transactionHash} <ExternalLink size={12} style={{ marginLeft: 4, display: "inline" }} />
-            </a>
-          </div>
-        )}
+          {transactionHash && (
+            <div style={{ marginBottom: "2rem", wordBreak: "break-all" }}>
+              <p
+                style={{
+                  color: "#b3baff",
+                  marginBottom: "0.5rem",
+                  fontSize: "0.9rem",
+                }}
+              >
+                Transaction Hash:
+              </p>
+              <a
+                href={getTxUrl(transactionHash)}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: "#4f8cff", textDecoration: "underline" }}
+                title="View transaction on USDTL explorer"
+              >
+                {transactionHash}
+              </a>
+            </div>
+          )}
 
         <button onClick={onClose} className={styles.actionBtn}>
           Back to Dashboard

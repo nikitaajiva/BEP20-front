@@ -66,8 +66,8 @@ export default function WalletCard({ user, onTransferClick }) {
                 className="mb-0 me-1"
                 style={{ fontSize: "1.5rem", fontWeight: 700, color: "#fff" }}
               >
-                {typeof user?.balanceXRP === "number"
-                  ? user.balanceXRP.toFixed(4)
+                {typeof user?.balanceUSDT === "number"
+                  ? user.balanceUSDT.toFixed(4)
                   : "0.0000"}
               </h4>
               {/* Ensured flexShrink and marginLeft on USDT span */}

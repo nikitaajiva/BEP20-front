@@ -9,11 +9,11 @@ const API_BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}`;
 
 const eventTypes = [
   'DEPOSIT', 'AIRDROP_ACTIVATION', 'AIRDROP_BURN', 'AIRDROP_TRANSFER', 'BOOST_BONUS',
-  'ROI_CREDIT', 'ROI_CASCADE', 'WITHDRAWAL', 'INTERNAL_TRANSFER', 'LP_DEPOSIT_FROM_XAMAN',
+  'ROI_CREDIT', 'ROI_CASCADE', 'WITHDRAWAL', 'INTERNAL_TRANSFER', 'LP_DEPOSIT_FROM_USDT',
   'MOCK_SWIFT_CREDIT', 'SWIFT_TRANSFER_IN', 'SWIFT_TRANSFER_OUT'
 ];
 
-const walletTypes = [ 'EXTERNAL', 'SWIFT', 'LP', 'BOOST', 'COMMUNITY_REWARDS', 'XAMAN', 'ZERO_RISK', 'AIRDROP' ];
+const walletTypes = [ 'EXTERNAL', 'SWIFT', 'LP', 'BOOST', 'COMMUNITY_REWARDS', 'USDT', 'ZERO_RISK', 'AIRDROP' ];
 
 const parseBoostBonusNarrative = (narrative) => {
     if (typeof narrative !== 'string') return { from: 'SYSTEM', rate: null };
@@ -325,4 +325,4 @@ export default function LedgerRowsPage() {
             <LedgerRows />
         </Suspense>
     );
-}
+} 

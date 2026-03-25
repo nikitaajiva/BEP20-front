@@ -12,7 +12,6 @@ export default function ProfilePage() {
     country: "",
     countryCode: "",
     whatsappContact: "",
-    USDTAddress: "",
   });
   console.log(formData, "formDataformDataformDataformDataformData");
   const [message, setMessage] = useState("");
@@ -46,7 +45,6 @@ export default function ProfilePage() {
         country: user.country?.name || "", // 👈 old country (from DB)
         countryCode: user.countryCode || "", // 👈 old code (from DB)
         whatsappContact: user.whatsappContact || "",
-        USDTAddress: user.xrpAddress || "",
       };
 
       setFormData(baseData);
@@ -440,18 +438,17 @@ export default function ProfilePage() {
           </div>
 
           <div className={styles.inputGroup}>
-            <label htmlFor="xrpAddress">USDT Address</label>
+            <label htmlFor="walletAddress">Wallet Address (BEP20)</label>
             <input
               type="text"
-              id="xrpAddress"
-              name="xrpAddress"
-              value={formData.xrpAddress}
+              id="walletAddress"
+              name="walletAddress"
+              value={user?.wallet_address || ""}
               className={styles.inputField}
               disabled
             />
             <small>
-              Your USDT Address is linked to your Xaman wallet and cannot be
-              changed here.
+              Connect your wallet on the dashboard to set this address.
             </small>
           </div>
 

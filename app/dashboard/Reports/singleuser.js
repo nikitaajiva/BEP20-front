@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { getTxUrl } from "@/utils/explorer";
 
 export function RefIdDisplay({ refId }) {
   const [copied, setCopied] = useState(false);
@@ -23,7 +24,7 @@ export function RefIdDisplay({ refId }) {
     <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
       {refId !== "N/A" ? (
         <a
-          href={`https://xrpscan.com/tx/${refId}`}
+          href={getTxUrl(refId)}
           target="_blank"
           rel="noopener noreferrer"
           style={{
@@ -504,7 +505,7 @@ export default function HistoryTable({ filters, walletType }) {
                   letterSpacing: "0.8px",
                 }}
               >
-                Xaman
+                USDT
               </th>
               <th
                 style={{
@@ -654,7 +655,7 @@ export default function HistoryTable({ filters, walletType }) {
                     </span>
                   </td>
 
-                  {renderWalletCell(entry.wallets, "XAMAN", index)}
+                  {renderWalletCell(entry.wallets, "USDT", index)}
                   {renderWalletCell(entry.wallets, "ZERO_RISK", index)}
                   {renderWalletCell(entry.wallets, "LP", index)}
                   {renderWalletCell(entry.wallets, "COMMUNITY_REWARDS", index)}

@@ -66,7 +66,7 @@ export default function Eventsa() {
             textAlign: "center",
           }}
         >
-          USDT Ocean Events
+          BEPVault Events
         </h1>
       </div>
 

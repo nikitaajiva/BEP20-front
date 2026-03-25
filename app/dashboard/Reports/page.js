@@ -409,7 +409,7 @@ function HistoryTable(filters) {
                   letterSpacing: "0.8px",
                 }}
               >
-                Xaman
+                USDT
               </th>
               <th
                 style={{
@@ -559,7 +559,7 @@ function HistoryTable(filters) {
                     </span>
                   </td>
 
-                  {renderWalletCell(entry.wallets, "XAMAN", index)}
+                  {renderWalletCell(entry.wallets, "USDT", index)}
                   <td
                     style={{
                       padding: "1.25rem 1rem",

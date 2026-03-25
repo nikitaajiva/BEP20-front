@@ -86,7 +86,10 @@ export default function DirectReferrals() {
                       <td>{referral.directDownlines}</td>
                       <td>{referral.communitySize}</td>
                       <td style={{ color: '#7FFF4C', fontWeight: 600 }}>
-                        {parseFloat(referral.xrpRewardContribution).toFixed(2)} USDT
+                        {parseFloat(
+                          referral.usdtRewardContribution || 0
+                        ).toFixed(2)}{" "}
+                        USDT
                       </td>
                     </tr>
                   ))}

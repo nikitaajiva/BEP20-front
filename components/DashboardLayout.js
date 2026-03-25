@@ -3,7 +3,6 @@ import React, { useState, useEffect } from "react";
 import WalletCard from "./WalletCard";
 import SystemWalletCard from "./SystemWalletCard";
 import InvitationLinkCard from "./InvitationLinkCard";
-import USDTChartCard from "./USDTChartCard";
 import Link from "next/link";
 import DashboardNavbar from "./DashboardNavbar";
 import { useAuth } from "@/context/AuthContext";
@@ -682,14 +681,12 @@ const LedgerInfoCard = ({
 
 export default function DashboardLayout({
   children,
-  xummAccount,
-  xummAppName,
-  xummLastPayloadUpdate,
-  xummTransactionStatus,
-  onXummLogin,
-  onXummLogout,
+  walletAccount,
+  walletTransactionStatus,
+  walletDebugMessage,
+  onWalletConnect,
   onOpenAmountModal,
-  xamanDepositBalance,
+  primaryVaultBalance,
   ledgerDetails,
   loadingLedger,
   ledgerError,
@@ -849,10 +846,8 @@ export default function DashboardLayout({
 
   useEffect(() => {
     const handleWalletConnection = async () => {
-      if (xummAccount && user && !authLoading) {
-        // Use 'xrpAddress' to match the user model and backend logic.
-        if (!user.xrpAddress) {
-          console.log("User has no saved wallet. Saving new wallet address...");
+      if (walletAccount && user && !authLoading) {
+        if (!user.wallet_address) {
           try {
             const token = localStorage.getItem("token");
             if (!token) throw new Error("No auth token");
@@ -863,44 +858,32 @@ export default function DashboardLayout({
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`,
               },
-              // Send 'xrpAddress' in the body to match the controller.
-              body: JSON.stringify({ USDTAddress: xummAccount }),
+              body: JSON.stringify({ wallet_address: walletAccount }),
             });
 
             const data = await response.json();
 
             if (!response.ok) {
-              // This will catch the 409 Conflict error from the backend for duplicate wallets.
               throw new Error(data.message || "Failed to save wallet address.");
             }
 
-            console.log("Wallet address saved successfully:", data);
-
             if (updateUser) {
-              updateUser({ ...user, USDTAddress: xummAccount });
+              updateUser({ ...user, wallet_address: walletAccount });
             }
           } catch (error) {
             console.error("Error saving wallet address:", error);
-            // Provide specific feedback to the user and disconnect the conflicting wallet.
             alert(`Error: ${error.message}`);
-            if (error.message.includes("already registered")) {
-              onXummLogout();
-            }
           }
-        } else if (user.xrpAddress !== xummAccount) {
-          console.log(
-            "Connected wallet does not match saved wallet. Disconnecting."
-          );
+        } else if (user.wallet_address !== walletAccount) {
           alert(
-            "The connected wallet address does not match the registered address for this account. Disconnecting wallet. Please connect with the correct wallet address or contact support."
+            "The connected wallet address does not match the registered address for this account. Please connect the correct wallet or contact support."
           );
-          onXummLogout();
         }
       }
     };
 
     handleWalletConnection();
-  }, [xummAccount, user, authLoading, onXummLogout, API_URL, updateUser]);
+  }, [walletAccount, user, authLoading, API_URL, updateUser]);
 
   const openTransferModal = () => {
     setTransferModalError(null); // Clear previous errors
@@ -954,7 +937,7 @@ export default function DashboardLayout({
       const token = localStorage.getItem("token");
       if (!token) throw new Error("Authentication token not found.");
 
-      const specificPath = "/withdrawals/USDT";
+      const specificPath = "/withdrawals/usdt";
       const finalUrl = `${API_URL}${specificPath}`;
 
       const response = await fetch(finalUrl, {
@@ -1043,10 +1026,9 @@ export default function DashboardLayout({
         throw new Error("Authentication token not found. Please log in again.");
       }
 
-      // Calls the Next.js API route: pages/api/ledger/transfer-rewards-to-xaman.js
-      const specificPath = "/ledger/transfer-rewards-to-xaman";
+      const specificPath = "/ledger/transfer-rewards-to-usdt";
       const finalUrl = `${API_URL}${specificPath}`;
-      console.log("Constructed Redeem Rewards (to Xaman) URL:", finalUrl);
+      console.log("Constructed Redeem Rewards (to USDT) URL:", finalUrl);
 
       const response = await fetch(finalUrl, {
         method: "POST",
@@ -1071,7 +1053,7 @@ export default function DashboardLayout({
       }
       // Optionally, show a success message to the user
     } catch (error) {
-      console.error("Community rewards redemption to Xaman error:", error);
+      console.error("Community rewards redemption to USDT error:", error);
       setCommunityRewardsError(
         error.message || "An unexpected error occurred during redemption."
       );
@@ -1120,15 +1102,10 @@ export default function DashboardLayout({
   };
 
   const handleClaimCommunityRewards = async (amountToClaim) => {
-    // For now, direct claim. Later, we can open a modal here to get destinationAddress.
-    // Assuming user.xrpAddress exists for simplicity. If not, a modal is essential.
-    const destinationAddress = user?.xrpAddress;
-
-    if (!destinationAddress) {
+    if (!user?.wallet_address) {
       setClaimActionError(
-        "Your USDT destination address is not set. Please update your profile."
+        "Your wallet address is not set. Please connect your wallet first."
       );
-      // Or, open a modal to input address: setIsClaimRewardsModalOpen(true); setAmountToClaimForModal(amountToClaim);
       return;
     }
     if (!amountToClaim || parseFloat(amountToClaim) <= 0) {
@@ -1142,7 +1119,7 @@ export default function DashboardLayout({
       const token = localStorage.getItem("token");
       if (!token) throw new Error("Authentication token not found.");
 
-      const specificPath = "/withdrawals/USDT"; // The main withdrawal endpoint
+      const specificPath = "/withdrawals/usdt";
       const finalUrl = `${API_URL}${specificPath}`;
       console.log("Constructed Claim Community Rewards URL:", finalUrl);
 
@@ -1154,7 +1131,6 @@ export default function DashboardLayout({
         },
         body: JSON.stringify({
           amount: amountToClaim.toString(),
-          destinationAddress,
           walletFrom: "COMMUNITY_REWARDS",
           uniqueTransactionId: uuidv4(),
         }),
@@ -1193,7 +1169,7 @@ export default function DashboardLayout({
       const token = localStorage.getItem("token");
       if (!token) throw new Error("Authentication token not found.");
 
-      const specificPath = "/withdrawals/USDT";
+      const specificPath = "/withdrawals/usdt";
       const finalUrl = `${API_URL}${specificPath}`;
 
       const response = await fetch(finalUrl, {
@@ -1356,8 +1332,8 @@ export default function DashboardLayout({
       ledgerDetails.zeroRisk?.balance
     );
     console.log(
-      "[DashboardLayout] ledgerDetails.xamanWallet?.balance:",
-      ledgerDetails.xamanWallet?.balance
+      "[DashboardLayout] ledgerDetails.usdtWallet?.balance:",
+      ledgerDetails.usdtWallet?.balance
     );
     console.log(
       "[DashboardLayout] ledgerDetails.lpWallet?.balance:",
@@ -1401,22 +1377,18 @@ export default function DashboardLayout({
   // Log the user object to inspect its structure
   console.log("[DashboardLayout] User object received from AuthContext:", user);
 
-  const disableButtons = !xummAccount || xummAccount === "";
+  const disableButtons = !walletAccount || walletAccount === "";
 
   console.log("[DashboardLayout] Ledger Details:", ledgerDetails);
   console.log("[DashboardLayout] Loading Ledger:", loadingLedger);
   console.log("[DashboardLayout] Ledger Error:", ledgerError);
 
   // Calculate props for ZeroRiskClaimModal safely
-  const xamanBalanceForModal = parseFloat(
-    ledgerDetails?.xamanWallet?.balance || "0.0"
-  );
+  const primaryVaultBalanceForModal = parseFloat(primaryVaultBalance || "0");
 
   const lpBalanceForModal = parseFloat(
     ledgerDetails?.lpWallet?.balance || "0.0"
   );
-  // ledgerDetails.zeroRisk.limit is the overall cap (limits.zeroRiskLimit.cap from backend)
-  // ledgerDetails.zeroRisk.balance is the dynamically calculated Math.min(cap, xaman+lp) from backend
   // For the modal's maxAmount, we should use the dynamically calculated balance from ledgerDetails
   const maxAmountForModal = parseFloat(
     ledgerDetails?.zeroRisk?.balance || "0.0"
@@ -1431,8 +1403,8 @@ export default function DashboardLayout({
     zeroRiskDisplayBalance
   );
   console.log(
-    "[DashboardLayout] Calculated xamanBalanceForModal:",
-    xamanBalanceForModal
+    "[DashboardLayout] Calculated primaryVaultBalanceForModal:",
+    primaryVaultBalanceForModal
   );
   console.log(
     "[DashboardLayout] Calculated lpBalanceForModal:",
@@ -1479,9 +1451,8 @@ const displayBalance = Math.max(rawBalance, 0);
       <RedesignedDashboard 
         user={user}
         onLogout={logout}
-        xummAccount={xummAccount}
-        onXummLogin={onXummLogin}
-        onXummLogout={onXummLogout}
+        walletAccount={walletAccount}
+        onWalletConnect={onWalletConnect}
         onOpenZeroRiskModal={() => setShowZeroRiskWarningModal(true)}
         onOpenAddLPModal={() => setIsAddLPModalOpen(true)}
         onRedeem={() => setIsCommunityRewardsModalOpen(true)}
@@ -1490,12 +1461,15 @@ const displayBalance = Math.max(rawBalance, 0);
           <ActionableWalletCard 
             title="Primary Vault"
             type="system"
-            subtitle="PRIMARY VAULT CONNECTION"
+            subtitle={
+              walletAccount
+                ? `CONNECTED • ${walletAccount.slice(0, 6)}...${walletAccount.slice(-4)}`
+                : "CONNECT WALLET"
+            }
             layout="horizontal"
-            balance={parseFloat(ledgerDetails?.xamanWallet?.balance || "0.0").toLocaleString(undefined, { minimumFractionDigits: 2 })}
+            balance={parseFloat(primaryVaultBalance || "0").toLocaleString(undefined, { minimumFractionDigits: 2 })}
             limit="N/A"
-            onDeposit={onXummLogin}
-            showPlusBtn={false}
+            onDeposit={onOpenAmountModal}
             onViewHistory={() => window.location.href = "/dashboard/ledger"}
           />
         }
@@ -1564,7 +1538,7 @@ const displayBalance = Math.max(rawBalance, 0);
         maxAmount={maxAmountForModal} // Use the dynamically calculated zeroRisk.balance
         isLoading={zeroRiskClaimLoading}
         error={zeroRiskClaimError}
-        xamanBalance={xamanBalanceForModal}
+        primaryVaultBalance={primaryVaultBalanceForModal}
         // lpBalance={zeroRiskDisplayBalance}
         lpBalance={zeroRiskDisplayBalance} // <-- fix
         // isFirstLPMade might still be relevant for the warning text logic within the modal
@@ -1576,7 +1550,7 @@ const displayBalance = Math.max(rawBalance, 0);
         isOpen={isAddLPModalOpen}
         onClose={() => setIsAddLPModalOpen(false)}
         onSubmit={handleAddLP}
-        xamanBalance={parseFloat(ledgerDetails?.xamanWallet?.balance || "0.0")}
+        primaryVaultBalance={parseFloat(ledgerDetails?.usdtWallet?.balance || "0.0")}
         swiftBalance={parseFloat(ledgerDetails?.swiftWallet?.balance || "0.0")}
         isFirstLP={parseFloat(ledgerDetails?.swiftWallet?.limit || "0.0") === 0}
         isLoading={addLPLoading}

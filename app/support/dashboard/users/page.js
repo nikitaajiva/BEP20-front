@@ -10,76 +10,6 @@ import { Search, RotateCcw, ChevronLeft, ChevronRight, UserCheck, ShieldOff } fr
 
 const API_BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}`;
 
-function UpdateXrpModal({ isOpen, onClose, user, onUpdate }) {
-  const [xrpAddress, setXrpAddress] = useState(user?.xrpAddress || "");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    setXrpAddress(user?.xrpAddress || "");
-    setError(null);
-  }, [user]);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) throw new Error("Authentication required");
-      const response = await fetch(
-        `${API_BASE_URL}/api/support/users/${user._id}`,
-        {
-          method: "PATCH",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ USDTAddress: xrpAddress }),
-        }
-      );
-      const data = await response.json();
-      if (!response.ok || !data.success) {
-        throw new Error(data.message || "Failed to update USDT address");
-      }
-      onUpdate(data.data);
-      onClose();
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (!isOpen) return null;
-  return (
-    <div className={styles.modalOverlay}>
-      <div className={styles.modalContent}>
-        <h3 className={styles.modalTitle}>Update USDT Wallet</h3>
-        <form onSubmit={handleSubmit}>
-          <label className={styles.modalLabel}>USDT BEP20 Address</label>
-          <input
-            type="text"
-            className={styles.inputField}
-            value={xrpAddress}
-            onChange={(e) => setXrpAddress(e.target.value)}
-            placeholder="0x..."
-            disabled={loading}
-            style={{ width: '100%', marginBottom: '15px' }}
-          />
-          {error && <p style={{ color: "#ff4d4d", fontSize: '12px' }}>{error}</p>}
-          <div className={styles.modalBtnGroup}>
-            <button type="button" onClick={onClose} className={styles.btnSecondary}>Cancel</button>
-            <button type="submit" disabled={loading} className={styles.btnPrimary}>
-              {loading ? "Saving..." : "Save Changes"}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-}
-
 function DeleteUserModal({ isOpen, onClose, user, onDeleteSuccess }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -109,13 +39,14 @@ function DeleteUserModal({ isOpen, onClose, user, onDeleteSuccess }) {
 
           if (response.ok && data.success) {
             setLedger(data.data);
-            const lp = parseFloat(data.data.lp || "0");
-            const xaman = parseFloat(data.data.xaman || "0");
-            if (lp > 0 || xaman > 0) {
+            const lp = parseFloat(data.data.wallets?.lp || "0");
+            const usdt = parseFloat(data.data.wallets?.usdt || "0");
+            if (lp > 0 || usdt > 0) {
               setCannotDelete(true);
             }
           } else if (response.status === 404) {
-            setLedger({ lp: "0", xaman: "0" });
+            // If ledger not found, it's safe to delete.
+            setLedger({ lp: "0", usdt: "0" });
             setCannotDelete(false);
           } else {
             throw new Error(data.message || "Failed to fetch ledger details.");
@@ -133,7 +64,7 @@ function DeleteUserModal({ isOpen, onClose, user, onDeleteSuccess }) {
 
   const handleDelete = async () => {
     if (cannotDelete) {
-      setError("Cannot delete user with active balances.");
+      setError("Cannot delete user with positive LP or USDT balance.");
       return;
     }
 
@@ -178,16 +109,30 @@ function DeleteUserModal({ isOpen, onClose, user, onDeleteSuccess }) {
         {loading && !ledger && <p style={{ color: '#ffd700', textAlign: 'center' }}>Validating account state...</p>}
         
         {ledger && (
-          <div style={{ background: 'rgba(255,255,255,0.03)', padding: '20px', borderRadius: '15px', border: '1px solid rgba(255,255,255,0.05)', marginBottom: '20px' }}>
-            <h4 style={{ color: '#fff', fontSize: '14px', marginBottom: '15px', textTransform: 'uppercase', letterSpacing: '1px' }}>Account Audit</h4>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-              <span style={{ color: '#888' }}>LP Vault:</span>
-              <span style={{ color: '#fff', fontWeight: 800 }}>{ledger.lp} USDT</span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ color: '#888' }}>Wallet Balance:</span>
-              <span style={{ color: '#fff', fontWeight: 800 }}>{ledger.xaman} USDT</span>
-            </div>
+          <div
+            style={{
+              background: "rgba(79, 140, 255, 0.1)",
+              padding: "1rem",
+              borderRadius: "12px",
+              marginBottom: "1.5rem",
+            }}
+          >
+            <h4
+              style={{
+                color: "#fff",
+                marginBottom: "1rem",
+                borderBottom: "1px solid rgba(79, 140, 255, 0.2)",
+                paddingBottom: "0.5rem",
+              }}
+            >
+              Wallet Balances
+            </h4>
+            <p style={{ color: "#b3baff", margin: "0.5rem 0" }}>
+              <strong>LP Balance:</strong> {ledger.wallets?.lp}
+            </p>
+            <p style={{ color: "#b3baff", margin: "0.5rem 0" }}>
+              <strong>USDT Balance:</strong> {ledger.wallets?.usdt}
+            </p>
             {cannotDelete && (
               <p style={{ color: "#ff4d4d", marginTop: "15px", fontSize: '12px', padding: '10px', background: 'rgba(255,77,77,0.1)', borderRadius: '8px' }}>
                 Account cannot be purged. Wallet must be empty (0.00).
@@ -223,7 +168,6 @@ export default function UsersPage() {
   const [filterField, setFilterField] = useState("uhid");
   const [filterValue, setFilterValue] = useState("");
   const [modalUser, setModalUser] = useState(null);
-  const [showModal, setShowModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [pagination, setPagination] = useState(null);
   const [showEmailModal, setShowEmailModal] = useState(false);
@@ -322,10 +266,16 @@ export default function UsersPage() {
     }
   }, [user]);
 
-  const handleOpenModal = (user) => { setModalUser(user); setShowModal(true); };
-  const handleCloseModal = () => { setShowModal(false); setModalUser(null); };
-  const handleOpenDeleteModal = (user) => { setModalUser(user); setShowDeleteModal(true); };
-  const handleCloseDeleteModal = () => { setShowDeleteModal(false); setModalUser(null); };
+
+  const handleOpenDeleteModal = (user) => {
+    setModalUser(user);
+    setShowDeleteModal(true);
+  };
+
+  const handleCloseDeleteModal = () => {
+    setShowDeleteModal(false);
+    setModalUser(null);
+  };
 
   const handleUpdateUser = (updatedUser) => {
     setUsers((users) => users.map((u) => (u._id === updatedUser._id ? updatedUser : u)));
@@ -442,7 +392,7 @@ export default function UsersPage() {
             <option value="uhid">UHID (System ID)</option>
             <option value="email">Email Account</option>
             <option value="username">Username</option>
-            <option value="xrpAddress">USDT Wallet</option>
+            <option value="wallet_address">Wallet Address</option>
           </select>
         </div>
         <div className={styles.inputGroup}>
@@ -466,15 +416,92 @@ export default function UsersPage() {
       <div className={styles.tableWrapper}>
         <table className={styles.table}>
           <thead>
-            <tr>
-              <th>Profile Info</th>
-              <th>Registry Email</th>
-              {/* <th>Sponsor</th> */}
-              {/* <th>USDT Gateway</th> */}
-              <th>Status</th>
-              <th>Active / Inactive</th>
-              <th>Auth</th>
-              <th>Terminals</th>
+            <tr style={{ borderBottom: "1px solid rgba(79, 140, 255, 0.2)" }}>
+              <th
+                style={{
+                  padding: "1rem",
+                  textAlign: "left",
+                  color: "#4f8cff",
+                }}
+              >
+                <div>Username</div>
+                <div> UHID</div>
+              </th>
+              {/* <th
+                style={{
+                  padding: "1rem",
+                  textAlign: "left",
+                  color: "#4f8cff",
+                }}
+              >
+                Username
+              </th> */}
+              <th
+                style={{
+                  padding: "1rem",
+                  textAlign: "left",
+                  color: "#4f8cff",
+                }}
+              >
+                Email
+              </th>
+              <th
+                style={{
+                  padding: "1rem",
+                  textAlign: "left",
+                  color: "#4f8cff",
+                }}
+              >
+                Referred By
+              </th>
+              <th
+                style={{
+                  padding: "1rem",
+                  textAlign: "left",
+                  color: "#4f8cff",
+                }}
+              >
+                Wallet Address
+              </th>
+
+              <th
+                style={{
+                  padding: "1rem",
+                  textAlign: "left",
+                  color: "#4f8cff",
+                }}
+              >
+                Inactive User
+              </th>
+
+              <th
+                style={{
+                  padding: "1rem",
+                  textAlign: "left",
+                  color: "#4f8cff",
+                }}
+              >
+                Stop Transaction
+              </th>
+
+              <th
+                style={{
+                  padding: "1rem",
+                  textAlign: "left",
+                  color: "#4f8cff",
+                }}
+              >
+                View
+              </th>
+              <th
+                style={{
+                  padding: "1rem",
+                  textAlign: "left",
+                  color: "#4f8cff",
+                }}
+              >
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -514,10 +541,8 @@ export default function UsersPage() {
                         <ThemedToggle />
                     </div>
                   </td>
-                  <td>
-                    <button onClick={() => handleView(user)} className={styles.viewBtn}>
-                      <FaEye size={14} />
-                    </button>
+                  <td style={{ padding: "1rem", color: "#b3baff" }}>
+                    {user.wallet_address || "N/A"}
                   </td>
                   <td>
                     <div className={styles.btnGroup}>
@@ -573,9 +598,12 @@ export default function UsersPage() {
         </div>
       )}
 
-      {/* Persistence Layer Modals */}
-      <UpdateXrpModal isOpen={showModal} onClose={handleCloseModal} user={modalUser} onUpdate={handleUpdateUser} />
-      <DeleteUserModal isOpen={showDeleteModal} onClose={handleCloseDeleteModal} user={modalUser} onDeleteSuccess={handleDeleteSuccess} />
+      <DeleteUserModal
+        isOpen={showDeleteModal}
+        onClose={handleCloseDeleteModal}
+        user={modalUser}
+        onDeleteSuccess={handleDeleteSuccess}
+      />
     </div>
   );
 }

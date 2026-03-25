@@ -99,17 +99,17 @@ function X1BonusReport() {
     setModalData(summary?.credited);
   };
 
-  const formatUSDT = (amount) => {
-    if (!amount) return '0.000000 USDT';
-    const value = amount.$numberDecimal ? parseFloat(amount.$numberDecimal) : parseFloat(amount);
-    if (isNaN(value)) return '0.000000 USDT';
-    return `${value.toFixed(6)} USDT`;
-  };
-
   if (!authLoading && (!user || (user.userType !== 'support' && user.userType !== 'admin'))) {
     if (typeof window !== 'undefined') router.push('/');
     return null;
   }
+  const formatUSDT = (amount) => {
+    if (!amount) return '0.000000 USDT';
+    // Handle Decimal128 format
+    const value = amount.$numberDecimal ? parseFloat(amount.$numberDecimal) : parseFloat(amount);
+    if (isNaN(value)) return '0.000000 USDT';
+    return value === 0 ? '0.000000 USDT' : `${value.toFixed(6)} USDT`;
+  };
 
   return (
     <div className={styles.container}>
@@ -144,6 +144,59 @@ function X1BonusReport() {
             {loading ? 'Initializing Audit...' : <><SearchIcon size={16} className="inline mr-2" /> Execute Trace</>}
           </button>
         </div>
+        
+
+        {/* Results */}
+        {summary && (
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', color: '#fff' }}>
+              <thead>
+                <tr style={{ background: 'rgba(79, 140, 255, 0.1)' }}>
+                  <th style={{ padding: '1rem', textAlign: 'left', color: '#b3baff' }}>User</th>
+                  <th style={{ padding: '1rem', textAlign: 'right', color: '#b3baff' }}>Self LP</th>
+                  <th style={{ padding: '1rem', textAlign: 'right', color: '#b3baff' }}>Team LP</th>
+                  <th style={{ padding: '1rem', textAlign: 'left', color: '#b3baff' }}>Current Tier</th>
+                  <th style={{ padding: '1rem', textAlign: 'right', color: '#b3baff' }}>Total Credited</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style={{ borderBottom: '1px solid rgba(79, 140, 255, 0.1)' }}>
+                  <td style={{ padding: '1rem' }}>{summary.user.username} ({summary.user.uhid})</td>
+                  <td style={{ padding: '1rem', textAlign: 'right' }}>
+                    {formatUSDT(summary.qualification.selfLP)}
+                  </td>
+                  <td style={{ padding: '1rem', textAlign: 'right' }}>
+                    {Object.entries(summary.qualification.teamLP).map(([tier, data]) => (
+                      <div key={tier}>
+                        {tier}: {formatUSDT(data.required)} {data.meets ? '✓' : '✗'}
+                      </div>
+                    ))}
+                    <FaEye 
+                      style={{ cursor: 'pointer', marginLeft: 6, color: '#4f8cff' }} 
+                      title="View team details"
+                      onClick={handleViewTeamLP}
+                    />
+                  </td>
+                  <td style={{ padding: '1rem' }}>
+                    {summary.qualification.currentTier ? (
+                      <div>
+                        {summary.qualification.currentTier} ({summary.qualification.currentRate}%)
+                      </div>
+                    ) : 'Not Qualified'}
+                  </td>
+                  <td style={{ padding: '1rem', textAlign: 'right' }}>
+                    {formatUSDT(summary.credited.total)}
+                    <FaEye 
+                      style={{ cursor: 'pointer', marginLeft: 6, color: '#4f8cff' }} 
+                      title="View events"
+                      onClick={handleViewEvents}
+                    />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {error && (
@@ -240,17 +293,15 @@ function X1BonusReport() {
                   </thead>
                   <tbody>
                     {modalData.teamDetails.map((member, index) => (
-                      <tr key={index} className={styles.row}>
-                        <td style={{ fontWeight: 900 }}>{member.username}</td>
-                        <td style={{ textAlign: 'right' }}>{formatUSDT(member.selfLP).split(' ')[0]}</td>
-                        <td style={{ textAlign: 'right' }}>
-                          <div className="flex flex-col items-end">
-                             {Object.entries(member.teamLP).map(([wing, lp]) => (
-                               <div key={wing} className="text-xs opacity-60">Wing {wing}: <span className="text-white font-mono">{formatUSDT(lp).split(' ')[0]}</span></div>
-                             ))}
-                          </div>
+                      <tr key={index} style={{ borderBottom: '1px solid rgba(79, 140, 255, 0.1)' }}>
+                        <td style={{ padding: '1rem' }}>{member.username}</td>
+                        <td style={{ padding: '1rem', textAlign: 'right' }}>{formatUSDT(member.selfLP)}</td>
+                        <td style={{ padding: '1rem', textAlign: 'right' }}>
+                          {Object.entries(member.teamLP).map(([wing, lp]) => (
+                            <div key={wing}>Wing {wing}: {formatUSDT(lp)}</div>
+                          ))}
                         </td>
-                        <td style={{ textAlign: 'right', color: '#00ff88', fontWeight: 900 }}>{formatUSDT(member.totalTeamLP).split(' ')[0]}</td>
+                        <td style={{ padding: '1rem', textAlign: 'right' }}>{formatUSDT(member.totalTeamLP)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -283,16 +334,11 @@ function X1BonusReport() {
                   </thead>
                   <tbody>
                     {modalData.events.map((event, index) => (
-                      <tr key={index} className={styles.row}>
-                        <td>
-                          <div className="flex flex-col">
-                            <span style={{ fontSize: '11px', color: '#fff' }}>{moment(event.ts).format('MM/DD/YYYY')}</span>
-                            <span style={{ fontSize: '9px', opacity: 0.5 }}>{moment(event.ts).format('HH:mm:ss')}</span>
-                          </div>
-                        </td>
-                        <td style={{ fontSize: '11px' }} title={event.walletFrom}>{(event.walletFrom || "SYSTEM").substring(0, 16)}...</td>
-                        <td style={{ textAlign: 'right', fontWeight: 900, color: '#ffd700' }}>{formatUSDT(event.amount)}</td>
-                        <td><p style={{ fontSize: '11px', opacity: 0.7, lineHeight: '1.4' }}>{event.narrative}</p></td>
+                      <tr key={index} style={{ borderBottom: '1px solid rgba(79, 140, 255, 0.1)' }}>
+                        <td style={{ padding: '1rem' }}>{moment(event.ts).format('MM/DD/YYYY, HH:mm:ss')}</td>
+                        <td style={{ padding: '1rem' }}>{event.walletFrom}</td>
+                        <td style={{ padding: '1rem', textAlign: 'right' }}>{formatUSDT(event.amount)}</td>
+                        <td style={{ padding: '1rem' }}>{event.narrative}</td>
                       </tr>
                     ))}
                   </tbody>

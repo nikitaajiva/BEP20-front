@@ -1,0 +1,246 @@
+.signUpPage {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  background-color: #000000;
+  color: #E0E0E0;
+  font-family: 'Inter', sans-serif;
+}
+
+.leftColumn {
+  flex: 0 0 58%;
+  background-color: #000000;
+  padding: 3rem;
+  display: flex;
+  flex-direction: column;
+  position: relative; 
+  overflow: hidden; 
+  border-right: 1px solid rgba(255, 215, 0, 0.1);
+}
+
+.logoContainer {
+  margin-bottom: auto; 
+  z-index: 20;
+}
+
+.logo {
+  object-fit: contain;
+}
+
+.illustrationContainer {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative; 
+}
+
+.mainIllustration {
+  max-width: 85%;
+  height: auto;
+  z-index: 10;
+  filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.1));
+}
+
+.floatingElement {
+  position: absolute;
+  object-fit: contain;
+}
+
+.floatingCongrats {
+  top: 15%;
+  left: 10%;
+  z-index: 5;
+  animation: floatAnimation 6s ease-in-out infinite alternate;
+}
+
+.floatingAccountLimit {
+  width: 200px;
+  height: 160px;
+  bottom: 15%;
+  right: 10%;
+  z-index: 15;
+  animation: floatAnimation 5s ease-in-out infinite alternate-reverse;
+}
+
+.floatingSphere {
+  bottom: 5%; 
+  left: 15%; 
+  z-index: 1;
+  opacity: 0.6;
+  filter: hue-rotate(200deg) brightness(1.5);
+}
+
+@keyframes floatAnimation {
+  0% { transform: translateY(0px); }
+  100% { transform: translateY(-20px); }
+}
+
+.rightColumn {
+  flex: 0 0 42%;
+  background-color: #050505;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem; 
+}
+
+.formWrapper {
+  width: 100%;
+  max-width: 400px;
+  text-align: left;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  font-size: 1rem; 
+  color: rgba(255, 215, 0, 0.7); 
+  margin-bottom: 2rem;
+}
+
+.signUpForm {
+  display: flex;
+  flex-direction: column;
+}
+
+.inputGroup {
+  margin-bottom: 1.25rem;
+  position: relative;
+}
+
+.label {
+  display: block;
+  font-size: 0.875rem; 
+  font-weight: 600;
+  color: #ffd700;
+  margin-bottom: 0.5rem; 
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.inputField {
+  width: 100%;
+  padding: 0.875rem 1rem; 
+  background-color: rgba(255, 215, 0, 0.03); 
+  border: 1px solid rgba(255, 215, 0, 0.2); 
+  border-radius: 12px;
+  color: #FFFFFF; 
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+}
+
+.inputField:focus {
+  outline: none;
+  border-color: #ffd700; 
+  background-color: rgba(255, 215, 0, 0.07);
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.1);
+}
+
+.inputField:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.countryDropdownList {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #111;
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  border-radius: 12px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 100;
+  margin-top: 5px;
+  list-style: none;
+  padding: 0;
+}
+
+.countryDropdownItem {
+  padding: 10px 15px;
+  cursor: pointer;
+  color: #fff;
+  transition: all 0.2s;
+}
+
+.countryDropdownItem:hover {
+  background: rgba(255, 215, 0, 0.1);
+  color: #ffd700;
+}
+
+.submitButton {
+  padding: 1rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 700;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  width: 100%;
+  background: #ffd700;
+  color: #000;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 1.5rem;
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
+}
+
+.submitButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+  background: #ffe033;
+}
+
+.submitButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.signInRedirect {
+  text-align: center;
+  margin-top: 1.5rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.signInLink {
+  color: #ffd700;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.errorMessage {
+  color: #ff4d4d;
+  background: rgba(255, 77, 77, 0.1);
+  padding: 0.75rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  border: 1px solid rgba(255, 77, 77, 0.2);
+}
+
+.successMessage {
+  color: #7fff4c;
+  background: rgba(127, 255, 76, 0.1);
+  padding: 1rem;
+  border-radius: 12px;
+  text-align: center;
+  border: 1px solid rgba(127, 255, 76, 0.2);
+}
+
+@media (max-width: 1024px) {
+  .leftColumn {
+    display: none; 
+  }
+  .rightColumn {
+    flex: 1 0 100%; 
+    padding: 2rem;
+  }
+}

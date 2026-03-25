@@ -1,0 +1,59 @@
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  text-align: center;
+  padding: 2rem;
+  color: #e0e0e0;
+}
+
+.content {
+  background: #181f3a;
+  padding: 3rem 4rem;
+  border-radius: 22px;
+  border: 1px solid #2a3150;
+  box-shadow: 0 8px 32px 0 rgba(16, 25, 53, 0.18);
+  max-width: 600px;
+  width: 100%;
+}
+
+.icon {
+  font-size: 4rem;
+  color: #4f8cff;
+  margin-bottom: 1.5rem;
+  display: block;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 1rem;
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  color: #b3baff;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.backButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  background: rgba(79, 140, 255, 0.1);
+  color: #4f8cff;
+  border: 1px solid rgba(79, 140, 255, 0.2);
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.backButton:hover {
+  background: rgba(79, 140, 255, 0.2);
+  color: #6fa0ff;
+} 

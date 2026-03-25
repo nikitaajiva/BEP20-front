@@ -1,0 +1,247 @@
+.win-banner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* gap: 30px; */
+    background: #0c1635;
+    color: white;
+    padding: 25px;
+    border-radius: 18px;
+    width: 100%;
+    overflow: hidden;
+    background-image: url("../public/assets/img/poolbanner/win17pro12.png");
+    height: 365px;
+}
+
+.win-banner-left div {
+    width: 60%;
+    margin: auto;
+}
+
+.win-banner-left {
+    width: 50%;
+    text-align: center;
+}
+
+/* .win-banner-left img {
+    width: 100%;
+    height: auto;
+} */
+
+.win-banner-right {
+    width: 50%;
+    text-align: center;
+}
+
+
+.win-banner-right h2 {
+    font-size: 38px;
+    display: flex;
+    align-items: anchor-center;
+    justify-content: center;
+    gap: 10px;
+}
+
+
+.win-banner-right .Win-style {
+    font-family: Judson;
+    font-weight: 400;
+    font-style: Regular;
+    font-size: 48.29px;
+    line-height: 100%;
+    letter-spacing: 0%;
+    text-align: center;
+    vertical-align: middle;
+
+}
+
+.win-banner-right h2 span {
+    font-family: 'Saira Stencil One', cursive;
+    font-weight: 300;
+    font-size: 47.77px;
+    background: radial-gradient(64.94% 64.94% at 47.58% 54.17%,
+            #9d9d9d 0%,
+            #ffffff 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+
+}
+
+.win-banner-right h3 {
+    font-weight: 600;
+    font-style: SemiBold;
+    font-size: 23.83px;
+    vertical-align: middle;
+    margin-bottom: 5px;
+}
+
+.win-banner-right h3 span {
+    color: #0865F9;
+    font-weight: 700;
+}
+
+.win-banner-right p {
+    vertical-align: middle;
+    margin: 0;
+    font-family: Poppins;
+    font-size: 18px;
+    font-style: italic;
+    font-weight: 200;
+    letter-spacing: 1px;
+}
+
+.win-banner-right h4 {
+    font-style: SemiBold;
+    font-size: 19px;
+    line-height: 100%;
+    color: #ffffff !important;
+
+}
+
+.win-banner-right {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.win-banner-right h5 {
+    font-size: 21px;
+    font-weight: 600;
+    color: #ffffff !important;
+}
+
+/* Responsive */
+@media (min-width: 0px) and (max-width: 1100px) {
+
+
+    .win-banner-right h2 span {
+        font-size: 39px;
+
+    }
+
+    .win-banner-right p {
+        font-size: 14px;
+    }
+
+
+
+    .win-banner-right h3 {
+        font-size: 20px;
+    }
+
+
+}
+
+
+
+.XRPwinreward-img-wrapper {
+    width: 50%;
+}
+
+.XRPwinreward-banner-container {
+    text-align: center;
+    background: linear-gradient(135deg, #0a1128 0%, #16213e 100%);
+    border: 1px solid #ffffff1a;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 80%;
+    margin: auto;
+    padding: 30px 25px;
+    position: relative;
+    box-shadow: 0 15px 35px #0009;
+}
+
+.XRPwinreward-eligibility-badge {
+    width: 250px;
+    /* height: 40px; */
+    position: absolute;
+    top: 10px;
+    left: 0;
+    background: linear-gradient(90deg, #1e40af, #3b82f6);
+    color: white;
+    padding: 8px 30px 8px 15px;
+    /* font-size: 14px; */
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    clip-path: polygon(0% 0%, 85% 0%, 74% 50%, 85% 100%, 0% 100%);
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.XRPwinreward-lock-icon {
+    /* background: #f97316; */
+    width: 20px;
+    height: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 4px;
+    font-size: 10px;
+}
+
+.XRPwinreward-headline {
+    font-size: 32px;
+    margin-top: 30px;
+    margin-bottom: 0px !important;
+    font-family: "Saira Stencil One";
+    text-transform: uppercase;
+    background: linear-gradient(179deg, #9d9d9d, #ffffff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.XRPwinreward-image-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.XRPwinreward-img-wrapper img {
+    filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.5));
+}
+
+.XRPwinreward-qualification-box {
+    margin-top: 15px;
+    text-align: center;
+}
+
+.XRPwinreward-qualification-title {
+    color: #ffffff;
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.XRPwinreward-qualification-title span {
+    color: #3b82f6;
+}
+
+.XRPwinreward-qualification-notes p {
+    color: #cbd5e1;
+    font-size: 13px;
+    font-style: italic;
+    font-weight: 600;
+    margin: 0px;
+}
+
+.XRPwinreward-qualification-notes {
+    margin: 10px 0px;
+}
+
+.XRPwinreward-window-title {
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.XRPwinreward-window-date {
+    color: white;
+    font-size: 18px;
+    /* margin-top: 10px; */
+}
+
+@media (max-width: 380px) {
+    .XRPwinreward-headline {
+        font-size: 22px;
+    }
+}

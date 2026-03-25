@@ -1,0 +1,163 @@
+.gridContainer {
+  padding: 0 2rem;
+  /* Matches main content padding */
+  background: #181f3a;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.desktopContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  /* Ensures cards are same height */
+  gap: 15px;
+  /* Reduced gap */
+  width: 100%;
+  max-width: 1320px;
+  /* Standard container width */
+  margin: 0 auto;
+  padding: 15px 0;
+  /* Vertical padding */
+  box-sizing: border-box;
+}
+
+.desktopContainerTimeOuter {
+  margin-left: 90px;
+}
+
+.desktopContainerTime {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  /* Ensures cards are same height */
+  gap: 15px;
+
+  /* Standard container width */
+  margin: 0 auto;
+  padding: 15px 0;
+  /* Vertical padding */
+  box-sizing: border-box;
+}
+
+.clockCard {
+  background: #232b4a;
+  border-radius: 12px;
+  /* Slightly smaller radius */
+  border: 1px solid rgba(79, 140, 255, 0.2);
+  padding: 15px;
+  /* Reduced padding */
+  flex: 1 1 32%;
+  /* Each card takes up roughly 4 columns */
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  gap: 15px;
+  transition: all 0.3s ease;
+}
+
+.centerCard {
+  flex-grow: 1;
+  /* Allow it to take equal space */
+  flex-basis: 32%;
+  border-color: #64ffda;
+  box-shadow: 0 0 15px rgba(100, 255, 218, 0.15);
+}
+
+.clockWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  /* Reduced gap */
+  color: #b3baff;
+  position: relative;
+}
+
+.analogClock {
+  width: 60px;
+  /* Reduced size */
+  height: 60px;
+  /* Reduced size */
+  border-radius: 50%;
+  background: #181f3a;
+  border: 2px solid #64ffda;
+  /* Thinner border */
+  position: relative;
+  box-shadow: 0 0 10px rgba(100, 255, 218, 0.2);
+}
+
+.hand {
+  position: absolute;
+  width: 2px;
+  left: 50%;
+  bottom: 50%;
+  transform-origin: bottom;
+  border-radius: 2px;
+}
+
+.digitalDisplay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.timezoneName {
+  font-weight: bold;
+  font-size: 0.9rem;
+  /* Reduced font size */
+  color: #fff;
+}
+
+.digitalTime {
+  font-size: 0.8rem;
+  /* Reduced font size */
+  color: #b3baff;
+}
+
+.digitalDate {
+  font-size: 0.65rem;
+  /* Reduced font size */
+  color: #8a96d0;
+}
+
+/* Mobile styles */
+.mobileContainer {
+  background: #181f3a;
+  border-bottom: 1px solid #2a3150;
+  padding: 10px;
+}
+
+.mobileToggle {
+  background: transparent;
+  border: none;
+  color: #b3baff;
+  font-size: 1rem;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px;
+  cursor: pointer;
+}
+
+.chevron {
+  border: solid #b3baff;
+  border-width: 0 2px 2px 0;
+  display: inline-block;
+  padding: 3px;
+  transform: rotate(45deg);
+  transition: transform 0.3s;
+}
+
+.chevron.expanded {
+  transform: rotate(-135deg);
+}
+
+.clockGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 20px;
+  padding-top: 15px;
+}

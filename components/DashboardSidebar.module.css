@@ -1,0 +1,76 @@
+.sidebar {
+  display: none; /* Hidden by default on mobile */
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 90px; /* Width of the collapsed sidebar */
+  background-color: #181f3a;
+  border-right: 1px solid rgba(79, 140, 255, 0.15);
+  padding-top: 80px; /* Space for the main navbar */
+  z-index: 1030; /* Below navbar, but above content */
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-x: hidden;
+}
+
+.sidebar:hover {
+  width: 240px; /* Expanded width on hover */
+}
+
+.sidebarNav {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebarNavItem {
+  margin-bottom: 0.5rem;
+}
+
+.sidebarNavLink {
+  display: flex;
+  align-items: center;
+  color: #b3baff;
+  text-decoration: none;
+  padding: 1rem 0;
+  transition: background-color 0.2s, color 0.2s;
+  height: 60px;
+}
+
+.sidebarNavLink:hover {
+  background-color: rgba(79, 140, 255, 0.1);
+  color: #fff;
+}
+
+.sidebarNavLink.active {
+    background-color: rgba(79, 140, 255, 0.15);
+    color: #fff;
+    box-shadow: inset 3px 0 0 0 #4f8cff;
+}
+
+.sidebarIcon {
+  min-width: 90px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.sidebarLabel {
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  padding-left: 12px;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.sidebar:hover .sidebarLabel {
+  opacity: 1;
+}
+
+/* Show sidebar on large screens (e.g., desktops) */
+@media (min-width: 1200px) {
+  .sidebar {
+    display: block;
+  }
+} 

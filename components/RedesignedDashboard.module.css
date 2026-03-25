@@ -1,0 +1,727 @@
+.dashboardContainer {
+  min-height: 100vh;
+  background-color: #000000;
+  color: #ffffff;
+  display: flex;
+  /* Sidebar layout */
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Sidebar Styling */
+.sidebar {
+  width: 260px;
+  height: 100vh;
+  background: rgba(10, 10, 10, 0.5);
+  border-right: 1px solid rgba(255, 215, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  padding: 30px 15px;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
+}
+
+.sidebarLogo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 15px 40px 15px;
+  text-decoration: none;
+}
+
+.sidebarNav {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex-grow: 1;
+}
+
+.navItem {
+  margin-bottom: 8px;
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  color: #888;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.navLink:hover {
+  background: rgba(255, 215, 0, 0.08);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 215, 0, 0.25);
+  color: #ffd700;
+}
+
+.navLinkActive {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.8) 0%, rgba(255, 165, 0, 0.8) 100%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 215, 0, 0.6);
+  color: #000 !important;
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.5);
+}
+
+.navLinkActive:hover {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.95) 0%, rgba(255, 165, 0, 0.95) 100%);
+  color: #ffffff !important;
+  box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4), inset 0 1px 2px rgba(255, 255, 255, 0.6);
+  text-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+}
+
+.sidebarFooter {
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.mainContentArea {
+  flex-grow: 1;
+  margin-left: 260px;
+  /* Sidebar width */
+  padding: 30px;
+  width: calc(100% - 260px);
+  position: relative;
+  z-index: 10;
+  overflow: hidden;
+}
+
+/* Golden Light Rays Animation */
+.lightRaysContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.ray {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(from 180deg at 50% 50%,
+      transparent 0deg,
+      rgba(255, 215, 0, 0.1) 20deg,
+      transparent 40deg,
+      rgba(255, 215, 0, 0.08) 70deg,
+      transparent 110deg,
+      rgba(255, 215, 0, 0.12) 150deg,
+      transparent 190deg,
+      rgba(255, 215, 0, 0.08) 240deg,
+      transparent 280deg,
+      rgba(255, 215, 0, 0.1) 320deg,
+      transparent 360deg);
+  animation: rotateRay 30s linear infinite;
+}
+
+.ray:nth-child(2) {
+  animation: rotateRay 45s linear infinite reverse;
+  opacity: 0.6;
+  filter: blur(5px);
+}
+
+@keyframes rotateRay {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.ambientGlow {
+  position: absolute;
+  top: -100px;
+  left: -100px;
+  right: -100px;
+  height: 600px;
+  background: radial-gradient(ellipse at 50% 0%, rgba(255, 215, 0, 0.12) 0%, transparent 70%);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.titleMain {
+  display: none;
+}
+
+/* Center Clock Row */
+.clockRowWrapper {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  padding: 40px 0;
+}
+
+/* Tighter Orbital Clock Positions */
+.clockPos1 {
+  left: 22%;
+  top: 22%;
+}
+
+.clockPos2 {
+  right: 22%;
+  top: 22%;
+}
+
+.clockPos3 {
+  left: 18%;
+  bottom: 25%;
+}
+
+.clockPos4 {
+  right: 18%;
+  bottom: 25%;
+}
+
+.clockPos5 {
+  top: 12%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.clockCardRedesigned {
+  background: rgba(10, 10, 10, 0.4);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  border-radius: 12px;
+  padding: 12px;
+  width: 130px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  backdrop-filter: blur(12px);
+  position: absolute;
+  z-index: 25;
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.05);
+  pointer-events: auto;
+}
+
+.clockCardRedesigned:hover {
+  border-color: #ffd700;
+  transform: translateY(-8px) scale(1.1);
+  background: rgba(255, 215, 0, 0.08);
+  box-shadow: 0 0 30px rgba(255, 215, 0, 0.2);
+}
+
+.clockCardRedesigned::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  background: linear-gradient(45deg, transparent 40%, rgba(255, 215, 0, 0.1), transparent 60%);
+  z-index: -1;
+}
+
+.clocksLayer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.clockIcon {
+  color: #ffd700;
+  margin-bottom: 5px;
+}
+
+.clockCity {
+  font-size: 11px;
+  font-weight: 800;
+  color: #ffd700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.clockTime {
+  font-size: 18px;
+  font-weight: 800;
+  color: #fff;
+  font-family: 'Orbitron', sans-serif;
+  /* If font available, else Inter */
+}
+
+.clockDate {
+  font-size: 9px;
+  color: #555;
+  text-transform: uppercase;
+}
+
+/* Central Dashboard */
+.centralDashboard {
+  position: relative;
+  min-height: 850px;
+  padding: 40px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.orbitArea {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: rotateOrbit 60s linear infinite;
+}
+
+@keyframes rotateOrbit {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.orbitDot {
+  position: absolute;
+  background: #ffd700;
+  border-radius: 50%;
+}
+
+.largeDot {
+  width: 15px;
+  height: 15px;
+  transform: rotate(0deg) translate(220px);
+  box-shadow: 0 0 25px rgba(255, 215, 0, 0.6);
+}
+
+.smallDot {
+  width: 7px;
+  height: 7px;
+  transform: rotate(180deg) translate(220px);
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+}
+
+.hubWrapper {
+  position: relative;
+  width: 280px;
+  height: 280px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
+
+.mainCircle {
+  width: 280px;
+  height: 280px;
+  background: radial-gradient(circle at center, #0a0a0a 0%, #000 100%);
+  border: 4px solid #ffd700;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  box-shadow: 0 0 80px rgba(255, 215, 0, 0.2);
+  z-index: 5;
+}
+
+/* New Spinning Tech Rings - Fixed Centering */
+.techRing {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 50%;
+  border: 1px dashed rgba(255, 215, 0, 0.2);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.ring1 {
+  width: 380px;
+  height: 380px;
+  animation: spinRing1 40s linear infinite;
+  border-top-color: #ffd700;
+}
+
+.ring2 {
+  width: 480px;
+  height: 480px;
+  animation: spinRing2 60s linear infinite reverse;
+  border-bottom-color: #ffd700;
+  opacity: 0.3;
+}
+
+@keyframes spinRing1 {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@keyframes spinRing2 {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+.onlineBadge {
+  position: absolute;
+  top: -12px;
+  background: #000;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 4px 18px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.onlineDot {
+  width: 8px;
+  height: 8px;
+  background: #00ff00;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #00ff00;
+}
+
+.statusText {
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.hubLabel {
+  font-size: 11px;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.historyEyeBtn {
+  color: #ffd700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
+  opacity: 0.7;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.historyEyeBtn:hover {
+  opacity: 1;
+  transform: scale(1.1);
+  filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.6));
+}
+
+.hubAmount {
+  font-size: 48px;
+  font-weight: 800;
+  color: #ffd700;
+  line-height: 1.1;
+}
+
+.hubCurrency {
+  font-size: 14px;
+  color: #555;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.hubContentWrapper {
+  position: relative;
+}
+
+.topRightActions {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.redeemBtnTop {
+  background: rgba(255, 215, 0, 0.1);
+  border: 1px solid rgba(255, 215, 0, 0.4);
+  color: #ffd700;
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.3s ease;
+}
+
+.redeemBtnTop:hover {
+  background: rgba(255, 215, 0, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);
+}
+
+.connectBtn {
+  background: linear-gradient(135deg, #ffd700 0%, #ffa500 100%);
+  color: #000;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 25px;
+  font-weight: 800;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+}
+
+.connectBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 215, 0, 0.45);
+}
+
+.autopositioningBadge {
+  position: absolute;
+  bottom: -55px;
+  background: rgba(15, 15, 15, 0.8);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  padding: 8px 25px;
+  border-radius: 30px;
+  font-size: 11px;
+  color: #888;
+  backdrop-filter: blur(5px);
+  white-space: nowrap;
+}
+
+.autopositioningBadge span {
+  color: #ffd700;
+  font-weight: 800;
+}
+
+/* LP Stats */
+.lpStatsGrid {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  margin-bottom: 10px;
+}
+
+.lpStatItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.lpStatIcon {
+  color: #ffd700;
+  margin-bottom: 2px;
+}
+
+.lpStatLabel {
+  font-size: 9px;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.lpStatValue {
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.lpStatDivider {
+  width: 1px;
+  height: 30px;
+  background: rgba(255, 215, 0, 0.2);
+}
+
+.lpProgressBar {
+  width: 75%;
+  height: 4px;
+  background: rgba(255, 215, 0, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.lpProgressFill {
+  height: 100%;
+  background: linear-gradient(to right, #ffd700, #ffa500);
+  border-radius: 2px;
+  transition: width 0.5s ease;
+}
+
+/* Floating Cards - Replaced by clocks but kept helper class if needed */
+.floatingCard {
+  position: absolute;
+  background: rgba(10, 10, 10, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 15px 25px;
+  backdrop-filter: blur(10px);
+  z-index: 5;
+  min-width: 150px;
+}
+
+.cardHeaderSmall {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: #888;
+}
+
+.cardValueSmall {
+  font-size: 20px;
+  font-weight: 800;
+  color: #fff;
+  margin-top: 5px;
+}
+
+.cardValueSmall span {
+  color: #ffd700;
+  font-size: 12px;
+  margin-left: 5px;
+}
+
+.cardActionSmall {
+  font-size: 12px;
+  color: #ffd700;
+  text-decoration: underline;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.cardChangeSmall {
+  font-size: 11px;
+  color: #00ff00;
+  margin-top: 8px;
+}
+
+/* ===== Floating Primary Vault Card Orbiting the Circle ===== */
+
+/* The orbit container: same size as the rings, centered on the hub */
+.floatingCardOrbit {
+  position: absolute;
+  width: 620px;
+  height: 620px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 30;
+  animation: orbitCard 40s linear infinite;
+}
+
+.floatingCardOrbit:hover,
+.floatingCardOrbit:hover .orbitItem {
+  animation-play-state: paused;
+}
+
+/* Base class for items that reverse the rotation */
+.orbitItem {
+  position: absolute;
+  width: 360px;
+  pointer-events: auto;
+  animation: counterOrbitCard 40s linear infinite;
+  transform-origin: center center;
+}
+
+/* Item 1: Top (Primary Vault) */
+.orbitPos1 {
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Static Floating Card (Left Edge) */
+.staticFloatLeft {
+  position: absolute;
+  top: 50%;
+  left: 20px;
+  transform: translateY(-50%);
+  width: 380px; /* Thoda bada bankar */
+  z-index: 50;
+  animation: floatStaticCard 5s ease-in-out infinite;
+}
+
+@keyframes floatStaticCard {
+  0% { transform: translateY(-50%); }
+  50% { transform: translateY(calc(-50% - 20px)); }
+  100% { transform: translateY(-50%); }
+}
+
+.staticFloatRight {
+  position: absolute;
+  top: 50%;
+  right: 20px;
+  transform: translateY(-50%);
+  width: 380px;
+  z-index: 50;
+  animation: floatStaticCardAlt 6s ease-in-out infinite;
+}
+
+.staticFloatBottom {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 900px;
+  z-index: 50;
+  animation: floatStaticCardBottom 5.5s ease-in-out infinite;
+}
+
+@keyframes floatStaticCardAlt {
+  0% { transform: translateY(-50%); }
+  50% { transform: translateY(calc(-50% - 15px)); }
+  100% { transform: translateY(-50%); }
+}
+
+@keyframes floatStaticCardBottom {
+  0% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(-15px); }
+  100% { transform: translateX(-50%) translateY(0); }
+}

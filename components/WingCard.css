@@ -1,0 +1,154 @@
+/* components/WingCard.css */
+
+.WingCard-container {
+    gap: 48px;
+    padding: 0px;
+    /* background-color: #181f3a !important; */
+    /* box-shadow: rgba(0, 0, 0, 0.35) 0px 12px 40px -12px; */
+    border-radius: 16px;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+
+.WingCard-left {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 150px;
+}
+
+.WingCard-left-title {
+    margin-bottom: 0;
+    font-size: 12px;
+    font-weight: 300 !important;
+    color: #fff !important;
+}
+
+.WingCard-self-value {
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.WingCard-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+}
+
+.WingCard-right-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.WingCard-bar-content {
+    color: #fff;
+    border-radius: 14px;
+    flex: 1;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 13px;
+    font-weight: 600;
+    display: flex;
+    box-shadow: 0 4px 12px #0006;
+}
+
+.WingCard-label {
+    text-transform: uppercase;
+    opacity: .85;
+    margin-bottom: -1px;
+    font-size: 9px;
+}
+
+.WingCard-amount {
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.WingCard-tag {
+    align-items: flex-end;
+    font-weight: bold;
+    display: flex;
+    gap: 5px;
+}
+
+.WingCard-level {
+    font-size: 16px;
+    line-height: 1;
+}
+
+.WingCard-reward {
+    font-size: 14px;
+    color: #ffc107;
+}
+
+.WingCard-lock-icon {
+    font-size: 1rem;
+    vertical-align: middle;
+    color: #fff;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .WingCard-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .WingCard-right-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .WingCard-tag {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .WingCard-bar-content {
+        padding: 4px 13px;
+    }
+}
+
+/* Modal Overlay & Container */
+.WingCard-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(14, 19, 39, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+.WingCard-modal {
+    background: #10172b;
+    padding: 24px;
+    border-radius: 12px;
+    position: relative;
+    width: 90%;
+    max-width: 650px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+}
+
+.WingCard-modal-close {
+    color: #fff;
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-size: 20px;
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    border-radius: 50%;
+    border: 2px solid;
+    height: 35px;
+    width: 35px;
+}

@@ -1,0 +1,5 @@
+1. If a user signs up, he should be presented with the sign-up form, on submit, Ask him to check his email. 
+Send him a link in email, to set a password and log him in. 
+2. If a user with requiresPassword change tries to sign-in, regardless of whether his password is right or wrong, 
+send him email to set his password and log him in.
+3. If a user with requiresPasswordChange false, logs in, log him in. 

@@ -1,0 +1,182 @@
+.pool-box {
+    color: #fff;
+    /* background: radial-gradient(30.19% 110.56% at 50% 100%, #162988 0%, #101935 100%); */
+    width: 100%;
+    padding: 25px;
+    display: flex;
+}
+
+.pool-box-background {
+    background-image: url("../public/assets/img/poolbanner/background.png");
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.pool5style .pool-left img {
+    width: 90%;
+}
+
+/* Ribbon */
+.ribbon {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: linear-gradient(90deg, #0a5cff, #00c5ff);
+    padding: 6px 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 50px;
+    font-size: 13px;
+}
+
+.ribbon span {
+    font-weight: 600;
+}
+
+/* Logo */
+.pool-logo {
+    display: flex;
+    justify-content: center;
+}
+
+/* Content Layout */
+.pool-content {
+    justify-content: space-between;
+    align-items: center;
+    display: flex;
+    margin: auto;
+    align-items: center;
+    text-align: center;
+    width: 90%;
+}
+
+/* Left */
+.pool-left {
+    width: 30%;
+    text-align: center;
+}
+
+
+/* Center Text */
+.pool-text {
+    text-align: center;
+    width: 40%;
+}
+
+.pool-text .title {
+    letter-spacing: 2px;
+    color: #D96C39 !important;
+    font-weight: 400 !important;
+    font-size: 25px;
+    font-family: Saira Stencil One, cursive;
+
+}
+
+.heading {
+    font-family: Saira Stencil One, cursive;
+    font-size: 31px;
+    line-height: 34px;
+    font-weight: 300 !important;
+    color: #fff !important;
+
+}
+
+.reward-btn {
+    cursor: pointer;
+    color: #fff;
+    background: linear-gradient(90deg, #4f46e5 0%, #7c3aed 100%);
+    border: none;
+    border-radius: 24px;
+    margin: 10px 0;
+    padding: 7px 35px;
+
+}
+
+.reward-line {
+    margin-top: 5px;
+    font-size: 26px;
+    color: #fff !important;
+    font-weight: bold !important;
+    font-family: 'Poppins';
+}
+
+.note {
+    /* opacity: 0.7; */
+    font-size: 16px;
+}
+
+.reward-line-inner {
+    font-size: 16px;
+}
+
+.reward-line-inner-top {
+    font-size: 16px;
+}
+
+/* Right */
+.pool-right {
+    width: 27%;
+}
+
+/* 
+.iphone-img {
+    width: 100%;
+} */
+
+/* Responsive */
+@media (max-width:1100px) {
+    .heading {
+        font-size: 23px;
+        line-height: 27px;
+    }
+
+    .win-banner-right p {
+        font-size: 14px;
+    }
+
+
+
+    .win-banner-right h3 {
+        font-size: 20px;
+    }
+
+}
+
+.poolreward1-style {}
+
+.pool5style .pool-left, .pool5style .pool-text {
+    width: 50%;
+}
+
+.note, .reward-line-inner, .reward-line-inner-top {
+    color: #fff !important;
+}
+
+.reward-line-inner {
+    font-size: 20px;
+    font-weight: 600 !important;
+    font-family: 'Poppins';
+}
+
+
+.eligibility {
+    color: #fff;
+    clip-path: polygon(0% 0%, 85% 0%, 74% 50%, 85% 100%, 0% 100%);
+    background: linear-gradient(90deg, #0a6cff, #27b7ff);
+    align-items: center;
+    gap: 8px;
+    height: 42px;
+    padding: 0 18px;
+    font-weight: 600;
+    display: inline-flex;
+    position: absolute;
+    top: 13px;
+    left: 0px;
+    width: 250px;
+}
+
+
+.RewardPool2-style .pool-left {
+    width: 20%;
+}

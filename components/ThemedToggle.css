@@ -1,0 +1,67 @@
+:root {
+    --clr-neutral-400: hsl(226, 11%, 37%);
+    --clr-red-400: hsl(3, 86%, 64%);
+}
+
+.toggle {
+    position: relative;
+    cursor: pointer;
+    display: inline-block;
+}
+
+/* Hide checkbox but keep it accessible */
+.toggle-input {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+/* Toggle background */
+.switch {
+    display: flex;
+    align-items: center;
+    width: 3.5rem;
+    height: 1.5rem;
+    border-radius: 1rem;
+    background-color: var(--clr-neutral-400);
+    transition: all ease-in 300ms;
+    position: relative;
+}
+
+/* Toggle button (knob) */
+.switch::before {
+    content: "";
+    position: absolute;
+    left: 0px;
+    width: 1.5rem;
+    height: 1.5rem;
+    background-color: white;
+    border-radius: 50%;
+    transition: all ease-in 300ms;
+}
+
+/* Keyboard focus */
+.toggle-input:focus-visible+.switch {
+    outline: 2px solid var(--clr-red-400);
+    outline-offset: 2px;
+}
+
+/* Checked state */
+.toggle-input:checked+.switch {
+    background-color: var(--clr-red-400);
+}
+
+.toggle-input:checked+.switch::before {
+    transform: translateX(2rem);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+
+    .switch,
+    .switch::before {
+        transition-duration: 0ms;
+    }
+}

@@ -1,0 +1,188 @@
+.pageContainer {
+  background-color: #000000;
+  min-height: 100vh;
+  color: #ffffff;
+}
+
+.contentWrapper {
+  display: flex;
+}
+
+.mainContent {
+  flex-grow: 1;
+  padding: 2rem;
+  margin-left: 0;
+  transition: margin-left 0.3s ease;
+  min-width: 0;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-size: 1.2rem;
+  background-color: #000;
+  color: #ffd700;
+}
+
+.error {
+  color: #ff4d4d;
+  background-color: rgba(255, 77, 77, 0.1);
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 77, 77, 0.2);
+}
+
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.pageTitle {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
+.filterControls {
+  background: rgba(10, 10, 10, 0.95);
+  padding: 1.5rem;
+  border-radius: 16px;
+  margin-bottom: 2rem;
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  border: 1px solid rgba(255, 215, 0, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex-grow: 1;
+}
+
+.filterGroup label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.filterSelect {
+  background-color: #050505;
+  border: 1px solid rgba(255, 215, 0, 0.1);
+  color: #fff;
+  padding: 0.8rem 1.2rem;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.filterSelect:focus {
+  outline: none;
+  border-color: #ffd700;
+}
+
+.tableContainer {
+  background: rgba(10, 10, 10, 0.95);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 215, 0, 0.1);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 1.25rem 1.5rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 215, 0, 0.05);
+  vertical-align: middle;
+}
+
+.table th {
+  font-weight: 800;
+  color: #888;
+  background-color: rgba(255, 215, 0, 0.02);
+  white-space: nowrap;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.table td {
+  color: #fff;
+  font-size: 14px;
+}
+
+.noEntries {
+  text-align: center;
+  padding: 4rem 1rem;
+  color: #888;
+}
+
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  background-color: rgba(255, 215, 0, 0.02);
+  border-top: 1px solid rgba(255, 215, 0, 0.05);
+}
+
+.paginationInfo {
+  font-size: 0.875rem;
+  color: #888;
+}
+
+.paginationControls button {
+  background: rgba(255, 215, 0, 0.05);
+  border: 1px solid rgba(255, 215, 0, 0.1);
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-left: 0.5rem;
+  font-weight: 700;
+}
+
+.paginationControls button:hover:not(:disabled) {
+  background: #ffd700;
+  color: #000;
+}
+
+.paginationControls button:disabled {
+  background: rgba(255, 255, 255, 0.02);
+  color: #444;
+  cursor: not-allowed;
+  border-color: transparent;
+}
+
+.amountCredit {
+  color: #ffd700;
+  font-weight: 800;
+}
+
+.amountDebit {
+  color: #ff4d4d;
+  font-weight: 800;
+}
+
+@media (max-width: 992px) {
+  .mainContent {
+    padding: 1rem;
+  }
+}

@@ -1,0 +1,163 @@
+/* ================= PAGE ================= */
+.signInPage {
+  min-height: 100vh;
+  background: #0d111d;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ================= LOGO ================= */
+.logoContainer {
+  position: absolute;
+  top: 30px;
+  left: 40px;
+  z-index: 10;
+}
+
+/* ================= CENTER ================= */
+.centerWrapper {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background-image: url("../../public/assets/img/loginpagebg.png");
+  position: relative;
+  align-items: center;
+  height: 100vh;
+  display: flex;
+  position: relative;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.centerWrappermain {
+  /* ✅ Correct background image path */
+  background-image: url("/assets/img/loganimation.gif");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+}
+
+/* ================= ORB ================= */
+
+/* ================= FORM ================= */
+.formContainer {
+  text-align: center;
+  /* -webkit-backdrop-filter: blur(14px); */
+  background: #0a142d73;
+  border-radius: 16px;
+  width: 100%;
+  padding: 30px;
+}
+
+
+.title {
+  font-size: 26px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #fff !important;
+}
+
+.subtitle {
+  font-size: 16px;
+  opacity: 0.75;
+  margin-bottom: 25px;
+  color: #fff !important;
+}
+
+/* ================= BUTTON ================= */
+.button {
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.signInButton {
+  background: linear-gradient(270deg, #7C3AED 0%, #4F46E5 100%);
+  font-size: 16px;
+  /* background: linear-gradient(90deg, #6b5cff, #8f5bff); */
+  color: #fff;
+  /* box-shadow: 0 0 30px rgba(140, 100, 255, 0.7); */
+}
+
+.signInButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  /* box-shadow: 0 0 45px rgba(160, 120, 255, 1); */
+}
+
+.signInButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ================= ERROR ================= */
+.errorText {
+  margin-top: 14px;
+  font-size: 12px;
+  color: #ff6b6b;
+}
+
+/* ================= FLOOR ================= */
+.floor {
+  position: absolute;
+  bottom: -220px;
+  width: 120%;
+  height: 420px;
+  background:
+    radial-gradient(circle, rgba(0, 140, 255, 0.6) 0%, transparent 60%),
+    repeating-radial-gradient(circle,
+      rgba(255, 255, 255, 0.12) 0 1px,
+      transparent 1px 14px);
+  transform: perspective(600px) rotateX(65deg);
+  opacity: 0.6;
+  z-index: 1;
+}
+
+/* ================= ANIMATION ================= */
+@keyframes float {
+  0% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-18px);
+  }
+
+  100% {
+    transform: translateY(0);
+  }
+}
+
+/* ================= MOBILE ================= */
+@media (max-width: 600px) {
+
+
+  .centerWrappermainimage {
+    bottom: -250px;
+  }
+}
+
+.canvasmain {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100vw;
+  /* 🔥 90% width */
+  height: 100vh;
+  z-index: 1;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.canvas {
+  display: block;
+}

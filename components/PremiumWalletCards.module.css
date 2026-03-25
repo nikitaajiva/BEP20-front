@@ -1,0 +1,597 @@
+.cardContainer {
+  background: #000000;
+  border: 1px solid rgba(255, 215, 0, 0.15);
+  border-radius: 24px;
+  padding: 25px;
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+  height: 100%;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.headerLeft {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.iconBox {
+  width: 48px;
+  height: 48px;
+  background: rgba(255, 215, 0, 0.1);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #ffd700;
+  position: relative;
+}
+
+.notificationDot {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 14px;
+  height: 14px;
+  background-color: #ffd700;
+  border: 2px solid #000000;
+  border-radius: 50%;
+  color: #000;
+  font-size: 8px;
+  font-weight: 800;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.titleSection h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+  color: #ffffff;
+}
+
+.titleSection p {
+  font-size: 12px;
+  color: #888888;
+  margin: 2px 0 0 0;
+}
+
+.headerRightBtn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #ffd700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.headerRightBtn:hover {
+  background: rgba(255, 215, 0, 0.1);
+}
+
+.mainBalanceSection {
+  margin-bottom: 25px;
+}
+
+.mainBalance {
+  font-size: 32px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.mainBalance span {
+  color: #00ff00;
+  font-size: 16px;
+  margin: 0 5px;
+}
+
+.limitText {
+  font-size: 12px;
+  color: #888888;
+  margin-top: 5px;
+}
+
+.limitText span {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* Sub-cards Grid (Left style) */
+.subCardsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.subCard {
+  background: rgba(15, 15, 15, 0.5);
+  border-radius: 12px;
+  padding: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.subCardTitle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #888888;
+  margin-bottom: 8px;
+}
+
+.subCardValue {
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.subCardValue span {
+  color: #ffd700;
+  font-size: 10px;
+}
+
+/* Middle Section for DetailedRewardsCard */
+.middleBalanceSection {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.middleLabel {
+  font-size: 12px;
+  color: #ffd700;
+  font-weight: 600;
+  display: block;
+}
+
+.middleValue {
+  font-size: 24px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.bottomRowGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.dataLabel {
+  font-size: 11px;
+  color: #ffd700;
+  font-weight: 600;
+  margin-bottom: 5px;
+  display: block;
+}
+
+.dataValue {
+  font-size: 16px;
+  font-weight: 730;
+  color: #ffffff;
+}
+
+.dataValue span {
+  color: #00ff00;
+  font-size: 12px;
+}
+
+.bottomActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.greenBtn {
+  background: rgba(0, 255, 0, 0.05);
+  border: 1px solid rgba(0, 255, 0, 0.2);
+  color: #00ff00;
+  padding: 10px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.greenBtn:hover {
+  background: rgba(0, 255, 0, 0.1);
+}
+
+.blueBtn {
+  background: rgba(255, 215, 0, 0.05);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  color: #ffd700;
+  padding: 10px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.blueBtn:hover {
+  background: rgba(255, 215, 0, 0.1);
+}
+
+.outlineGreenBtn {
+  grid-column: span 2;
+  background: transparent;
+  border: 1px solid rgba(0, 255, 0, 0.3);
+  color: #00ff00;
+  padding: 12px;
+  border-radius: 12px;
+  font-weight: 600;
+  margin-top: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.outlineGreenBtn:hover {
+  background: rgba(0, 255, 0, 0.05);
+}
+
+/* Banner & Utility (Right style) */
+.earningBanner {
+  background: rgba(0, 50, 0, 0.2);
+  border: 1px solid rgba(0, 255, 0, 0.1);
+  border-radius: 16px;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.earningBannerLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #00ff00;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.earningRate {
+  color: #00ff00;
+  font-weight: 800;
+  font-size: 18px;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 12px;
+}
+
+.primaryBtn {
+  flex: 1;
+  background: #ffd700;
+  color: #000000;
+  border: none;
+  border-radius: 12px;
+  padding: 14px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.secondaryBtn {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 14px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+/* Horizontal Layout Modifications */
+.cardContainerHorizontal {
+  background: rgba(10, 10, 10, 0.4);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 215, 0, 0.15);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  border-radius: 16px;
+  padding: 12px 20px;
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  width: 100%;
+  max-width: 850px;
+  margin: 0 auto;
+}
+
+.horizontalLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0.8;
+}
+
+.horizontalCenter {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex: 1;
+}
+
+.horizontalRight {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1.2;
+  justify-content: flex-end;
+}
+
+/* Glass Buttons for Horizontal Layout */
+.glassBtnPrimary {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.8) 0%, rgba(255, 165, 0, 0.8) 100%);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #000;
+  border: 1px solid rgba(255, 215, 0, 0.5);
+  border-radius: 10px;
+  padding: 8px 16px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
+}
+
+.glassBtnPrimary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.95) 0%, rgba(255, 165, 0, 0.95) 100%);
+}
+
+.glassBtnSecondary {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 8px 16px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.glassBtnSecondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.glassPlusBtn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 215, 0, 0.15);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 215, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #ffd700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.glassPlusBtn:hover {
+  background: rgba(255, 215, 0, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(255, 215, 0, 0.3);
+}
+
+@media (max-width: 768px) {
+  .cardContainerHorizontal {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 15px;
+  }
+  .horizontalRight {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+/* New Rewards Wallet Layout */
+.rwCardWrapper {
+  background: rgba(10, 10, 10, 0.95);
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 215, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  font-family: 'Inter', sans-serif;
+  height: 100%;
+}
+
+.rwHeader {
+  background: #ffd700;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.rwTitle {
+  color: #000;
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.rwBadge {
+  background: rgba(0, 0, 0, 0.15);
+  padding: 4px 10px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #000;
+}
+
+.rwBody {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.rwAccumulatedLabel {
+  color: #666;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.rwMassiveValue {
+  font-size: 38px;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1;
+}
+
+.rwDecimals {
+  font-size: 20px;
+  color: #666;
+}
+
+.rwSubtext {
+  color: #666;
+  font-size: 11px;
+  margin-top: 10px;
+}
+
+.rwDivider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.05);
+  margin: 20px 0;
+}
+
+.rwPoolItem {
+  margin-bottom: 15px;
+}
+
+.rwPoolHeader {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #888;
+  margin-bottom: 8px;
+}
+
+.rwPoolHeader span:last-child {
+  color: #fff;
+  font-weight: 700;
+}
+
+.rwProgressBar {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.rwProgressFill {
+  height: 100%;
+  background: #ffd700;
+  border-radius: 2px;
+}
+
+.rwFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: auto;
+}
+
+.rwCurrentBalanceCol {
+  display: flex;
+  flex-direction: column;
+}
+
+.rwCurrentValue {
+  font-size: 28px;
+  font-weight: 800;
+  color: #ffd700;
+  line-height: 1.1;
+  margin-top: 4px;
+}
+
+.rwAutoPosBtn {
+  background: transparent;
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  border-radius: 12px;
+  padding: 12px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.rwAutoPosBtn:hover {
+  background: rgba(255, 215, 0, 0.05);
+  border-color: rgba(255, 215, 0, 0.6);
+}
+
+.rwAutoPosBtn span {
+  color: #ffd700;
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  text-align: center;
+  line-height: 1.2;
+}

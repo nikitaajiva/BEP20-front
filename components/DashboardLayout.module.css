@@ -1,0 +1,10 @@
+.mainContent {
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Adjust margin when sidebar is visible */
+@media (min-width: 1200px) {
+  .mainContent {
+    margin-left: 90px; /* Same as collapsed sidebar width */
+  }
+} 

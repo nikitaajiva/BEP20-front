@@ -1,0 +1,261 @@
+/* reuse your title + scroll container */
+.xrp-comm-rew-card {
+    max-height: 380px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #4f46e5 transparent;
+    /* padding-top: 25px; */
+}
+
+.xrp-comm-rew-card::-webkit-scrollbar {
+    width: 3px;
+}
+
+.xrp-comm-rew-card::-webkit-scrollbar-thumb {
+    background: #4f46e5;
+    border-radius: 3px;
+}
+
+/* list + pill cards */
+.cr-list {
+    gap: 7px;
+    display: grid;
+}
+
+.cr-card {
+    background: #0f1833;
+    border: 1px solid #4f8cff26;
+    border-radius: 16px;
+    align-items: center;
+    gap: 16px;
+    padding: 6px 16px 6px 16px;
+    position: relative;
+    box-shadow: 0 8px 24px #0003;
+
+}
+
+.cr-metrics {
+    width: 75%;
+}
+
+.cr-meta {
+    width: 25%;
+}
+
+/* left accent strip */
+.cr-accent {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 6px;
+    height: 100%;
+    border-radius: 16px 0 0 16px;
+    opacity: .9;
+}
+
+/* badge */
+.cr-badge {
+    /* display: flex;
+    align-items: center;
+    gap: 8px; */
+    /* padding-left: 18px; */
+    /* min-width: 90px; */
+}
+
+.cr-lock {
+    opacity: .85;
+}
+
+.cr-tier {
+    font-weight: 800;
+    font-size: 16px;
+    letter-spacing: .3px;
+}
+
+.cr-badge {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+/* metrics */
+.cr-metrics {
+    color: #fff;
+    align-items: center;
+    gap: 0;
+    padding: 4px 0;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-around;
+}
+
+.cr-item {
+    display: flex;
+    flex-direction: column;
+    width: 40%;
+}
+
+.cr-label {
+    font-size: 10px;
+    letter-spacing: .6px;
+    color: #94a3b8;
+    text-transform: uppercase;
+    margin-bottom: -5px;
+    margin-top: -5px;
+}
+
+.cr-value {
+    font-size: 16px;
+    font-weight: 800;
+    color: #fff;
+}
+
+
+
+.cr-chip {
+    font-size: 16px;
+    font-weight: 700;
+    padding-bottom: 0px;
+}
+
+.cr-sub {
+    letter-spacing: .6px;
+    color: #94a3b8;
+    text-transform: uppercase;
+    font-size: 10px;
+    display: flex;
+    gap: 5px;
+}
+
+/* accents rotate by level */
+.cr-green .cr-accent {
+    background: linear-gradient(180deg, #16a34a, #22c55e);
+}
+
+.cr-purple .cr-accent {
+    background: linear-gradient(180deg, #7c3aed, #a855f7);
+}
+
+.cr-teal .cr-accent {
+    background: linear-gradient(180deg, #0ea5e9, #06b6d4);
+}
+
+.cr-orange .cr-accent {
+    background: linear-gradient(180deg, #ea580c, #f59e0b);
+}
+
+.cr-blue .cr-accent {
+    background: linear-gradient(180deg, #2563eb, #3b82f6);
+}
+
+.cr-tier-green {
+    color: #22c55e;
+}
+
+.cr-tier-purple {
+    color: #a855f7;
+}
+
+.cr-tier-teal {
+    color: #06b6d4;
+}
+
+.cr-tier-orange {
+    color: #f59e0b;
+}
+
+.cr-tier-blue {
+    color: #60a5fa;
+}
+
+.cr-green .cr-lock {
+    color: #22c55e;
+}
+
+.cr-purple .cr-lock {
+    color: #a855f7;
+}
+
+.cr-teal .cr-lock {
+    color: #06b6d4;
+}
+
+.cr-orange .cr-lock {
+    color: #f59e0b;
+}
+
+.cr-blue .cr-lock {
+    color: #60a5fa;
+}
+
+.cr-value-green {
+    color: #22c55e;
+}
+
+.cr-value-purple {
+    color: #a855f7;
+}
+
+.cr-value-teal {
+    color: #06b6d4;
+}
+
+.cr-value-orange {
+    color: #f59e0b;
+}
+
+.cr-value-blue {
+    color: #60a5fa;
+}
+
+/* total text */
+.cr-total {
+    margin-top: 12px;
+    color: #b3baff;
+    font-size: 12px;
+}
+
+/* responsive */
+@media (max-width: 640px) {
+
+    /* .cr-badge {
+        padding-left: 12px;
+    } */
+
+
+    /* .cr-meta {
+        align-items: flex-start;
+    } */
+}
+/* overlay container */
+.cr-overlay {
+  position: absolute;
+  inset: 0; /* top:0 right:0 bottom:0 left:0 */
+  background: #0f1833f2; /* same dark bg, slightly transparent */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 2; /* above main content */
+}
+
+/* main card content wrapper */
+.cr-main {
+  position: relative;
+  z-index: 1;
+  transition: opacity 0.3s ease;
+}
+
+/* toggle on hover */
+.cr-card:hover .cr-overlay {
+  opacity: 1;
+}
+
+.cr-card:hover .cr-main {
+  opacity: 0;
+}
+
+

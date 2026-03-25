@@ -1,0 +1,372 @@
+.signInPage {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  background-color: #0D111C; /* Fallback if columns don't cover */
+  color: #E0E0E0; /* Light text color for dark backgrounds */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.leftColumn {
+  flex: 0 0 58%; /* Approx 7/12 ratio like in ripple/index.php */
+  /* flex: 1; */ /* Original equal flex */
+  background-color: #0D111C; /* Dark blue from image */
+  padding: 3rem;
+  display: flex;
+  flex-direction: column;
+  position: relative; 
+  overflow: hidden; 
+}
+
+.logoContainer {
+  margin-bottom: auto; 
+  z-index: 20; /* Ensure logo is above floating elements */
+}
+
+.logo {
+  /* width and height are set by Next/Image component props */
+  object-fit: contain;
+}
+
+.illustrationContainer {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative; 
+}
+
+.mainIllustration {
+  max-width: 75%; /* Adjusted to give more space */
+  max-height: 65vh; /* Adjusted */
+  object-fit: contain;
+  z-index: 10;
+}
+
+.floatingElement {
+  position: absolute;
+  object-fit: contain;
+  animation: floatAnimation 6s ease-in-out infinite alternate;
+}
+
+.floatingCart {
+  width: clamp(100px, 15vw, 150px); 
+  top: 15%; /* Adjusted */
+  left: 10%; /* Adjusted */
+  z-index: 5;
+  animation-delay: -2s;
+}
+
+.floatingGraph {
+  width: clamp(120px, 18vw, 180px); 
+  bottom: 10%; /* Adjusted */
+  right: 5%;  /* Adjusted */
+  z-index: 5;
+  animation-delay: -4s;
+}
+
+.floatingSphere {
+  width: clamp(100px, 12vw, 180px); /* Increased size range */
+  height: auto; /* Ensure aspect ratio is maintained based on width */
+  bottom: 5%; 
+  left: 15%; 
+  z-index: 1;
+  opacity: 0.8;
+}
+
+@keyframes floatAnimation {
+  0% { transform: translateY(0px); }
+  100% { transform: translateY(-20px); }
+}
+
+.rightColumn {
+  flex: 0 0 42%; /* Approx 5/12 ratio */
+  /* flex: 1; */ /* Original equal flex */
+  background-color: #161A2C; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem; 
+}
+
+.formWrapper { /* New wrapper to mimic w-px-400 mx-auto from ripple/index.php */
+  width: 100%;
+  max-width: 400px; /* Consistent with ripple/index.php w-px-400 */
+  text-align: left;
+}
+
+.title {
+  font-size: 2rem; /* Adjusted from 2.25rem, closer to ripple h4 */
+  font-weight: 700;
+  color: #FFFFFF;
+  margin-bottom: 0.5rem; /* Adjusted from 0.75rem, closer to ripple h4.mb-1 */
+}
+
+.subtitle {
+  font-size: 1rem; 
+  color: #A0AEC0; 
+  margin-bottom: 2.5rem; /* Matches screenshot (was 2.5rem), ripple p.mb-5 is a bit larger */
+}
+
+.signInForm {
+  display: flex;
+  flex-direction: column;
+}
+
+.inputGroup {
+  margin-bottom: 1.25rem; /* Adjusted from 1.5rem, closer to ripple .mb-5 (which is on wrapper) */
+}
+
+.label {
+  display: block;
+  font-size: 0.875rem; 
+  font-weight: 500; /* Slightly less bold */
+  color: #CBD5E0; 
+  margin-bottom: 0.5rem; 
+}
+
+.inputField {
+  width: 100%;
+  padding: 0.875rem 1rem; 
+  background-color: #2D3748; 
+  border: 1px solid #4A5568; 
+  border-radius: 8px;
+  color: #E2E8F0; 
+  font-size: 0.95rem; /* Slightly smaller */
+  transition: border-color 0.2s, box-shadow 0.2s;
+  line-height: 1.5;
+}
+
+.inputField::placeholder {
+  color: #718096;
+}
+
+.inputField:focus {
+  outline: none;
+  border-color: #6366F1; 
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+}
+
+.passwordWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.passwordWrapper .inputField {
+  padding-right: 3rem; /* Make space for the icon */
+}
+
+.eyeButton {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: #A0AEC0;
+  cursor: pointer;
+}
+
+.labelContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.passwordToggle {
+  position: absolute;
+  right: 0.75rem; /* Adjusted for better alignment */
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: #A0AEC0;
+  cursor: pointer;
+  font-size: 1.25rem;
+  padding: 0.25rem;
+}
+
+.supportLinkContainer {
+  text-align: right;
+  margin-bottom: 1.75rem; 
+  margin-top: -0.5rem; /* Pull it up a bit closer to password field */
+}
+
+.supportLink {
+  font-size: 0.875rem;
+  color: #8795A1; /* As per screenshot */
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.supportLink:hover {
+  color: #A0AEC0;
+  text-decoration: underline;
+}
+
+.button {
+  padding: 1rem 1rem; /* Increased vertical padding */
+  border-radius: 8px;
+  font-size: 0.95rem; /* Slightly smaller to match input fields */
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s, background-color 0.2s, border-color 0.2s;
+  border: none;
+  width: 100%;
+  display: block;
+  text-decoration: none; 
+  line-height: 1.5;
+}
+
+.button:active {
+    transform: scale(0.98);
+}
+
+.signInButton {
+  background: linear-gradient(90deg, #4F46E5 0%, #7C3AED 100%);
+  color: #FFFFFF;
+  margin-bottom: 1.25rem; /* Adjusted from 1.5rem */
+}
+
+.signInButton:hover {
+  opacity: 0.9;
+}
+
+.createAccountLink {
+  color: #7C3AED; /* Using color from button gradient */
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.createAccountLink:hover {
+  color: #9F63F5; /* Lighter shade for hover */
+  text-decoration: underline;
+}
+
+.dividerContainer {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin-top: 1.25rem; /* Added margin top for spacing */
+  margin-bottom: 1.25rem; /* Adjusted from 1.5rem */
+  color: #718096; 
+}
+
+.dividerLine {
+  flex-grow: 1;
+  height: 1px;
+  background-color: #4A5568; 
+}
+
+.dividerText {
+  padding: 0 0.75rem; /* Slightly reduced padding */
+  font-size: 0.875rem;
+  color: #A0AEC0; /* Made it a bit lighter */
+}
+
+.platformText {
+  text-align: center;
+  font-size: 0.9rem; /* Slightly larger */
+  color: #CBD5E0; /* Lighter for better contrast */
+  margin-bottom: 0.75rem; 
+}
+
+.claimButton {
+  background-color: transparent;
+  color: #8B5CF6; 
+  border: 1.5px solid #8B5CF6; /* Slightly thinner border */
+}
+
+.claimButton:hover {
+  background-color: rgba(139, 92, 246, 0.1);
+  border-color: #A78BFA;
+  color: #A78BFA;
+}
+
+/* Styling for social login buttons */
+.socialLoginContainer {
+  display: flex;
+  justify-content: center; /* Center buttons */
+  gap: 1rem; /* Space between buttons */
+  margin-bottom: 1.5rem; /* Space below social buttons */
+}
+
+.socialButton {
+  background-color: #2D3748; /* Dark background */
+  border: 1px solid #4A5568; /* Subtle border */
+  color: #E2E8F0; /* Light icon/text color */
+  padding: 0.65rem; /* Slightly smaller padding */
+  border-radius: 8px;
+  font-size: 1.2rem; /* Icon size */
+  width: 48px;  /* Fixed width */
+  height: 48px; /* Fixed height */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.socialButton:hover {
+  background-color: #4A5568; /* Darker on hover */
+  border-color: #718096;
+}
+
+.socialButton i {
+  font-family: 'bootstrap-icons' !important; /* Ensure Bootstrap Icons font is used */
+  font-style: normal; /* Override browser default italic for <i> */
+  font-weight: normal !important;
+  font-variant: normal !important;
+  text-transform: none !important;
+  line-height: 1;
+  speak: never;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  display: inline-block; /* Ensure icon displays correctly */
+}
+
+.socialButtonFacebook:hover { background-color: #166FE5; border-color: #166FE5; }
+.socialButtonTwitter:hover { background-color: #000000; border-color: #000000; }
+.socialButtonGithub:hover { background-color: #171515; border-color: #171515; }
+.socialButtonGoogle:hover { background-color: #CF3D2E; border-color: #CF3D2E; }
+
+/* Responsive adjustments */
+@media (max-width: 1024px) { /* Adjusted breakpoint for hiding left column */
+  .leftColumn {
+    display: none; 
+  }
+  .rightColumn {
+    flex: 1 0 100%; 
+    padding: 2rem;
+  }
+  .formWrapper {
+    max-width: 420px; /* Allow a bit more width on tablets */
+  }
+}
+
+@media (max-width: 480px) { /* Small mobile */
+  .rightColumn {
+    padding: 1.5rem 1rem; /* Reduce horizontal padding more */
+  }
+  .title {
+    font-size: 1.75rem;
+  }
+  .subtitle {
+    margin-bottom: 2rem;
+    font-size: 0.95rem;
+  }
+  .inputGroup {
+    margin-bottom: 1rem;
+  }
+  .button {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
+  .platformText {
+    font-size: 0.85rem;
+  }
+} 

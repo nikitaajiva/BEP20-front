@@ -1,0 +1,195 @@
+.pageContainer {
+  background-color: #000000;
+  min-height: 100vh;
+  color: #ffffff;
+}
+
+.contentWrapper {
+  display: flex;
+}
+
+.mainContent {
+  flex-grow: 1;
+  padding: 2rem;
+  margin-left: 100px;
+  transition: margin-left 0.3s ease;
+  min-width: 0;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-size: 1.2rem;
+  background-color: #000000;
+  color: #ffd700;
+}
+
+.error {
+    color: #ef4444;
+    background-color: rgba(239, 68, 68, 0.1);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.headerRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.pageTitle {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0;
+}
+
+.filterControls {
+  background: #000000;
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  border: 1px solid rgba(255, 215, 0, 0.1);
+}
+
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex-grow: 1;
+}
+
+.filterGroup label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #888;
+}
+
+.filterSelect {
+  background-color: #0a0a0a;
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  color: #fff;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.filterSelect:focus {
+  outline: none;
+  border-color: #ffd700;
+}
+
+.tableContainer {
+    background: #000000;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 215, 0, 0.1);
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th, .table td {
+    padding: 1rem 1.25rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 215, 0, 0.1);
+    vertical-align: middle;
+}
+
+.table th {
+    font-weight: 600;
+    color: #ffd700;
+    background-color: rgba(255, 215, 0, 0.05);
+    white-space: nowrap;
+}
+
+.table td {
+    color: #e0e0e0;
+}
+
+.noEntries {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #b3baff;
+}
+
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background-color: #000000;
+  border-top: 1px solid rgba(255, 215, 0, 0.1);
+  border-radius: 0 0 12px 12px;
+}
+
+.paginationInfo {
+  font-size: 0.875rem;
+  color: #888;
+}
+
+.paginationControls button {
+  background: rgba(255, 215, 0, 0.1);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-left: 0.5rem;
+}
+
+.paginationControls button:hover {
+  background: #ffd700;
+  color: #000;
+}
+
+.paginationControls button:disabled {
+  background: #101935;
+  color: #5a6b9a;
+  cursor: not-allowed;
+}
+
+.amountCredit {
+    color: #7FFF4C; /* Green */
+    font-weight: 600;
+}
+
+.amountDebit {
+    color: #ff4d4d; /* Red */
+    font-weight: 600;
+}
+
+.eventTypeTag {
+    display: inline-block;
+    padding: 0.25rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 992px) {
+  .mainContent {
+    margin-left: 0;
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .mainContent {
+    padding: 1rem;
+  }
+} 

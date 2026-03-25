@@ -235,14 +235,14 @@ export default function CommunityBoosterReportPage() {
     }
   };
 
-  const formatXRP = (amount) => {
-    if (!amount) return "0.000000 XRP";
+  const formatUSDT = (amount) => {
+    if (!amount) return "0.000000 USDT";
     // Handle Decimal128 format
     const value = amount.$numberDecimal
       ? parseFloat(amount.$numberDecimal)
       : parseFloat(amount);
-    if (isNaN(value)) return "0.000000 XRP";
-    return value === 0 ? "0.000000 XRP" : `${value.toFixed(6)} XRP`;
+    if (isNaN(value)) return "0.000000 USDT";
+    return value === 0 ? "0.000000 USDT" : `${value.toFixed(6)} USDT`;
   };
 
   const fetchTeamDetails = async () => {
@@ -473,7 +473,7 @@ export default function CommunityBoosterReportPage() {
                     {summary.user.username} ({summary.user.uhid})
                   </td>
                   <td style={{ padding: "1rem", textAlign: "right" }}>
-                    {formatXRP(summary.volumes?.directVolume)}
+                    {formatUSDT(summary.volumes?.directVolume)}
                     {/* <FaEye 
                       style={{ cursor: 'pointer', marginLeft: 6, color: '#4f8cff' }} 
                       title="View team details"
@@ -481,7 +481,7 @@ export default function CommunityBoosterReportPage() {
                     /> */}
                   </td>
                   <td style={{ padding: "1rem", textAlign: "right" }}>
-                    {formatXRP(summary.volumes?.teamVolume)}
+                    {formatUSDT(summary.volumes?.teamVolume)}
                     {/* <FaEye 
                       style={{ cursor: 'pointer', marginLeft: 6, color: '#4f8cff' }} 
                       title="View team details"
@@ -510,7 +510,7 @@ export default function CommunityBoosterReportPage() {
                       }}
                     >
                       Directs: {summary.conditions?.directs || 0}, Self LP:{" "}
-                      {formatXRP(summary.conditions?.selfLP)}
+                      {formatUSDT(summary.conditions?.selfLP)}
                     </div>
                     <FaEye
                       style={{ marginLeft: 6, color: "#4f8cff" }}
@@ -518,7 +518,7 @@ export default function CommunityBoosterReportPage() {
                     />
                   </td>
                   <td style={{ padding: "1rem", textAlign: "right" }}>
-                    {formatXRP(summary.credited?.total)}
+                    {formatUSDT(summary.credited?.total)}
                     <FaEye
                       style={{
                         cursor: "pointer",
@@ -656,7 +656,7 @@ export default function CommunityBoosterReportPage() {
                                 color: "#4f8cff",
                               }}
                             >
-                              {formatXRP(member.lpSum)}
+                              {formatUSDT(member.lpSum)}
                             </td>
                           </tr>
                         );
@@ -689,7 +689,7 @@ export default function CommunityBoosterReportPage() {
                                 fontWeight: "bold",
                               }}
                             >
-                              {formatXRP(member.lpSum)}
+                              {formatUSDT(member.lpSum)}
                             </td>
                           </tr>
                         );
@@ -707,7 +707,7 @@ export default function CommunityBoosterReportPage() {
                             Level {member.level}
                           </td>
                           <td style={{ padding: "1rem", textAlign: "right" }}>
-                            {formatXRP(member.lp)}
+                            {formatUSDT(member.lp)}
                           </td>
                         </tr>
                       );
@@ -874,10 +874,10 @@ export default function CommunityBoosterReportPage() {
                         </td>
                         <td style={{ padding: "1rem" }}>{event.from}</td>
                         <td style={{ padding: "1rem", textAlign: "right" }}>
-                          {formatXRP(event.triggeringAmount)}
+                          {formatUSDT(event.triggeringAmount)}
                         </td>
                         <td style={{ padding: "1rem", textAlign: "right" }}>
-                          {formatXRP(event.amount)}
+                          {formatUSDT(event.amount)}
                         </td>
                         <td style={{ padding: "1rem", textAlign: "center" }}>
                           Level {event.level}
@@ -937,11 +937,11 @@ export default function CommunityBoosterReportPage() {
                 <strong>Your Current Stats:</strong>
                 <ul style={{ listStyle: "none", padding: 0 }}>
                   <li>Direct Referrals: {summary.conditions?.directs || 0}</li>
-                  <li>Self LP: {formatXRP(summary.conditions?.selfLP)}</li>
+                  <li>Self LP: {formatUSDT(summary.conditions?.selfLP)}</li>
                   <li>
-                    Direct Volume: {formatXRP(summary.volumes?.directVolume)}
+                    Direct Volume: {formatUSDT(summary.volumes?.directVolume)}
                   </li>
-                  <li>Team Volume: {formatXRP(summary.volumes?.teamVolume)}</li>
+                  <li>Team Volume: {formatUSDT(summary.volumes?.teamVolume)}</li>
                 </ul>
               </div>
 
@@ -1098,7 +1098,7 @@ export default function CommunityBoosterReportPage() {
                           }}
                         >
                           {tierReq.minSelfLP} (
-                          {formatXRP(summary.conditions?.selfLP)})
+                          {formatUSDT(summary.conditions?.selfLP)})
                         </td>
                         <td
                           style={{
@@ -1107,8 +1107,8 @@ export default function CommunityBoosterReportPage() {
                             color: meetsDirectVolume ? "#4caf50" : "#ff4d4d",
                           }}
                         >
-                          {formatXRP(tierReq.directRequired)} (
-                          {formatXRP(summary.volumes?.directVolume)})
+                          {formatUSDT(tierReq.directRequired)} (
+                          {formatUSDT(summary.volumes?.directVolume)})
                         </td>
                         <td
                           style={{
@@ -1117,8 +1117,8 @@ export default function CommunityBoosterReportPage() {
                             color: meetsTeamVolume ? "#4caf50" : "#ff4d4d",
                           }}
                         >
-                          {formatXRP(tierReq.teamRequired)} (
-                          {formatXRP(summary.volumes?.teamVolume)})
+                          {formatUSDT(tierReq.teamRequired)} (
+                          {formatUSDT(summary.volumes?.teamVolume)})
                         </td>
                         <td
                           style={{
@@ -1163,3 +1163,5 @@ export default function CommunityBoosterReportPage() {
     </div>
   );
 }
+
+

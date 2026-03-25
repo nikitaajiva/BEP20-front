@@ -426,19 +426,6 @@
   box-shadow: 0 4px 10px rgba(255, 215, 0, 0.3);
 }
 
-@media (max-width: 768px) {
-  .cardContainerHorizontal {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 15px;
-    padding: 15px;
-  }
-  .horizontalRight {
-    width: 100%;
-    justify-content: space-between;
-  }
-}
-
 /* New Rewards Wallet Layout */
 .rwCardWrapper {
   background: rgba(10, 10, 10, 0.95);
@@ -555,19 +542,6 @@
   margin-top: auto;
 }
 
-.rwCurrentBalanceCol {
-  display: flex;
-  flex-direction: column;
-}
-
-.rwCurrentValue {
-  font-size: 28px;
-  font-weight: 800;
-  color: #ffd700;
-  line-height: 1.1;
-  margin-top: 4px;
-}
-
 .rwAutoPosBtn {
   background: transparent;
   border: 1px solid rgba(255, 215, 0, 0.3);
@@ -594,4 +568,40 @@
   text-transform: uppercase;
   text-align: center;
   line-height: 1.2;
+}
+
+/* Response Style for Mini Cards */
+@media (max-width: 768px) {
+  .cardContainerHorizontal {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 15px;
+  }
+  .horizontalRight {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 600px) {
+  .cardContainer {
+    padding: 20px 15px;
+  }
+  .mainBalance {
+    font-size: 26px;
+  }
+  .actionButtons {
+    flex-direction: column;
+    width: 100%;
+  }
+  .primaryBtn, .secondaryBtn {
+    width: 100%;
+  }
+  .rwMassiveValue {
+    font-size: 30px;
+  }
+  .subCardsGrid {
+    grid-template-columns: 1fr;
+  }
 }

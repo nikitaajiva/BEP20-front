@@ -57,6 +57,10 @@
   font-weight: 600;
   border-radius: 12px;
   border: 1px solid transparent;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.navLink svg, .navLink i {
   transition: all 0.3s ease;
 }
 
@@ -66,6 +70,16 @@
   -webkit-backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 215, 0, 0.25);
   color: #ffd700;
+}
+
+.navLink:hover svg, .navLink:hover i {
+  transform: scale(1.1);
+  filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.6));
+}
+
+.navLinkActive svg, .navLinkActive i {
+  filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.5));
+  color: #000;
 }
 
 .navLinkActive {
@@ -519,6 +533,28 @@
   box-shadow: 0 6px 20px rgba(255, 215, 0, 0.45);
 }
 
+.headerBalanceWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 8px;
+  color: #ffd700;
+  font-weight: 800;
+  font-size: 14px;
+}
+
+.headerBalanceLabel {
+  font-size: 12px;
+  color: #888;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.headerBalanceValue {
+  color: #ffd700;
+  font-size: 14px;
+}
+
 .autopositioningBadge {
   position: absolute;
   bottom: -55px;
@@ -724,4 +760,166 @@
   0% { transform: translateX(-50%) translateY(0); }
   50% { transform: translateX(-50%) translateY(-15px); }
   100% { transform: translateX(-50%) translateY(0); }
+}
+
+/* ===== Responsive Mobile Styles ===== */
+
+@media (max-width: 1200px) {
+  .staticFloatLeft, .staticFloatRight {
+    width: 340px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 80px;
+    padding: 20px 10px;
+  }
+  .sidebarNavItem span {
+    display: none;
+  }
+  .mainContentArea {
+    margin-left: 80px;
+    width: calc(100% - 80px);
+    padding: 20px;
+  }
+  .staticFloatLeft, .staticFloatRight {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    transform: none;
+    width: 100%;
+    max-width: 600px;
+    margin: 20px auto;
+    animation: none;
+  }
+  .staticFloatBottom {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    transform: none;
+    margin: 20px auto;
+    max-width: 600px;
+    animation: none;
+  }
+  .centralDashboard {
+    min-height: 500px;
+    padding: 20px 0;
+  }
+  .hubContentWrapper {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .staticFloatBottom {
+    order: 3;
+  }
+  .staticFloatLeft {
+    order: 4;
+  }
+  .staticFloatRight {
+    order: 5;
+  }
+  .centralDashboard {
+    order: 2;
+  }
+  .topRightActions {
+    position: relative;
+    top: auto;
+    right: auto;
+    padding: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+    order: 1;
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .mainContentArea {
+    margin-left: 0;
+    width: 100%;
+    padding: 15px;
+  }
+  .sidebar {
+    display: none; /* Mobile menu can be added later if needed */
+  }
+  .hubAmount {
+    font-size: 36px;
+  }
+  .mainCircle {
+    width: 240px;
+    height: 240px;
+  }
+  .techRing {
+    display: none;
+  }
+  .topRightActions {
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+  }
+  .headerBalanceWrapper {
+    flex-direction: column;
+    gap: 2px;
+    margin-right: 0;
+    text-align: center;
+  }
+  .redeemBtnTop, .connectBtn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Mobile Bottom Navigation */
+.mobileBottomNav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 65px;
+  background: rgba(10, 10, 10, 0.9);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(255, 215, 0, 0.15);
+  z-index: 1000;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0 10px;
+}
+
+.mobileNavItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: #888;
+  text-decoration: none;
+  font-size: 10px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.mobileNavItem svg, .mobileNavItem i {
+  transition: all 0.3s ease;
+}
+
+.mobileNavItemActive {
+  color: #ffd700;
+}
+
+.mobileNavItemActive svg, .mobileNavItemActive i {
+  transform: scale(1.1);
+  filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.4));
+}
+
+@media (max-width: 480px) {
+  .mobileBottomNav {
+    display: flex;
+  }
+  .mainContentArea {
+    padding-bottom: 80px; /* Space for bottom nav */
+  }
 }

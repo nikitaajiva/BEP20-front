@@ -15,7 +15,7 @@ export async function GET() {
       communitySize: 0,
       activeTier: 0
     },
-    xrp: {
+    USDT: {
       currentPrice: 2.2988,
       totalSupply: 99986107098,
       change24h: -0.0466,

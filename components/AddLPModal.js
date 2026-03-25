@@ -1,5 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import styles from "./AddLPModal.module.css";
+import { Wallet, Droplets, Zap, ShieldCheck, X, CreditCard, Info } from "lucide-react";
 
 function getAirdropBonusPercentage(config, serverTime) {
   if (!config || !config.steps) return 0;
@@ -132,322 +134,103 @@ export default function AddLPModal({
   if (!isOpen) return null;
 
   return (
-    <div
-      className="modal-overlay"
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: "rgba(0, 0, 0, 0.5)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        zIndex: 1050,
-      }}
-    >
-      <div
-        className="modal-content"
-        style={{
-          background: "#181f3a",
-          borderRadius: "22px",
-          padding: "2rem",
-          width: "90%",
-          maxWidth: "500px",
-          color: "white",
-          boxShadow: "0 8px 32px 0 rgba(16,25,53,0.18)",
-        }}
-      >
-        <div className="modal-header" style={{ marginBottom: "1.5rem" }}>
-          <h4 style={{ margin: 0, color: "#fff" }}>
+    <div className={styles.modalOverlay} onClick={handleClose}>
+      <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.modalHeader}>
+          <h4 className={styles.modalTitle}>
             {isFirstLP ? "Activate Liquidity Pool" : "Add to Liquidity Pool"}
           </h4>
-          <button
-            onClick={handleClose}
-            style={{
-              background: "none",
-              border: "none",
-              color: "#b3baff",
-              fontSize: "1.5rem",
-              cursor: "pointer",
-              position: "absolute",
-              right: "1rem",
-              top: "1rem",
-            }}
-          >
-            ×
+          <button onClick={handleClose} className={styles.closeBtn}>
+            <X size={24} />
           </button>
         </div>
 
-        <div className="modal-body">
+        <div className={styles.modalBody}>
           {isFirstLP && !show && (
-            <div
-              style={{
-                background: "rgba(79, 140, 255, 0.1)",
-                border: "1px solid rgba(79, 140, 255, 0.2)",
-                borderRadius: "12px",
-                padding: "1rem",
-                marginBottom: "1.5rem",
-              }}
-            >
-              <h6 style={{ color: "#4f8cff", margin: "0 0 0.5rem 0" }}>
-                First Liquidity Pool Activation
-              </h6>
-              <p style={{ color: "#b3baff", margin: 0, fontSize: "0.9rem" }}>
-                This will set your Swift and Boost limits equal to your transfer
-                amount. You can transfer any amount from your Primary Vault balance.
+            <div className={styles.activationInfo}>
+              <div className={styles.activationTitle}>
+                <ShieldCheck size={18} color="#ffd700" />
+                <span>First Activation Protocol</span>
+              </div>
+              <p className={styles.activationText}>
+                This sets your Swift &amp; Boost limits equal to your transfer amount.
               </p>
             </div>
           )}
 
-          <div style={{ marginBottom: "1.5rem" }}>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                marginBottom: "1rem",
-              }}
-            >
-              <div>
-                <small style={{ color: "#b3baff" }}>Available in Primary Vault:</small>
-                <div style={{ color: "#4f8cff", fontWeight: "bold" }}>
-                  {xamanBalance.toFixed(6)} USDT
+          <div className={styles.balanceRow}>
+            <div className={styles.balanceItem}>
+              <span className={styles.balanceLabel}>Vault Balance</span>
+              <div className={styles.balanceValue} style={{ color: "#4f8cff" }}>
+                {xamanBalance.toFixed(4)} USDT
+              </div>
+            </div>
+            {!show && (
+              <div className={styles.balanceItem}>
+                <span className={styles.balanceLabel}>Swift Limit</span>
+                <div className={styles.balanceValue} style={{ color: "#ffd700" }}>
+                  {swiftBalance.toFixed(2)} USDT
                 </div>
               </div>
-              {!show && (
-                <div>
-                  <small style={{ color: "#b3baff" }}>
-                    Available in Swift:
-                  </small>
-                  <div style={{ color: "#FFD700", fontWeight: "bold" }}>
-                    {swiftBalance.toFixed(2)} USDT
-                  </div>
-                </div>
-              )}
-            </div>
+            )}
           </div>
 
           <form onSubmit={handleSubmit}>
-            <div style={{ marginBottom: "1.5rem" }}>
-              <label
-                style={{
-                  display: "block",
-                  marginBottom: "0.5rem",
-                  color: "#b3baff",
-                }}
-              >
-                Transfer Amount (USDT){" "}
-                <span style={{ color: "rgb(255, 215, 0)", fontWeight: "bold" }}>
-                  Minimum: 9+
-                </span>
+            <div className={styles.inputGroup}>
+              <label className={styles.inputLabel}>
+                Transfer Amount
+                <span className={styles.minBadge}>Min 9+</span>
               </label>
               <input
                 type="number"
                 step="0.000001"
-                min="0"
-                max={xamanBalance}
+                className={styles.amountInput}
                 value={transferAmount}
                 onChange={(e) => setTransferAmount(e.target.value)}
-                placeholder="Enter amount to transfer"
-                style={{
-                  width: "100%",
-                  padding: "0.75rem",
-                  borderRadius: "12px",
-                  border: "1px solid rgba(79, 140, 255, 0.2)",
-                  background: "rgba(79, 140, 255, 0.1)",
-                  color: "#fff",
-                  fontSize: "1rem",
-                }}
+                placeholder="0.00"
                 required
               />
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  marginTop: "0.5rem",
-                }}
-              >
-                <button
-                  disabled={true}
-                  type="button"
-                  onClick={() => handlePercentageClick(0.25)}
-                  style={{
-                    background: "rgba(79, 140, 255, 0.1)",
-                    border: "1px solid rgba(79, 140, 255, 0.2)",
-                    color: "#4f8cff",
-                    borderRadius: "8px",
-                    padding: "0.25rem 0.5rem",
-                    fontSize: "0.8rem",
-                    cursor: "pointer",
-                  }}
-                >
-                  25%
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handlePercentageClick(0.5)}
-                  style={{
-                    background: "rgba(79, 140, 255, 0.1)",
-                    border: "1px solid rgba(79, 140, 255, 0.2)",
-                    color: "#4f8cff",
-                    borderRadius: "8px",
-                    padding: "0.25rem 0.5rem",
-                    fontSize: "0.8rem",
-                    cursor: "pointer",
-                  }}
-                >
-                  50%
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handlePercentageClick(0.75)}
-                  style={{
-                    background: "rgba(79, 140, 255, 0.1)",
-                    border: "1px solid rgba(79, 140, 255, 0.2)",
-                    color: "#4f8cff",
-                    borderRadius: "8px",
-                    padding: "0.25rem 0.5rem",
-                    fontSize: "0.8rem",
-                    cursor: "pointer",
-                  }}
-                >
-                  75%
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handlePercentageClick(1)}
-                  style={{
-                    background: "rgba(79, 140, 255, 0.1)",
-                    border: "1px solid rgba(79, 140, 255, 0.2)",
-                    color: "#4f8cff",
-                    borderRadius: "8px",
-                    padding: "0.25rem 0.5rem",
-                    fontSize: "0.8rem",
-                    cursor: "pointer",
-                  }}
-                >
-                  Max
-                </button>
+              <div className={styles.percentageGrid}>
+                {[0.25, 0.5, 0.75, 1].map((p) => (
+                  <button
+                    key={p}
+                    type="button"
+                    className={styles.percentageBtn}
+                    onClick={() => handlePercentageClick(p)}
+                  >
+                    {p === 1 ? "MAX" : `${p * 100}%`}
+                  </button>
+                ))}
               </div>
             </div>
 
-            {airdropConfig &&
-              !show &&
-              getAirdropBonusPercentage(
-                airdropConfig,
-                airdropConfig.serverTime
-              ) > 0 && (
-                <div style={{ marginBottom: "1.5rem" }}>
-                  <label
-                    style={{
-                      display: "block",
-                      marginBottom: "0.5rem",
-                      color: "#b3baff",
-                    }}
-                  >
-                    Airdrop Bonus (from Swift Balance)
-                  </label>
-                  <input
-                    type="text"
-                    value={`${airdropBonus} USDT`}
-                    readOnly
-                    style={{
-                      width: "100%",
-                      padding: "0.75rem",
-                      borderRadius: "12px",
-                      border: "1px solid rgba(79, 140, 255, 0.2)",
-                      background: "rgba(79, 140, 255, 0.1)",
-                      color: "#fff",
-                      fontSize: "1rem",
-                      opacity: 0.7,
-                      cursor: "not-allowed",
-                    }}
-                  />
-                  <small
-                    style={{
-                      color: "#b3baff",
-                      marginTop: "0.5rem",
-                      display: "block",
-                    }}
-                  >
-                    You will receive a{" "}
-                    {getAirdropBonusPercentage(
-                      airdropConfig,
-                      airdropConfig.serverTime
-                    ) * 100}
-                    % bonus on your Liquidity Pool deposit, transferred from your Swift
-                    Wallet to your Airdrop Wallet.
-                  </small>
+            {airdropConfig && !show && getAirdropBonusPercentage(airdropConfig, airdropConfig.serverTime) > 0 && (
+              <div className={styles.airdropBonus}>
+                <span className={styles.bonusLabel}>Airdrop Protocol Bonus</span>
+                <div className={styles.bonusValue}>{airdropBonus} USDT</div>
+                <div className={styles.bonusDesc}>
+                  You'll receive a {getAirdropBonusPercentage(airdropConfig, airdropConfig.serverTime) * 100}% bonus, transferred to your Airdrop Wallet from your Swift limit.
                 </div>
-              )}
-
-            {error && (
-              <div
-                style={{
-                  background: "rgba(255, 77, 77, 0.1)",
-                  border: "1px solid rgba(255, 77, 77, 0.2)",
-                  borderRadius: "12px",
-                  padding: "1rem",
-                  marginBottom: "1rem",
-                  color: "#ff4d4d",
-                }}
-              >
-                {error}
               </div>
             )}
 
-            <div
-              style={{
-                display: "flex",
-                gap: "1rem",
-                justifyContent: "flex-end",
-              }}
-            >
+            {error && <div className={styles.errorBox}>{error}</div>}
+
+            <div className={styles.buttonRow}>
               <button
                 type="button"
+                className={styles.cancelBtn}
                 onClick={handleClose}
                 disabled={isLoading}
-                style={{
-                  background: "rgba(255, 77, 77, 0.1)",
-                  border: "1px solid rgba(255, 77, 77, 0.2)",
-                  color: "#ff4d4d",
-                  borderRadius: "12px",
-                  padding: "0.75rem 1.5rem",
-                  cursor: "pointer",
-                }}
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                disabled={
-                  isLoading ||
-                  !transferAmount ||
-                  parseFloat(transferAmount) <= 0 ||
-                  parseFloat(transferAmount) > xamanBalance
-                }
-                style={{
-                  background: "rgba(79, 140, 255, 0.1)",
-                  border: "1px solid rgba(79, 140, 255, 0.2)",
-                  color: "#4f8cff",
-                  borderRadius: "12px",
-                  padding: "0.75rem 1.5rem",
-                  cursor: "pointer",
-                  opacity:
-                    isLoading ||
-                    !transferAmount ||
-                    parseFloat(transferAmount) <= 0 ||
-                    parseFloat(transferAmount) > xamanBalance
-                      ? 0.5
-                      : 1,
-                }}
+                className={styles.submitBtn}
+                disabled={isLoading || !transferAmount || parseFloat(transferAmount) <= 0 || parseFloat(transferAmount) > xamanBalance}
               >
-                {isLoading
-                  ? "Processing..."
-                  : isFirstLP
-                  ? "Activate Liquidity Pool"
-                  : "Transfer"}
+                {isLoading ? "Processing..." : (isFirstLP ? "Activate Protocol" : "Confirm Transfer")}
               </button>
             </div>
           </form>

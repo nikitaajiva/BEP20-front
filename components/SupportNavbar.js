@@ -10,7 +10,7 @@ const navLinks = [
   { name: "User Ledger", href: "/support/dashboard/user-ledger" },
   { name: "Team View", href: "/support/dashboard/team-view" },
   { name: "Ledger Rows", href: "/support/dashboard/ledger-rows" },
-  { name: "USDT Deposits", href: "/support/dashboard/xrp-deposits" },
+  { name: "USDT Deposits", href: "/support/dashboard/USDT-deposits" },
   { name: "Community Booster", href: "/support/dashboard/community-booster-report" },
   { name: "Community Rewards", href: "/support/dashboard/community-rewards" },
   { name: "X1-X5 Bonus", href: "/support/dashboard/x1-bonus-report" },
@@ -104,3 +104,4 @@ export default function SupportNavbar() {
     </nav>
   );
 }
+

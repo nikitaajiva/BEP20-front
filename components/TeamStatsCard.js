@@ -11,7 +11,7 @@ const TeamStatsCard = ({ user }) => {
     user?.counters?.totalTeamLp?.$numberDecimal || 0
   );
 
-  const Community_XRP_Balance = parseFloat(totalTeamLp).toFixed(4);
+  const Community_USDT_Balance = parseFloat(totalTeamLp).toFixed(4);
   return (
     <div
       className="card h-100"
@@ -111,7 +111,7 @@ const TeamStatsCard = ({ user }) => {
               </div>
               <div className="" style={{ color: "#4f8cff", textAlign: "end" }}>
                 <h4 className="mb-0" style={{ color: "#4f8cff" }}>
-                  {Community_XRP_Balance}
+                  {Community_USDT_Balance}
                 </h4>
               </div>
             </div>
@@ -123,3 +123,4 @@ const TeamStatsCard = ({ user }) => {
 };
 
 export default TeamStatsCard;
+

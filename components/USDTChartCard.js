@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 
-export default function USDTChartCard({ USDT }) {
+export default function USDTChartCard({ usdt }) {
   const tradingViewContainerRef = useRef(null);
   const scriptAppendedRef = useRef(false);
 
@@ -29,8 +29,8 @@ export default function USDTChartCard({ USDT }) {
 
         const config = {
           "symbols": [
-            ["BINANCE:XRPUSDT|1Y"],
-            ["CRYPTOCAP:XRP|1Y"]
+            ["BINANCE:USDTUSDC|1Y"],
+            ["CRYPTOCAP:USDT|1Y"]
           ],
           "chartOnly": false,
           "width": "100%",
@@ -88,12 +88,12 @@ export default function USDTChartCard({ USDT }) {
     };
   }, []); // Empty dependency array, runs once on mount and cleans up on unmount
 
-  const USDTDetailItems = [
-    { label: "Current Price", value: `${xrp?.currentPrice} USDT`, icon: "ri-price-tag-3-line", iconBg: "#3b82f6" },
-    { label: "Total Supply", value: `${xrp?.totalSupply?.toLocaleString()} USDT`, icon: "ri-stack-line", iconBg: "#22c55e" },
-    { label: "Change 24 Hrs", value: USDT?.change24h, icon: "ri-arrow-left-right-line", iconBg: "#ef4444" },
-    { label: "USDT High", value: `${xrp?.high} USDT`, icon: "ri-arrow-up-line", iconBg: "#14b8a6" },
-    { label: "USDT Low", value: `${xrp?.low} USDT`, icon: "ri-arrow-down-line", iconBg: "#f97316" },
+  const detailItems = [
+    { label: "Current Price", value: `${usdt?.currentPrice} USDT`, icon: "ri-price-tag-3-line", iconBg: "#3b82f6" },
+    { label: "Total Supply", value: `Unlimited`, icon: "ri-stack-line", iconBg: "#22c55e" },
+    { label: "Change 24 Hrs", value: usdt?.change24h || "0.00", icon: "ri-arrow-left-right-line", iconBg: "#ef4444" },
+    { label: "USDT High", value: `${usdt?.high} USDT`, icon: "ri-arrow-up-line", iconBg: "#14b8a6" },
+    { label: "USDT Low", value: `${usdt?.low} USDT`, icon: "ri-arrow-down-line", iconBg: "#f97316" },
   ];
 
   const detailItemStyle = {
@@ -157,7 +157,7 @@ export default function USDTChartCard({ USDT }) {
             <h5 className="mb-1" style={{color: '#fff', fontWeight: 600, fontSize: '1rem'}}>USDT Details</h5>
           </div>
           <div className="card-body p-0 flex-grow-1">
-            {xrpDetailItems.map(item => (
+            {detailItems.map(item => (
               <div key={item.label} style={detailItemStyle}>
                 <div style={{...iconContainerStyle, backgroundColor: item.iconBg}}>
                   <i className={item.icon} style={{ fontSize: '1rem', color: '#fff' }}></i>

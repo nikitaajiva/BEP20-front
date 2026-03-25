@@ -153,9 +153,9 @@ const XBonusBanner = () => {
   const parseUSDT = (val) => parseInt(val.replace(/,/g, "").replace(" USDT", ""));
   const unlockData = nextLocked
     ? {
-        requiredSelfLp: parseXrp(nextLocked.self),
+        requiredSelfLp: parseUSDT(nextLocked.self),
         userSelfLp: parseFloat(ledgerDetails?.lpWallet?.balance || 0).toFixed(2),
-        requiredCommunityLp: parseXrp(nextLocked.community),
+        requiredCommunityLp: parseUSDT(nextLocked.community),
         legs: Legs,
         isUnlocked: false,
       }

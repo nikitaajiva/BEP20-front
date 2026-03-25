@@ -2,12 +2,11 @@
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { Search, Download, ChevronLeft, ChevronRight, Filter, Calendar, Wallet as WalletIcon, Activity, User as UserIcon, Tag, Terminal, Database, Clock } from 'lucide-react';
+import styles from './ledger-rows.module.css';
 
-// TODO: Move this URL to a .env.local file
-const API_BASE_URL =    `${process.env.NEXT_PUBLIC_API_URL}`;
- 
+const API_BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}`;
 
-// From LedgerRow.js model
 const eventTypes = [
   'DEPOSIT', 'AIRDROP_ACTIVATION', 'AIRDROP_BURN', 'AIRDROP_TRANSFER', 'BOOST_BONUS',
   'ROI_CREDIT', 'ROI_CASCADE', 'WITHDRAWAL', 'INTERNAL_TRANSFER', 'LP_DEPOSIT_FROM_XAMAN',
@@ -16,31 +15,10 @@ const eventTypes = [
 
 const walletTypes = [ 'EXTERNAL', 'SWIFT', 'LP', 'BOOST', 'COMMUNITY_REWARDS', 'XAMAN', 'ZERO_RISK', 'AIRDROP' ];
 
-const inputStyle = {
-    width: '100%',
-    padding: '0.75rem',
-    borderRadius: '12px',
-    border: '1px solid rgba(79, 140, 255, 0.2)',
-    background: 'rgba(79, 140, 255, 0.1)',
-    color: '#fff',
-    fontSize: '0.9rem'
-};
-
-const labelStyle = {
-    display: 'block', 
-    marginBottom: '0.5rem', 
-    color: '#b3baff',
-    fontSize: '0.9rem'
-};
-
-// Helper function to extract details from BOOST_BONUS narrative
 const parseBoostBonusNarrative = (narrative) => {
-    if (typeof narrative !== 'string') {
-        return { from: 'SYSTEM', rate: null };
-    }
+    if (typeof narrative !== 'string') return { from: 'SYSTEM', rate: null };
     const fromMatch = narrative.match(/from direct referral (.*)'s deposit/);
     const rateMatch = narrative.match(/\((.*?)%\)/);
-
     return {
         from: fromMatch ? fromMatch[1] : 'SYSTEM',
         rate: rateMatch ? rateMatch[1] : null,
@@ -51,6 +29,8 @@ function LedgerRows() {
     const { user, loading: authLoading } = useAuth();
     const router = useRouter();
     const searchParams = useSearchParams();
+    
+    // Initializing filters from URL - use default to prevent uncontrolled issues
     const [rows, setRows] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -107,7 +87,7 @@ function LedgerRows() {
             setPagination(data.pagination);
         } catch (err) {
             setError(err.message);
-            if (err.message.includes('Authentication required') || err.message.includes('Unauthorized')) {
+            if (err.message.includes('Authentication required')) {
                 router.push('/sign-in');
             }
         } finally {
@@ -151,11 +131,11 @@ function LedgerRows() {
             })
         ];
         
-        const blob = new Blob([csvRows.join('\\n')], { type: 'text/csv;charset=utf-8;' });
+        const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         const url = URL.createObjectURL(blob);
         link.setAttribute('href', url);
-        link.setAttribute('download', 'ledger-rows.csv');
+        link.setAttribute('download', `ledger-export-${new Date().getTime()}.csv`);
         link.style.visibility = 'hidden';
         document.body.appendChild(link);
         link.click();
@@ -170,189 +150,179 @@ function LedgerRows() {
 
     useEffect(() => {
         if (!authLoading) {
-            if (!user) {
-                router.push('/sign-in');
-            } else if (!['support', 'admin'].includes(user.userType)) {
+            if (!user || !['support', 'admin'].includes(user.userType)) {
                 router.push('/sign-in');
             }
         }
     }, [user, authLoading, router]);
 
-    if (authLoading) {
-        return <div style={{ textAlign: 'center', color: '#b3baff', padding: '2rem' }}>Loading authentication state...</div>;
-    }
-    if (!user || !['support', 'admin'].includes(user.userType)) {
-        return <div style={{ textAlign: 'center', color: '#ff4d4d', padding: '2rem' }}>Unauthorized access. Redirecting...</div>;
-    }
+    if (authLoading) return <div className="text-center p-20 text-gold-500 animate-pulse">Initializing Data Stream...</div>;
+    if (!user) return null;
 
     const SortableHeader = ({ children, column }) => (
-        <th onClick={() => handleSort(column)} style={{ padding: '1rem', textAlign: 'left', color: '#4f8cff', cursor: 'pointer' }}>
-            {children}
-            {sort.sortBy === column ? (sort.sortOrder === 'asc' ? ' ▲' : ' ▼') : ''}
+        <th onClick={() => handleSort(column)} style={{ cursor: 'pointer' }}>
+            <div className="flex items-center gap-2">
+                {children}
+                {sort.sortBy === column && (
+                    sort.sortOrder === 'asc' ? <ChevronLeft className="rotate-90" size={12} /> : <ChevronRight className="rotate-90" size={12} />
+                )}
+            </div>
         </th>
     );
 
     return (
-        <div style={{ 
-          background: '#181f3a',
-          borderRadius: '22px',
-          padding: '2rem',
-          color: 'white'
-        }}>
-            <h2 style={{ marginBottom: '1.5rem', color: '#fff' }}>Ledger Rows Explorer</h2>
-            <form onSubmit={handleSearch} style={{
-                marginBottom: '2rem',
-                padding: '1.5rem',
-                borderRadius: '16px',
-                border: '1px solid rgba(79, 140, 255, 0.2)',
-                background: 'rgba(16,25,53,0.5)'
-            }}>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
-                    <div>
-                        <label style={labelStyle}>Narrative</label>
-                        <input type="text" name="narrative" value={filters.narrative} onChange={handleFilterChange} placeholder="Narrative contains..." style={inputStyle} />
-                    </div>
-                    <div>
-                        <label style={labelStyle}>Username</label>
-                        <input type="text" name="username" value={filters.username} onChange={handleFilterChange} placeholder="Username contains..." style={inputStyle} />
-                    </div>
-                    <div>
-                        <label style={labelStyle}>UHID</label>
-                        <input type="text" name="uhid" value={filters.uhid} onChange={handleFilterChange} placeholder="UHID contains..." style={inputStyle} />
-                    </div>
-                    <div>
-                        <label style={labelStyle}>Event Type</label>
-                        <select name="eventType" value={filters.eventType} onChange={handleFilterChange} style={inputStyle}><option value="">Any Event Type</option>{eventTypes.map(e => <option key={e} value={e}>{e}</option>)}</select>
-                    </div>
-                    <div>
-                        <label style={labelStyle}>Wallet</label>
-                        <select name="wallet" value={filters.wallet} onChange={handleFilterChange} style={inputStyle}><option value="">Any Wallet</option>{walletTypes.map(w => <option key={w} value={w}>{w}</option>)}</select>
-                    </div>
-                    <div>
-                        <label style={labelStyle}>From Date</label>
-                        <input type="date" name="fromDate" value={filters.fromDate} onChange={handleFilterChange} style={inputStyle}/>
-                    </div>
-                    <div>
-                        <label style={labelStyle}>To Date</label>
-                        <input type="date" name="toDate" value={filters.toDate} onChange={handleFilterChange} style={inputStyle}/>
+        <div className={styles.container}>
+            <header className="flex justify-between items-center mb-8">
+                <h1 className={styles.title}>System <span>Audit Explorer</span></h1>
+                <div className="flex gap-4">
+                    <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-xl border border-white/5">
+                        <Database size={14} color="#ffd700" />
+                        <span style={{ fontSize: '12px', fontWeight: 800 }}>{pagination.totalRecords} Entries</span>
                     </div>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1.5rem' }}>
-                    <button type="button" onClick={downloadCSV} disabled={rows.length === 0} style={{
-                        background: 'rgba(25, 135, 84, 0.1)',
-                        border: '1px solid rgba(25, 135, 84, 0.2)',
-                        color: '#198754',
-                        borderRadius: '12px',
-                        padding: '0.75rem 1.5rem',
-                        cursor: 'pointer',
-                        opacity: rows.length === 0 ? 0.5 : 1,
-                        fontWeight: 'bold'
-                    }}>
-                        Download CSV
+            </header>
+
+            <form onSubmit={handleSearch} className={styles.filterForm}>
+                <div className={styles.filterGrid}>
+                    <div className={styles.inputGroup}>
+                        <label><Tag size={12} className="inline mr-1" /> Narrative</label>
+                        <input type="text" name="narrative" value={filters.narrative} onChange={handleFilterChange} placeholder="Search narrative..." className={styles.inputField} />
+                    </div>
+                    <div className={styles.inputGroup}>
+                        <label><UserIcon size={12} className="inline mr-1" /> Identity</label>
+                        <input type="text" name="uhid" value={filters.uhid} onChange={handleFilterChange} placeholder="Enter UHID..." className={styles.inputField} />
+                    </div>
+                    <div className={styles.inputGroup}>
+                        <label><Activity size={12} className="inline mr-1" /> Protocol</label>
+                        <select name="eventType" value={filters.eventType} onChange={handleFilterChange} className={styles.selectField}>
+                            <option value="">All Events</option>
+                            {eventTypes.map(e => <option key={e} value={e}>{e}</option>)}
+                        </select>
+                    </div>
+                    <div className={styles.inputGroup}>
+                        <label><WalletIcon size={12} className="inline mr-1" /> Repository</label>
+                        <select name="wallet" value={filters.wallet} onChange={handleFilterChange} className={styles.selectField}>
+                            <option value="">All Wallets</option>
+                            {walletTypes.map(w => <option key={w} value={w}>{w}</option>)}
+                        </select>
+                    </div>
+                    <div className={styles.inputGroup}>
+                        <label><Calendar size={12} className="inline mr-1" /> From</label>
+                        <input type="date" name="fromDate" value={filters.fromDate} onChange={handleFilterChange} className={styles.inputField} />
+                    </div>
+                    <div className={styles.inputGroup}>
+                        <label><Calendar size={12} className="inline mr-1" /> Until</label>
+                        <input type="date" name="toDate" value={filters.toDate} onChange={handleFilterChange} className={styles.inputField} />
+                    </div>
+                </div>
+                <div className={styles.formActions}>
+                    <button type="button" onClick={downloadCSV} disabled={rows.length === 0} className={styles.btnDownload}>
+                        <Download size={16} /> Export CSV
                     </button>
-                    <button type="submit" disabled={loading} style={{
-                        background: 'rgba(79, 140, 255, 0.1)',
-                        border: '1px solid rgba(79, 140, 255, 0.2)',
-                        color: '#4f8cff',
-                        borderRadius: '12px',
-                        padding: '0.75rem 1.5rem',
-                        cursor: 'pointer',
-                        opacity: loading ? 0.5 : 1,
-                        fontWeight: 'bold'
-                    }}>
-                        {loading ? 'Filtering...' : 'Apply Filters'}
+                    <button type="submit" disabled={loading} className={styles.btnPrimary}>
+                        {loading ? 'Decrypting...' : <><Filter size={16} /> Sync Filters</>}
                     </button>
                 </div>
             </form>
 
-            <div style={{ margin: '1rem 0', color: '#b3baff' }}>
-                Total Records: {pagination.totalRecords}
-            </div>
-
-            {loading && <div style={{ textAlign: 'center', color: '#b3baff', padding: '2rem' }}>Loading...</div>}
-            
             {error && (
-              <div style={{
-                background: 'rgba(255, 77, 77, 0.1)',
-                border: '1px solid rgba(255, 77, 77, 0.2)',
-                borderRadius: '12px',
-                padding: '1.5rem',
-                color: '#ffb3b3',
-                marginBottom: '1rem'
-              }}>{error}</div>
+                <div className="p-4 mb-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-xl">
+                    {error}
+                </div>
             )}
             
-            <div className="table-responsive" style={{ maxHeight: '60vh', overflow: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <div className={styles.tableWrapper}>
+                <table className={styles.table}>
                     <thead>
                         <tr>
-                            <SortableHeader column="ts">Date</SortableHeader>
-                            <SortableHeader column="userInfo.username">User</SortableHeader>
-                            <SortableHeader column="userInfo.uhid">UHID</SortableHeader>
+                            <SortableHeader column="ts">Timestamp</SortableHeader>
+                            <SortableHeader column="userInfo.username">Identity</SortableHeader>
                             <SortableHeader column="eventType">Event Type</SortableHeader>
-                            <SortableHeader column="amount">Amount</SortableHeader>
-                            <th style={{ padding: '1rem', textAlign: 'left', color: '#b3baff' }}>From</th>
-                            <th style={{ padding: '1rem', textAlign: 'left', color: '#b3baff' }}>To</th>
-                            <th style={{ padding: '1rem', textAlign: 'left', color: '#b3baff' }}>Rate %</th>
-                            <th style={{ padding: '1rem', textAlign: 'left', color: '#b3baff' }}>Narrative</th>
+                            <SortableHeader column="amount">Volume</SortableHeader>
+                            <th>Source</th>
+                            <th>Target</th>
+                            <th>Yield %</th>
+                            <th style={{ width: '400px' }}>Audit Narrative</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {rows.map((row, index) => {
+                        {rows.length > 0 ? rows.map((row, index) => {
                             const boostDetails = row.eventType === 'BOOST_BONUS' ? parseBoostBonusNarrative(row.narrative) : {};
                             return (
-                                <tr key={index} style={{ borderBottom: '1px solid #2a3150' }}>
-                                    <td style={{ padding: '1rem', whiteSpace: 'nowrap' }}>{new Date(row.ts).toLocaleString()}</td>
-                                    <td style={{ padding: '1rem' }}>{row.userInfo?.username || 'N/A'}</td>
-                                    <td style={{ padding: '1rem' }}>{row.userInfo?.uhid || 'N/A'}</td>
-                                    <td style={{ padding: '1rem' }}>{row.eventType}</td>
-                                    <td style={{ padding: '1rem' }}>{row.amount}</td>
-                                    <td style={{ padding: '1rem' }}>{row.eventType === 'BOOST_BONUS' ? boostDetails.from : (row.walletFrom || 'N/A')}</td>
-                                    <td style={{ padding: '1rem' }}>{row.walletTo || 'N/A'}</td>
-                                    <td style={{ padding: '1rem' }}>{row.eventType === 'BOOST_BONUS' ? boostDetails.rate : (row.ratePct || 'N/A')}</td>
-                                    <td style={{ padding: '1rem', maxWidth: '300px', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{row.narrative}</td>
+                                <tr key={index} className={styles.row}>
+                                    <td style={{ whiteSpace: 'nowrap' }}>
+                                        <div className="flex flex-col">
+                                            <span style={{ fontSize: '13px', color: '#fff', fontWeight: 600 }}>{new Date(row.ts).toLocaleDateString()}</span>
+                                            <span style={{ fontSize: '11px', color: '#888' }}>{new Date(row.ts).toLocaleTimeString()}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div className="flex flex-col">
+                                            <span style={{ fontWeight: 800, color: '#ffd700' }}>{row.userInfo?.username || 'N/A'}</span>
+                                            <span style={{ fontSize: '10px', color: '#666' }}>{row.userInfo?.uhid || 'N/A'}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span style={{ 
+                                            padding: '4px 8px', 
+                                            borderRadius: '6px', 
+                                            background: 'rgba(255,255,255,0.05)', 
+                                            fontSize: '10px',
+                                            fontWeight: 800
+                                        }}>{row.eventType}</span>
+                                    </td>
+                                    <td>
+                                        <span style={{ fontWeight: 800, color: '#fff' }}>{row.amount?.toFixed(2)}</span>
+                                        <span style={{ fontSize: '10px', color: '#ffd700', marginLeft: '4px' }}>USDT</span>
+                                    </td>
+                                    <td><span style={{ fontSize: '12px', opacity: 0.7 }}>{row.eventType === 'BOOST_BONUS' ? boostDetails.from : (row.walletFrom || 'SYSTEM')}</span></td>
+                                    <td><span style={{ fontSize: '12px', opacity: 0.7 }}>{row.walletTo || 'SYSTEM'}</span></td>
+                                    <td><span style={{ fontWeight: 800, color: '#00ff88' }}>{row.eventType === 'BOOST_BONUS' ? boostDetails.rate : (row.ratePct || '0')}%</span></td>
+                                    <td>
+                                        <p style={{ fontSize: '12px', opacity: 0.8, lineHeight: '1.4' }}>{row.narrative}</p>
+                                    </td>
                                 </tr>
                             );
-                        })}
+                        }) : (
+                            <tr>
+                                <td colSpan="8" style={{ textAlign: 'center', padding: '100px', opacity: 0.5 }}>
+                                    No transaction traces found matching the current criteria.
+                                </td>
+                            </tr>
+                        )}
                     </tbody>
                 </table>
             </div>
             
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1.5rem', color: '#b3baff' }}>
-                <button
-                    onClick={() => fetchRows(pagination.currentPage - 1)}
-                    disabled={pagination.currentPage <= 1 || loading}
-                    style={{...buttonStyle, opacity: (pagination.currentPage <= 1 || loading) ? 0.5 : 1 }}
-                >
-                    Previous
-                </button>
-                <span>Page {pagination.currentPage} of {pagination.totalPages}</span>
-                <button
-                    onClick={() => fetchRows(pagination.currentPage + 1)}
-                    disabled={pagination.currentPage >= pagination.totalPages || loading}
-                    style={{...buttonStyle, opacity: (pagination.currentPage >= pagination.totalPages || loading) ? 0.5 : 1 }}
-                >
-                    Next
-                </button>
+            <div className={styles.pagination}>
+                <div className={styles.pageInfo}>
+                    Registry Segment <span>{pagination.currentPage}</span> of <span>{pagination.totalPages}</span>
+                </div>
+                <div className={styles.btnGroup}>
+                    <button
+                        onClick={() => fetchRows(pagination.currentPage - 1)}
+                        disabled={pagination.currentPage <= 1 || loading}
+                        className={styles.btnSecondary}
+                    >
+                        <ChevronLeft size={16} /> Previous
+                    </button>
+                    <button
+                        onClick={() => fetchRows(pagination.currentPage + 1)}
+                        disabled={pagination.currentPage >= pagination.totalPages || loading}
+                        className={styles.btnSecondary}
+                    >
+                        Next <ChevronRight size={16} />
+                    </button>
+                </div>
             </div>
         </div>
     );
 }
 
-const buttonStyle = {
-    background: 'rgba(79, 140, 255, 0.1)',
-    border: '1px solid rgba(79, 140, 255, 0.2)',
-    color: '#4f8cff',
-    borderRadius: '12px',
-    padding: '0.75rem 1.5rem',
-    cursor: 'pointer',
-    fontWeight: 'bold'
-}; 
-
 export default function LedgerRowsPage() {
     return (
-        <Suspense fallback={<div style={{ textAlign: 'center', color: '#b3baff', padding: '2rem' }}>Loading...</div>}>
+        <Suspense fallback={<div className="text-center p-20 text-gold-500 animate-pulse">Connecting to Audit Hub...</div>}>
             <LedgerRows />
         </Suspense>
     );
-} 
+}

@@ -5,7 +5,7 @@ import styles from './calculator.module.css';
 
 // Helper functions, adapted from the original script
 const formatCurrency = (value: number) => {
-  return value.toFixed(2) + " XRP";
+  return value.toFixed(2) + " USDT";
 };
 
 const formatDateString = (dateObj: Date) => {
@@ -77,7 +77,7 @@ export default function CalculatorPage() {
   };
 
   const calculate = () => {
-    const principalXRP = parseFloat(principal);
+    const principalUSDT = parseFloat(principal);
     const interestRate = parseFloat(rate);
     const y = parseInt(years || '0');
     const m = parseInt(months || '0');
@@ -140,7 +140,7 @@ export default function CalculatorPage() {
     }
     
     const totalDays = Math.ceil((endDt.getTime() - startDt.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-    const profitPercent = principalXRP > 0 ? ((balance - principalXRP) / principalXRP) * 100 : 0;
+    const profitPercent = principalUSDT > 0 ? ((balance - principalXRP) / principalXRP) * 100 : 0;
 
     setResults({
         finalBalance: balance,
@@ -183,13 +183,13 @@ export default function CalculatorPage() {
     <div className={styles.container}>
       <div className={styles.sidebar}>
         <div className={styles.headerTop}>
-          <img src="/LOGO/xrpo-dark.png" alt="XRP Logo" />
+          <img src="/LOGO/xrpo-dark.png" alt="USDT Logo" />
           <a href="https://BEPVault.io/sign-in" target="_blank" rel="noopener noreferrer">Dashboard</a>
         </div>
 
-        <h1 className={styles.title}>XRP Compound Interest Calculator</h1>
+        <h1 className={styles.title}>USDT Compound Interest Calculator</h1>
 
-        <label htmlFor="principal">XRP Coin Deposit</label>
+        <label htmlFor="principal">USDT Coin Deposit</label>
         <input type="number" id="principal" value={principal} onChange={e => setPrincipal(e.target.value)} min="0" />
 
         <label htmlFor="rate">Daily LP Rewards (%)</label>

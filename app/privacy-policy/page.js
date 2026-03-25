@@ -51,7 +51,7 @@ export default function PrivacyPolicyPage() {
                     <p>
                       BEPVault is a decentralized, non-custodial platform built
                       to support affiliate-driven growth and digital liquidity
-                      within the XRP ecosystem. We do not operate as a
+                      within the USDT ecosystem. We do not operate as a
                       centralized entity, nor do we maintain conventional
                       database.
                     </p>
@@ -234,3 +234,4 @@ export default function PrivacyPolicyPage() {
     </>
   );
 }
+

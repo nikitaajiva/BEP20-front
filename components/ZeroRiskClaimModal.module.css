@@ -1,0 +1,217 @@
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.modalContent {
+  background: rgba(15, 15, 15, 0.95);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  border-radius: 28px;
+  padding: 35px;
+  max-width: 500px;
+  width: 90%;
+  position: relative;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 215, 0, 0.05);
+  font-family: 'Inter', sans-serif;
+  color: #ffffff;
+}
+
+.modalTitle {
+  font-size: 24px;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 20px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.warningIcon {
+  color: #ffd700;
+  filter: drop-shadow(0 0 8px rgba(255, 214, 0, 0.4));
+}
+
+.warningBox {
+  background: rgba(255, 215, 0, 0.03);
+  border: 1px solid rgba(255, 215, 0, 0.15);
+  border-radius: 20px;
+  padding: 20px;
+  margin: 20px 0;
+  text-align: left;
+}
+
+.warningLine {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  display: flex;
+  gap: 10px;
+}
+
+.warningLineYellow {
+  color: #ffd700;
+}
+
+.warningLineRed {
+  color: #ff4d4d;
+}
+
+.warningDesc {
+  color: #aaa;
+  font-size: 14px;
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.buttonGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 25px;
+}
+
+.primaryBtn {
+  background: linear-gradient(135deg, #ffd700 0%, #ffa500 100%);
+  color: #000;
+  border: none;
+  border-radius: 14px;
+  padding: 16px;
+  font-weight: 800;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
+}
+
+.primaryBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 215, 1, 0.4);
+}
+
+.secondaryBtn {
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 16px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.secondaryBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Success State */
+.successTitle {
+  color: #00ff00;
+  font-size: 24px;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.successText {
+  color: #bbb;
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+/* Form Styles */
+.balanceGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.balanceItem {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.balanceLabel {
+  font-size: 10px;
+  color: #777;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.balanceValue {
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.inputGroup {
+  margin-bottom: 20px;
+}
+
+.inputLabel {
+  display: block;
+  font-size: 13px;
+  color: #aaa;
+  margin-bottom: 8px;
+}
+
+.amountInput {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 15px;
+  width: 100%;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.amountInput:focus {
+  outline: none;
+  border-color: rgba(255, 215, 0, 0.4);
+  background: rgba(255, 215, 0, 0.03);
+}
+
+.errorText {
+  color: #ff4d4d;
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+.limitWarning {
+  background: rgba(255, 77, 77, 0.05);
+  border: 1px solid rgba(255, 77, 77, 0.2);
+  border-radius: 12px;
+  padding: 12px;
+  margin-top: 15px;
+  display: flex;
+  gap: 10px;
+}
+
+.limitWarningIcon {
+  color: #ff4d4d;
+}
+
+.limitWarningText {
+  color: #ff4d4d;
+  font-size: 12px;
+  line-height: 1.4;
+}

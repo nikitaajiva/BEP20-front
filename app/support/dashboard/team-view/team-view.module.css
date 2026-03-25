@@ -1,0 +1,166 @@
+.container {
+  padding: 40px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 32px;
+  backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 215, 0, 0.1);
+  min-height: 85vh;
+}
+
+.title {
+  font-size: 32px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: -0.5px;
+  margin-bottom: 5px;
+}
+
+.title span {
+  color: #ffd700;
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 40px;
+}
+
+.statsBadge {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 8px 16px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #888;
+}
+
+.statsBadge strong {
+  color: #ffd700;
+}
+
+/* Table Design */
+.tableWrapper {
+  overflow-x: auto;
+  background: rgba(10, 10, 10, 0.4);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 215, 0, 0.15);
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.4);
+  max-height: 70vh;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 215, 0, 0.2) transparent;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.table th {
+  background: #111; /* Solid background to prevent overlap */
+  padding: 22px 25px;
+  font-size: 12px;
+  font-weight: 900;
+  color: #ffd700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  border-bottom: 2px solid rgba(255, 215, 0, 0.3);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.table td {
+  padding: 20px 25px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  vertical-align: middle;
+}
+
+.row {
+  transition: all 0.3s ease;
+}
+
+.row:hover td {
+  background: rgba(255, 215, 0, 0.04);
+  color: #fff;
+}
+
+/* Hierarchy Icons */
+.usernameCell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.toggleIcon {
+  cursor: pointer;
+  color: #ffd700;
+  display: flex;
+  align-items: center;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.toggleIcon:hover {
+  filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.4));
+  transform: scale(1.15);
+}
+
+/* Sophisticated Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  min-width: 60px;
+  justify-content: center;
+}
+
+.lpBadge {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.teamBadge {
+  color: #ffd700;
+  background: rgba(255, 215, 0, 0.08);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+}
+
+.sizeBadge {
+  color: #00ff88;
+  background: rgba(0, 255, 136, 0.08);
+  border: 1px solid rgba(0, 255, 136, 0.2);
+}
+
+.auditBtn {
+  background: rgba(255, 215, 0, 0.1);
+  color: #ffd700;
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  padding: 8px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.auditBtn:hover {
+  background: #ffd700;
+  color: #000;
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+}

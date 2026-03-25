@@ -66,7 +66,7 @@ export default function Eventsa() {
             textAlign: "center",
           }}
         >
-          XRP Ocean Events
+          USDT Ocean Events
         </h1>
       </div>
 
@@ -192,3 +192,4 @@ export default function Eventsa() {
     </div>
   );
 }
+

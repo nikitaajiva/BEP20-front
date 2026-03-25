@@ -1,5 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
+import styles from "./settings.module.css";
+import { Settings, Save, Percent, ShieldAlert, Zap, ArrowUpCircle, ArrowDownCircle } from "lucide-react";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
 
@@ -106,113 +108,82 @@ export default function WithdrawDepositTableForm() {
   const isSaveDisabled =
     (!Number(withdrawal) && !Number(deposit)) || loading;
 
-  const thStyle = {
-    textAlign: "left",
-    padding: "0.9rem",
-    color: "#b3baff",
-    fontWeight: 500,
-    fontSize: "0.9rem",
-    width: "40%",
-    borderBottom: "1px solid rgba(79,140,255,0.15)",
-  };
-
-  const tdStyle = {
-    padding: "0.9rem",
-    borderBottom: "1px solid rgba(79,140,255,0.15)",
-  };
-
-  const inputStyle = {
-    width: "100%",
-    padding: "0.65rem",
-    borderRadius: "10px",
-    background: "#0f1530",
-    color: "#fff",
-    outline: "none",
-    border: "1px solid rgba(79,140,255,0.3)",
-  };
-
   return (
-    <>
-      <form
-        onSubmit={handleSubmit}
-        style={{
-          background: "#181f3a",
-          padding: "1.5rem",
-          borderRadius: "20px",
-          border: "1px solid rgba(79,140,255,0.2)",
-        }}
-      >
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <tbody>
-            <tr>
-              <th style={thStyle}>
-                <span style={{ color: "#ff9a9a" }}>
-                  Negative Withdrawals %
-                </span>
-              </th>
-              <td style={tdStyle}>
-                <input
-                  type="number"
-                  step="0.001"
-                  value={withdrawal}
-                  onChange={(e) => setWithdrawal(e.target.value)}
-                  placeholder="0.005"
-                  style={{
-                    ...inputStyle,
-                    border: "1px solid rgba(255,154,154,0.4)",
-                  }}
-                />
-              </td>
-            </tr>
+    <div className={styles.container}>
+      <header className={styles.header}>
+        <h1 className={styles.title}>System <span>Protocol Settings</span></h1>
+        <p className={styles.subtitle}>Configure core financial parameters and registry segments</p>
+      </header>
 
-            <tr>
-              <th style={thStyle}>
-                <span style={{ color: "#9affb3" }}>
-                  Positive Deposits %
-                </span>
-              </th>
-              <td style={tdStyle}>
-                <input
-                  type="number"
-                  step="0.001"
-                  value={deposit}
-                  onChange={(e) => setDeposit(e.target.value)}
-                  placeholder="0.005"
-                  style={{
-                    ...inputStyle,
-                    border: "1px solid rgba(154,255,179,0.4)",
-                  }}
-                />
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <form onSubmit={handleSubmit} className={styles.settingsForm}>
+        {/* Negative Withdrawals Section */}
+        <div className={styles.inputGroup}>
+          <label className={styles.label}>
+             <ArrowDownCircle size={14} className="text-[#ff4d4d]" /> 
+             <span>Negative Withdrawals Policy</span>
+          </label>
+          <div className={styles.inputWrapper}>
+             <input
+                type="number"
+                step="0.001"
+                value={withdrawal}
+                onChange={(e) => setWithdrawal(e.target.value)}
+                placeholder="0.005"
+                className={styles.inputField}
+             />
+             <span className={styles.unit}>%</span>
+          </div>
+          <p className="text-[11px] opacity-30 mt-1 font-bold">Penalty percentage applied to restricted withdrawal segments.</p>
+        </div>
+
+        {/* Positive Deposits Section */}
+        <div className={styles.inputGroup}>
+          <label className={styles.label}>
+             <ArrowUpCircle size={14} className="text-[#00ff00]" /> 
+             <span>Positive Deposits Incentive</span>
+          </label>
+          <div className={styles.inputWrapper}>
+             <input
+                type="number"
+                step="0.001"
+                value={deposit}
+                onChange={(e) => setDeposit(e.target.value)}
+                placeholder="0.005"
+                className={styles.inputField}
+             />
+             <span className={styles.unit}>%</span>
+          </div>
+          <p className="text-[11px] opacity-30 mt-1 font-bold">Standard bonus yield for active validator deposit nodes.</p>
+        </div>
 
         {error && (
-          <p style={{ color: "#ff9a9a", marginTop: "1rem" }}>
-            {error}
-          </p>
+          <div className="bg-red-500/10 border border-red-500/20 text-[#ff4d4d] p-4 rounded-xl flex items-center gap-3">
+             <ShieldAlert size={18} />
+             <span className="text-sm font-bold">{error}</span>
+          </div>
         )}
 
-        <div style={{ marginTop: "1.5rem", textAlign: "right" }}>
-          <button
+        <div className={styles.footer}>
+           <div className="flex-1 text-[11px] text-white/20 uppercase tracking-[2px] font-black">
+              <Zap size={10} className="inline mr-1" /> Registry Sync: Active
+           </div>
+           <button
             type="submit"
             disabled={isSaveDisabled}
-            style={{
-              padding: "0.6rem 1.6rem",
-              borderRadius: "12px",
-              background: "linear-gradient(135deg, #4f8cff, #6ea8ff)",
-              border: "none",
-              color: "#fff",
-              fontWeight: 600,
-              cursor: isSaveDisabled ? "not-allowed" : "pointer",
-              opacity: isSaveDisabled ? 0.6 : 1,
-            }}
+            className={styles.btnPrimary}
           >
-            {loading ? "Updating..." : "Update"}
+            {loading ? (
+              <span className="flex items-center gap-2">
+                 <Zap size={16} className="animate-pulse" /> Updating Terminal...
+              </span>
+            ) : (
+              <span className="flex items-center gap-2">
+                 <Save size={16} /> Execute Update
+              </span>
+            )}
           </button>
         </div>
       </form>
-    </>
+    </div>
   );
 }

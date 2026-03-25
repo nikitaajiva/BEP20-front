@@ -2,20 +2,11 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { FaEye } from 'react-icons/fa';
+import { FaEye, FaWallet, FaShieldAlt, FaTrophy, FaChartBar, FaSearch, FaTimes } from 'react-icons/fa';
+import { Wallet, ShieldCheck, Trophy, BarChart3, Search, RotateCcw, ChevronRight, Eye } from 'lucide-react';
+import styles from './user-ledger.module.css';
 
-// TODO: Move this URL to a .env.local file
 const API_BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}`;
-
-const inputStyle = {
-    padding: '0.75rem 1rem',
-    borderRadius: '12px',
-    border: '1px solid rgba(79, 140, 255, 0.2)',
-    background: 'rgba(79, 140, 255, 0.1)',
-    color: '#fff',
-    fontSize: '1rem',
-    width: '100%',
-};
 
 function EditWalletModal({ isOpen, onClose, onSave, field, currentValue }) {
     const [value, setValue] = useState(currentValue);
@@ -44,22 +35,26 @@ function EditWalletModal({ isOpen, onClose, onSave, field, currentValue }) {
     if (!isOpen) return null;
 
     return (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ background: '#181f3a', borderRadius: '22px', padding: '2rem', minWidth: 320, maxWidth: 400, width: '100%', boxShadow: '0 8px 32px 0 rgba(16,25,53,0.18)' }}>
-                <h3 style={{ color: '#fff', marginBottom: '1rem', textTransform: 'capitalize' }}>Edit {field} Wallet</h3>
+        <div className={styles.modalOverlay}>
+            <div className={styles.modalContent}>
+                <h3 className={styles.modalTitle}>Update {field} Wallet</h3>
                 <form onSubmit={handleSubmit}>
+                    <label style={{ fontSize: '11px', color: '#888', fontWeight: 800, marginBottom: '8px', display: 'block', textTransform: 'uppercase' }}>Amount in USDT</label>
                     <input
                         type="text"
+                        className={styles.inputField}
                         value={value}
                         onChange={e => setValue(e.target.value)}
-                        style={inputStyle}
-                        placeholder="Enter new value"
+                        placeholder="0.00"
                         disabled={loading}
+                        style={{ width: '100%', marginBottom: '15px' }}
                     />
-                    {error && <div style={{ color: '#ff4d4d', marginTop: 8 }}>{error}</div>}
-                    <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
-                        <button type="submit" disabled={loading} style={{ ...inputStyle, background: '#4f8cff', color: '#fff', border: 'none', width: '50%' }}>{loading ? 'Saving...' : 'Save'}</button>
-                        <button type="button" onClick={onClose} disabled={loading} style={{ ...inputStyle, background: 'rgba(79, 140, 255, 0.1)', color: '#4f8cff', border: '1px solid #4f8cff', width: '50%' }}>Cancel</button>
+                    {error && <p style={{ color: "#ff4d4d", fontSize: '12px' }}>{error}</p>}
+                    <div className={styles.modalBtnGroup}>
+                        <button type="button" onClick={onClose} className={styles.btnSecondary}>Cancel</button>
+                        <button type="submit" disabled={loading} className={styles.btnPrimary}>
+                            {loading ? "Decrypting..." : "Commit Update"}
+                        </button>
                     </div>
                 </form>
             </div>
@@ -67,55 +62,52 @@ function EditWalletModal({ isOpen, onClose, onSave, field, currentValue }) {
     );
 }
 
-const renderSearchForm = (handleSearch, searchUserId, setSearchUserId) => (
-    <form onSubmit={handleSearch} style={{ marginBottom: '2rem', display: 'flex', gap: '1rem', background: '#181f3a', padding: '1.5rem', borderRadius: '22px' }}>
-        <input
-            type="text"
-            value={searchUserId}
-            onChange={(e) => setSearchUserId(e.target.value)}
-            placeholder="Enter User ID or UHID"
-            style={inputStyle}
-        />
-        <button type="submit" style={{ ...inputStyle, background: '#4f8cff', color: '#fff', border: 'none', width: 'auto', cursor: 'pointer' }}>
-            Search
+const SearchForm = ({ handleSearch, searchUserId, setSearchUserId, loading }) => (
+    <form onSubmit={handleSearch} className={styles.searchForm}>
+        <div style={{ display: 'flex', alignItems: 'center', flex: 1, position: 'relative' }}>
+            <Search size={18} style={{ position: 'absolute', left: '15px', color: '#ffd700' }} />
+            <input
+                type="text"
+                className={styles.inputField}
+                value={searchUserId}
+                onChange={(e) => setSearchUserId(e.target.value)}
+                placeholder="Synchronize with User Hub (Enter ID or UHID)..."
+                style={{ paddingLeft: '45px' }}
+            />
+        </div>
+        <button type="submit" disabled={loading} className={styles.searchBtn}>
+            {loading ? <RotateCcw size={20} className="animate-spin" /> : "Verify Identity"}
         </button>
     </form>
 );
 
-const renderWallet = (name, value, uhid, onEdit, router) => {
-    const isEditable = name !== 'lp';
+const WalletCard = ({ name, value, uhid, onEdit, router, isReward = false }) => {
+    const isEditable = !isReward && name !== 'lp';
 
     const handleView = () => {
         const params = new URLSearchParams({
             uhid: uhid,
-            wallet: name.toUpperCase() // e.g., 'SWIFT', 'LP'
+            wallet: name.toUpperCase()
         });
         router.push(`/support/dashboard/ledger-rows?${params.toString()}`);
     };
 
     return (
-        <div style={{ 
-            display: 'flex', 
-            justifyContent: 'space-between', 
-            alignItems: 'center',
-            padding: '0.75rem 1rem',
-            border: '1px solid rgba(79, 140, 255, 0.2)',
-            borderRadius: '12px',
-            marginBottom: '0.5rem',
-            background: 'rgba(79, 140, 255, 0.1)'
-        }}>
-            <div>
-                <strong style={{ color: '#b3baff', textTransform: 'capitalize' }}>{name} Wallet</strong>
-                <br />
-                <span style={{ color: '#fff', fontWeight: 'bold', fontSize: '1.1rem' }}>{value} XRP</span>
+        <div className={styles.walletCard}>
+            <div className="flex flex-col">
+                <span className={styles.walletName}>{name.replace('Rewards', '')} {isReward ? 'Reward' : ''} Balance</span>
+                <div className="flex items-baseline">
+                    <span className={styles.walletValue}>{value || '0.00'}</span>
+                    <span className={styles.walletUnit}>USDT</span>
+                </div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                <button onClick={handleView} title={`View ${name.toUpperCase()} transactions`} style={{ background: 'none', border: 'none', color: '#4f8cff', cursor: 'pointer', fontSize: '1.2rem' }}>
-                    <FaEye />
+            <div className="flex items-center gap-3">
+                <button onClick={handleView} className={styles.iconBtn} title={`Audit ${name.toUpperCase()} Stream`}>
+                    <Eye size={18} />
                 </button>
                 {isEditable && (
-                    <button onClick={() => onEdit(name)} style={{ background: '#4f8cff', border: 'none', color: 'white', padding: '0.4rem 0.8rem', borderRadius: '8px', cursor: 'pointer' }}>
-                        Edit
+                    <button onClick={() => onEdit(name)} className={styles.actionBtn}>
+                        Refactor
                     </button>
                 )}
             </div>
@@ -123,48 +115,34 @@ const renderWallet = (name, value, uhid, onEdit, router) => {
     );
 };
 
-const renderLimit = (name, limit) => (
-    <div style={{
-        padding: '1rem',
-        border: '1px solid rgba(79, 140, 255, 0.2)',
-        borderRadius: '12px',
-        marginBottom: '0.5rem',
-        background: 'rgba(79, 140, 255, 0.1)'
-    }}>
-        <strong style={{ color: '#4f8cff', textTransform: 'capitalize' }}>{name.replace('Limit', '')} Limit</strong>
-        <div style={{ marginLeft: '1rem', marginTop: '0.5rem', color: '#b3baff' }}>
-            <div><span style={{ color: '#8a9fca' }}>Cap:</span> {limit.cap} XRP</div>
-            <div><span style={{ color: '#8a9fca' }}>Used:</span> {limit.used} XRP</div>
+const LimitSegment = ({ name, limit }) => {
+    const cap = parseFloat(limit?.cap || 0);
+    const used = parseFloat(limit?.used || 0);
+    const percentage = cap > 0 ? (used / cap) * 100 : 0;
+
+    return (
+        <div className={styles.limitCard}>
+            <div className={styles.limitHeader}>
+                <span className={styles.limitLabel}>{name.replace('Limit', '')} Quota</span>
+                <span className={styles.limitStats}>{used} / {cap} <span style={{ color: '#ffd700' }}>USDT</span></span>
+            </div>
+            <div className={styles.limitBarBg}>
+                <div className={styles.limitBarFill} style={{ width: `${Math.min(percentage, 100)}%`, background: percentage > 80 ? '#ff4d4d' : 'linear-gradient(90deg, #ffd700, #ffa500)' }} />
+            </div>
         </div>
-    </div>
-);
+    );
+};
 
-const renderRewardWallet = (name, value) => (
-    <div style={{ 
-        padding: '0.75rem 1rem',
-        border: '1px solid rgba(79, 140, 255, 0.2)',
-        borderRadius: '12px',
-        marginBottom: '0.5rem',
-        background: 'rgba(79, 140, 255, 0.1)'
-    }}>
-        <strong style={{ color: '#b3baff', textTransform: 'capitalize' }}>{name} Wallet</strong>
-        <br />
-        <span style={{ color: '#fff', fontWeight: 'bold', fontSize: '1.1rem' }}>{value || '0.00'} XRP</span>
-    </div>
-);
-
-const renderRankInfo = (rank, paidBonuses) => (
-     <div style={{
-        padding: '1rem',
-        border: '1px solid rgba(79, 140, 255, 0.2)',
-        borderRadius: '12px',
-        marginBottom: '1rem',
-        background: 'rgba(79, 140, 255, 0.1)'
-    }}>
-        <h3 style={{ color: '#4f8cff', marginBottom: '0.5rem' }}>Rank & Positioning</h3>
-        <div style={{ marginLeft: '1rem', color: '#b3baff' }}>
-            <div><span style={{ color: '#8a9fca' }}>Positioning Rank:</span> {rank || 'N/A'}</div>
-            <div><span style={{ color: '#8a9fca' }}>Paid Rank Bonuses:</span> {paidBonuses && paidBonuses.length > 0 ? paidBonuses.join(', ') : 'None'}</div>
+const RankBadge = ({ label, value, icon: Icon }) => (
+    <div className={styles.rankBadge}>
+        <div className="flex items-center gap-4">
+            <div style={{ background: 'rgba(255,215,0,0.1)', padding: '12px', borderRadius: '12px' }}>
+                <Icon size={24} color="#ffd700" />
+            </div>
+            <div className="flex flex-col">
+                <span style={{ fontSize: '11px', color: '#888', fontWeight: 800, textTransform: 'uppercase' }}>{label}</span>
+                <span style={{ fontSize: '18px', fontWeight: 900, color: '#fff' }}>{value || 'None'}</span>
+            </div>
         </div>
     </div>
 );
@@ -229,7 +207,6 @@ function UserLedger() {
                 fetchLedger();
             } else {
                 setLoading(false);
-                // No user ID, so we don't set an error, just show the search form
             }
         }
     }, [user, authLoading, router, userId]);
@@ -256,7 +233,7 @@ function UserLedger() {
             setLedger(data.data);
         } catch (err) {
             setError(err.message);
-            if (err.message.includes('Authentication required') || err.message.includes('Unauthorized')) {
+            if (err.message.includes('Authentication required')) {
                 router.push('/sign-in');
             }
         } finally {
@@ -265,63 +242,72 @@ function UserLedger() {
     };
 
     if (authLoading || loading) {
-        return <div style={{ textAlign: 'center', color: '#b3baff', padding: '2rem' }}>Loading...</div>;
+        return <div className="text-center p-20 text-gold-500 animate-pulse">Decrypting Ledger Segment...</div>;
     }
 
-    if (!user || !['support', 'admin'].includes(user.userType)) {
-        return <div style={{ textAlign: 'center', color: '#ff4d4d', padding: '2rem' }}>Unauthorized access. Redirecting...</div>;
-    }
-
-    if (error) {
-        return <div style={{ textAlign: 'center', color: '#ff4d4d', padding: '2rem' }}>Error: {error}</div>;
-    }
-
-    if (!ledger) {
-        // This case is for when there's a userId but no ledger was found
-        return (
-            <>
-                {renderSearchForm(handleSearch, searchUserId, setSearchUserId)}
-                <div style={{ textAlign: 'center', color: '#b3baff', padding: '2rem' }}>
-                    User found, but no ledger data available.
-                </div>
-            </>
-        );
-    }
-    
-    // Helper for user details rendering
-    const renderUserDetails = (data) => (
-        <div style={{ marginBottom: '2rem', borderBottom: '1px solid rgba(79, 140, 255, 0.2)', paddingBottom: '1rem' }}>
-            <h2 style={{ color: '#fff', marginBottom: '1rem' }}>Ledger for {data.uhid}</h2>
-            {data.firstLpDepositTs && <p style={{ color: '#b3baff' }}>First LP Deposit: {new Date(data.firstLpDepositTs).toLocaleString()}</p>}
-        </div>
-    );
-    
     return (
-        <>
-            {renderSearchForm(handleSearch, searchUserId, setSearchUserId)}
+        <div className={styles.container}>
+            <header className="flex justify-between items-center mb-8">
+                <h1 className={styles.title}>Finance <span>Audit Terminal</span></h1>
+                {ledger && (
+                    <div className="flex flex-col items-end">
+                        <span style={{ fontSize: '12px', color: '#888', fontWeight: 800 }}>IDENTITY VERIFIED</span>
+                        <span style={{ fontSize: '20px', fontWeight: 900, color: '#ffd700' }}>{ledger.uhid}</span>
+                    </div>
+                )}
+            </header>
+
+            <SearchForm 
+                handleSearch={handleSearch} 
+                searchUserId={searchUserId} 
+                setSearchUserId={setSearchUserId} 
+                loading={loading}
+            />
             
-            {ledger && (
-                 <div style={{ background: '#181f3a', borderRadius: '22px', padding: '2rem', color: 'white', boxShadow: '0 8px 32px 0 rgba(16,25,53,0.18)' }}>
-                    {renderUserDetails(ledger)}
-                    {renderRankInfo(ledger.positioningRank, ledger.paidRankBonuses)}
-                    <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
-                        <div style={{ flex: 1, minWidth: '300px' }}>
-                            <h3 style={{ color: '#4f8cff', marginBottom: '1rem' }}>Main Wallets</h3>
+            {error && (
+                <div className="p-4 mb-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-xl flex items-center gap-3">
+                    <FaTimes /> {error}
+                </div>
+            )}
+
+            {ledger ? (
+                <div className="animate-in fade-in duration-500">
+                    <div className={styles.rankInfo}>
+                        <RankBadge label="Sovereign Rank" value={ledger.positioningRank} icon={Trophy} />
+                        <RankBadge label="Identity Status" value="Authorized" icon={ShieldCheck} />
+                    </div>
+
+                    <div className={styles.ledgerGrid}>
+                        {/* Main Wallets */}
+                        <section className={styles.sectionBox}>
+                            <h3 className={styles.sectionTitle}><Wallet size={18} /> Asset Repositories</h3>
                             {ledger.wallets && Object.entries(ledger.wallets)
                                 .filter(([name]) => !['communityRewards', 'cascadeRewards', 'rankRewards'].includes(name))
-                                .map(([name, value]) => renderWallet(name, value, ledger.uhid, handleOpenEditModal, router))}
-                        </div>
-                        <div style={{ flex: 1, minWidth: '300px' }}>
-                            <h3 style={{ color: '#4f8cff', marginBottom: '1rem' }}>Reward Wallets</h3>
-                             <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.5rem' }}>
-                                {renderRewardWallet('Community', ledger.wallets?.communityRewards)}
-                                {renderRewardWallet('Cascade', ledger.wallets?.cascadeRewards)}
-                                {renderRewardWallet('Rank', ledger.wallets?.rankRewards)}
-                            </div>
-                            <h3 style={{ color: '#4f8cff', marginBottom: '1rem', marginTop: '2rem' }}>Limits</h3>
-                            {ledger.limits && Object.entries(ledger.limits).map(([name, value]) => renderLimit(name, value))}
+                                .map(([name, value]) => (
+                                    <WalletCard key={name} name={name} value={value} uhid={ledger.uhid} onEdit={handleOpenEditModal} router={router} />
+                                ))}
+                        </section>
+
+                        {/* Reward Wallets & Limits */}
+                        <div className="flex flex-col gap-6">
+                            <section className={styles.sectionBox}>
+                                <h3 className={styles.sectionTitle}><Trophy size={18} /> Rewards Protocol</h3>
+                                <div className="grid grid-cols-1 gap-1">
+                                    <WalletCard name="Community" value={ledger.wallets?.communityRewards} uhid={ledger.uhid} isReward router={router} />
+                                    <WalletCard name="Cascade" value={ledger.wallets?.cascadeRewards} uhid={ledger.uhid} isReward router={router} />
+                                    <WalletCard name="Rank" value={ledger.wallets?.rankRewards} uhid={ledger.uhid} isReward router={router} />
+                                </div>
+                            </section>
+
+                            <section className={styles.sectionBox}>
+                                <h3 className={styles.sectionTitle}><BarChart3 size={18} /> Transaction Quotas</h3>
+                                {ledger.limits && Object.entries(ledger.limits).map(([name, value]) => (
+                                    <LimitSegment key={name} name={name} limit={value} />
+                                ))}
+                            </section>
                         </div>
                     </div>
+
                     <EditWalletModal
                         isOpen={isEditModalOpen}
                         onClose={handleCloseEditModal}
@@ -330,15 +316,19 @@ function UserLedger() {
                         currentValue={ledger.wallets?.[editingField] ?? ledger[editingField] ?? '0'}
                     />
                 </div>
-            )}
-        </>
+            ) : userId && !loading ? (
+                <div className="text-center p-20 bg-white/5 rounded-3xl border border-white/5">
+                    <p style={{ color: '#888', fontWeight: 700 }}>Segment found, but registry trace is empty.</p>
+                </div>
+            ) : null}
+        </div>
     );
 }
 
 export default function UserLedgerPage() {
     return (
-        <Suspense fallback={<div>Loading Page...</div>}>
+        <Suspense fallback={<div className="text-center p-20 text-gold-500">Initializing Terminal...</div>}>
             <UserLedger />
         </Suspense>
     );
-} 
+}

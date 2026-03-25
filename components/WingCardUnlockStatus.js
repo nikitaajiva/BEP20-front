@@ -47,8 +47,8 @@ const WingCardUnlockStatus = ({ unlockData, isLoading, error }) => {
   =========================== */
   return (
     <div className="w-100">
-      <h2 className={styles.xrp_UnlockStatus_title}>
-        <span className={styles.xrp_UnlockStatus_lockIcon}>
+      <h2 className={styles.USDT_UnlockStatus_title}>
+        <span className={styles.USDT_UnlockStatus_lockIcon}>
           {eligible ? "🔓" : "🔒"}
         </span>
         Unlock Eligibility to Win iPhone 17 Pro
@@ -57,8 +57,8 @@ const WingCardUnlockStatus = ({ unlockData, isLoading, error }) => {
       {/* ===========================
          SELF ELIGIBILITY
       =========================== */}
-      <div className={styles.xrp_UnlockStatus_block}>
-        <p className={styles.xrp_UnlockStatus_heading}>
+      <div className={styles.USDT_UnlockStatus_block}>
+        <p className={styles.USDT_UnlockStatus_heading}>
           Self Eligibility
         </p>
 
@@ -114,12 +114,12 @@ const WingCardUnlockStatus = ({ unlockData, isLoading, error }) => {
       {/* ===========================
          TEAM LEGS
       =========================== */}
-      <div className={styles.xrp_UnlockStatus_block}>
-        <p className={styles.xrp_UnlockStatus_heading}>
+      <div className={styles.USDT_UnlockStatus_block}>
+        <p className={styles.USDT_UnlockStatus_heading}>
           Team Activity (Required {requiredQualifiedLegs} Qualified Wings)
         </p>
 
-        <table className={styles.xrp_UnlockStatus_table}>
+        <table className={styles.USDT_UnlockStatus_table}>
           <thead>
             <tr>
               <th>Leg</th>
@@ -165,18 +165,18 @@ const WingCardUnlockStatus = ({ unlockData, isLoading, error }) => {
       {/* ===========================
          PROGRESS BAR
       =========================== */}
-      <div className={styles.xrp_UnlockStatus_block}>
-        <div className={styles.xrp_UnlockStatus_progressText}>
+      <div className={styles.USDT_UnlockStatus_block}>
+        <div className={styles.USDT_UnlockStatus_progressText}>
           📘 Progress:{" "}
           <strong>
             {qualifiedLegs}/{requiredQualifiedLegs} Wings Qualified
           </strong>
         </div>
 
-        <div className={styles.xrp_UnlockStatus_progressBarWrapper}>
-          <div className={styles.xrp_UnlockStatus_progressBarBg}>
+        <div className={styles.USDT_UnlockStatus_progressBarWrapper}>
+          <div className={styles.USDT_UnlockStatus_progressBarBg}>
             <div
-              className={styles.xrp_UnlockStatus_progressBarFill}
+              className={styles.USDT_UnlockStatus_progressBarFill}
               style={{ width: `${progressPercent}%` }}
             />
           </div>
@@ -184,7 +184,7 @@ const WingCardUnlockStatus = ({ unlockData, isLoading, error }) => {
       </div>
 
       {!eligible && (
-        <div className={styles.xrp_UnlockStatus_locked}>
+        <div className={styles.USDT_UnlockStatus_locked}>
           🔒 Feature Locked – Complete pending requirements to unlock
         </div>
       )}
@@ -193,3 +193,4 @@ const WingCardUnlockStatus = ({ unlockData, isLoading, error }) => {
 };
 
 export default WingCardUnlockStatus;
+

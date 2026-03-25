@@ -2,12 +2,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
-import { FaEye, FaPlusSquare, FaMinusSquare } from 'react-icons/fa';
+import { FaEye } from 'react-icons/fa';
+import { ChevronRight, ChevronDown, PlusCircle, MinusCircle, User, Users, Wallet, Calendar, Search, Eye, Radio, Network } from 'lucide-react';
+import styles from './team-view.module.css';
 
 const API_BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}`;
-
-const tableHeaderStyle = { padding: '1rem', textAlign: 'left', color: '#4f8cff', cursor: 'pointer' };
-const tableCellStyle = { padding: '1rem', borderBottom: '1px solid #2a3150' };
 
 const UserRow = ({ user, level, onToggle, open, onFetch, router }) => {
     const handleToggle = () => {
@@ -18,44 +17,106 @@ const UserRow = ({ user, level, onToggle, open, onFetch, router }) => {
     };
 
     const handleViewLedger = (userId) => {
-        // Assuming the user object has a `_id` field.
-        // The ledger page uses the MongoDB _id, not the uhid.
         router.push(`/support/dashboard/user-ledger?userId=${userId}`);
     };
 
+    const indentStyle = { paddingLeft: `${level * 28}px` };
+
     return (
         <>
-            <tr style={{ backgroundColor: `rgba(79, 140, 255, ${0.05 * level})` }}>
-                <td style={tableCellStyle}>
-                    <div style={{ paddingLeft: `${level * 20}px`, display: 'flex', alignItems: 'center' }}>
-                        {user.teamSize > 0 && (
-                            <span onClick={handleToggle} style={{ cursor: 'pointer', marginRight: '10px' }}>
-                                {open ? <FaMinusSquare /> : <FaPlusSquare />}
+            <tr className={styles.row}>
+                <td style={indentStyle}>
+                    <div className={styles.usernameCell}>
+                        {user.teamSize > 0 ? (
+                            <span onClick={handleToggle} className={styles.toggleIcon}>
+                                {open ? <MinusCircle size={18} fill="rgba(255,215,0,0.1)" /> : <PlusCircle size={18} fill="rgba(255,215,0,0.1)" />}
                             </span>
+                        ) : (
+                            <div style={{ width: '18px', height: '18px', background: 'rgba(255,255,255,0.02)', borderRadius: '50%', flexShrink: 0 }} />
                         )}
-                        {user.username}
+                        <span style={{ fontWeight: level === 0 ? 800 : 600, color: level === 0 ? '#ffd700' : '#fff', fontSize: '15px' }}>{user.username}</span>
                     </div>
                 </td>
-                <td style={tableCellStyle}>{user.uhid}</td>
-                <td style={tableCellStyle}>{user.selfLp?.toFixed(2) || '0.00'}</td>
-                <td style={tableCellStyle}>{user.teamLp?.toFixed(2) || '0.00'}</td>
-                <td style={tableCellStyle}>{user.teamSize}</td>
-                <td style={tableCellStyle}>{user.sponsorUsername}</td>
-                <td style={tableCellStyle}>
-                    {new Date(user.registrationTs).toLocaleDateString()}
-                </td>
-                <td style={tableCellStyle}>
+                <td><span style={{ fontSize: '12px', fontWeight: 900, color: '#888', letterSpacing: '0.5px' }}>{user.uhid}</span></td>
+                <td><span className={`${styles.badge} ${styles.lpBadge}`}>{user.selfLp?.toFixed(2) || '0.00'}</span></td>
+                <td><span className={`${styles.badge} ${styles.teamBadge}`}>{user.teamLp?.toFixed(2) || '0.00'}</span></td>
+                <td><span className={`${styles.badge} ${styles.sizeBadge}`}>{user.teamSize}</span></td>
+                <td><span style={{ fontSize: '13px', opacity: 0.6, fontWeight: 700 }}>{user.sponsorUsername || 'Sovereign'}</span></td>
+                <td><span style={{ fontSize: '12px', color: '#555', fontWeight: 800 }}>{new Date(user.registrationTs).toLocaleDateString()}</span></td>
+                <td>
                     <button 
                         onClick={() => handleViewLedger(user._id)}
-                        style={{ background: 'none', border: 'none', color: '#4f8cff', cursor: 'pointer' }}
-                        title="View User Ledger"
+                        className={styles.auditBtn}
+                        title="Audit Registry"
                     >
-                        <FaEye />
+                        <Eye size={14} /> Audit
                     </button>
                 </td>
             </tr>
             {open && user.children && user.children.map(child => (
                 <UserRow
+                    key={child.uhid}
+                    user={child}
+                    level={level + 1}
+                    onToggle={onToggle}
+                    open={child.open}
+                    onFetch={child.children ? undefined : onFetch} // only pass down if we can fetch more
+                    onFetchMore={onFetch}
+                    router={router}
+                />
+            ))}
+        </>
+    );
+};
+
+// Fixed UserRow recursion: ensure onFetch is always available
+const RecursiveRow = ({ user, level, onToggle, open, onFetch, router }) => {
+    const handleToggle = () => {
+        if (!open && !user.children) {
+            onFetch(user.uhid);
+        }
+        onToggle(user.uhid);
+    };
+
+    const handleViewLedger = (userId) => {
+        router.push(`/support/dashboard/user-ledger?userId=${userId}`);
+    };
+
+    const indentStyle = { paddingLeft: `${level * 28}px` };
+
+    return (
+        <>
+            <tr className={styles.row}>
+                <td style={indentStyle}>
+                    <div className={styles.usernameCell}>
+                        {user.teamSize > 0 ? (
+                            <span onClick={handleToggle} className={styles.toggleIcon}>
+                                {open ? <MinusCircle size={18} fill="rgba(255,215,0,0.1)" /> : <PlusCircle size={18} fill="rgba(255,215,0,0.1)" />}
+                            </span>
+                        ) : (
+                            <div style={{ width: '18px', height: '18px', background: 'rgba(255,255,255,0.02)', borderRadius: '50%', flexShrink: 0 }} />
+                        )}
+                        <span style={{ fontWeight: level === 0 ? 800 : 600, color: level === 0 ? '#ffd700' : '#fff', fontSize: '15px' }}>{user.username}</span>
+                    </div>
+                </td>
+                <td><span style={{ fontSize: '12px', fontWeight: 900, color: '#888', letterSpacing: '0.5px' }}>{user.uhid}</span></td>
+                <td><span className={`${styles.badge} ${styles.lpBadge}`}>{user.selfLp?.toFixed(2) || '0.00'}</span></td>
+                <td><span className={`${styles.badge} ${styles.teamBadge}`}>{user.teamLp?.toFixed(2) || '0.00'}</span></td>
+                <td><span className={`${styles.badge} ${styles.sizeBadge}`}>{user.teamSize}</span></td>
+                <td><span style={{ fontSize: '13px', opacity: 0.6, fontWeight: 700 }}>{user.sponsorUsername || 'Sovereign'}</span></td>
+                <td><span style={{ fontSize: '12px', color: '#555', fontWeight: 800 }}>{new Date(user.registrationTs).toLocaleDateString()}</span></td>
+                <td>
+                    <button 
+                        onClick={() => handleViewLedger(user._id)}
+                        className={styles.auditBtn}
+                        title="Audit Registry"
+                    >
+                        <Eye size={14} /> Audit
+                    </button>
+                </td>
+            </tr>
+            {open && user.children && user.children.map(child => (
+                <RecursiveRow
                     key={child.uhid}
                     user={child}
                     level={level + 1}
@@ -147,55 +208,76 @@ export default function TeamViewPage() {
         }
     }, [authUser]);
     
-    // Auth redirection logic
     useEffect(() => {
         if (!authLoading && !authUser) {
             router.push('/sign-in');
         } else if (authUser && !['support', 'admin'].includes(authUser.userType)) {
-            router.push('/dashboard'); // or some other appropriate page
+            router.push('/dashboard');
         }
     }, [authUser, authLoading, router]);
 
-
     if (authLoading || loading) {
-        return <div style={{ textAlign: 'center', color: '#b3baff', padding: '2rem' }}>Loading...</div>;
+        return <div className="text-center p-20 text-gold-500 animate-pulse">Synchronizing Topology Segments...</div>;
     }
+
     if (error) {
-        return <div style={{ textAlign: 'center', color: '#ff4d4d', padding: '2rem' }}>Error: {error}</div>;
+        return (
+            <div className="text-center p-20 bg-red-500/10 text-red-500 rounded-3xl m-8">
+                <Radio size={48} className="mx-auto mb-4 opacity-50" />
+                <h2 className="text-2xl font-black mb-2">Registry Connection Failed</h2>
+                <p>{error}</p>
+            </div>
+        );
     }
 
     return (
-        <div style={{ background: '#181f3a', borderRadius: '22px', padding: '2rem', color: 'white' }}>
-            <h2 style={{ marginBottom: '1.5rem', color: '#fff' }}>Hierarchical Team View</h2>
-            <div className="table-responsive" style={{ maxHeight: '80vh', overflow: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div className={styles.container}>
+            <header className="mb-0">
+                <h1 className={styles.title}>System <span>Topology Terminal</span></h1>
+                <div className={styles.headerActions}>
+                    <div className={styles.statsBadge}>
+                        <Network size={14} color="#ffd700" /> Authorized Nodes Count: <strong>{users.length}</strong>
+                    </div>
+                </div>
+            </header>
+
+            <div className={styles.tableWrapper}>
+                <table className={styles.table}>
                     <thead>
                         <tr>
-                            <th style={tableHeaderStyle}>Username</th>
-                            <th style={tableHeaderStyle}>UHID</th>
-                            <th style={tableHeaderStyle}>Self LP</th>
-                            <th style={tableHeaderStyle}>Team LP</th>
-                            <th style={tableHeaderStyle}>Team Size</th>
-                            <th style={tableHeaderStyle}>Sponsor</th>
-                            <th style={tableHeaderStyle}>Joined</th>
-                            <th style={tableHeaderStyle}>Ledger</th>
+                            <th>Administrative ID</th>
+                            <th>Identity UHID</th>
+                            <th>Self LP</th>
+                            <th>Team LP</th>
+                            <th>Cohort</th>
+                            <th>Sponsor</th>
+                            <th>Synced On</th>
+                            <th>Operations</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {users.map(user => (
-                            <UserRow
-                                key={user.uhid}
-                                user={user}
-                                level={0}
-                                onToggle={toggleNode}
-                                open={user.open}
-                                onFetch={fetchDescendants}
-                                router={router}
-                            />
-                        ))}
+                        {users.length > 0 ? (
+                            users.map(user => (
+                                <RecursiveRow
+                                    key={user.uhid}
+                                    user={user}
+                                    level={0}
+                                    onToggle={toggleNode}
+                                    open={user.open}
+                                    onFetch={fetchDescendants}
+                                    router={router}
+                                />
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="8" style={{ textAlign: 'center', padding: '100px', color: '#555', fontStyle: 'italic' }}>
+                                    No network topology traced in the current registry segment.
+                                </td>
+                            </tr>
+                        )}
                     </tbody>
                 </table>
             </div>
         </div>
     );
-} 
+}

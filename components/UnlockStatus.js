@@ -20,17 +20,17 @@ const UnlockStatus = ({ unlockData, xrankLabel = "Next Rank" }) => {
   const progressPercent = Math.round((completedLegs / 3) * 100);
 
   return (
-    <div className={styles.xrp_UnlockStatus_card}>
+    <div className={styles.USDT_UnlockStatus_card}>
       <h2
-        className={styles.xrp_UnlockStatus_title}
+        className={styles.USDT_UnlockStatus_title}
         style={{ cursor: "pointer" }}
       >
-        <span className={styles.xrp_UnlockStatus_lockIcon}>🔒</span> Unlock{" "}
+        <span className={styles.USDT_UnlockStatus_lockIcon}>🔒</span> Unlock{" "}
         {xrankLabel}
       </h2>
 
-      <div className={styles.xrp_UnlockStatus_block}>
-        <p className={styles.xrp_UnlockStatus_heading}>
+      <div className={styles.USDT_UnlockStatus_block}>
+        <p className={styles.USDT_UnlockStatus_heading}>
           Required Self LP –{" "}
           <strong>{requiredSelfLp.toLocaleString()} USDT</strong>
         </p>
@@ -47,7 +47,7 @@ const UnlockStatus = ({ unlockData, xrankLabel = "Next Rank" }) => {
           </p>
           <p>
             {" "}
-            <span className={styles.xrp_UnlockStatus_pending}>
+            <span className={styles.USDT_UnlockStatus_pending}>
               {pendingSelf > 0 ? (
                 <>
                   <div> Pending: {pendingSelf.toLocaleString()} USDT</div>
@@ -74,8 +74,8 @@ const UnlockStatus = ({ unlockData, xrankLabel = "Next Rank" }) => {
         </div>
       </div>
 
-      <div className={styles.xrp_UnlockStatus_block}>
-        <p className={styles.xrp_UnlockStatus_heading}>
+      <div className={styles.USDT_UnlockStatus_block}>
+        <p className={styles.USDT_UnlockStatus_heading}>
           Required Community LP –{" "}
           <strong>{requiredCommunityLp.toLocaleString()} USDT</strong>
         </p>
@@ -83,7 +83,7 @@ const UnlockStatus = ({ unlockData, xrankLabel = "Next Rank" }) => {
           Required per Leg (3 Legs):{" "}
           <strong>{requiredPerLeg.toLocaleString()} USDT each</strong>
         </p>
-        <table className={styles.xrp_UnlockStatus_table}>
+        <table className={styles.USDT_UnlockStatus_table}>
           <thead>
             <tr>
               <th>Leg</th>
@@ -138,7 +138,7 @@ const UnlockStatus = ({ unlockData, xrankLabel = "Next Rank" }) => {
                             </svg>{" "}
                             Pending:{" "}
                           </div>
-                          <span className={styles.xrp_UnlockStatus_pending}>
+                          <span className={styles.USDT_UnlockStatus_pending}>
                             {pending.toLocaleString()} USDT
                           </span>
                         </div>
@@ -153,14 +153,14 @@ const UnlockStatus = ({ unlockData, xrankLabel = "Next Rank" }) => {
       </div>
 
       {/* Progress Bar */}
-      <div className={styles.xrp_UnlockStatus_block}>
-        <div className={styles.xrp_UnlockStatus_progressText}>
+      <div className={styles.USDT_UnlockStatus_block}>
+        <div className={styles.USDT_UnlockStatus_progressText}>
           📘 Progress: <strong>{completedLegs}/3 Legs Completed</strong>
         </div>
-        <div className={styles.xrp_UnlockStatus_progressBarWrapper}>
-          <div className={styles.xrp_UnlockStatus_progressBarBg}>
+        <div className={styles.USDT_UnlockStatus_progressBarWrapper}>
+          <div className={styles.USDT_UnlockStatus_progressBarBg}>
             <div
-              className={styles.xrp_UnlockStatus_progressBarFill}
+              className={styles.USDT_UnlockStatus_progressBarFill}
               style={{ width: `${progressPercent}%` }}
             />
           </div>
@@ -168,7 +168,7 @@ const UnlockStatus = ({ unlockData, xrankLabel = "Next Rank" }) => {
       </div>
 
       {!isUnlocked && (
-        <div className={styles.xrp_UnlockStatus_locked}>
+        <div className={styles.USDT_UnlockStatus_locked}>
           🔒 Feature Locked – <strong>Meet all requirements to unlock</strong>
         </div>
       )}
@@ -177,3 +177,4 @@ const UnlockStatus = ({ unlockData, xrankLabel = "Next Rank" }) => {
 };
 
 export default UnlockStatus;
+

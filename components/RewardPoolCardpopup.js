@@ -26,13 +26,13 @@ const RewardPoolCardpopup = ({ unlockData, xrankLabel }) => {
 
   return (
     <div className="w-100">
-      <h2 className={styles.xrp_UnlockStatus_title}>
+      <h2 className={styles.USDT_UnlockStatus_title}>
         🔒 Unlock REWARD POOL {xrankLabel}
       </h2>
 
       {/* SELF LP SECTION */}
-      <div className={styles.xrp_UnlockStatus_block}>
-        <p className={styles.xrp_UnlockStatus_heading}>
+      <div className={styles.USDT_UnlockStatus_block}>
+        <p className={styles.USDT_UnlockStatus_heading}>
           Required Self LP – <strong>{requiredSelfLp} USDT</strong>
         </p>
 
@@ -42,7 +42,7 @@ const RewardPoolCardpopup = ({ unlockData, xrankLabel }) => {
           </p>
 
           {pendingSelf > 0 ? (
-            <p className={styles.xrp_UnlockStatus_pending}>
+            <p className={styles.USDT_UnlockStatus_pending}>
               Pending: {pendingSelf} USDT
             </p>
           ) : (
@@ -52,8 +52,8 @@ const RewardPoolCardpopup = ({ unlockData, xrankLabel }) => {
       </div>
 
       {/* COMMUNITY SECTION */}
-      <div className={styles.xrp_UnlockStatus_block}>
-        <p className={styles.xrp_UnlockStatus_heading}>
+      <div className={styles.USDT_UnlockStatus_block}>
+        <p className={styles.USDT_UnlockStatus_heading}>
           Required Community LP – <strong>{pool.title}</strong>
         </p>
 
@@ -62,7 +62,7 @@ const RewardPoolCardpopup = ({ unlockData, xrankLabel }) => {
         </p>
 
         {/* TABLE */}
-        <table className={styles.xrp_UnlockStatus_table}>
+        <table className={styles.USDT_UnlockStatus_table}>
           <thead>
             <tr>
               <th>Leg</th>
@@ -106,21 +106,21 @@ const RewardPoolCardpopup = ({ unlockData, xrankLabel }) => {
       </div>
 
       {/* PROGRESS BAR */}
-      <div className={styles.xrp_UnlockStatus_block}>
-        <div className={styles.xrp_UnlockStatus_progressText}>
+      <div className={styles.USDT_UnlockStatus_block}>
+        <div className={styles.USDT_UnlockStatus_progressText}>
           📘 Progress: <strong>{completedLegs}/3 Wings Completed</strong>
         </div>
 
-        <div className={styles.xrp_UnlockStatus_progressBarBg}>
+        <div className={styles.USDT_UnlockStatus_progressBarBg}>
           <div
-            className={styles.xrp_UnlockStatus_progressBarFill}
+            className={styles.USDT_UnlockStatus_progressBarFill}
             style={{ width: `${progressPercent}%` }}
           />
         </div>
       </div>
 
       {!isUnlocked && (
-        <div className={styles.xrp_UnlockStatus_locked}>
+        <div className={styles.USDT_UnlockStatus_locked}>
           🔒 Feature Locked – Meet all requirements to unlock
         </div>
       )}
@@ -129,3 +129,4 @@ const RewardPoolCardpopup = ({ unlockData, xrankLabel }) => {
 };
 
 export default RewardPoolCardpopup;
+

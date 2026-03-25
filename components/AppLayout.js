@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import styles from "./RedesignedDashboard.module.css";
-import { LayoutDashboard, Users, History, Link as LinkIcon, FileText, Play, Calculator, Headphones, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -13,13 +13,13 @@ const AppLayout = ({ children }) => {
   const username = user?.username || user?.email?.split("@")[0] || "User";
   
   const navLinks = [
-    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/team-referrals", label: "My Team", icon: Users },
-    { href: "/dashboard/ledger", label: "Ledger History", icon: History },
-    { href: "https://t.me/BEPVaultSupportBot", label: "Support", icon: Headphones },
+    { href: "/dashboard", label: "Dashboard", icon: "ri-dashboard-3-fill" },
+    { href: "/team-referrals", label: "Community", icon: "ri-group-2-fill" },
+    { href: "/dashboard/ledger", label: "Ledger History", icon: "ri-file-list-3-fill" },
+    { href: "https://t.me/BEPVaultSupportBot", label: "Help", icon: "ri-customer-service-2-fill" },
   ];
 
-  const isAuthPage = pathname.startsWith("/sign-in") || pathname.startsWith("/sign-up") || pathname.startsWith("/forgot-password") || pathname === "/";
+  const isAuthPage = pathname.startsWith("/sign-in") || pathname.startsWith("/sign-up") || pathname.startsWith("/forgot-password") || pathname === "/" || pathname.startsWith("/support");
 
   if (isAuthPage) {
     return <>{children}</>;
@@ -62,7 +62,7 @@ const AppLayout = ({ children }) => {
                   href={link.href} 
                   className={`${styles.navLink} ${isActive ? styles.navLinkActive : ""}`}
                 >
-                  <link.icon size={20} />
+                  <i className={link.icon} style={{ fontSize: "20px" }}></i>
                   {link.label}
                 </Link>
               </li>
@@ -97,6 +97,26 @@ const AppLayout = ({ children }) => {
       <main className={styles.mainContentArea}>
         {children}
       </main>
+
+      {/* Mobile Bottom Navigation */}
+      <nav className={styles.mobileBottomNav}>
+        {navLinks.map((link) => {
+          const isActive = link.href === "/dashboard" 
+            ? pathname === "/dashboard" 
+            : pathname.startsWith(link.href);
+          
+          return (
+            <Link 
+              key={link.label} 
+              href={link.href} 
+              className={`${styles.mobileNavItem} ${isActive ? styles.mobileNavItemActive : ""}`}
+            >
+              <i className={link.icon} style={{ fontSize: "20px" }}></i>
+              <span>{link.label}</span>
+            </Link>
+          );
+        })}
+      </nav>
 
       {/* Global Background Ambience */}
       <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: -1 }}>

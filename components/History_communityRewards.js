@@ -327,7 +327,7 @@ export default function HistoryTable({ filters, walletType = null }) {
         border: "1px solid #2a3150",
       }}
     >
-      {/* <div className="xrp_total_headding">
+      {/* <div className="USDT_total_headding">
         <div
           style={{
             color: "#7FFF4C",
@@ -828,3 +828,4 @@ export default function HistoryTable({ filters, walletType = null }) {
     </div>
   );
 }
+

@@ -1,5 +1,5 @@
 /* reuse your title + scroll container */
-.xrp-comm-rew-card {
+.USDT-comm-rew-card {
     max-height: 380px;
     overflow-y: auto;
     scrollbar-width: thin;
@@ -7,11 +7,11 @@
     /* padding-top: 25px; */
 }
 
-.xrp-comm-rew-card::-webkit-scrollbar {
+.USDT-comm-rew-card::-webkit-scrollbar {
     width: 3px;
 }
 
-.xrp-comm-rew-card::-webkit-scrollbar-thumb {
+.USDT-comm-rew-card::-webkit-scrollbar-thumb {
     background: #4f46e5;
     border-radius: 3px;
 }
@@ -257,5 +257,6 @@
 .cr-card:hover .cr-main {
   opacity: 0;
 }
+
 
 

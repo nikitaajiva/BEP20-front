@@ -370,7 +370,7 @@ h1 {
   box-shadow: 0 0 0 0.2rem rgba(255, 215, 0, 0.25) !important;
 }
 
-.xrp-details-divider {
+.USDT-details-divider {
   border: none !important;
   height: 1px !important;
   background: linear-gradient(90deg,
@@ -11156,7 +11156,7 @@ a {
 }
 
 /* ================================================================================================ */
-.xrp-reward-cell {
+.USDT-reward-cell {
   position: relative;
   background: #111a38 !important;
   padding: 0.5rem;
@@ -11171,7 +11171,7 @@ a {
 }
 
 /* Overlay effect */
-.xrp-reward-cell::before {
+.USDT-reward-cell::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -11182,61 +11182,61 @@ a {
 }
 
 /* Content should appear above the overlay */
-.xrp-reward-cell>* {
+.USDT-reward-cell>* {
   position: relative;
   z-index: 1;
 }
 
-.xrp-reward-label {
+.USDT-reward-label {
   font-weight: 500;
   color: #d1d5ff;
 }
 
-.xrp-small-label {
+.USDT-small-label {
   font-size: 0.7rem;
 }
 
-.xrp-larger-label {
+.USDT-larger-label {
   font-size: 0.85rem;
 }
 
-.xrp-reward-value {
+.USDT-reward-value {
   font-weight: 600;
   font-size: 0.8rem;
 }
 
-.xrp-left-align {
+.USDT-left-align {
   text-align: left;
 }
 
-.xrp-center-align {
+.USDT-center-align {
   text-align: center;
   width: 100%;
 }
 
-.xrp-green-value {
+.USDT-green-value {
   color: #7fff4c;
 }
 
-.xrp-red-value {
+.USDT-red-value {
   color: #ff4d4d;
 }
 
-.xrp-date-heading {
+.USDT-date-heading {
   font-weight: bold;
   font-size: 1.25rem;
   margin-bottom: 1rem;
   color: #fff;
 }
 
-.xrp-grid-layout {
+.USDT-grid-layout {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   gap: 0.3rem;
 }
 
 @media (max-width: 1025px) {
-  .xrp-grid-layout {
+  .USDT-grid-layout {
     grid-template-columns: repeat(3, 1fr);
   }
 
@@ -11248,21 +11248,21 @@ a {
 
 /* Medium screens (tablets) */
 @media (max-width: 992px) {
-  .xrp-grid-layout {
+  .USDT-grid-layout {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
 /* Small screens (mobile) */
 @media (max-width: 768px) {
-  .xrp-grid-layout {
+  .USDT-grid-layout {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
 /* Extra small (very narrow) */
 @media (max-width: 480px) {
-  .xrp-grid-layout {
+  .USDT-grid-layout {
     grid-template-columns: 1fr;
   }
 
@@ -11289,7 +11289,7 @@ a {
   }
 }
 
-@keyframes xrp-blink-bar {
+@keyframes USDT-blink-bar {
 
   0%,
   100% {
@@ -11304,7 +11304,7 @@ a {
 }
 
 .blink-bar {
-  animation: xrp-blink-bar 1.2s infinite ease-in-out;
+  animation: USDT-blink-bar 1.2s infinite ease-in-out;
   transform-origin: center bottom;
 }
 
@@ -11330,7 +11330,7 @@ a {
   }
 }
 
-.xrp-global-loader {
+.USDT-global-loader {
   position: fixed;
   top: 0;
   left: 0;
@@ -11343,7 +11343,7 @@ a {
   align-items: center;
 }
 
-.xrp-spinner {
+.USDT-spinner {
   width: 70px;
   height: 70px;
   border: 5px solid rgba(127, 255, 76, 0.3);
@@ -11513,7 +11513,7 @@ select option {
 }
 
 /* Custom horizontal scrollbar */
-.xrp-custom-scroll {
+.USDT-custom-scroll {
   overflow-x: auto;
   scrollbar-width: thin;
   /* For Firefox */
@@ -11522,23 +11522,23 @@ select option {
 }
 
 /* Chrome, Edge, Safari */
-.xrp-custom-scroll::-webkit-scrollbar {
+.USDT-custom-scroll::-webkit-scrollbar {
   height: 8px;
 }
 
-.xrp-custom-scroll::-webkit-scrollbar-track {
+.USDT-custom-scroll::-webkit-scrollbar-track {
   background: #101937;
   border-radius: 10px;
 }
 
-.xrp-custom-scroll::-webkit-scrollbar-thumb {
+.USDT-custom-scroll::-webkit-scrollbar-thumb {
   background-color: #00d6c4;
   border-radius: 10px;
   border: 2px solid transparent;
   background-clip: content-box;
 }
 
-.xrp-custom-scroll::-webkit-scrollbar-thumb:hover {
+.USDT-custom-scroll::-webkit-scrollbar-thumb:hover {
   background-color: #00b2a7;
 }
 
@@ -11608,7 +11608,7 @@ select option {
     top: var(--swiper-navigation-top-offset, 30%) !important;
   }
 
-  .xrp_total_headding {
+  .USDT_total_headding {
     flex-direction: column;
   }
 
@@ -11658,7 +11658,7 @@ select option {
   gap: 3px;
 }
 
-.xrp_total_headding {
+.USDT_total_headding {
   display: flex;
   justify-content: flex-end;
   color: rgb(139, 146, 181);
@@ -11669,11 +11669,11 @@ select option {
   color: rgb(127, 255, 76);
 }
 
-.xrp_total_headding p {
+.USDT_total_headding p {
   margin: 0;
 }
 
-.xrp_total_headding span {
+.USDT_total_headding span {
   color: rgb(139, 146, 181) !important;
 }
 
@@ -11689,14 +11689,14 @@ select option {
   background: #1e2a4e;
 }
 
-/* XRP_Transactions deposits */
-.xrp_clickable {
+/* USDT_Transactions deposits */
+.USDT_clickable {
   cursor: pointer;
   color: #7fb3ff;
   text-decoration: underline;
 }
 
-.xrp_modalBackdrop {
+.USDT_modalBackdrop {
   position: fixed;
   top: 0;
   left: 0;
@@ -11709,7 +11709,7 @@ select option {
   z-index: 1000;
 }
 
-.xrp_modalContent {
+.USDT_modalContent {
   background-color: #1c1c2c;
   padding: 2rem;
   border-radius: 12px;
@@ -11720,7 +11720,7 @@ select option {
   animation: slideIn 0.3s ease-out;
 }
 
-.xrp_modalClose {
+.USDT_modalClose {
   color: #fff;
   cursor: pointer;
   font-size: 1.5rem;
@@ -11734,12 +11734,12 @@ select option {
   align-items: center;
 }
 
-.xrp_modalContent p {
+.USDT_modalContent p {
   word-wrap: break-word;
   margin-bottom: 5px;
 }
 
-.xrp_modalContent strong {
+.USDT_modalContent strong {
   color: rgb(79, 140, 255);
 }
 
@@ -11755,13 +11755,13 @@ select option {
   }
 }
 
-.xrp_addXaman {
+.USDT_addXaman {
   align-items: end;
 }
 
-.xrp_section.xrp_amount,
-.xrp_addXaman button,
-.xrp_buttonAddXaman {
+.USDT_section.USDT_amount,
+.USDT_addXaman button,
+.USDT_buttonAddXaman {
   color: #4f8cff;
   cursor: pointer;
   background: #4f8cff1a;
@@ -11772,19 +11772,19 @@ select option {
   font-size: 14px;
 }
 
-.xrp_buttonAddXaman:hover {
+.USDT_buttonAddXaman:hover {
   background-color: rgba(79, 140, 255, 0.2);
 }
 
-.xrp_modalContent span {
+.USDT_modalContent span {
   word-wrap: break-word;
 }
 
-.xrp_section span {
+.USDT_section span {
   font-size: 12px;
 }
 
-.xrp_section.xrp_status {
+.USDT_section.USDT_status {
   align-items: end;
   text-align: end;
   display: flex;
@@ -11792,12 +11792,12 @@ select option {
   gap: 5px;
 }
 
-.xrp_statusDropdownWrapper {
+.USDT_statusDropdownWrapper {
   display: inline-block;
   /* margin-top: 0.5rem; */
 }
 
-.xrp_copyButton {
+.USDT_copyButton {
   background: rgba(79, 140, 255, 0.1);
   border: 1px solid rgba(79, 140, 255, 0.2);
   color: #4f8cff;
@@ -11808,18 +11808,18 @@ select option {
   transition: background-color 0.2s ease;
 }
 
-.xrp_copyButton:hover {
+.USDT_copyButton:hover {
   background-color: rgba(79, 140, 255, 0.2);
 }
 
-.xrp_section.xrp_transactionId div {
+.USDT_section.USDT_transactionId div {
   display: flex;
   align-items: center;
   gap: 10px;
   position: relative;
 }
 
-.xrp_copyMessage {
+.USDT_copyMessage {
   font-size: 0.75rem;
   color: #7fff4c;
   font-weight: bold;
@@ -11844,37 +11844,37 @@ select option {
   }
 }
 
-.xrp_actionAddXaman_section {
+.USDT_actionAddXaman_section {
   display: flex;
   align-items: center;
   gap: 10px;
   text-align: center;
 }
 
-.xrp_statusDropdown--completed {
+.USDT_statusDropdown--completed {
   background-color: rgba(21, 192, 129, 0.2);
   color: #15c081;
 }
 
-.xrp_statusDropdown option {
+.USDT_statusDropdown option {
   background-color: rgba(255, 215, 0, 0.2);
   color: #000000;
   font-weight: bold;
 }
 
-.xrp_transactionId_value {
+.USDT_transactionId_value {
   word-break: break-all;
   color: #b3baff;
   font-family: monospace;
 }
 
-.xrp_selectWithIcon {
+.USDT_selectWithIcon {
   position: relative;
   display: inline-block;
   width: 100%;
 }
 
-.xrp_statusDropdown {
+.USDT_statusDropdown {
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -11892,20 +11892,20 @@ select option {
 }
 
 /* Completed = green */
-.xrp_statusDropdown--completed {
+.USDT_statusDropdown--completed {
   background-color: rgba(21, 192, 129, 0.2);
   color: #15c081;
 }
 
 /* Failed = red */
-.xrp_statusDropdown--failed {
+.USDT_statusDropdown--failed {
   background-color: rgba(255, 77, 77, 0.2);
   color: #ff4d4d;
   font-weight: 400;
 }
 
 /* Dropdown icon */
-.xrp_dropdownIcon {
+.USDT_dropdownIcon {
   position: absolute;
   right: 12px;
   top: 50%;
@@ -11913,12 +11913,12 @@ select option {
   pointer-events: none;
 }
 
-.xrp_usernameDropdownWrapper {
+.USDT_usernameDropdownWrapper {
   position: relative;
   display: inline-block;
 }
 
-.xrp_usernameDropdown {
+.USDT_usernameDropdown {
   background-color: #1e2238;
   color: #ffffff;
   border: 1px solid #3a3f5c;
@@ -11930,7 +11930,7 @@ select option {
   outline: none;
 }
 
-.xrp_dropdownIcon {
+.USDT_dropdownIcon {
   position: absolute;
   right: 10px;
   top: 50%;
@@ -11941,7 +11941,7 @@ select option {
   font-size: 12px;
 }
 
-.xrp_dropdownIcon.open {
+.USDT_dropdownIcon.open {
   transform: translateY(-50%) rotate(180deg);
 }
 

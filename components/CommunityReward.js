@@ -197,13 +197,13 @@ export default function CommunityReward() {
         className="card-body single-card-style"
         style={{ overflowX: "auto" }}
       >
-        <h5 className="xrp-comm-rew-title" style={{ color: "#b3baff" }}>
+        <h5 className="USDT-comm-rew-title" style={{ color: "#b3baff" }}>
           <FaGift className="me-2" />
           Community Rewards
         </h5>
 
         {/* keep your container + scroll area */}
-        <div className="xrp-comm-rew-card">
+        <div className="USDT-comm-rew-card">
           {/* card list instead of table */}
           <div className="cr-list">
             {cascadeUnlockRules.map((row) => {
@@ -371,3 +371,4 @@ export default function CommunityReward() {
     </div>
   );
 }
+

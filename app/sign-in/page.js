@@ -105,19 +105,23 @@ export default function SignInPage() {
           {/* Glass Form Card */}
           <div className={styles.formGlassCard}>
             <div className={styles.logoContainer}>
-              <Image
-                src="/bepvault_logo.png"
-                alt="BEPVault Logo"
-                width={40}
-                height={40}
-                className={styles.logo}
-              />
-              <span className={styles.logoText}>BEPVault</span>
+              <div className={styles.logoBox}>
+                <Image
+                  src="/bepvault_logo.png"
+                  alt="BEPVault Logo"
+                  width={40}
+                  height={40}
+                  className={styles.logo}
+                />
+              </div>
             </div>
 
-            <h2 className={styles.title}>Welcome to BEPVault!</h2>
+            <h2 className={styles.title}>
+              <span className={styles.welcomeText}>Welcome to </span>
+              <span className={styles.vaultText}>BEPVault!</span>
+            </h2>
             <p className={styles.subtitle}>
-              Please sign-in to your account and start the adventure
+              Secure access to your administrative command center
             </p>
 
             {error && <div className={styles.errorMessage}>{error}</div>}
@@ -208,18 +212,18 @@ export default function SignInPage() {
                   <Link href="/sign-up" className={styles.createAccountLink}>
                     Create an account
                   </Link>
-                  
-                  <div className={styles.socialContainer}>
-                    <button className={styles.socialButton}>
-                      <i className="bi bi-facebook"></i>
-                    </button>
-                    <button className={styles.socialButton}>
-                      <i className="bi bi-twitter-x"></i>
-                    </button>
-                    <button className={styles.socialButton}>
-                      <i className="bi bi-google"></i>
-                    </button>
-                  </div>
+                </div>
+
+                <div className={styles.socialContainer}>
+                  <button className={styles.socialButton}>
+                    <i className="bi bi-facebook"></i>
+                  </button>
+                  <button className={styles.socialButton}>
+                    <i className="bi bi-twitter-x"></i>
+                  </button>
+                  <button className={styles.socialButton}>
+                    <i className="bi bi-google"></i>
+                  </button>
                 </div>
 
                 <div className={styles.signUpNowContainer}>

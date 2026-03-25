@@ -1,6 +1,6 @@
 /* components/UnlockStatus.module.css */
 
-.xrp_UnlockStatus_card {
+.USDT_UnlockStatus_card {
     background: #111933;
     /* padding: 24px; */
     border-radius: 16px;
@@ -10,7 +10,7 @@
     box-shadow: 0 0 10px rgba(0, 255, 255, 0.05);
 }
 
-.xrp_UnlockStatus_title {
+.USDT_UnlockStatus_title {
     font-size: 1.5rem;
     color: #4fe6d6;
     display: flex;
@@ -18,11 +18,11 @@
     margin-bottom: 20px;
 }
 
-.xrp_UnlockStatus_lockIcon {
+.USDT_UnlockStatus_lockIcon {
     margin-right: 10px;
 }
 
-.xrp_UnlockStatus_block {
+.USDT_UnlockStatus_block {
     background: #1a2445;
     border-radius: 12px;
     margin-bottom: 16px;
@@ -30,38 +30,38 @@
     /* font-size: 14px; */
 }
 
-.xrp_UnlockStatus_heading {
+.USDT_UnlockStatus_heading {
     font-weight: 600;
     color: #48e5c2;
     margin-bottom: 0px;
 }
 
-.xrp_UnlockStatus_block p {
+.USDT_UnlockStatus_block p {
     margin-bottom: 0px;
 }
 
-.xrp_UnlockStatus_legList {
+.USDT_UnlockStatus_legList {
     list-style: none;
     padding-left: 0;
     margin-top: 10px;
 }
 
-.xrp_UnlockStatus_legList li {
+.USDT_UnlockStatus_legList li {
     margin-bottom: 6px;
     display: flex;
     justify-content: space-between;
 }
 
-.xrp_UnlockStatus_pending {
+.USDT_UnlockStatus_pending {
     color: #ff9e67;
 }
 
-.xrp_UnlockStatus_progress {
+.USDT_UnlockStatus_progress {
     color: #4f8cff;
     font-weight: 500;
 }
 
-.xrp_UnlockStatus_locked {
+.USDT_UnlockStatus_locked {
     margin-top: 12px;
     padding-top: 12px;
     border-top: 1px solid #22304c;
@@ -71,32 +71,32 @@
 }
 
 
-.xrp_UnlockStatus_progressText {
+.USDT_UnlockStatus_progressText {
     font-weight: 500;
     color: #4f8cff;
     margin-bottom: 8px;
 }
 
-.xrp_UnlockStatus_progressBarWrapper {
+.USDT_UnlockStatus_progressBarWrapper {
     height: 10px;
     border-radius: 8px;
     background-color: #2e3a5c;
     overflow: hidden;
 }
 
-.xrp_UnlockStatus_progressBarBg {
+.USDT_UnlockStatus_progressBarBg {
     width: 100%;
     height: 100%;
 }
 
-.xrp_UnlockStatus_progressBarFill {
+.USDT_UnlockStatus_progressBarFill {
     height: 100%;
     background: linear-gradient(to right, #4fe6d6, #00d6c4);
     border-radius: 8px;
     transition: width 0.4s ease;
 }
 
-.xrp_UnlockStatus_title {
+.USDT_UnlockStatus_title {
     font-size: 1.5rem;
     color: #4fe6d6;
     display: flex;
@@ -105,19 +105,19 @@
     transition: color 0.3s ease;
 }
 
-.xrp_UnlockStatus_title:hover {
+.USDT_UnlockStatus_title:hover {
     color: #00ffe1;
 }
 
-.xrp_UnlockStatus_table {
+.USDT_UnlockStatus_table {
     width: 100%;
     border-collapse: collapse;
     margin-top: .5rem;
     font-size: 13px;
 }
 
-.xrp_UnlockStatus_table th,
-.xrp_UnlockStatus_table td {
+.USDT_UnlockStatus_table th,
+.USDT_UnlockStatus_table td {
     text-align: left;
     padding: 3px;
     background: rgba(79, 140, 255, 0.1);
@@ -127,15 +127,15 @@
     transition: 0.3s;
 }
 
-/* .xrp_UnlockStatus_table th {
+/* .USDT_UnlockStatus_table th {
     background-color: #f5f5f5;
 } */
 
-.xrp_UnlockStatus_pending {
+.USDT_UnlockStatus_pending {
     font-weight: bold;
 }
 
-/* .xrp_UnlockStatus_card p strong {
+/* .USDT_UnlockStatus_card p strong {
     font-size: 14px;
     font-weight: 500;
 } */

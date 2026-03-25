@@ -102,7 +102,7 @@ export default function DashboardPage() {
     }
 
     try {
-      const backendResponse = await fetch(`${API_URL}/deposits/xrp`, { 
+      const backendResponse = await fetch(`${API_URL}/deposits/USDT`, { 
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -110,7 +110,7 @@ export default function DashboardPage() {
         },
         body: JSON.stringify({
           transactionId: txid,
-          xrpAddress: userAccount 
+          USDTAddress: userAccount 
         })
       });
       const backendData = await backendResponse.json();
@@ -271,22 +271,22 @@ export default function DashboardPage() {
     setIsAmountModalOpen(true);
   };
 
-  const createPayload = async (amountXRP) => {
+  const createPayload = async (amountUSDT) => {
     setIsAmountModalOpen(false);
     if (!account) {
       alert("Please sign in first by connecting your Xaman wallet.");
       setDebugMessage("Debug: User not signed in with Xaman.");
       return;
     }
-    if (!amountXRP || parseFloat(amountXRP) <= 0) {
+    if (!amountUSDT || parseFloat(amountUSDT) <= 0) {
       alert("Invalid amount provided.");
       setDebugMessage("Debug: Invalid amount for payload.");
       return;
     }
 
-    const amountInDrops = String(parseFloat(amountXRP) * 1000000);
+    const amountInDrops = String(parseFloat(amountUSDT) * 1000000);
 
-    setTransactionStatus(`Preparing transaction for ${amountXRP} XRP...`);
+    setTransactionStatus(`Preparing transaction for ${amountUSDT} USDT...`);
     setLastPayloadUpdate('');
     setDebugMessage('');
 
@@ -385,7 +385,7 @@ console.log("✅ Got live deposit address:", liveWalletAddress, liveDestinationT
 
         // ⏳ if txid missing, poll Xumm until it appears
         if (!txid) {
-          setTransactionStatus("Waiting for transaction to be validated on XRPL...");
+          setTransactionStatus("Waiting for transaction to be validated on USDTL...");
           for (let i = 0; i < 10; i++) {
             const payloadStatus = await xummInstance.payload.get(subscription.created.uuid);
             if (payloadStatus?.response?.txid) {

@@ -1,6 +1,8 @@
 import React, { useState, useCallback } from "react";
 import { v4 as uuidv4 } from "uuid";
 import debounce from "lodash/debounce";
+import styles from "./ZeroRiskClaimModal.module.css";
+import { AlertTriangle, CheckCircle, XCircle, ShieldAlert, ArrowRight, Wallet, Info } from "lucide-react";
 
 export default function ZeroRiskClaimModal({
   isOpen,
@@ -91,272 +93,130 @@ export default function ZeroRiskClaimModal({
     };
   }, [debouncedSubmit]);
 
-  const modalStyle = {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 1000,
-  };
-
-  const contentStyle = {
-    background: "#181f3a",
-    borderRadius: "22px",
-    padding: "2rem",
-    maxWidth: "500px",
-    width: "90%",
-    position: "relative",
-    boxShadow: "0 8px 32px 0 rgba(16,25,53,0.18)",
-  };
-
-  const buttonStyle = {
-    background: "rgba(79, 140, 255, 0.1)",
-    color: "#4f8cff",
-    border: "1px solid rgba(79, 140, 255, 0.2)",
-    borderRadius: "12px",
-    padding: "0.75rem",
-    transition: "all 0.3s ease",
-    width: "100%",
-    marginTop: "1rem",
-  };
-
-  const warningButtonStyle = {
-    ...buttonStyle,
-    background: "rgba(255, 59, 48, 0.1)",
-    color: "#ff3b30",
-    border: "1px solid rgba(255, 59, 48, 0.2)",
-  };
-
   if (!isOpen) return null;
 
   return (
-    <div style={modalStyle} onClick={onClose}>
-      <div style={contentStyle} onClick={(e) => e.stopPropagation()}>
+    <div className={styles.modalOverlay} onClick={onClose}>
+      <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
         {isSuccess ? (
-          <>
-            <h4
-              style={{
-                color: "#7FFF4C",
-                marginBottom: "1rem",
-                textAlign: "center",
-              }}
-            >
-              ✅ Claim Successful!
-            </h4>
-            <p
-              style={{
-                color: "#b3baff",
-                textAlign: "center",
-                marginBottom: "0.5rem",
-              }}
-            >
-              Your claim has been processed successfully.
+          <div className={styles.successWrapper}>
+            <div className={styles.successIconBox}>
+                <CheckCircle size={56} color="#00ff00" style={{ margin: "0 auto 20px" }} />
+            </div>
+            <h4 className={styles.successTitle}>Claim Successful!</h4>
+            <p className={styles.successText}>
+              Your claim has been processed successfully. Boost &amp; Swift limits have been updated.
             </p>
-            <p
-              style={{
-                color: "#b3baff",
-                textAlign: "center",
-                marginBottom: "0.5rem",
-              }}
-            >
-              Boost & Swift limits updated successfully.
-            </p>
-            <p
-              style={{
-                color: "#b3baff",
-                textAlign: "center",
-                marginBottom: "1.5rem",
-              }}
-            >
-              Please check updated limits in your dashboard.
-            </p>
-            <button style={buttonStyle} onClick={onClose}>
-              Close
-            </button>
-          </>
+            <div className={styles.buttonGroup}>
+                <button className={styles.primaryBtn} onClick={onClose}>
+                Back to Dashboard
+                </button>
+            </div>
+          </div>
         ) : showWarning ? (
           <>
-            <h4
-              style={{
-                color: "#fff",
-                marginBottom: "1rem",
-                textAlign: "center",
-              }}
-            >
-              ⚠️ Warning
-            </h4>
-            <div
-              style={{
-                color: "#b3baff",
-                marginBottom: "1.5rem",
-                textAlign: "center",
-              }}
-            >
-              <p style={{ marginBottom: "1rem" }}>
-                Claims from Stable Pool have the following impact:
-              </p>
-              <div
-                style={{
-                  background: "rgba(255, 206, 84, 0.1)",
-                  border: "1px solid rgba(255, 206, 84, 0.2)",
-                  borderRadius: "12px",
-                  padding: "1rem",
-                  textAlign: "left",
-                }}
-              >
-                <p style={{ margin: "0 0 0.5rem 0", color: "#FFCE54" }}>
-                   • Amount ≤ Primary Vault Balance: No limits affected
-                </p>
-                <p style={{ margin: "0", color: "#ff3b30" }}>
-                   • Amount &gt; Primary Vault Balance: Swift &amp; Boost limits will be
-                   reduced to remaining Liquidity Pool balance
-                </p>
+            <div className={styles.modalTitle}>
+              <ShieldAlert className={styles.warningIcon} size={28} />
+              <span>CAUTION: CLAIM RISK</span>
+            </div>
+            
+            <p className={styles.warningDesc}>
+                Claiming from the Stable Pool may affect your current growth limits.
+            </p>
+
+            <div className={styles.warningBox}>
+              <div className={`${styles.warningLine} ${styles.warningLineYellow}`}>
+                <Info size={16} style={{ flexShrink: 0, marginTop: 3 }} />
+                <span>Amount ≤ Primary Vault: No limits affected</span>
+              </div>
+              <div style={{ height: 12 }}></div>
+              <div className={`${styles.warningLine} ${styles.warningLineRed}`}>
+                <AlertTriangle size={16} style={{ flexShrink: 0, marginTop: 3 }} />
+                <span>Amount &gt; Primary Vault: Swift &amp; Boost limits will be reduced.</span>
               </div>
             </div>
-            <button
-              style={warningButtonStyle}
-              onClick={handleUnderstand}
-              disabled={isLoading || isSubmitting}
-            >
-              I Understand the Risk
-            </button>
-            <button
-              style={buttonStyle}
-              onClick={onClose}
-              disabled={isLoading || isSubmitting}
-            >
-              Cancel
-            </button>
+
+            <div className={styles.buttonGroup}>
+                <button
+                className={styles.primaryBtn}
+                style={{ background: "#ff3b30", color: "#fff" }}
+                onClick={handleUnderstand}
+                disabled={isLoading || isSubmitting}
+                >
+                I Understand the Risk
+                </button>
+                <button
+                className={styles.secondaryBtn}
+                onClick={onClose}
+                disabled={isLoading || isSubmitting}
+                >
+                Cancel
+                </button>
+            </div>
           </>
         ) : (
           <>
-            <h4
-              style={{
-                color: "#fff",
-                marginBottom: "1rem",
-                textAlign: "center",
-              }}
-            >
-               Claim from Stable Pool
-            </h4>
-            <div style={{ marginBottom: "1rem" }}>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  marginBottom: "1rem",
-                }}
-              >
-                <div>
-                   <small style={{ color: "#b3baff" }}>Primary Vault Balance:</small>
-                  <div style={{ color: "#4f8cff", fontWeight: "bold" }}>
-               
-                    {Math.max(0, parseFloat(xamanBalance)).toFixed(6)} USDT
-                  </div>
-                </div>
-                <div>
-                  <small style={{ color: "#b3baff" }}>
-                     Stable Pool Balance:
-                  </small>
-                  <div style={{ color: "#7FFF4C", fontWeight: "bold" }}>
-                   
-                    {Math.max(0, parseFloat(lpBalance)).toFixed(6)} USDT
-                  </div>
+            <div className={styles.modalTitle}>
+              Claim Stable Pool
+            </div>
+
+            <div className={styles.balanceGrid}>
+              <div className={styles.balanceItem}>
+                <span className={styles.balanceLabel}>Vault Balance</span>
+                <div className={styles.balanceValue} style={{ color: "#4f8cff" }}>
+                  {Math.max(0, parseFloat(xamanBalance)).toFixed(4)} USDT
                 </div>
               </div>
+              <div className={styles.balanceItem}>
+                <span className={styles.balanceLabel}>Stable Balance</span>
+                <div className={styles.balanceValue} style={{ color: "#00ff00" }}>
+                  {Math.max(0, parseFloat(lpBalance)).toFixed(4)} USDT
+                </div>
+              </div>
+            </div>
 
-              <label
-                style={{
-                  color: "#b3baff",
-                  display: "block",
-                  marginBottom: "0.5rem",
-                }}
-              >
-                Claim Amount (USDT)
-              </label>
+            <div className={styles.inputGroup}>
+              <label className={styles.inputLabel}>Amount to Claim (USDT)</label>
               <input
                 type="number"
                 step="0.000001"
-                min="0"
-                max={maxAmount}
+                className={styles.amountInput}
                 value={amount}
                 onChange={handleAmountChange}
-                style={{
-                  width: "100%",
-                  padding: "0.75rem",
-                  borderRadius: "12px",
-                  border: "1px solid rgba(79, 140, 255, 0.2)",
-                  background: "rgba(79, 140, 255, 0.1)",
-                  color: "#fff",
-                }}
-                placeholder="Enter amount"
+                placeholder="0.00"
                 disabled={isLoading || isSubmitting}
               />
-
-              {showLimitWarning && (
-                <div
-                  style={{
-                    background: "rgba(255, 77, 77, 0.1)",
-                    border: "1px solid rgba(255, 77, 77, 0.2)",
-                    borderRadius: "12px",
-                    padding: "0.75rem",
-                    marginTop: "0.5rem",
-                  }}
-                >
-                  <small style={{ color: "#ff4d4d" }}>
-                     ⚠️ This amount exceeds your Primary Vault balance. Your Swift &amp;
-                     Boost limits will be reduced to remaining Liquidity Pool balance (
-                    {(
-                      lpBalance -
-                      (parseFloat(amount || 0) - xamanBalance)
-                    ).toFixed(6)}{" "}
-                    USDT).
-                  </small>
-                </div>
-              )}
-
-              {amountError && (
-                <p
-                  style={{
-                    color: "#ff3b30",
-                    fontSize: "0.875rem",
-                    marginTop: "0.5rem",
-                  }}
-                >
-                  {amountError}
-                </p>
-              )}
-              {error && (
-                <p
-                  style={{
-                    color: "#ff3b30",
-                    fontSize: "0.875rem",
-                    marginTop: "0.5rem",
-                  }}
-                >
-                Your Last transaction is in Processing.
-                </p>
-              )}
+              
+              {amountError && <div className={styles.errorText}>{amountError}</div>}
+              {error && <div className={styles.errorText}>Your last transaction is still processing.</div>}
             </div>
-            <button
-              style={buttonStyle}
-              onClick={handleSubmit}
-              disabled={isLoading || isSubmitting || !!amountError || !amount}
-            >
-              {isLoading || isSubmitting ? "Processing..." : "Claim"}
-            </button>
-            <button
-              style={{ ...buttonStyle, marginTop: "0.5rem" }}
-              onClick={onClose}
-              disabled={isLoading || isSubmitting}
-            >
-              Cancel
-            </button>
+
+            {showLimitWarning && (
+              <div className={styles.limitWarning}>
+                <AlertTriangle size={18} className={styles.limitWarningIcon} />
+                <div className={styles.limitWarningText}>
+                   Amount exceeds Vault balance. Swift &amp; Boost limits will be reduced to 
+                   {(lpBalance - (parseFloat(amount || 0) - xamanBalance)).toFixed(4)} USDT.
+                </div>
+              </div>
+            )}
+
+            <div className={styles.buttonGroup}>
+              <button
+                className={styles.primaryBtn}
+                onClick={handleSubmit}
+                disabled={isLoading || isSubmitting || !!amountError || !amount}
+              >
+                {isLoading || isSubmitting ? "Processing..." : "Confirm Claim"}
+              </button>
+              <button
+                className={styles.secondaryBtn}
+                onClick={onClose}
+                disabled={isLoading || isSubmitting}
+              >
+                Cancel
+              </button>
+            </div>
           </>
         )}
       </div>

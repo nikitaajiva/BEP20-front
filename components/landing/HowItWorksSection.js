@@ -396,7 +396,7 @@ const HowItWorksSection = () => {
               data-aos-delay="100"
             >
               <div className="ico_service_image mt-3">
-                <img src="assets/images/xrp-paper.png" alt="USDT Service Icon" />
+                <img src="assets/images/USDT-paper.png" alt="USDT Service Icon" />
               </div>
             </div>
             <div
@@ -541,3 +541,4 @@ const HowItWorksSection = () => {
 };
 
 export default HowItWorksSection;
+

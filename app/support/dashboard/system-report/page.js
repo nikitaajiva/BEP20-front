@@ -107,8 +107,8 @@ const MetricCard = ({
     <>
       <div
         style={{
-          background: "rgba(79, 140, 255, 0.1)",
-          border: "1px solid rgba(79, 140, 255, 0.2)",
+          background: "rgba(255, 215, 0, 0.03)",
+          border: "1px solid rgba(255, 215, 0, 0.1)",
           borderRadius: "16px",
           padding: "1.5rem",
           minWidth: "200px",
@@ -119,7 +119,7 @@ const MetricCard = ({
         <div
           style={{
             fontSize: "0.9rem",
-            color: "#b3baff",
+            color: "#888",
             marginBottom: "0.5rem",
           }}
         >
@@ -155,7 +155,7 @@ const MetricCard = ({
               style={{
                 marginTop: "0.75rem",
                 // background: "rgba(0,0,0,0.35)",
-                color: "rgb(179, 186, 255)",
+                color: "#ffd700",
                 // border: "1px solid rgba(255,255,255,0.15)",
                 padding: "0.25rem 0.6rem",
                 borderRadius: "999px",
@@ -170,7 +170,7 @@ const MetricCard = ({
             <div
               style={{
                 marginTop: "0.75rem",
-                color: "#b3baff",
+                color: "rgba(255, 255, 255, 0.5)",
                 fontSize: "0.8rem",
                 opacity: 0.9,
               }}
@@ -182,7 +182,7 @@ const MetricCard = ({
         {/* If metric is an object (today stats) */}
         {onChainDepositsToday && (
           <div
-            style={{ fontSize: "0.85rem", color: "#b3baff", lineHeight: 1.5 }}
+            style={{ fontSize: "0.85rem", color: "rgba(255, 255, 255, 0.6)", lineHeight: 1.5 }}
           >
             <div>Today: {formatValue(onChainDepositsToday.total)}</div>
             <div>Tx Count: {onChainDepositsToday.txCount}</div>
@@ -194,7 +194,7 @@ const MetricCard = ({
           className="flex flex-wrap md:flex-nowrap items-center gap-8 text-[0.9rem] leading-[1.6] text-[#b3baff] mt-3"
           style={{
             fontSize: "0.85rem",
-            color: "#b3baff",
+            color: "rgba(255, 255, 255, 0.5)",
             lineHeight: 1.5,
             textAlign: "left",
             paddingLeft: "32%",
@@ -240,7 +240,7 @@ const MetricCard = ({
 
         {ecosystemFeesToday && (
           <div
-            style={{ fontSize: "0.85rem", color: "#b3baff", lineHeight: 1.5 }}
+            style={{ fontSize: "0.85rem", color: "rgba(255, 255, 255, 0.6)", lineHeight: 1.5 }}
           >
             <div>Today: {formatValue(ecosystemFeesToday.total)}</div>
             <div>Tx Count: {ecosystemFeesToday.txCount}</div>
@@ -252,7 +252,7 @@ const MetricCard = ({
           <div
             style={{
               fontSize: "0.85rem",
-              color: "#b3baff",
+              color: "rgba(255, 255, 255, 0.6)",
               lineHeight: 1.5,
               marginTop: "0.75rem",
             }}
@@ -291,11 +291,11 @@ const MetricCard = ({
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              background: "#181f3a",
-              border: "1px solid #4f8cff26",
+              background: "rgba(10, 10, 10, 0.95)",
+              border: "1px solid rgba(255, 215, 0, 0.2)",
               borderRadius: "22px",
               padding: "2rem",
-              boxShadow: "0 8px 32px #4f8cff1a",
+              boxShadow: "0 8px 32px rgba(0, 0, 0, 0.5)",
               width: "80%",
               maxWidth: "80%",
               maxHeight: "80vh",
@@ -315,7 +315,7 @@ const MetricCard = ({
                 onClick={() => setShowCountModal(false)}
                 style={{
                   background: "transparent",
-                  color: "#b3baff",
+                  color: "#888",
                   border: "none",
                   cursor: "pointer",
                   fontSize: "1rem",
@@ -326,9 +326,7 @@ const MetricCard = ({
             </div>
 
             {countLoading && (
-              <div
-                style={{ color: "#b3baff", marginTop: "1rem", fontSize: 14 }}
-              >
+              <div style={{ color: "#888", marginTop: "1rem", fontSize: 14 }}>
                 Loading…
               </div>
             )}
@@ -410,14 +408,14 @@ function DefaultUsersList({ data, detailsFetcher }) {
   };
 
   if (!rows.length) {
-    return <div style={{ color: "#b3baff", marginTop: "1rem" }}>No data.</div>;
+    return <div style={{ color: "#888", marginTop: "1rem" }}>No data.</div>;
   }
 
   return (
     <div
       style={{
         marginTop: "1rem",
-        border: "1px solid #4f8cff26",
+        border: "1px solid rgba(255, 215, 0, 0.1)",
         borderRadius: 12,
         overflow: "hidden",
       }}
@@ -426,7 +424,7 @@ function DefaultUsersList({ data, detailsFetcher }) {
       <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr .4fr" }}>
         <div style={th}>Username</div>
         <div className="textaligncenter" style={th}>
-          Amount (XRP)
+          Amount (USDT)
         </div>
 
         <div style={th}></div>
@@ -445,7 +443,7 @@ function DefaultUsersList({ data, detailsFetcher }) {
         return (
           <div
             key={key}
-            style={{ borderBottom: "1px solid rgba(79,140,255,0.08)" }}
+            style={{ borderBottom: "1px solid rgba(255, 215, 0, 0.05)" }}
           >
             {/* main row */}
             <div
@@ -515,13 +513,13 @@ function DefaultUsersList({ data, detailsFetcher }) {
             {s.open && (
               <div
                 style={{
-                  background: "rgba(79,140,255,0.05)",
+                  background: "rgba(255, 215, 0, 0.03)",
                   padding: "10px 12px 14px",
                 }}
                 className="inner-table-row-section"
               >
                 {s.loading && (
-                  <div style={{ color: "#b3baff", fontSize: 13 }}>Loading…</div>
+                  <div style={{ color: "#888", fontSize: 13 }}>Loading…</div>
                 )}
                 {!s.loading && s.error && (
                   <div style={{ color: "#ff4d4f", fontSize: 13 }}>
@@ -605,14 +603,14 @@ function X1RewardsUsersList({ data, detailsFetcher }) {
   };
 
   if (!rows.length) {
-    return <div style={{ color: "#b3baff", marginTop: "1rem" }}>No data.</div>;
+    return <div style={{ color: "#888", marginTop: "1rem" }}>No data.</div>;
   }
 
   return (
     <div
       style={{
         marginTop: "1rem",
-        border: "1px solid #4f8cff26",
+        border: "1px solid rgba(255, 215, 0, 0.1)",
         borderRadius: 12,
         overflow: "hidden",
       }}
@@ -623,7 +621,7 @@ function X1RewardsUsersList({ data, detailsFetcher }) {
       >
         <div style={th}>Username</div>
         <div style={th}>xRank</div>
-        <div style={{ ...th, textAlign: "center" }}>Earnings (XRP)</div>
+        <div style={{ ...th, textAlign: "center" }}>Earnings (USDT)</div>
         <div style={th}></div>
       </div>
 
@@ -641,7 +639,7 @@ function X1RewardsUsersList({ data, detailsFetcher }) {
         return (
           <div
             key={key}
-            style={{ borderBottom: "1px solid rgba(79,140,255,0.08)" }}
+            style={{ borderBottom: "1px solid rgba(255, 215, 0, 0.05)" }}
           >
             {/* main row */}
             <div
@@ -693,13 +691,13 @@ function X1RewardsUsersList({ data, detailsFetcher }) {
             {s.open && (
               <div
                 style={{
-                  background: "rgba(79,140,255,0.05)",
+                  background: "rgba(255, 215, 0, 0.03)",
                   padding: "10px 12px 14px",
                 }}
                 className="inner-table-row-section"
               >
                 {s.loading && (
-                  <div style={{ color: "#b3baff", fontSize: 13 }}>Loading…</div>
+                  <div style={{ color: "#888", fontSize: 13 }}>Loading…</div>
                 )}
                 {!s.loading && s.error && (
                   <div style={{ color: "#ff4d4f", fontSize: 13 }}>
@@ -737,7 +735,7 @@ function XamanDetails({ data }) {
 
   if (!list || !list.length) {
     return (
-      <div style={{ color: "#c9d1ff", fontSize: 13 }}>
+      <div style={{ color: "#888", fontSize: 13 }}>
         <em>No details found.</em>
       </div>
     );
@@ -746,13 +744,13 @@ function XamanDetails({ data }) {
   return (
     <div>
       {total != null && (
-        <div style={{ color: "#c9d1ff", fontSize: 13, marginBottom: 8 }}>
+        <div style={{ color: "#888", fontSize: 13, marginBottom: 8 }}>
           <strong>Total:</strong> {String(total)}
         </div>
       )}
       <div
         style={{
-          border: "1px solid #4f8cff26",
+          border: "1px solid rgba(255, 215, 0, 0.1)",
           borderRadius: 10,
           overflow: "hidden",
         }}
@@ -771,7 +769,7 @@ function XamanDetails({ data }) {
             style={{
               display: "grid",
               gridTemplateColumns: "1.4fr 1fr 1fr 1fr",
-              borderTop: "1px solid rgba(79,140,255,0.12)",
+              borderTop: "1px solid rgba(255, 215, 0, 0.05)",
             }}
           >
             <div style={tdSmall}>
@@ -807,7 +805,7 @@ function X1RewardsDetails({ data, currentPage = 1, onPageChange }) {
 
   if (!list || !list.length) {
     return (
-      <div style={{ color: "#c9d1ff", fontSize: 13 }}>
+      <div style={{ color: "#888", fontSize: 13 }}>
         <em>No details found.</em>
       </div>
     );
@@ -840,19 +838,19 @@ function X1RewardsDetails({ data, currentPage = 1, onPageChange }) {
   return (
     <div>
       {total != null && (
-        <div style={{ color: "#c9d1ff", fontSize: 13, marginBottom: 8 }}>
+        <div style={{ color: "#888", fontSize: 13, marginBottom: 8 }}>
           <strong>Total:</strong> {String(total)}
         </div>
       )}
 
       {/* Record count */}
-      <div style={{ color: "#c9d1ff", fontSize: 12, marginBottom: 6 }}>
+      <div style={{ color: "#888", fontSize: 12, marginBottom: 6 }}>
         Showing {startRecord}–{endRecord} of {totalRecords}
       </div>
 
       <div
         style={{
-          border: "1px solid #4f8cff26",
+          border: "1px solid rgba(255, 215, 0, 0.1)",
           borderRadius: 10,
           overflow: "hidden",
         }}
@@ -879,7 +877,7 @@ function X1RewardsDetails({ data, currentPage = 1, onPageChange }) {
             style={{
               display: "grid",
               gridTemplateColumns: "1.4fr 1fr 0.8fr 0.8fr 0.8fr 1fr",
-              borderTop: "1px solid rgba(79,140,255,0.12)",
+              borderTop: "1px solid rgba(255, 215, 0, 0.05)",
             }}
           >
             <div style={tdSmall}>
@@ -916,8 +914,8 @@ function X1RewardsDetails({ data, currentPage = 1, onPageChange }) {
             style={{
               padding: "4px 8px",
               background: "transparent",
-              color: "#b3baff",
-              border: "1px solid #4f8cff66",
+              color: "#888",
+              border: "1px solid rgba(255, 215, 0, 0.2)",
               borderRadius: 6,
               cursor: currentPage === 1 ? "not-allowed" : "pointer",
             }}
@@ -937,9 +935,9 @@ function X1RewardsDetails({ data, currentPage = 1, onPageChange }) {
                 onClick={() => onPageChange?.(p)}
                 style={{
                   padding: "4px 10px",
-                  background: currentPage === p ? "#4f8cff" : "transparent",
-                  color: currentPage === p ? "#fff" : "#b3baff",
-                  border: "1px solid #4f8cff66",
+                  background: currentPage === p ? "#ffd700" : "transparent",
+                  color: currentPage === p ? "#000" : "#888",
+                  border: "1px solid rgba(255, 215, 0, 0.2)",
                   borderRadius: 6,
                   fontWeight: currentPage === p ? "bold" : "normal",
                   cursor: "pointer",
@@ -959,8 +957,8 @@ function X1RewardsDetails({ data, currentPage = 1, onPageChange }) {
             style={{
               padding: "4px 8px",
               background: "transparent",
-              color: "#b3baff",
-              border: "1px solid #4f8cff66",
+              color: "#888",
+              border: "1px solid rgba(255, 215, 0, 0.2)",
               borderRadius: 6,
               cursor: currentPage === totalPages ? "not-allowed" : "pointer",
             }}
@@ -975,16 +973,16 @@ function X1RewardsDetails({ data, currentPage = 1, onPageChange }) {
 
 const th = {
   padding: "10px 12px",
-  background: "rgba(79,140,255,0.08)",
-  color: "#b3baff",
+  background: "rgba(255, 215, 0, 0.05)",
+  color: "#ffd700",
   fontSize: 12,
-  borderBottom: "1px solid rgba(79,140,255,0.2)",
+  borderBottom: "1px solid rgba(255, 215, 0, 0.2)",
 };
 const td = {
   padding: "10px 12px",
-  color: "#fff",
+  color: "rgba(255, 255, 255, 0.8)",
   fontSize: 14,
-  borderBottom: "1px solid rgba(79,140,255,0.08)",
+  borderBottom: "1px solid rgba(255, 215, 0, 0.03)",
 };
 const tdSmall = { ...td, fontSize: 13 };
 
@@ -1046,7 +1044,7 @@ export default function SystemReportPage() {
 
   if (authLoading) {
     return (
-      <div style={{ textAlign: "center", color: "#b3baff", padding: "2rem" }}>
+      <div style={{ textAlign: "center", color: "#888", padding: "2rem" }}>
         Checking authentication...
       </div>
     );
@@ -1062,7 +1060,7 @@ export default function SystemReportPage() {
 
   if (loading) {
     return (
-      <div style={{ textAlign: "center", color: "#b3baff", padding: "2rem" }}>
+      <div style={{ textAlign: "center", color: "#888", padding: "2rem" }}>
         Loading system report...
       </div>
     );
@@ -1139,7 +1137,7 @@ export default function SystemReportPage() {
         display: "inline-flex",
         alignItems: "center",
         justifyContent: "center",
-        backgroundColor: "rgba(79, 140, 255, 0.15)",
+        backgroundColor: "rgba(255, 215, 0, 0.1)",
         borderRadius: "50%",
         transition: "all 0.3s ease",
       }}
@@ -1161,10 +1159,12 @@ export default function SystemReportPage() {
   return (
     <div
       style={{
-        background: "#181f3a",
-        borderRadius: "22px",
+        background: "rgba(10, 10, 10, 0.4)",
+        borderRadius: "24px",
         padding: "2rem",
         color: "white",
+        backdropFilter: "blur(20px)",
+        border: "1px solid rgba(255, 215, 0, 0.1)",
       }}
     >
       <h2>System Report</h2>
@@ -1172,7 +1172,7 @@ export default function SystemReportPage() {
       <ExportUserReportButton />
 
       {/* Wallet totals */}
-      <h3 style={{ color: "#b3baff", marginBottom: "1rem" }}>Wallet Totals</h3>
+      <h3 style={{ color: "#ffd700", marginBottom: "1rem" }}>Wallet Totals</h3>
       <div
         style={{
           display: "flex",
@@ -1343,7 +1343,7 @@ export default function SystemReportPage() {
       </div>
 
       {/* On-chain aggregates */}
-      <h3 style={{ color: "#b3baff", marginBottom: "1rem" }}>
+      <h3 style={{ color: "#ffd700", marginBottom: "1rem" }}>
         On-Chain Totals
       </h3>
       <div
@@ -1395,7 +1395,7 @@ export default function SystemReportPage() {
       </div>
 
       {/* Distribution totals */}
-      <h3 style={{ color: "#b3baff", marginBottom: "1rem" }}>
+      <h3 style={{ color: "#ffd700", marginBottom: "1rem" }}>
         Distribution Totals
       </h3>
       <div
@@ -1528,7 +1528,7 @@ export default function SystemReportPage() {
       </div>
 
       {/* Daily rewards for last distribution */}
-      <h3 style={{ color: "#b3baff", marginBottom: "1rem" }}>
+      <h3 style={{ color: "#ffd700", marginBottom: "1rem" }}>
         Most Recent Daily Distribution
       </h3>
       {dailyRewards && dailyRewards.date ? (
@@ -1591,3 +1591,4 @@ export default function SystemReportPage() {
     </div>
   );
 }
+

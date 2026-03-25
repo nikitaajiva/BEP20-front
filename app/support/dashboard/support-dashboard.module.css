@@ -1,0 +1,198 @@
+.container {
+  padding: 30px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 30px;
+  backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 215, 0, 0.08);
+  min-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0 25px;
+  border-bottom: 1px solid rgba(255, 215, 0, 0.1);
+  margin-bottom: 15px;
+  position: relative;
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100px;
+  height: 1px;
+  background: #ffd700;
+  box-shadow: 0 0 15px #ffd700;
+}
+
+.title {
+  font-size: 32px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: -0.5px;
+}
+
+.title span {
+  color: #ffd700;
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+}
+
+/* Status Indicator removed */
+
+/* Dashboard Grid System */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.statCard {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 215, 0, 0.1);
+  border-radius: 20px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.statCard:hover {
+  transform: translateY(-5px);
+  background: rgba(255, 215, 0, 0.03);
+  border-color: #ffd700;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 215, 0, 0.05);
+}
+
+.cardIcon {
+  width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 215, 0, 0.08);
+  border-radius: 12px;
+  color: #ffd700;
+}
+
+.cardLabel {
+  font-size: 12px;
+  font-weight: 800;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.cardValue {
+  font-size: 24px;
+  font-weight: 900;
+  color: #fff;
+}
+
+.cardSub {
+  font-size: 11px;
+  color: #ffd700;
+  font-weight: 700;
+  opacity: 0.8;
+}
+
+/* Secondary Grids */
+.bentoGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.bentoCard {
+  background: linear-gradient(165deg, rgba(20, 20, 20, 0.4), rgba(5, 5, 5, 0.8));
+  backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 215, 0, 0.04);
+  border-radius: 28px;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.sectionTitle {
+  font-size: 14px;
+  font-weight: 900;
+  color: #ffd700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Charts Hub */
+.visualHub {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 20px;
+}
+
+.chartContainer {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 215, 0, 0.1);
+  border-radius: 24px;
+  padding: 30px;
+  height: 400px;
+}
+
+.usersPulse {
+  background: rgba(255, 215, 0, 0.02);
+  border: 1px solid rgba(255, 215, 0, 0.1);
+  border-radius: 24px;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  text-align: center;
+  position: relative;
+}
+
+.pulseCount {
+  font-size: 64px;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1;
+  text-shadow: 0 0 40px rgba(255, 215, 0, 0.2);
+}
+
+.pulseTitle {
+  font-size: 14px;
+  font-weight: 900;
+  color: #ffd700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+/* Mobile Responsive */
+@media (max-width: 1200px) {
+  .statsGrid { grid-template-columns: repeat(2, 1fr); }
+  .bentoGrid { grid-template-columns: 1fr; }
+  .visualHub { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  .statsGrid { grid-template-columns: 1fr; }
+  .title { font-size: 24px; }
+  .chartContainer { height: 300px; }
+}

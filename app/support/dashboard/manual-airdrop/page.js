@@ -56,7 +56,7 @@ export default function ManualAirdropPage() {
             if (!response.ok || !data.success) {
                 throw new Error(data.message || 'Failed to grant airdrop');
             }
-            setSuccess(`Successfully credited ${amount} XRP to user ${targetUserId}.`);
+            setSuccess(`Successfully credited ${amount} USDT to user ${targetUserId}.`);
             setTargetUserId('');
             setAmount('');
             setNarrative('');

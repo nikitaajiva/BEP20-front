@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import WalletCard from "./WalletCard";
 import SystemWalletCard from "./SystemWalletCard";
 import InvitationLinkCard from "./InvitationLinkCard";
-import XRPChartCard from "./XRPChartCard";
+import USDTChartCard from "./USDTChartCard";
 import Link from "next/link";
 import DashboardNavbar from "./DashboardNavbar";
 import { useAuth } from "@/context/AuthContext";
@@ -864,7 +864,7 @@ export default function DashboardLayout({
                 Authorization: `Bearer ${token}`,
               },
               // Send 'xrpAddress' in the body to match the controller.
-              body: JSON.stringify({ xrpAddress: xummAccount }),
+              body: JSON.stringify({ USDTAddress: xummAccount }),
             });
 
             const data = await response.json();
@@ -877,7 +877,7 @@ export default function DashboardLayout({
             console.log("Wallet address saved successfully:", data);
 
             if (updateUser) {
-              updateUser({ ...user, xrpAddress: xummAccount });
+              updateUser({ ...user, USDTAddress: xummAccount });
             }
           } catch (error) {
             console.error("Error saving wallet address:", error);
@@ -954,7 +954,7 @@ export default function DashboardLayout({
       const token = localStorage.getItem("token");
       if (!token) throw new Error("Authentication token not found.");
 
-      const specificPath = "/withdrawals/xrp";
+      const specificPath = "/withdrawals/USDT";
       const finalUrl = `${API_URL}${specificPath}`;
 
       const response = await fetch(finalUrl, {
@@ -996,7 +996,7 @@ export default function DashboardLayout({
             </p>
             <p style={{ marginTop: "1rem" }}>
               <p>Transferred Amount: {data.transferredAmount} USDT</p>
-              {/* <p>Ecosystem Fee: {data.ecosystemFee} XRP</p> */}
+              {/* <p>Ecosystem Fee: {data.ecosystemFee} USDT</p> */}
             </p>
           </>
         ),
@@ -1142,7 +1142,7 @@ export default function DashboardLayout({
       const token = localStorage.getItem("token");
       if (!token) throw new Error("Authentication token not found.");
 
-      const specificPath = "/withdrawals/xrp"; // The main withdrawal endpoint
+      const specificPath = "/withdrawals/USDT"; // The main withdrawal endpoint
       const finalUrl = `${API_URL}${specificPath}`;
       console.log("Constructed Claim Community Rewards URL:", finalUrl);
 
@@ -1193,7 +1193,7 @@ export default function DashboardLayout({
       const token = localStorage.getItem("token");
       if (!token) throw new Error("Authentication token not found.");
 
-      const specificPath = "/withdrawals/xrp";
+      const specificPath = "/withdrawals/USDT";
       const finalUrl = `${API_URL}${specificPath}`;
 
       const response = await fetch(finalUrl, {
@@ -1304,44 +1304,36 @@ export default function DashboardLayout({
   };
 
   const [data, setData] = useState({
-    xrp: {
-      currentPrice: 2.264,
-      change24h: "+1.7353",
-      changePercent: "+328.22%",
-      totalSupply: 99988176194,
-      high: 2.385,
-      low: 2.142,
+    usdt: {
+      currentPrice: 1.0,
+      change24h: "0.00",
+      changePercent: "0.00%",
+      totalSupply: "N/A",
+      high: 1.0,
+      low: 1.0,
     },
   });
 
-  const fetchXrpData = async () => {
+  const fetchUsdtData = async () => {
     try {
-      const response = await fetch(
-        "https://api.coingecko.com/api/v3/coins/ripple?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false"
-      );
-      const result = await response.json();
-      const market_data = result.market_data;
-
-      const dynamicData = {
-        xrp: {
-          currentPrice: market_data.current_price.usd,
-          change24h: market_data.price_change_24h,
-          changePercent: market_data.price_change_percentage_24h,
-          totalSupply: market_data.total_supply,
-          high: market_data.high_24h.usd,
-          low: market_data.low_24h.usd,
+      setData({
+        usdt: {
+          currentPrice: 1.0,
+          change24h: "0.00",
+          changePercent: "0.0%",
+          totalSupply: "Unlimited",
+          high: 1.0,
+          low: 1.0,
         },
-      };
-
-      setData(dynamicData);
-      console.log(dynamicData, "sssssssssssss");
+      });
+      console.log("USDT data set to static values.");
     } catch (error) {
-      console.error("Error fetching XRP data:", error);
+      console.error("Error setting USDT data:", error);
     }
   };
 
   useEffect(() => {
-    fetchXrpData();
+    fetchUsdtData();
     // This useEffect is primarily for logging and can be removed or adjusted
     console.log(
       "[DashboardLayout] User object received from AuthContext:",
@@ -1608,3 +1600,4 @@ const displayBalance = Math.max(rawBalance, 0);
     </>
   );
 }
+

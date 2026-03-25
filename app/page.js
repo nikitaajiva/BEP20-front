@@ -26,7 +26,7 @@ export default function LandingPage() {
         <title>BEPVault | Level Up Your Financial Game</title>
         <meta
           name="description"
-          content="Join BEPVault - Your gateway to the new financial horizon. Claim your airdrop and explore the future of XRP liquidity."
+          content="Join BEPVault - Your gateway to the new financial horizon. Claim your airdrop and explore the future of USDT liquidity."
         />
         <link rel="icon" href="/favicon.ico" />{" "}
         {/* Make sure favicon exists in /public */}
@@ -76,3 +76,4 @@ export default function LandingPage() {
     </div>
   );
 }
+

@@ -4,10 +4,10 @@ import styles from "./RedesignedDashboard.module.css";
 import { Wallet, Droplets, TrendingUp, Activity, Plus, History, Shield, Eye, Gift, Copy } from "lucide-react";
 import Link from "next/link";
 
-const RedesignedDashboard = ({ 
-  user, 
-  xummAccount, 
-  onXummLogin, 
+const RedesignedDashboard = ({
+  user,
+  xummAccount,
+  onXummLogin,
   onXummLogout,
   onOpenAddLPModal,
   onOpenZeroRiskModal,
@@ -16,7 +16,7 @@ const RedesignedDashboard = ({
   orbitCard1,
   orbitCard2,
   orbitCard3,
-  children 
+  children
 }) => {
   const lpWallet = ledgerDetails?.lpWallet || {};
   const lpBalance = parseFloat(lpWallet.balance || "0").toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -25,7 +25,7 @@ const RedesignedDashboard = ({
   const autopositioningValue = parseFloat(lpWallet.autopositioning || "0").toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
   const xamanBalance = parseFloat(ledgerDetails?.xamanWallet?.balance || "0").toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  
+
   const zeroRiskBalance = parseFloat(ledgerDetails?.zeroRisk?.balance || "0").toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const zeroRiskLimit = parseFloat(ledgerDetails?.zeroRisk?.limit || "0").toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -39,14 +39,20 @@ const RedesignedDashboard = ({
   return (
     <div className={styles.hubContentWrapper}>
       <div className={styles.topRightActions}>
-        <button 
+        <div className={styles.headerBalanceWrapper}>
+          <span className={styles.headerBalanceLabel}>Redeemable Balance:</span>
+          <span className={styles.headerBalanceValue}>
+            {parseFloat(ledgerDetails?.communityRewards?.balance || "0").toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USDT
+          </span>
+        </div>
+        <button
           className={styles.redeemBtnTop}
           onClick={onRedeem}
         >
           <Gift size={14} />
           Redeem
         </button>
-        <button 
+        <button
           className={styles.connectBtn}
           onClick={xummAccount ? onXummLogout : onXummLogin}
           title={xummAccount ? "Click to Disconnect" : "Connect Wallet"}
@@ -55,29 +61,29 @@ const RedesignedDashboard = ({
           {xummAccount ? shortAddress : "Connect Wallet"}
           {xummAccount && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginLeft: '4px' }}>
-              <span 
+              <span
                 onClick={(e) => {
                   e.stopPropagation();
                   navigator.clipboard.writeText(xummAccount);
-                }} 
+                }}
                 style={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer', color: '#aaa' }}
                 title="Copy Address"
               >
                 <Copy size={12} />
               </span>
-              <span 
+              <span
                 onClick={(e) => {
                   e.stopPropagation();
                   if (onXummLogin) onXummLogin();
-                }} 
-                style={{ 
-                  display: 'inline-flex', 
-                  alignItems: 'center', 
+                }}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
                   justifyContent: 'center',
-                  cursor: 'pointer', 
-                  backgroundColor: 'rgba(255,255,255,0.15)', 
-                  padding: '2px', 
-                  borderRadius: '4px' 
+                  cursor: 'pointer',
+                  backgroundColor: 'rgba(255,255,255,0.15)',
+                  padding: '2px',
+                  borderRadius: '4px'
                 }}
                 title="Add Funds"
               >
@@ -103,8 +109,8 @@ const RedesignedDashboard = ({
       <div className={styles.centralDashboard}>
         {/* Orbital Motion Background Nodes */}
         <div className={styles.orbitArea}>
-           <div className={styles.orbitDot + " " + styles.largeDot}></div>
-           <div className={styles.orbitDot + " " + styles.smallDot}></div>
+          <div className={styles.orbitDot + " " + styles.largeDot}></div>
+          <div className={styles.orbitDot + " " + styles.smallDot}></div>
         </div>
 
         <div className={styles.orbitPath + " " + styles.orbitPath1}></div>
@@ -114,7 +120,7 @@ const RedesignedDashboard = ({
         <div className={styles.hubWrapper}>
           <div className={styles.techRing + " " + styles.ring1}></div>
           <div className={styles.techRing + " " + styles.ring2}></div>
-          
+
           <div className={styles.mainCircle}>
             <div className={styles.onlineBadge}>
               <div className={styles.onlineDot}></div>

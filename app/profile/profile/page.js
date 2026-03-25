@@ -12,7 +12,7 @@ export default function ProfilePage() {
     country: "",
     countryCode: "",
     whatsappContact: "",
-    xrpAddress: "",
+    USDTAddress: "",
   });
 
   const [message, setMessage] = useState("");
@@ -44,7 +44,7 @@ export default function ProfilePage() {
         country: user.country?.name || "",
         countryCode: user.countryCode || "",
         whatsappContact: user.whatsappContact || "",
-        xrpAddress: user.xrpAddress || "",
+        USDTAddress: user.xrpAddress || "",
       });
 
       if (!user.country?.name) {
@@ -349,7 +349,7 @@ export default function ProfilePage() {
           </div>
 
           <div className={styles.inputGroup}>
-            <label htmlFor="xrpAddress">XRP Address</label>
+            <label htmlFor="xrpAddress">USDT Address</label>
             <input
               type="text"
               id="xrpAddress"
@@ -359,7 +359,7 @@ export default function ProfilePage() {
               disabled
             />
             <small>
-              Your XRP Address is linked to your Xaman wallet and cannot be
+              Your USDT Address is linked to your Xaman wallet and cannot be
               changed here.
             </small>
           </div>
@@ -641,3 +641,4 @@ export default function ProfilePage() {
     </div>
   );
 }
+

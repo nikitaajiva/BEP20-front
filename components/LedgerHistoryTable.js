@@ -22,6 +22,9 @@ export default function LedgerHistoryTable({ filters }) {
     if (formatted === "XAMAN_WALLET" || formatted === "SYSTEM_WALLET" || formatted === "XAMAN") return "Primary Vault";
     if (formatted === "LP_WALLET" || formatted === "LP") return "Liquidity Pool";
     if (formatted === "ZERO_RISK") return "Stable Pool";
+    if (formatted === "AIRDROP") return "Airdrop Node";
+    if (formatted === "BOOST") return "Booster Pool";
+    if (formatted === "COMMUNITY_REWARDS") return "Ecosystem Rewards";
     return name.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
   };
 
@@ -256,31 +259,31 @@ export default function LedgerHistoryTable({ filters }) {
         border: "1px solid #2a3150",
       }}
     >
-      <div className="d-flex justify-content-between align-items-start mb-4">
+      <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
           <h4
             className="fw-bold"
-            style={{ fontSize: "1.25rem", color: "#fff" }}
+            style={{ fontSize: "1.25rem", color: "#fff", textTransform: 'uppercase', letterSpacing: '1px' }}
           >
-            Ledger History
+            Transaction Archives
           </h4>
-          <p className="text-muted mb-0" style={{ color: "#b3baff" }}>
-            Review your recent transactions.
+          <p className="text-muted mb-0" style={{ color: "#555", fontSize: '12px' }}>
+            Historical record of all ecosystem node interactions.
           </p>
         </div>
       </div>
       <div
         className="table-responsive"
-        style={{ borderRadius: "12px", overflowX: "auto" }}
+        style={{ borderRadius: "16px", overflowX: "auto", border: '1px solid rgba(255,215,0,0.1)' }}
       >
         <table
           className="table table-dark align-middle mb-0"
-          style={{ background: "rgb(24, 31, 58)", border: "none" }}
+          style={{ background: "rgba(0,0,0,0.2)", border: "none" }}
         >
           <thead
             style={{
-              background: "linear-gradient(135deg, #232b4a 0%, #1e2746 100%)",
-              borderBottom: "2px solid #2a3150",
+              background: "rgba(255, 215, 0, 0.03)",
+              borderBottom: "1px solid rgba(255, 215, 0, 0.2)",
             }}
           >
             <tr>
@@ -288,93 +291,93 @@ export default function LedgerHistoryTable({ filters }) {
                 style={{
                   padding: "1.25rem 1rem",
                   border: "none",
-                  color: "#8b92b5",
-                  fontWeight: 600,
-                  fontSize: "0.85rem",
+                  color: "#ffd700",
+                  fontWeight: 800,
+                  fontSize: "0.75rem",
                   textTransform: "uppercase",
-                  letterSpacing: "0.8px",
+                  letterSpacing: "1.5px",
                 }}
               >
-                Date
+                Date Epoch
               </th>
               <th
                 style={{
                   padding: "1.25rem 1rem",
                   border: "none",
-                  color: "#8b92b5",
-                  fontWeight: 600,
-                  fontSize: "0.85rem",
+                  color: "#ffd700",
+                  fontWeight: 800,
+                  fontSize: "0.75rem",
                   textTransform: "uppercase",
-                  letterSpacing: "0.8px",
+                  letterSpacing: "1.5px",
                 }}
               >
-                Event Type
+                Category
               </th>
               <th
                 style={{
                   padding: "1.25rem 1rem",
                   border: "none",
-                  color: "#8b92b5",
-                  fontWeight: 600,
-                  fontSize: "0.85rem",
+                  color: "#ffd700",
+                  fontWeight: 800,
+                  fontSize: "0.75rem",
                   textTransform: "uppercase",
-                  letterSpacing: "0.8px",
+                  letterSpacing: "1.5px",
                 }}
               >
-                From
+                Source Node
               </th>
               <th
                 style={{
                   padding: "1.25rem 1rem",
                   border: "none",
-                  color: "#8b92b5",
-                  fontWeight: 600,
-                  fontSize: "0.85rem",
+                  color: "#ffd700",
+                  fontWeight: 800,
+                  fontSize: "0.75rem",
                   textTransform: "uppercase",
-                  letterSpacing: "0.8px",
+                  letterSpacing: "1.5px",
                 }}
               >
-                To
+                Target Node
               </th>
               <th
                 style={{
                   padding: "1.25rem 1rem",
                   border: "none",
-                  color: "#8b92b5",
-                  fontWeight: 600,
-                  fontSize: "0.85rem",
+                  color: "#ffd700",
+                  fontWeight: 800,
+                  fontSize: "0.75rem",
                   textTransform: "uppercase",
-                  letterSpacing: "0.8px",
+                  letterSpacing: "1.5px",
                   textAlign: "right",
                 }}
               >
-                Amount (USDT)
+                Ecosystem Value
               </th>
               <th
                 style={{
                   padding: "1.25rem 1rem",
                   border: "none",
-                  color: "#8b92b5",
-                  fontWeight: 600,
-                  fontSize: "0.85rem",
+                  color: "#ffd700",
+                  fontWeight: 800,
+                  fontSize: "0.75rem",
                   textTransform: "uppercase",
-                  letterSpacing: "0.8px",
+                  letterSpacing: "1.5px",
                 }}
               >
-                Rate %
+                Yield %
               </th>
               <th
                 style={{
                   padding: "1.25rem 1rem",
                   border: "none",
-                  color: "#8b92b5",
-                  fontWeight: 600,
-                  fontSize: "0.85rem",
+                  color: "#ffd700",
+                  fontWeight: 800,
+                  fontSize: "0.75rem",
                   textTransform: "uppercase",
-                  letterSpacing: "0.8px",
+                  letterSpacing: "1.5px",
                 }}
               >
-                Narrative
+                Core Protocol
               </th>
             </tr>
           </thead>
@@ -392,7 +395,8 @@ export default function LedgerHistoryTable({ filters }) {
                     padding: "1.25rem 1rem",
                     border: "none",
                     fontSize: "0.9rem",
-                    color: "#b3baff",
+                    color: "#fff",
+                    fontWeight: 500,
                   }}
                 >
                   {formatDate(entry.ts)}
@@ -401,15 +405,17 @@ export default function LedgerHistoryTable({ filters }) {
                   <span
                     style={{
                       color: getEventTypeColor(entry.eventType),
-                      fontWeight: 600,
-                      fontSize: "0.85rem",
+                      fontWeight: 700,
+                      fontSize: "0.75rem",
                       padding: "0.4rem 0.8rem",
-                      background: `${getEventTypeColor(entry.eventType)}15`,
-                      borderRadius: "6px",
+                      background: `${getEventTypeColor(entry.eventType)}10`,
+                      borderRadius: "8px",
                       display: "inline-block",
                       border: `1px solid ${getEventTypeColor(
                         entry.eventType
-                      )}30`,
+                      )}40`,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px'
                     }}
                   >
                     {entry.eventType.replace(/_/g, " ")}
@@ -420,8 +426,8 @@ export default function LedgerHistoryTable({ filters }) {
                     padding: "1.25rem 1rem",
                     border: "none",
                     fontSize: "0.9rem",
-                    color: "#b3baff",
-                    fontWeight: 500,
+                    color: "#ffd700",
+                    fontWeight: 700,
                   }}
                 >
                   {entry.eventType === "BOOST_BONUS"
@@ -433,8 +439,8 @@ export default function LedgerHistoryTable({ filters }) {
                     padding: "1.25rem 1rem",
                     border: "none",
                     fontSize: "0.9rem",
-                    color: "#b3baff",
-                    fontWeight: 500,
+                    color: "#ffd700",
+                    fontWeight: 700,
                   }}
                 >
                   {formatWalletName(entry.walletTo)}
@@ -445,35 +451,35 @@ export default function LedgerHistoryTable({ filters }) {
                     border: "none",
                     color:
                       parseFloat(entry.amount) >= 0 ? "#7FFF4C" : "#ff4d4d",
-                    fontWeight: 700,
-                    fontSize: "0.95rem",
+                    fontWeight: 800,
+                    fontSize: "15px",
                     textAlign: "right",
                   }}
                 >
-                  {parseFloat(entry.amount).toFixed(6)}
+                  {parseFloat(entry.amount).toFixed(4)}
                 </td>
                 <td
                   style={{
                     padding: "1.25rem 1rem",
                     border: "none",
                     fontSize: "0.9rem",
-                    color: "#b3baff",
-                    fontWeight: 500,
+                    color: "#fff",
+                    fontWeight: 700,
                   }}
                 >
                   {entry.eventType === "BOOST_BONUS"
                     ? `${parseBoostBonusNarrative(entry.narrative).rate}%`
                     : entry.ratePct
                     ? `${entry.ratePct}%`
-                    : "N/A"}
+                    : "-"}
                 </td>
                 <td
                   style={{
                     padding: "1.25rem 1rem",
                     border: "none",
-                    fontSize: "0.9rem",
-                    color: "#b3baff",
-                    fontWeight: 500,
+                    fontSize: "13px",
+                    color: "#aaa",
+                    fontWeight: 400,
                     maxWidth: "200px",
                     overflow: "hidden",
                     textOverflow: "ellipsis",

@@ -226,34 +226,34 @@ export default function HistoryTableReward({ filters, walletType = null }) {
         >
           {entries.map((row, index) => (
             <div key={index} className="card p-3 m-4">
-              <h5 className="xrp-date-heading">{row.date}</h5>
+              <h5 className="USDT-date-heading">{row.date}</h5>
 
-              <div className="xrp-grid-layout">
+              <div className="USDT-grid-layout">
                 {rewardtabledata.map((item, idx) => {
                   const value = (row?.sums?.[item.key] ?? row?.[item.key]) || 0;
                   return (
-                    <div key={idx} className="xrp-reward-cell">
+                    <div key={idx} className="USDT-reward-cell">
                       <div
-                        className={`xrp-reward-label ${
+                        className={`USDT-reward-label ${
                           item.key === "closingBalance" ||
                           item.key === "credits"
-                            ? "xrp-center-align USDT-larger-label"
-                            : "xrp-left-align USDT-small-label"
+                            ? "USDT-center-align USDT-larger-label"
+                            : "USDT-left-align USDT-small-label"
                         }`}
                       >
                         {item.label}
                       </div>
 
                       <div
-                        className={`xrp-reward-value ${
+                        className={`USDT-reward-value ${
                           item.key === "closingBalance" ||
                           item.key === "credits"
-                            ? "xrp-center-align USDT-larger-label"
-                            : "xrp-left-align USDT-small-label"
+                            ? "USDT-center-align USDT-larger-label"
+                            : "USDT-left-align USDT-small-label"
                         } ${
                           item.label === "Claim" || item.label === "Reedem"
-                            ? "xrp-red-value"
-                            : "xrp-green-value"
+                            ? "USDT-red-value"
+                            : "USDT-green-value"
                         }`}
                       >
                         {value.toFixed(6)} USDT
@@ -269,3 +269,4 @@ export default function HistoryTableReward({ filters, walletType = null }) {
     </div>
   );
 }
+

@@ -10,13 +10,23 @@ import AuthGuard from "@/components/auth/AuthGuard";
 import DashboardNavbar from "@/components/DashboardNavbar";
 import DashboardSidebar from "@/components/DashboardSidebar";
 import { useAuth } from "@/context/AuthContext";
-import {
-  FaSync,
-  FaSearch,
-  FaChevronLeft,
-  FaChevronRight,
-  FaSpinner,
-} from "react-icons/fa";
+import { 
+  Users, 
+  Search, 
+  RefreshCw, 
+  ChevronLeft, 
+  ChevronRight, 
+  ArrowLeft, 
+  Filter, 
+  BarChart3, 
+  Zap, 
+  Network, 
+  Calendar,
+  Layers,
+  Activity,
+  History,
+  X
+} from "lucide-react";
 import Link from "next/link";
 import styles from "./team-referrals.module.css";
 import XRankBadge from "@/components/XRankBadge";
@@ -372,29 +382,32 @@ export default function TeamReferralsPage(
     <AuthGuard>
       <div className={styles.pageContainer}>
         <div className={styles.contentWrapper}>
-          <main className={styles.mainContent} style={{ minWidth: 0 }}>
+          <main className={styles.mainContent}>
             <div className={styles.headerRow}>
-              <h1 className={styles.pageTitle}>Team Referrals</h1>
-              {/* {viewHistory.length > 0 && (
-                <button onClick={handleGoBack} className={styles.backButton}>
-                  &larr; Back toytytrd{" "}
-                  {viewHistory[viewHistory.length - 1].username}
-                </button>
-              )} */}
+              <div className={styles.titleSection}>
+                <h1 className={styles.pageTitle}>Community Network</h1>
+                <p className={styles.pageSubtitle}>Analyze and manage your BEP20 ecosystem nodes</p>
+              </div>
             </div>
 
             <div className="row g-4 mb-4">
-              <div className="col-lg-8 col-md-7">
+              <div className="col-lg-8 col-md-12">
                 <div className={`${styles.card} h-100`}>
                   <div className={styles.cardHeader}>
-                    <h5 className={styles.cardTitle}>My Referral Stats</h5>
+                    <div className={styles.headerTitleWithIcon}>
+                      <BarChart3 size={20} className={styles.headerIcon} />
+                      <h5 className={styles.cardTitle}>Network Analytics</h5>
+                    </div>
                   </div>
                   <div className={styles.cardBody}>
                     <div className="row g-3">
                       <div className="col-md-6">
                         <div className={styles.statPill}>
-                          <span>Community USDT Balance:</span>
-                          <span className={`badge ${styles.statBadge}`}>
+                          <div className={styles.statPillLeft}>
+                            <Zap size={14} color="#ffd700" />
+                            <span>Community Liquidity:</span>
+                          </div>
+                          <span className={styles.statBadge}>
                             {Community_USDT_Balancetotal ?? "0.0000"} USDT
                           </span>
                         </div>
@@ -402,167 +415,145 @@ export default function TeamReferralsPage(
 
                       <div className="col-md-6">
                         <div className={styles.statPill}>
-                          <span>X Bonus position:</span>
-                          <div className="X_Bonus_position">
-                            <XRankBadge rank={user.xRank} />
-                            {/* <div className="user_ranking_section">
-                              <svg
-                                width={24}
-                                hanging={24}
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 640 512"
-                                fill="#fff"
-                              >
-                                <path d="M144 0a80 80 0 1 1 0 160A80 80 0 1 1 144 0zM512 0a80 80 0 1 1 0 160A80 80 0 1 1 512 0zM0 298.7C0 239.8 47.8 192 106.7 192l42.7 0c15.9 0 31 3.5 44.6 9.7c-1.3 7.2-1.9 14.7-1.9 22.3c0 38.2 16.8 72.5 43.3 96c-.2 0-.4 0-.7 0L21.3 320C9.6 320 0 310.4 0 298.7zM405.3 320c-.2 0-.4 0-.7 0c26.6-23.5 43.3-57.8 43.3-96c0-7.6-.7-15-1.9-22.3c13.6-6.3 28.7-9.7 44.6-9.7l42.7 0C592.2 192 640 239.8 640 298.7c0 11.8-9.6 21.3-21.3 21.3l-213.3 0zM224 224a96 96 0 1 1 192 0 96 96 0 1 1 -192 0zM128 485.3C128 411.7 187.7 352 261.3 352l117.3 0C452.3 352 512 411.7 512 485.3c0 14.7-11.9 26.7-26.7 26.7l-330.7 0c-14.7 0-26.7-11.9-26.7-26.7z" />
-                              </svg>
-                              <div>21</div>
-                            </div> */}
+                          <div className={styles.statPillLeft}>
+                            <Activity size={14} color="#ffd700" />
+                            <span>Platform Rank:</span>
                           </div>
+                          <XRankBadge rank={user.xRank} />
                         </div>
                       </div>
-                      {/* <div className="col-md-6">
-                        <div className={styles.statPill}>
-                          <span>My Level:</span>
-                          <span className={`badge ${styles.statBadge}`}>
-                            {user.level ?? 0}
-                          </span>
-                        </div>
-                      </div> */}
+
                       <div className="col-md-6">
                         <div className={styles.statPill}>
-                          <span>Front lines:</span>
-                          <span className={`badge ${styles.statBadge}`}>
+                          <div className={styles.statPillLeft}>
+                            <Network size={14} color="#ffd700" />
+                            <span>Direct Connections:</span>
+                          </div>
+                          <span className={styles.statBadge}>
                             {user.directDownlines ?? 0}
                           </span>
                         </div>
                       </div>
+
                       <div className="col-md-6">
                         <div className={styles.statPill}>
-                          <span>Community Size:</span>
-                          <span className={`badge ${styles.statBadge}`}>
+                          <div className={styles.statPillLeft}>
+                            <Users size={14} color="#ffd700" />
+                            <span>Total Network Nodes:</span>
+                          </div>
+                          <span className={styles.statBadge}>
                             {user.communitySize ?? 0}
                           </span>
                         </div>
                       </div>
-                      {/* <div className="col-md-6">
-                        <div className={styles.statPill}>
-                          <span>Current Rank:</span>
-                          <XRankBadge rank={user.xRank} />
-                        </div>
-                      </div> */}
                     </div>
                   </div>
                 </div>
               </div>
-              <div className="col-lg-4 col-md-5">
+              <div className="col-lg-4 col-md-12">
                 <div className={`${styles.card} h-100 `}>
-                  <div
-                    className={`${styles.cardHeader} ${styles.mbFiltersheadding} `}
-                  >
-                    <h5 className={styles.cardTitle}>Quick Tier Filters</h5>
-                    <small className={styles.cardSubTitle}>
-                      {/* Jump to specific team levels */}
-                    </small>
+                  <div className={styles.cardHeader}>
+                    <div className={styles.headerTitleWithIcon}>
+                      <Layers size={18} className={styles.headerIcon} />
+                      <h5 className={styles.cardTitle}>Level Navigator</h5>
+                    </div>
                   </div>
 
                   <div className={styles.cardBody}>
-                    <div className="row g-2 ">
+                    <div className="row g-2 mb-3">
                       <div className="col-12">
-                        <select
-                          className={`${styles.levelDropdown}`}
-                          value={selectedLevel}
-                          onChange={(e) => {
-                            const level = parseInt(e.target.value);
-                            setSelectedLevel(level);
-                            setLevelInput(level.toString());
+                        <div className={styles.selectWrapper}>
+                          <select
+                            className={styles.levelDropdown}
+                            value={selectedLevel}
+                            onChange={(e) => {
+                              const level = parseInt(e.target.value);
+                              setSelectedLevel(level);
+                              setLevelInput(level.toString());
 
-                            setClickedLevels((prev) => {
-                              if (!prev.includes(level)) {
-                                const updated = [...prev, level];
-                                const total = updated.reduce(
-                                  (sum, val) => sum + val,
-                                  0
-                                );
-                                setTotalClickedValue(total);
-                                return updated;
+                              setClickedLevels((prev) => {
+                                if (!prev.includes(level)) {
+                                  const updated = [...prev, level];
+                                  const total = updated.reduce(
+                                    (sum, val) => sum + val,
+                                    0
+                                  );
+                                  setTotalClickedValue(total);
+                                  return updated;
+                                }
+                                return prev;
+                              });
+
+                              const targetUHID = viewedUser?.uhid || user?.uhid;
+                              const targetUsername =
+                                viewedUser?.username || user?.username;
+
+                              if (targetUHID && targetUsername) {
+                                fetchReferrals(targetUHID, targetUsername, level);
                               }
-                              return prev;
-                            });
-
-                            const targetUHID = viewedUser?.uhid || user?.uhid;
-                            const targetUsername =
-                              viewedUser?.username || user?.username;
-
-                            if (targetUHID && targetUsername) {
-                              fetchReferrals(targetUHID, targetUsername, level);
-                            }
-                          }}
-                          disabled={isLoadingReferrals}
-                        >
-                          <option value="">Select Tier</option>
-                          {Array.from({ length: 16 }, (_, i) => i + 1).map(
-                            (level) => (
-                              <option key={level} value={level}>
-                                Tier {level}
-                              </option>
-                            )
-                          )}
-                        </select>
+                            }}
+                            disabled={isLoadingReferrals}
+                          >
+                            <option value="">Select Level</option>
+                            {Array.from({ length: 16 }, (_, i) => i + 1).map(
+                              (level) => (
+                                <option key={level} value={level}>
+                                  Network Level {level}
+                                </option>
+                              )
+                            )}
+                          </select>
+                        </div>
                       </div>
                     </div>
-                    {/* Right section that conditionally shows Self LP or T1 */}
-                    <div className="mt-3 filterCardheaddingsection">
+
+                    <div className="mt-3">
                       {searchInput.trim() === "" ? (
                         selectedLevel ? (
-                          // T1-Tx Section
                           <div className={styles.filterCard}>
-                            <div className="innerfilterCardheaddingsection">
-                              <span>
-                                {selectedLevel > 1
-                                  ? `T1-T${selectedLevel}`
-                                  : "T1"}
+                            <div className={styles.innerfilterCardheaddingsection}>
+                              <span className={styles.innerfilterCardlabel}>
+                                {selectedLevel > 1 ? `L1 - L${selectedLevel} Liquidity` : "Level 1 Liquidity"}
                               </span>
-                              <span className="innerfilterCardheading">
-                                {sumselflp}
+                              <span className={styles.innerfilterCardvalue}>
+                                {sumselflp} USDT
                               </span>
                             </div>
-                            <div className="innerfilterCardheaddingsection">
-                              <span>Team LP</span>
-                              <span className="innerfilterCardheading">
-                                {Community_USDT_Balance}
+                            <div className={styles.innerfilterCardheaddingsection}>
+                              <span className={styles.innerfilterCardlabel}>Community Pool</span>
+                              <span className={styles.innerfilterCardvalue}>
+                                {Community_USDT_Balance} USDT
                               </span>
                             </div>
                           </div>
                         ) : (
-                          // Default Self LP
                           <div className={styles.filterCard}>
-                            <div className="innerfilterCardheaddingsection">
-                              <span>Tier 1</span>
-                              <span className="innerfilterCardheading">
-                                {selfLp}
+                            <div className={styles.innerfilterCardheaddingsection}>
+                              <span className={styles.innerfilterCardlabel}>Direct Node liquidity</span>
+                              <span className={styles.innerfilterCardvalue}>
+                                {selfLp} USDT
                               </span>
                             </div>
-                            <div className="innerfilterCardheaddingsection">
-                              <span>Team LP</span>
-                              <span className="innerfilterCardheadding">
-                                {Community_USDT_Balance}
+                            <div className={styles.innerfilterCardheaddingsection}>
+                              <span className={styles.innerfilterCardlabel}>Global Network Pool</span>
+                              <span className={styles.innerfilterCardvalue}>
+                                {Community_USDT_Balance} USDT
                               </span>
                             </div>
                           </div>
                         )
                       ) : (
-                        // Search result case: Self LP
                         <div className={styles.filterCard}>
-                          <div className="innerfilterCardheaddingsection">
-                            <span>Self LP</span>
-                            <span className="innerfilterCardheading">
-                              {selfLp}
+                          <div className={styles.innerfilterCardheaddingsection}>
+                            <span className={styles.innerfilterCardlabel}>User Liquidity</span>
+                            <span className={styles.innerfilterCardvalue}>
+                              {selfLp} USDT
                             </span>
                           </div>
-                          <div className="innerfilterCardheaddingsection">
-                            <span>Team LP</span>
-                            <span className="innerfilterCardheading">
-                              {Community_USDT_Balance}
+                          <div className={styles.innerfilterCardheaddingsection}>
+                            <span className={styles.innerfilterCardlabel}>Downline Strength</span>
+                            <span className={styles.innerfilterCardvalue}>
+                              {Community_USDT_Balance} USDT
                             </span>
                           </div>
                         </div>
@@ -572,29 +563,35 @@ export default function TeamReferralsPage(
                 </div>
               </div>
             </div>
-            <div className="row g-4 mb-3 align-items-end">
-              <div className="col-lg-8 col-md-7">
+            <div className="row g-4 mb-4">
+              <div className="col-lg-8 col-md-12">
                 <div className={`${styles.card} h-100`}>
-                  <div className="d-flex">
-                    {/* From */}
+                  <div className={styles.cardHeader}>
+                    <div className={styles.headerTitleWithIcon}>
+                      <Calendar size={18} className={styles.headerIcon} />
+                      <h5 className={styles.cardTitle}>Global Settlement Logs</h5>
+                    </div>
+                  </div>
+                  <div className="row g-3 px-4 pb-4 pt-2">
                     <div className="col-md-6">
-                      <label className={styles.dateLabel}>From (UTC)</label>
-                      <input
-                        type="date"
-                        value={dateFrom}
-                        max={getTodayUTC()}
-                        onChange={(e) => {
-                          const v = e.target.value;
-                          setDateFrom(v);
-                          if (v > dateTo) setDateTo(v); // auto-fix
-                        }}
-                        className={styles.dateInput}
-                      />
+                      <label className={styles.dateLabel}>From Date (UTC)</label>
+                      <div className={styles.inputWithIcon}>
+                        <input
+                          type="date"
+                          value={dateFrom}
+                          max={getTodayUTC()}
+                          onChange={(e) => {
+                            const v = e.target.value;
+                            setDateFrom(v);
+                            if (v > dateTo) setDateTo(v);
+                          }}
+                          className={styles.dateInput}
+                        />
+                      </div>
                     </div>
 
-                    {/* To */}
                     <div className="col-md-6">
-                      <label className={styles.dateLabel}>To (UTC)</label>
+                      <label className={styles.dateLabel}>To Date (UTC)</label>
                       <input
                         type="date"
                         value={dateTo}
@@ -605,202 +602,143 @@ export default function TeamReferralsPage(
                       />
                     </div>
                   </div>
-                  <div className="row px-3 w-100 mb-2">
-                    <div className="col-md-6 ">
-                      <label className={styles.dateLabel}>
-                        Search User (Username / Email / UHID)
-                      </label>
-                      <div style={{ position: "relative" }}>
+                  <div className="row px-4 pb-4 w-100">
+                    <div className="col-md-9">
+                      <label className={styles.dateLabel}>Node Finder (ID / User / Email)</label>
+                      <div className={styles.searchBoxWrapper}>
+                        <Search size={16} className={styles.searchBoxIcon} />
                         <input
                           type="text"
                           value={ledgerSearch}
                           onChange={(e) => setLedgerSearch(e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                              fetchLedgerTotals(dateFrom, dateTo, ledgerSearch);
-                            }
-                          }}
-                          className={styles.dateInput}
-                          placeholder="Enter username, email or UHID"
+                          onKeyDown={(e) => e.key === "Enter" && fetchLedgerTotals()}
+                          className={styles.searchInputPremium}
+                          placeholder="Search ecosytem nodes..."
                         />
-
                         {ledgerSearch && (
-                          <button
-                            onClick={() => setLedgerSearch("")}
-                            style={{
-                              position: "absolute",
-                              right: "10px",
-                              top: "50%",
-                              transform: "translateY(-50%)",
-                              border: "none",
-                              background: "transparent",
-                              cursor: "pointer",
-                              fontSize: "16px",
-                              color: "#999",
-                              padding: 0,
-                            }}
-                          >
-                            ✕
+                          <button onClick={() => setLedgerSearch("")} className={styles.clearSearchBtn}>
+                            <X size={14} />
                           </button>
                         )}
                       </div>
                     </div>
 
-                    <div className="col-md-2 d-flex align-items-center">
+                    <div className="col-md-3 d-flex align-items-end">
                       <button
-                        className={styles.applyButton}
-                        onClick={() => fetchLedgerTotals(dateFrom, dateTo, ledgerSearch)}
+                        className={styles.searchActionBtn}
+                        onClick={() => fetchLedgerTotals()}
                         disabled={isLoadingTotals}
-                        style={{ width: "100%" }}
                       >
-                        &nbsp; Search
+                        Scan Network
                       </button>
                     </div>
                   </div>
                 </div>
               </div>
-              <div className="col-lg-4 col-md-7">
+              <div className="col-lg-4 col-md-12">
                 <div className={`${styles.card} h-100`}>
-                  {/* Deposits */}
-                  <div className="col-md-4 py-0">
-                    <div className={styles.statCard}>
-                      <div className={styles.statLabel}>Total Deposits</div>
-                      <div className={styles.statValue}>
-                        {isLoadingTotals ? "—" : ledgerTotals.deposited.toFixed(2)}
+                  <div className={styles.cardHeader}>
+                    <div className={styles.headerTitleWithIcon}>
+                      <History size={18} className={styles.headerIcon} />
+                      <h5 className={styles.cardTitle}>Live Ledger Sync</h5>
+                    </div>
+                  </div>
+                  <div className={styles.cardBody}>
+                    <div className="row g-3">
+                      <div className="col-md-12">
+                        <div className={styles.statCard}>
+                          <div className={styles.statLabel}>Global Node Deposits</div>
+                          <div className={styles.statValue}>
+                            {isLoadingTotals ? "SYNCING..." : ledgerTotals.deposited.toFixed(2)} <span className={styles.valUnit}>USDT</span>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-
-                  {/* Claimed */}
-                  <div className="col-md-4 py-0">
-                    <div className={styles.statCard}>
-                      <div className={styles.statLabel}>Total Claimed</div>
-                      <div className={styles.claimedstatValue}>
-                        {isLoadingTotals ? "—" : ledgerTotals.withdrawal.toFixed(2)}
+                      <div className="col-md-12">
+                        <div className={styles.statCard}>
+                          <div className={styles.statLabel}>Global Node Redemptions</div>
+                          <div className={styles.claimedstatValue}>
+                            {isLoadingTotals ? "SYNCING..." : ledgerTotals.withdrawal.toFixed(2)} <span className={styles.valUnit}>USDT</span>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                </div>
-              </div></div>
-
-            <div className="row g-4 mb-4">
-              <div className="">
-                <div className={styles.filterCard}>
-                  <div className={styles.filterHeader}>
-                    <button
-                      onClick={handleRefresh}
-                      className={styles.refreshButton}
-                      disabled={isLoadingReferrals}
-                    >
-                      <FaSync className={isLoadingReferrals ? "fa-spin" : ""} />
-                    </button>
-                  </div>
-                  <div
-                    className="row g-2 align-items-center"
-                    style={{ position: "relative" }}
-                  >
-                    <div className="col" style={{ position: "relative" }}>
-                      <input
-                        type="text"
-                        value={searchInput}
-                        onChange={(e) => {
-                          setSearchInput(e.target.value);
-                          handleLevelFilterChange(e);
-                        }}
-                        onKeyDown={(e) =>
-                          e.key === "Enter" && applyLevelFilter()
-                        }
-                        className={styles.levelInput}
-                        placeholder="Search with Username"
-                        disabled={isLoadingReferrals}
-                      />
-
-                      {searchInput && (
-                        <button
-                          onClick={() => setSearchInput("")}
-                          style={{
-                            position: "absolute",
-                            right: "10px",
-                            top: "50%",
-                            transform: "translateY(-50%)",
-                            border: "none",
-                            background: "transparent",
-                            cursor: "pointer",
-                            fontSize: "16px",
-                            color: "#999",
-                            padding: 0,
-                          }}
-                        >
-                          &#10005;
-                        </button>
-                      )}
-                    </div>
-                    <div className="col-auto">
-                      <button
-                        onClick={applyLevelFilter}
-                        className={styles.applyButton}
-                        disabled={isLoadingReferrals}
-                      >
-                        Search
-                      </button>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
+            <div className={styles.networkTableWrapper}>
+                <div className={styles.networkTableHeader}>
+                    <div className={styles.headerTitleWithIcon}>
+                      <Users size={20} className={styles.headerIcon} />
+                      <h5 className={styles.cardTitle}>Network Node Directory</h5>
+                    </div>
+                    <div className={styles.networkActions}>
+                        <div className={styles.premiumSearchBox}>
+                            <Search size={16} className={styles.searchIconSmall} />
+                            <input 
+                                type="text"
+                                value={searchInput}
+                                onChange={(e) => setSearchInput(e.target.value)}
+                                onKeyDown={(e) => e.key === "Enter" && applyLevelFilter()}
+                                placeholder="Find node by username..."
+                                className={styles.premiumSearchInput}
+                            />
+                            {searchInput && <X size={14} className={styles.clearSearchIcon} onClick={() => setSearchInput("")} />}
+                        </div>
+                        <button
+                          onClick={handleRefresh}
+                          className={styles.premiumRefreshBtn}
+                          disabled={isLoadingReferrals}
+                          title="Refresh Network Data"
+                        >
+                          <RefreshCw size={18} className={isLoadingReferrals ? styles.spinIcon : ""} />
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             {(viewHistory.length > 0 || viewedUser) && (
-              <div
-                className=""
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  marginBottom: "10px",
-                }}
-              >
-                <div
-                  style={{
-                    marginBottom: "12px",
-                    fontSize: "14px",
-                    color: "#999",
-                  }}
-                >
-                  <strong>Referrals :</strong>{" "}
+              <div className={styles.navigationBreadcrumbs}>
+                <div className={styles.breadcrumbPath}>
+                  <Link href="/dashboard" className={styles.breadcrumbLink}>
+                    Ecosystem
+                  </Link>
+                  <ChevronRight size={14} className={styles.breadcrumbSeparator} />
+                  <span className={styles.breadcrumbItem}>Network</span>
                   {viewHistory.map((userItem, index) => (
-                    <span key={index}>
+                    <span key={index} className={styles.breadcrumbPathGroup}>
+                      <ChevronRight size={14} className={styles.breadcrumbSeparator} />
                       <a
                         href="#"
                         onClick={(e) => {
                           e.preventDefault();
-                          // Jump to this user:
                           setViewHistory((prev) => prev.slice(0, index));
                           fetchReferrals(userItem.uhid, userItem.username, 0);
                         }}
-                        style={{
-                          color: "#3399ff",
-                          textDecoration: "none",
-                          marginRight: "6px",
-                        }}
+                        className={styles.breadcrumbNodeLink}
                       >
                         {userItem.username}
                       </a>
-                      {"> "}
                     </span>
                   ))}
                   {viewedUser && (
-                    <span style={{ fontWeight: "bold", color: "#fff" }}>
-                      {viewedUser.username}
-                    </span>
+                    <>
+                      <ChevronRight size={14} className={styles.breadcrumbSeparator} />
+                      <span className={styles.activeNodeName}>
+                        {viewedUser.username}
+                      </span>
+                    </>
                   )}
                 </div>
-                <div>
+                <div className={styles.breadcrumbActions}>
                   {viewHistory.length > 0 && (
                     <button
                       onClick={handleGoBack}
-                      className={styles.backButton}
+                      className={styles.premiumBackButton}
                     >
-                      &larr; Back to{" "}
-                      {viewHistory[viewHistory.length - 1].username}
+                      <ArrowLeft size={16} />
+                      <span>Back to {viewHistory[viewHistory.length - 1].username}</span>
                     </button>
                   )}
                 </div>
@@ -808,7 +746,10 @@ export default function TeamReferralsPage(
             )}
 
             {isLoadingReferrals ? (
-              <div className={styles.loading}>Loading referrals...</div>
+              <div className={styles.loading}>
+                <RefreshCw size={40} className={styles.spinIcon} />
+                <span>Syncing Network Nodes...</span>
+              </div>
             ) : referralsError ? (
               <div className={styles.errorMessage}>{referralsError}</div>
             ) : (
@@ -816,18 +757,17 @@ export default function TeamReferralsPage(
                 <table className={styles.referralsTable}>
                   <thead>
                     <tr>
-                      <th className={styles.tableHeader}>S.No.</th>
-                      <th className={styles.tableHeader}>Username</th>
-                      <th className={styles.tableHeader}>Referred By</th>
-                      <th className={styles.tableHeader}>Team Size</th>
-                      <th className={styles.tableHeader}>X-Bonus</th>
-                      {/* <th className={styles.tableHeader}></th> */}
-                      <th className={styles.tableHeader}>Mobile</th>
+                      <th className={styles.tableHeader}>#</th>
+                      <th className={styles.tableHeader}>Node Name</th>
+                      <th className={styles.tableHeader}>Sponsor Node</th>
+                      <th className={styles.tableHeader}>Network Size</th>
+                      <th className={styles.tableHeader}>Ecosystem Rank</th>
+                      <th className={styles.tableHeader}>Contact / Region</th>
                       <th className={`${styles.tableHeader} ${styles.textRight}`}>
-                        Self LP
+                        Node Liquidity
                       </th>
                       <th className={`${styles.tableHeader} ${styles.textRight}`}>
-                        Team LP
+                        Downline Pool
                       </th>
                     </tr>
                   </thead>
@@ -840,56 +780,63 @@ export default function TeamReferralsPage(
                               {(currentPage - 1) * ITEMS_PER_PAGE + index + 1}
                             </td>
                             <td className={styles.tableCell}>
-                              <a
-                                href="#"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  handleViewUserReferrals(
-                                    referral.uhid,
-                                    referral.username
-                                  );
-                                }}
-                                className={styles.usernameLink}
-                              >
-                                {referral.username}
-                              </a>
+                              <div className={styles.nodeNameGroup}>
+                                <a
+                                  href="#"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    handleViewUserReferrals(
+                                      referral.uhid,
+                                      referral.username
+                                    );
+                                  }}
+                                  className={styles.usernameLink}
+                                >
+                                  <span className={styles.nodeMainName}>{referral.username}</span>
+                                </a>
+                                <span className={styles.nodeUhid}>#{referral.uhid}</span>
+                              </div>
                             </td>
                             <td className={styles.tableCell}>
-                              {referral.sponsorUsername ?? "N/A"}
+                              <span className={styles.sponsorName}>{referral.sponsorUsername ?? "GENESIS"}</span>
                             </td>
                             <td className={styles.tableCell}>
-                              {referral.teamSize ?? "N/A"}
+                              <div className={styles.sizeBadge}>
+                                {referral.teamSize ?? "0"} Nodes
+                              </div>
                             </td>
                             <td className={styles.tableCell}>
-                              {" "}
-                              {referral.xRank ?? "-"}
+                              <XRankBadge rank={referral.xRank} />
                             </td>
 
-                            <td className={styles.tableCell}>
-                              <div className="user_country_column" style={{ fontSize: "10px", color: "#aaa", textTransform: "uppercase" }}>
-                                {typeof referral.country === "object"
-                                  ? referral.country?.name ?? "N/A"
-                                  : referral.country ?? "N/A"}
-                              </div>
-                              <div style={{ marginTop: "4px", fontSize: "13px" }}>{referral.whatsappContact ?? "N/A"}</div>
+                             <td className={styles.tableCell}>
+                                <div className={styles.regionGroup}>
+                                    <span className={styles.regionLabel}>Region</span>
+                                    <div className={styles.regionName}>
+                                        {typeof referral.country === "object"
+                                        ? referral.country?.name ?? "Global"
+                                        : referral.country ?? "Global"}
+                                    </div>
+                                    <div className={styles.regionContact}>{referral.whatsappContact ?? "Contact Hidden"}</div>
+                                </div>
                             </td>
                             <td className={`${styles.tableCell} ${styles.lpAmount} ${styles.textRight}`}>
-                              <div style={{ color: "#ffd700", fontWeight: "700" }}>{formatLpAmount(referral.selfLp)}</div>
-                              <div className="BoostLimt-section" style={{ fontSize: "11px", color: "#ccc", marginTop: "4px" }}>
+                              <div style={{ color: "#ffd700", fontWeight: "800", fontSize: '15px' }}>{formatLpAmount(referral.selfLp)}</div>
+                              <div className="BoostLimt-section" style={{ fontSize: "10px", color: "#666", marginTop: "6px" }}>
                                 <div className="BoostLimt-value">
-                                  {referral.boostLimit && referral.boostLimit.$numberDecimal
+                                  <span style={{ color: '#aaa' }}>Cap:</span> {referral.boostLimit && referral.boostLimit.$numberDecimal
                                   ? parseFloat(referral.boostLimit.$numberDecimal).toLocaleString()
-                                  : "0"} / <span className="boot-available" style={{ color: "#00ff00" }}>{referral.boost && referral.boost.$numberDecimal
+                                  : "0"} / <span className="boot-available" style={{ color: "#00ff00", fontWeight: '700' }}>{referral.boost && referral.boost.$numberDecimal
                                     ? parseFloat(referral.boost.$numberDecimal).toLocaleString()
                                     : "0"} </span>
                                 </div>
-                                <div className="BoostLimt-showhover" style={{ fontSize: "9px", textTransform: "uppercase", color: "#888" }}>
-                                  Boost Limit
+                                <div className="BoostLimt-showhover" style={{ fontSize: "9px", textTransform: "uppercase", color: "#444" }}>
+                                  Liquidity Capacity
                                 </div>
                               </div>
                             </td>
                             <td className={`${styles.tableCell} ${styles.lpAmount} ${styles.textRight}`}>
-                              {formatLpAmount(referral.teamLp)}
+                              <div style={{ fontSize: '15px', fontWeight: '700' }}>{formatLpAmount(referral.teamLp)}</div>
                             </td>
                           </tr>
                         );
@@ -898,9 +845,12 @@ export default function TeamReferralsPage(
                       <tr>
                         <td
                           colSpan="8"
-                          style={{ textAlign: "center", padding: "2rem" }}
+                          style={{ textAlign: "center", padding: "4rem", color: '#555' }}
                         >
-                          No referrals found for this level.
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px' }}>
+                             <Search size={40} strokeWidth={1} />
+                             <span>No ecosystem nodes detected at this network depth.</span>
+                          </div>
                         </td>
                       </tr>
                     )}
@@ -913,9 +863,10 @@ export default function TeamReferralsPage(
                       onClick={() =>
                         setCurrentPage((prev) => Math.max(prev - 1, 1))
                       }
+                      className={styles.paginationArrow}
                       disabled={currentPage === 1}
                     >
-                      &laquo; Prev
+                      <ChevronLeft size={18} />
                     </button>
                     {paginationItems.map((item, index) =>
                       item === "..." ? (
@@ -926,7 +877,7 @@ export default function TeamReferralsPage(
                         <button
                           key={index}
                           onClick={() => setCurrentPage(item)}
-                          className={currentPage === item ? styles.active : ""}
+                          className={currentPage === item ? styles.activePage : styles.pageOption}
                         >
                           {item}
                         </button>
@@ -936,9 +887,10 @@ export default function TeamReferralsPage(
                       onClick={() =>
                         setCurrentPage((prev) => Math.min(prev + 1, totalPages))
                       }
+                      className={styles.paginationArrow}
                       disabled={currentPage === totalPages}
                     >
-                      Next &raquo;
+                      <ChevronRight size={18} />
                     </button>
                   </div>
                 )}

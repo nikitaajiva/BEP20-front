@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import styles from "./CommunityRewardsClaimModal.module.css";
+import { Gift, Wallet, X, AlertCircle } from "lucide-react";
 
 export default function CommunityRewardsClaimModal({
   isOpen,
@@ -43,128 +45,54 @@ export default function CommunityRewardsClaimModal({
 
   if (!isOpen) return null;
 
-  const modalStyle = {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 1000,
-  };
-
-  const contentStyle = {
-    background: "#181f3a",
-    borderRadius: "22px",
-    padding: "2rem",
-    maxWidth: "500px",
-    width: "90%",
-    position: "relative",
-    boxShadow: "0 8px 32px 0 rgba(16,25,53,0.18)",
-    color: "#fff",
-  };
-
-  const buttonStyle = {
-    background: "rgba(79, 140, 255, 0.1)",
-    color: "#4f8cff",
-    border: "1px solid rgba(79, 140, 255, 0.2)",
-    borderRadius: "12px",
-    padding: "0.75rem",
-    transition: "all 0.3s ease",
-    width: "100%",
-    marginTop: "1rem",
-  };
-
   return (
-    <div style={modalStyle} onClick={onClose}>
-      <div style={contentStyle} onClick={(e) => e.stopPropagation()}>
-        <h4 style={{ marginBottom: "1rem", textAlign: "center" }}>
-          Redeem from Rewards Wallet
+    <div className={styles.modalOverlay} onClick={onClose}>
+      <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+        <h4 className={styles.modalTitle}>
+          Redeem Rewards
         </h4>
-        <div style={{ marginBottom: "1rem" }}>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              marginBottom: "1rem",
-            }}
-          >
-            <div>
-              <small style={{ color: "#b3baff" }}>Available to Redeem:</small>
-              <div style={{ color: "#4f8cff", fontWeight: "bold" }}>
-                {parseFloat(maxAmount).toFixed(6)} USDT
-              </div>
+        
+        <div className={styles.balanceBox}>
+            <span className={styles.balanceLabel}>Available to Redeem</span>
+            <div className={styles.balanceValue}>
+                {parseFloat(maxAmount).toFixed(4)} USDT
             </div>
-          </div>
+        </div>
 
-          <label
-            style={{
-              color: "#b3baff",
-              display: "block",
-              marginBottom: "0.5rem",
-            }}
-          >
+        <div className={styles.inputGroup}>
+          <label className={styles.inputLabel}>
             Redeem Amount (USDT)
           </label>
           <input
             type="number"
             step="0.000001"
-            min="0"
-            max={maxAmount}
+            className={styles.amountInput}
             value={amount}
             onChange={handleAmountChange}
-            style={{
-              width: "100%",
-              padding: "0.75rem",
-              borderRadius: "12px",
-              border: "1px solid rgba(79, 140, 255, 0.2)",
-              background: "rgba(79, 140, 255, 0.1)",
-              color: "#fff",
-            }}
-            placeholder="Enter amount"
+            placeholder="0.00"
             disabled={isLoading}
           />
 
-          {amountError && (
-            <p
-              style={{
-                color: "#ff3b30",
-                fontSize: "0.875rem",
-                marginTop: "0.5rem",
-              }}
-            >
-              {amountError}
-            </p>
-          )}
-          {error && (
-            <p
-              style={{
-                color: "#ff3b30",
-                fontSize: "0.875rem",
-                marginTop: "0.5rem",
-              }}
-            >
-              {error}
-            </p>
-          )}
+          {amountError && <div className={styles.errorText}>{amountError}</div>}
+          {error && <div className={styles.errorText}>{error}</div>}
         </div>
-        <button
-          style={buttonStyle}
-          onClick={handleSubmit}
-          disabled={isLoading || !!amountError || !amount}
-        >
-          {isLoading ? "Processing..." : "Redeem"}
-        </button>
-        <button
-          style={{ ...buttonStyle, marginTop: "0.5rem" }}
-          onClick={onClose}
-          disabled={isLoading}
-        >
-          Cancel
-        </button>
+
+        <div className={styles.buttonGroup}>
+            <button
+            className={styles.primaryBtn}
+            onClick={handleSubmit}
+            disabled={isLoading || !!amountError || !amount}
+            >
+            {isLoading ? "Processing..." : "Confirm Redemption"}
+            </button>
+            <button
+            className={styles.secondaryBtn}
+            onClick={onClose}
+            disabled={isLoading}
+            >
+            Cancel
+            </button>
+        </div>
       </div>
     </div>
   );

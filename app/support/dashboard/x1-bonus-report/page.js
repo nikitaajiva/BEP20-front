@@ -152,12 +152,12 @@ export default function X1BonusReportPage() {
     }));
   };
 
-  const formatXRP = (amount) => {
-    if (!amount) return '0.000000 XRP';
+  const formatUSDT = (amount) => {
+    if (!amount) return '0.000000 USDT';
     // Handle Decimal128 format
     const value = amount.$numberDecimal ? parseFloat(amount.$numberDecimal) : parseFloat(amount);
-    if (isNaN(value)) return '0.000000 XRP';
-    return value === 0 ? '0.000000 XRP' : `${value.toFixed(6)} XRP`;
+    if (isNaN(value)) return '0.000000 USDT';
+    return value === 0 ? '0.000000 USDT' : `${value.toFixed(6)} USDT`;
   };
 
   return (
@@ -240,12 +240,12 @@ export default function X1BonusReportPage() {
                 <tr style={{ borderBottom: '1px solid rgba(79, 140, 255, 0.1)' }}>
                   <td style={{ padding: '1rem' }}>{summary.user.username} ({summary.user.uhid})</td>
                   <td style={{ padding: '1rem', textAlign: 'right' }}>
-                    {formatXRP(summary.qualification.selfLP)}
+                    {formatUSDT(summary.qualification.selfLP)}
                   </td>
                   <td style={{ padding: '1rem', textAlign: 'right' }}>
                     {Object.entries(summary.qualification.teamLP).map(([tier, data]) => (
                       <div key={tier}>
-                        {tier}: {formatXRP(data.required)} {data.meets ? '✓' : '✗'}
+                        {tier}: {formatUSDT(data.required)} {data.meets ? '✓' : '✗'}
                       </div>
                     ))}
                     <FaEye 
@@ -262,7 +262,7 @@ export default function X1BonusReportPage() {
                     ) : 'Not Qualified'}
                   </td>
                   <td style={{ padding: '1rem', textAlign: 'right' }}>
-                    {formatXRP(summary.credited.total)}
+                    {formatUSDT(summary.credited.total)}
                     <FaEye 
                       style={{ cursor: 'pointer', marginLeft: 6, color: '#4f8cff' }} 
                       title="View events"
@@ -325,13 +325,13 @@ export default function X1BonusReportPage() {
                     {modalData.teamDetails.map((member, index) => (
                       <tr key={index} style={{ borderBottom: '1px solid rgba(79, 140, 255, 0.1)' }}>
                         <td style={{ padding: '1rem' }}>{member.username}</td>
-                        <td style={{ padding: '1rem', textAlign: 'right' }}>{formatXRP(member.selfLP)}</td>
+                        <td style={{ padding: '1rem', textAlign: 'right' }}>{formatUSDT(member.selfLP)}</td>
                         <td style={{ padding: '1rem', textAlign: 'right' }}>
                           {Object.entries(member.teamLP).map(([wing, lp]) => (
-                            <div key={wing}>Wing {wing}: {formatXRP(lp)}</div>
+                            <div key={wing}>Wing {wing}: {formatUSDT(lp)}</div>
                           ))}
                         </td>
-                        <td style={{ padding: '1rem', textAlign: 'right' }}>{formatXRP(member.totalTeamLP)}</td>
+                        <td style={{ padding: '1rem', textAlign: 'right' }}>{formatUSDT(member.totalTeamLP)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -378,7 +378,7 @@ export default function X1BonusReportPage() {
                       <tr key={index} style={{ borderBottom: '1px solid rgba(79, 140, 255, 0.1)' }}>
                         <td style={{ padding: '1rem' }}>{moment(event.ts).format('MM/DD/YYYY, HH:mm:ss')}</td>
                         <td style={{ padding: '1rem' }}>{event.walletFrom}</td>
-                        <td style={{ padding: '1rem', textAlign: 'right' }}>{formatXRP(event.amount)}</td>
+                        <td style={{ padding: '1rem', textAlign: 'right' }}>{formatUSDT(event.amount)}</td>
                         <td style={{ padding: '1rem' }}>{event.narrative}</td>
                       </tr>
                     ))}

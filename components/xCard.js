@@ -66,10 +66,10 @@ export default function CommunityWalletCard({
     toNumber(ledgerDetails?.daily_rewards?.cascade) +
     toNumber(ledgerDetails?.daily_rewards?.XMEN);
   // Console log everything
-  console.log("sumLimits:", sumLimits.toFixed(2), "XRP");
-  console.log("CommunityWallet:", CommunityWallet.toFixed(2), "XRP");
-  console.log("totalLimitUsed:", totalLimitUsed.toFixed(2), "XRP");
-  console.log("RewardsWalletRedeem:", RewardsWalletRedeem.toFixed(2), "XRP");
+  console.log("sumLimits:", sumLimits.toFixed(2), "USDT");
+  console.log("CommunityWallet:", CommunityWallet.toFixed(2), "USDT");
+  console.log("totalLimitUsed:", totalLimitUsed.toFixed(2), "USDT");
+  console.log("RewardsWalletRedeem:", RewardsWalletRedeem.toFixed(2), "USDT");
 
   const buttonStyle = {
     background: "rgba(79, 140, 255, 0.1)",

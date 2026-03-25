@@ -39,7 +39,7 @@ export const RewardsWalletCard = ({
   return (
     <div className={styles.rwCardWrapper}>
       <div className={styles.rwHeader}>
-        <span className={styles.rwTitle}>REWARDS WALLET</span>
+        <span className={styles.rwTitle}>COMMUNITY WALLET</span>
         <div className={styles.rwBadge}>
            <Gift size={12} color="#000" />
            <span>4</span>
@@ -67,7 +67,7 @@ export const RewardsWalletCard = ({
 
         <div className={styles.rwPoolItem}>
            <div className={styles.rwPoolHeader}>
-              <span>Community Pool Rewards</span>
+              <span>Community Wallet</span>
               <span>{communityBalance} / 0.00</span>
            </div>
            <div className={styles.rwProgressBar}>

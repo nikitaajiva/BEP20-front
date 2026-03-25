@@ -1,27 +1,31 @@
 export async function GET() {
+  const explorerBase =
+    process.env.NEXT_PUBLIC_BSC_EXPLORER_BASE_URL || "https://bscscan.com";
+
   return Response.json({
     user: {
       username: "xorgeioson",
       avatar: "/assets/img/avatar.png",
-      referralLink: "https://BEPVault.io/referral/xorgeioson"
+      referralLink: "https://BEPVault.io/referral/xorgeioson",
     },
     wallet: {
-      swiftWallet: 0.0000,
-      systemWallet: "XRPSCAN",
-      systemWalletLink: "https://xrpscan.com/account/rBntsdo3fAS5sb3pqe7LvvxTS8qngFYAe1"
+      swiftWallet: 0.0,
+      systemWallet: "BSCScan",
+      systemWalletLink: `${explorerBase}/address/0x0000000000000000000000000000000000000000`,
     },
     team: {
       directCommunity: 0,
       communitySize: 0,
-      activeTier: 0
+      activeTier: 0,
     },
-    xrp: {
-      currentPrice: 2.2988,
-      totalSupply: 99986107098,
-      change24h: -0.0466,
-      high: 2.3359,
-      low: 2.2664,
-      chartData: []
+    token: {
+      symbol: "USDT",
+      currentPrice: 1.0,
+      totalSupply: 0,
+      change24h: 0,
+      high: 1.0,
+      low: 1.0,
+      chartData: [],
     },
     airdrop: {
       status: "eligible",
@@ -29,8 +33,8 @@ export async function GET() {
         youtube: true,
         telegram: false,
         instagram: true,
-        twitter: false
-      }
-    }
+        twitter: false,
+      },
+    },
   });
-} 
+}

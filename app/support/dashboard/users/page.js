@@ -18,124 +18,6 @@ const inputStyle = {
   width: "100%",
 };
 
-function UpdateXrpModal({ isOpen, onClose, user, onUpdate }) {
-  const [xrpAddress, setXrpAddress] = useState(user?.xrpAddress || "");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    setXrpAddress(user?.xrpAddress || "");
-    setError(null);
-  }, [user]);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) throw new Error("Authentication required");
-      const response = await fetch(
-        `${API_BASE_URL}/api/support/users/${user._id}`,
-        {
-          method: "PATCH",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ xrpAddress }),
-        }
-      );
-      const data = await response.json();
-      if (!response.ok || !data.success) {
-        throw new Error(data.message || "Failed to update XRP address");
-      }
-      onUpdate(data.data);
-      onClose();
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (!isOpen) return null;
-  return (
-    <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: "rgba(0,0,0,0.5)",
-        zIndex: 1000,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      <div
-        style={{
-          background: "#181f3a",
-          borderRadius: "22px",
-          padding: "2rem",
-          minWidth: 320,
-          maxWidth: 400,
-          width: "100%",
-          boxShadow: "0 8px 32px 0 rgba(16,25,53,0.18)",
-        }}
-      >
-        <h3 style={{ color: "#fff", marginBottom: "1rem" }}>
-          Update XRP Address
-        </h3>
-        <form onSubmit={handleSubmit}>
-          <input
-            type="text"
-            value={xrpAddress}
-            onChange={(e) => setXrpAddress(e.target.value)}
-            style={inputStyle}
-            placeholder="Enter new XRP address"
-            disabled={loading}
-          />
-          {error && (
-            <div style={{ color: "#ff4d4d", marginTop: 8 }}>{error}</div>
-          )}
-          <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
-            <button
-              type="submit"
-              disabled={loading}
-              style={{
-                ...inputStyle,
-                background: "#4f8cff",
-                color: "#fff",
-                border: "none",
-                width: "50%",
-              }}
-            >
-              {loading ? "Updating..." : "Update"}
-            </button>
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={loading}
-              style={{
-                ...inputStyle,
-                background: "rgba(79, 140, 255, 0.1)",
-                color: "#4f8cff",
-                border: "1px solid #4f8cff",
-                width: "50%",
-              }}
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-}
-
 function DeleteUserModal({ isOpen, onClose, user, onDeleteSuccess }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -165,14 +47,14 @@ function DeleteUserModal({ isOpen, onClose, user, onDeleteSuccess }) {
 
           if (response.ok && data.success) {
             setLedger(data.data);
-            const lp = parseFloat(data.data.lp || "0");
-            const xaman = parseFloat(data.data.xaman || "0");
-            if (lp > 0 || xaman > 0) {
+            const lp = parseFloat(data.data.wallets?.lp || "0");
+            const usdt = parseFloat(data.data.wallets?.usdt || "0");
+            if (lp > 0 || usdt > 0) {
               setCannotDelete(true);
             }
           } else if (response.status === 404) {
             // If ledger not found, it's safe to delete.
-            setLedger({ lp: "0", xaman: "0" });
+            setLedger({ lp: "0", usdt: "0" });
             setCannotDelete(false);
           } else {
             throw new Error(data.message || "Failed to fetch ledger details.");
@@ -190,7 +72,7 @@ function DeleteUserModal({ isOpen, onClose, user, onDeleteSuccess }) {
 
   const handleDelete = async () => {
     if (cannotDelete) {
-      setError("Cannot delete user with positive LP or Xaman balance.");
+      setError("Cannot delete user with positive LP or USDT balance.");
       return;
     }
 
@@ -291,10 +173,10 @@ function DeleteUserModal({ isOpen, onClose, user, onDeleteSuccess }) {
               Wallet Balances
             </h4>
             <p style={{ color: "#b3baff", margin: "0.5rem 0" }}>
-              <strong>LP Balance:</strong> {ledger.lp}
+              <strong>LP Balance:</strong> {ledger.wallets?.lp}
             </p>
             <p style={{ color: "#b3baff", margin: "0.5rem 0" }}>
-              <strong>Xaman Balance:</strong> {ledger.xaman}
+              <strong>USDT Balance:</strong> {ledger.wallets?.usdt}
             </p>
             {cannotDelete && (
               <p
@@ -355,7 +237,6 @@ export default function UsersPage() {
   const [filterField, setFilterField] = useState("uhid");
   const [filterValue, setFilterValue] = useState("");
   const [modalUser, setModalUser] = useState(null);
-  const [showModal, setShowModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [pagination, setPagination] = useState(null);
   const [showEmailModal, setShowEmailModal] = useState(false);
@@ -532,15 +413,6 @@ export default function UsersPage() {
     }
   }, [user]);
 
-  const handleOpenModal = (user) => {
-    setModalUser(user);
-    setShowModal(true);
-  };
-
-  const handleCloseModal = () => {
-    setShowModal(false);
-    setModalUser(null);
-  };
 
   const handleOpenDeleteModal = (user) => {
     setModalUser(user);
@@ -744,7 +616,7 @@ export default function UsersPage() {
             <option value="uhid">UHID</option>
             <option value="email">Email</option>
             <option value="username">Username</option>
-            <option value="xrpAddress">XRP Address</option>
+            <option value="wallet_address">Wallet Address</option>
           </select>
         </div>
         <div style={{ flex: "1 1 auto" }}>
@@ -1024,7 +896,7 @@ export default function UsersPage() {
                   color: "#4f8cff",
                 }}
               >
-                XRP Address
+                Wallet Address
               </th>
 
               <th
@@ -1118,22 +990,7 @@ export default function UsersPage() {
                     {user.sponsorUserName || "N/A"}
                   </td>
                   <td style={{ padding: "1rem", color: "#b3baff" }}>
-                    {user.xrpAddress || "N/A"}
-                    <button
-                      onClick={() => handleOpenModal(user)}
-                      style={{
-                        marginLeft: 8,
-                        background: "rgba(79, 140, 255, 0.1)",
-                        color: "#4f8cff",
-                        border: "1px solid #4f8cff",
-                        borderRadius: 8,
-                        padding: "2px 10px",
-                        cursor: "pointer",
-                        fontSize: 12,
-                      }}
-                    >
-                      Update
-                    </button>
+                    {user.wallet_address || "N/A"}
                   </td>
 
                   <td style={{ padding: "1rem", color: "#b3baff" }} className="custom-style-chackbox">
@@ -1256,12 +1113,6 @@ export default function UsersPage() {
         </div>
       )}
 
-      <UpdateXrpModal
-        isOpen={showModal}
-        onClose={handleCloseModal}
-        user={modalUser}
-        onUpdate={handleUpdateUser}
-      />
       <DeleteUserModal
         isOpen={showDeleteModal}
         onClose={handleCloseDeleteModal}

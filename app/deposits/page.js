@@ -1,8 +1,8 @@
 'use client';
 import dynamic from 'next/dynamic';
 
-// Dynamically import the XRPDeposits component with no SSR
-const XRPDeposits = dynamic(() => import('@/components/XRPDeposits'), {
+// Dynamically import the USDTDeposits component with no SSR
+const USDTDeposits = dynamic(() => import('@/components/USDTDeposits'), {
   ssr: false,
   loading: () => (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#101935', color: 'white' }}>
@@ -12,5 +12,5 @@ const XRPDeposits = dynamic(() => import('@/components/XRPDeposits'), {
 });
 
 export default function DepositsPage() {
-  return <XRPDeposits />;
+  return <USDTDeposits />;
 } 

@@ -1,15 +1,14 @@
 import React from "react";
 import Link from "next/link";
 export default function SystemWalletCard({
-  account,
-
+  walletAccount,
   appName,
   lastPayloadUpdate,
   transactionStatus,
-  onLogin,
-  onLogout,
+  onWalletConnect,
+  onWalletDisconnect,
   onOpenModal,
-  xamanBalance,
+  primaryVaultBalance,
 }) {
   const cardBaseStyle = {
     overflow: "hidden",
@@ -111,7 +110,7 @@ return (
             )}
           </div>
 
-          {!account ? (
+          {!walletAccount ? (
             <>
               <p
                 style={{
@@ -122,8 +121,8 @@ return (
                   textAlign: "start",
                 }}
               >
-                {typeof xamanBalance === "number"
-                  ? xamanBalance.toFixed(6)
+                {typeof primaryVaultBalance === "number"
+                  ? primaryVaultBalance.toFixed(6)
                   : "0.000000"}{" "}
                 USDT
               </p>
@@ -144,8 +143,8 @@ return (
                   textAlign: "start",
                 }}
               >
-                {typeof xamanBalance === "number"
-                  ? xamanBalance.toFixed(6)
+                {typeof primaryVaultBalance === "number"
+                  ? primaryVaultBalance.toFixed(6)
                   : "0.000000"}{" "}
                 USDT
               </p>
@@ -175,16 +174,16 @@ return (
                         borderRadius: "8px",
                       }}
                     >
-                      {account}
+                      {walletAccount}
                     </b>
                   </div>
                 </div>
 
-                {onLogout && (
+                {onWalletDisconnect && (
                   <div>
                     {" "}
                     <button
-                      onClick={onLogout}
+                      onClick={onWalletDisconnect}
                       style={iconButtonStyle}
                       title="Disconnect Wallet"
                     >
@@ -204,10 +203,10 @@ return (
             </div>
           )}
         </div>
-        {account ? (
+        {walletAccount ? (
           <div className="mt-4">
             <Link
-              href={isDisabledAlt ? "#" : "/dashboard/history/xaman"}
+              href={isDisabledAlt ? "#" : "/dashboard/history/usdt"}
               className="btn w-100"
               style={{
                 background: "rgba(127, 255, 76, 0.1)",
@@ -227,27 +226,8 @@ return (
           </div>
         ) : (
           <>
-            <div>
-              <a href="https://xaman.app/">
-                {" "}
-                <img
-                  src="/assets/img/elements/xamn.png"
-                  alt="Connect Wallet"
-                  // onClick={onLogin}
-                  style={{
-                    position: "absolute",
-                    top: "35px",
-                    right: "45px",
-                    width: "50px",
-                    opacity: 1,
-                    cursor: "pointer",
-                  }}
-                />
-              </a>
-            </div>
-
             <button
-              onClick={onLogin}
+              onClick={onWalletConnect}
               className="btn"
               style={{
                 background: "rgba(127, 255, 76, 0.1)",
@@ -262,7 +242,7 @@ return (
                 borderRadius: "8px", // optional: gives soft corners
               }}
             >
-              Connect Primary Vault
+              Connect Wallet
             </button>
           </>
         )}

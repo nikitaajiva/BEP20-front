@@ -107,7 +107,7 @@ const renderWallet = (name, value, uhid, onEdit, router) => {
             <div>
                 <strong style={{ color: '#b3baff', textTransform: 'capitalize' }}>{name} Wallet</strong>
                 <br />
-                <span style={{ color: '#fff', fontWeight: 'bold', fontSize: '1.1rem' }}>{value} XRP</span>
+                <span style={{ color: '#fff', fontWeight: 'bold', fontSize: '1.1rem' }}>{value} USDT</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                 <button onClick={handleView} title={`View ${name.toUpperCase()} transactions`} style={{ background: 'none', border: 'none', color: '#4f8cff', cursor: 'pointer', fontSize: '1.2rem' }}>
@@ -133,8 +133,8 @@ const renderLimit = (name, limit) => (
     }}>
         <strong style={{ color: '#4f8cff', textTransform: 'capitalize' }}>{name.replace('Limit', '')} Limit</strong>
         <div style={{ marginLeft: '1rem', marginTop: '0.5rem', color: '#b3baff' }}>
-            <div><span style={{ color: '#8a9fca' }}>Cap:</span> {limit.cap} XRP</div>
-            <div><span style={{ color: '#8a9fca' }}>Used:</span> {limit.used} XRP</div>
+            <div><span style={{ color: '#8a9fca' }}>Cap:</span> {limit.cap} USDT</div>
+            <div><span style={{ color: '#8a9fca' }}>Used:</span> {limit.used} USDT</div>
         </div>
     </div>
 );
@@ -149,7 +149,7 @@ const renderRewardWallet = (name, value) => (
     }}>
         <strong style={{ color: '#b3baff', textTransform: 'capitalize' }}>{name} Wallet</strong>
         <br />
-        <span style={{ color: '#fff', fontWeight: 'bold', fontSize: '1.1rem' }}>{value || '0.00'} XRP</span>
+        <span style={{ color: '#fff', fontWeight: 'bold', fontSize: '1.1rem' }}>{value || '0.00'} USDT</span>
     </div>
 );
 

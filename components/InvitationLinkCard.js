@@ -275,7 +275,7 @@ export default function InvitationLinkCard({ user }) {
             style={{ flexGrow: 1, minHeight: "80px" }}
           >
             <img
-              src="/assets/img/elements/xrp-paper.png"
+              src="/bepvault_logo.png"
               alt="USDT Logo"
               style={{
                 display: "block",

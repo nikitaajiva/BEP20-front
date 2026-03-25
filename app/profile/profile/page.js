@@ -12,7 +12,6 @@ export default function ProfilePage() {
     country: "",
     countryCode: "",
     whatsappContact: "",
-    xrpAddress: "",
   });
 
   const [message, setMessage] = useState("");
@@ -44,7 +43,6 @@ export default function ProfilePage() {
         country: user.country?.name || "",
         countryCode: user.countryCode || "",
         whatsappContact: user.whatsappContact || "",
-        xrpAddress: user.xrpAddress || "",
       });
 
       if (!user.country?.name) {
@@ -349,18 +347,17 @@ export default function ProfilePage() {
           </div>
 
           <div className={styles.inputGroup}>
-            <label htmlFor="xrpAddress">XRP Address</label>
+            <label htmlFor="walletAddress">Wallet Address (BEP20)</label>
             <input
               type="text"
-              id="xrpAddress"
-              name="xrpAddress"
-              value={formData.xrpAddress}
+              id="walletAddress"
+              name="walletAddress"
+              value={user?.wallet_address || ""}
               className={styles.inputField}
               disabled
             />
             <small>
-              Your XRP Address is linked to your Xaman wallet and cannot be
-              changed here.
+              Connect your wallet on the dashboard to set this address.
             </small>
           </div>
 

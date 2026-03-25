@@ -61,7 +61,7 @@ export default function AddLPModal({
   isOpen,
   onClose,
   onSubmit,
-  xamanBalance = 0,
+  primaryVaultBalance = 0,
   swiftBalance = 0,
   isFirstLP = false,
   isLoading = false,
@@ -95,7 +95,7 @@ export default function AddLPModal({
   }, [transferAmount, airdropConfig]);
 
   const handlePercentageClick = (percentage) => {
-    const numericBalance = parseFloat(xamanBalance);
+    const numericBalance = parseFloat(primaryVaultBalance);
     if (isNaN(numericBalance) || numericBalance <= 0) {
       setTransferAmount("0");
       return;
@@ -114,7 +114,7 @@ export default function AddLPModal({
       return;
     }
 
-    if (parseFloat(transferAmount) > xamanBalance) {
+    if (parseFloat(transferAmount) > primaryVaultBalance) {
       return;
     }
 
@@ -212,7 +212,7 @@ export default function AddLPModal({
               <div>
                 <small style={{ color: "#b3baff" }}>Available in Primary Vault:</small>
                 <div style={{ color: "#4f8cff", fontWeight: "bold" }}>
-                  {xamanBalance.toFixed(6)} USDT
+                  {primaryVaultBalance.toFixed(6)} USDT
                 </div>
               </div>
               {!show && (
@@ -246,7 +246,7 @@ export default function AddLPModal({
                 type="number"
                 step="0.000001"
                 min="0"
-                max={xamanBalance}
+                max={primaryVaultBalance}
                 value={transferAmount}
                 onChange={(e) => setTransferAmount(e.target.value)}
                 placeholder="Enter amount to transfer"
@@ -425,7 +425,7 @@ export default function AddLPModal({
                   isLoading ||
                   !transferAmount ||
                   parseFloat(transferAmount) <= 0 ||
-                  parseFloat(transferAmount) > xamanBalance
+                  parseFloat(transferAmount) > primaryVaultBalance
                 }
                 style={{
                   background: "rgba(79, 140, 255, 0.1)",
@@ -438,7 +438,7 @@ export default function AddLPModal({
                     isLoading ||
                     !transferAmount ||
                     parseFloat(transferAmount) <= 0 ||
-                    parseFloat(transferAmount) > xamanBalance
+                    parseFloat(transferAmount) > primaryVaultBalance
                       ? 0.5
                       : 1,
                 }}

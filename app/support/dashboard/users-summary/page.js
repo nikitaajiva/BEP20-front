@@ -31,7 +31,7 @@ const UsersSummary = () => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [totalRecords, setTotalRecords] = useState(0);
-    const [filters, setFilters] = useState({ username: '', uhid: '', xrpAddress: '' });
+    const [filters, setFilters] = useState({ username: '', uhid: '', wallet_address: '' });
     const debouncedFilters = useDebounce(filters, 500);
     const [modals, setModals] = useState([]); // {id, kind, rows}
     // NEW STATE FOR CALCULATOR
@@ -238,9 +238,9 @@ const UsersSummary = () => {
                     />
                     <input
                         type="text"
-                        placeholder="XRP Address"
-                        value={filters.xrpAddress}
-                        onChange={handleFilterChange('xrpAddress')}
+                        placeholder="Wallet Address"
+                        value={filters.wallet_address}
+                        onChange={handleFilterChange('wallet_address')}
                         style={inputStyle}
                     />
                     <select
@@ -280,8 +280,8 @@ const UsersSummary = () => {
                     <thead>
                         <tr style={{ borderBottom: '1px solid rgba(79, 140, 255, 0.2)' }}>
                             <th style={{ ...thStyle, textAlign: 'left' }}>Username</th>
-                            <th style={thStyle}>Xaman Deposits</th>
-                            <th style={thStyle}>Xaman Balance</th>
+                            <th style={thStyle}>USDT Deposits</th>
+                            <th style={thStyle}>USDT Balance</th>
                             <th style={thStyle}>Zero Risk</th>
                             <th style={thStyle}>LP Balance</th>
                             <th style={thStyle}>5X Used</th>
@@ -312,9 +312,9 @@ const UsersSummary = () => {
                                 <tr key={row.userId} style={{ borderBottom: '1px solid rgba(79, 140, 255, 0.1)' }}>
                                     <td style={{ ...tdStyle, textAlign: 'left' }}>{row.username}</td>
                                     <td style={tdStyle}>
-                                        <ValueWithEye value={row.xamanDeposits} onDetail={() => openDetail(row.userId,'xamanDeposits')} />
+                                        <ValueWithEye value={row.usdtDeposits} onDetail={() => openDetail(row.userId,'usdtDeposits')} />
                                     </td>
-                                    <td style={tdStyle}><ClickableNumber value={row.xaman} /></td>
+                                    <td style={tdStyle}><ClickableNumber value={row.usdt} /></td>
                                     <td style={tdStyle}><ClickableNumber value={row.zeroRisk} /></td>
                                     <td style={tdStyle}><ClickableNumber value={row.lp} />
                                     <div>  

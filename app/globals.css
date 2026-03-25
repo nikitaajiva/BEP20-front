@@ -11755,13 +11755,13 @@ select option {
   }
 }
 
-.xrp_addXaman {
+.xrp_addUSDT {
   align-items: end;
 }
 
 .xrp_section.xrp_amount,
-.xrp_addXaman button,
-.xrp_buttonAddXaman {
+.xrp_addUSDT button,
+.xrp_buttonAddUSDT {
   color: #4f8cff;
   cursor: pointer;
   background: #4f8cff1a;
@@ -11772,7 +11772,7 @@ select option {
   font-size: 14px;
 }
 
-.xrp_buttonAddXaman:hover {
+.xrp_buttonAddUSDT:hover {
   background-color: rgba(79, 140, 255, 0.2);
 }
 
@@ -11844,7 +11844,7 @@ select option {
   }
 }
 
-.xrp_actionAddXaman_section {
+.xrp_actionAddUSDT_section {
   display: flex;
   align-items: center;
   gap: 10px;

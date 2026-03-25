@@ -4,6 +4,8 @@ import { useAuth } from "@/context/AuthContext";
 
 export function RefIdDisplay({ refId }) {
   const [copied, setCopied] = useState(false);
+  const explorerBase =
+    process.env.NEXT_PUBLIC_BSC_EXPLORER_BASE_URL || "https://bscscan.com";
 
   if (!refId || refId.trim() === "") {
     return null; // don't render anything if blank
@@ -23,7 +25,7 @@ export function RefIdDisplay({ refId }) {
     <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
       {refId !== "N/A" ? (
         <a
-          href={`https://xrpscan.com/tx/${refId}`}
+          href={`${explorerBase}/tx/${refId}`}
           target="_blank"
           rel="noopener noreferrer"
           style={{

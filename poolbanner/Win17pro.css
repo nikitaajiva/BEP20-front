@@ -134,11 +134,11 @@
 
 
 
-.XRPwinreward-img-wrapper {
+.USDTwinreward-img-wrapper {
     width: 50%;
 }
 
-.XRPwinreward-banner-container {
+.USDTwinreward-banner-container {
     text-align: center;
     background: linear-gradient(135deg, #0a1128 0%, #16213e 100%);
     border: 1px solid #ffffff1a;
@@ -151,7 +151,7 @@
     box-shadow: 0 15px 35px #0009;
 }
 
-.XRPwinreward-eligibility-badge {
+.USDTwinreward-eligibility-badge {
     width: 250px;
     /* height: 40px; */
     position: absolute;
@@ -169,7 +169,7 @@
     box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
 }
 
-.XRPwinreward-lock-icon {
+.USDTwinreward-lock-icon {
     /* background: #f97316; */
     width: 20px;
     height: 20px;
@@ -180,7 +180,7 @@
     font-size: 10px;
 }
 
-.XRPwinreward-headline {
+.USDTwinreward-headline {
     font-size: 32px;
     margin-top: 30px;
     margin-bottom: 0px !important;
@@ -191,32 +191,32 @@
     -webkit-text-fill-color: transparent;
 }
 
-.XRPwinreward-image-container {
+.USDTwinreward-image-container {
     width: 100%;
     display: flex;
     justify-content: center;
 }
 
-.XRPwinreward-img-wrapper img {
+.USDTwinreward-img-wrapper img {
     filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.5));
 }
 
-.XRPwinreward-qualification-box {
+.USDTwinreward-qualification-box {
     margin-top: 15px;
     text-align: center;
 }
 
-.XRPwinreward-qualification-title {
+.USDTwinreward-qualification-title {
     color: #ffffff;
     font-size: 22px;
     font-weight: 800;
 }
 
-.XRPwinreward-qualification-title span {
+.USDTwinreward-qualification-title span {
     color: #3b82f6;
 }
 
-.XRPwinreward-qualification-notes p {
+.USDTwinreward-qualification-notes p {
     color: #cbd5e1;
     font-size: 13px;
     font-style: italic;
@@ -224,24 +224,24 @@
     margin: 0px;
 }
 
-.XRPwinreward-qualification-notes {
+.USDTwinreward-qualification-notes {
     margin: 10px 0px;
 }
 
-.XRPwinreward-window-title {
+.USDTwinreward-window-title {
     color: #ffffff;
     font-size: 15px;
     font-weight: 700;
 }
 
-.XRPwinreward-window-date {
+.USDTwinreward-window-date {
     color: white;
     font-size: 18px;
     /* margin-top: 10px; */
 }
 
 @media (max-width: 380px) {
-    .XRPwinreward-headline {
+    .USDTwinreward-headline {
         font-size: 22px;
     }
 }

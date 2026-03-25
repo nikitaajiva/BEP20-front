@@ -101,7 +101,7 @@ export const ReferralProvider = ({ children }) => {
   }, [user, API_URL]);
 
   // Initial fetch when component mounts or user/API_URL changes
-  // This will be controlled by XRPSwiftWallet now based on its activeTier and page state
+    // This will be controlled by the Swift wallet view based on its activeTier and page state
   // So, removing the automatic fetch from here to avoid conflicts.
   // useEffect(() => {
   //   if (user && API_URL) {

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { getTxUrl } from "@/utils/explorer";
 // import RefIdDisplay from "@/RefIdDisplay";
 
 export default function HistoryTableReward({ filters, walletType = null }) {
@@ -34,7 +35,7 @@ export default function HistoryTableReward({ filters, walletType = null }) {
       <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
         {refId !== "N/A" ? (
           <a
-            href={`https://xrpscan.com/tx/${refId}`}
+            href={getTxUrl(refId)}
             target="_blank"
             rel="noopener noreferrer"
             style={{

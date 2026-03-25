@@ -6,9 +6,8 @@ import Link from "next/link";
 
 const RedesignedDashboard = ({ 
   user, 
-  xummAccount, 
-  onXummLogin, 
-  onXummLogout,
+  walletAccount,
+  onWalletConnect,
   onOpenAddLPModal,
   onOpenZeroRiskModal,
   onRedeem,
@@ -24,17 +23,19 @@ const RedesignedDashboard = ({
   const lpLimit = parseFloat(lpWallet.limit || "0").toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const autopositioningValue = parseFloat(lpWallet.autopositioning || "0").toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-  const xamanBalance = parseFloat(ledgerDetails?.xamanWallet?.balance || "0").toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  
+  const primaryVaultBalance = parseFloat(ledgerDetails?.usdtWallet?.balance || "0").toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
   const zeroRiskBalance = parseFloat(ledgerDetails?.zeroRisk?.balance || "0").toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  const zeroRiskLimit = parseFloat(ledgerDetails?.zeroRisk?.limit || "0").toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const zeroRiskLimit = zeroRiskBalance;
 
   // LP limit usage percentage
   const lpUsedRaw = parseFloat(lpWallet.used || "0");
   const lpLimitRaw = parseFloat(lpWallet.limit || "0");
   const lpPercent = lpLimitRaw > 0 ? Math.min((lpUsedRaw / lpLimitRaw) * 100, 100) : 0;
 
-  const shortAddress = xummAccount ? `${xummAccount.slice(0, 6)}...${xummAccount.slice(-4)}` : "";
+  const shortAddress = walletAccount
+    ? `${walletAccount.slice(0, 6)}...${walletAccount.slice(-4)}`
+    : "";
 
   return (
     <div className={styles.hubContentWrapper}>
@@ -48,17 +49,17 @@ const RedesignedDashboard = ({
         </button>
         <button 
           className={styles.connectBtn}
-          onClick={xummAccount ? onXummLogout : onXummLogin}
-          title={xummAccount ? "Click to Disconnect" : "Connect Wallet"}
+          onClick={onWalletConnect}
+          title="Connect Wallet"
         >
           <Wallet size={14} />
-          {xummAccount ? shortAddress : "Connect Wallet"}
-          {xummAccount && (
+          {walletAccount ? shortAddress : "Connect Wallet"}
+          {walletAccount && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginLeft: '4px' }}>
               <span 
                 onClick={(e) => {
                   e.stopPropagation();
-                  navigator.clipboard.writeText(xummAccount);
+                  navigator.clipboard.writeText(walletAccount);
                 }} 
                 style={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer', color: '#aaa' }}
                 title="Copy Address"
@@ -68,7 +69,7 @@ const RedesignedDashboard = ({
               <span 
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (onXummLogin) onXummLogin();
+                  if (onWalletConnect) onWalletConnect();
                 }} 
                 style={{ 
                   display: 'inline-flex', 

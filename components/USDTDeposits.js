@@ -117,16 +117,18 @@ export default function USDTDeposits() {
                 </thead>
                 <tbody>
                   {deposits.map((deposit) => (
-                    <tr key={deposit._id}>
+                    <tr key={deposit._id || deposit.tx_hash}>
                       <td>{new Date(deposit.timestamp).toLocaleString()}</td>
-                      <td className="highlight">{deposit.transactionId}</td>
-                      <td className="positive-amount">{parseFloat(deposit.amount).toFixed(2)} USDT</td>
+                      <td className="highlight">{deposit.tx_hash}</td>
+                      <td className="positive-amount">
+                        {parseFloat(deposit.amount).toFixed(6)} USDT
+                      </td>
                       <td>
                         <span className={`status-${deposit.status.toLowerCase()}`}>
                           {deposit.status}
                         </span>
                       </td>
-                      <td>{deposit.walletAddress}</td>
+                      <td>{deposit.wallet_address}</td>
                     </tr>
                   ))}
                 </tbody>

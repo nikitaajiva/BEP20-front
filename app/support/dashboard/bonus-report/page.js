@@ -188,10 +188,10 @@ export default function BonusReportPage() {
     }));
   };
 
-  const formatXRP = (amount) => {
+  const formatUSDT = (amount) => {
     if (!amount || isNaN(amount)) return '-';
     const value = parseFloat(amount);
-    return value === 0 ? '-' : `${value.toFixed(6)} XRP`;
+    return value === 0 ? '-' : `${value.toFixed(6)} USDT`;
   };
 
   const getDecimalValue = (field) => {
@@ -441,7 +441,7 @@ export default function BonusReportPage() {
                       <tr key={index} style={{ borderBottom: '1px solid rgba(79, 140, 255, 0.1)' }}>
                         <td style={{ padding: '1rem' }}>{member.username}</td>
                         <td style={{ padding: '1rem', textAlign: 'center' }}>Level {member.level}</td>
-                        <td style={{ padding: '1rem', textAlign: 'right' }}>{formatXRP(member.lp)}</td>
+                        <td style={{ padding: '1rem', textAlign: 'right' }}>{formatUSDT(member.lp)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -493,7 +493,7 @@ export default function BonusReportPage() {
                     style={accordionHeaderStyle}
                     onClick={() => toggleLevel(level)}
                   >
-                    <span>Level {level} ({events.length} events) - {formatXRP(sum)}</span>
+                    <span>Level {level} ({events.length} events) - {formatUSDT(sum)}</span>
                     {expandedLevels[level] ? <FaChevronUp /> : <FaChevronDown />}
                   </div>
                   
@@ -513,8 +513,8 @@ export default function BonusReportPage() {
                           {events.map((event, index) => (
                             <tr key={index} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
                               <td style={{ padding: '1rem', textAlign: 'left' }}>{moment(event.ts).format('MM/DD/YYYY, HH:mm:ss')}</td>
-                              <td style={{ padding: '1rem', textAlign: 'right' }}>{formatXRP(event.amount)}</td>
-                              <td style={{ padding: '1rem', textAlign: 'right' }}>{formatXRP(event.depositAmount)}</td>
+                              <td style={{ padding: '1rem', textAlign: 'right' }}>{formatUSDT(event.amount)}</td>
+                              <td style={{ padding: '1rem', textAlign: 'right' }}>{formatUSDT(event.depositAmount)}</td>
                               <td style={{ padding: '1rem', textAlign: 'left' }}>{event.walletFrom}</td>
                               <td style={{ padding: '1rem', textAlign: 'right' }}>{event.rate ? `${event.rate}%` : '-'}</td>
                             </tr>

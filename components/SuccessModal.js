@@ -1,5 +1,6 @@
 import React from "react";
 import { FaCheckCircle } from "react-icons/fa";
+import { getTxUrl } from "@/utils/explorer";
 
 export default function SuccessModal({
   isOpen,
@@ -81,7 +82,7 @@ export default function SuccessModal({
                 Transaction Hash:
               </p>
               <a
-                href={`https://xrpscan.com/tx/${transactionHash}`}
+                href={getTxUrl(transactionHash)}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{ color: "#4f8cff", textDecoration: "underline" }}

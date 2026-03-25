@@ -55,7 +55,7 @@ export default function DetailModal({ id, kind, rows, onClose, x = 100, y = 80, 
   }, []);
 
   // Determine preferred order depending on available keys
-  const keyOrder = ['ts','txDate','amount','amountXRP','transactionId','txHash','refId','narrative','destination'];
+  const keyOrder = ['ts','txDate','amount','amountUSDT','transactionId','txHash','refId','narrative','destination'];
   let headers = rows.length ? Object.keys(rows[0]) : [];
   headers = headers.filter((h)=>h!=='__v');
   headers.sort((a,b)=>{

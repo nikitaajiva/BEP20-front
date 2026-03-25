@@ -24,7 +24,7 @@ const MetricCard = ({
 
   // optional: config for fetching list when clicking the count
   countTitle = "Users",
-  countFetchUrl, // e.g. "/api/support/system-report-xaman-users"
+  countFetchUrl, // e.g. "/api/support/system-report-usdt-users"
   countRequestInit, // e.g. { headers: { Authorization: `Bearer ${token}` } }
   countFetcher, // optional custom async () => data (overrides countFetchUrl)
   renderCountResults, // optional (data) => JSX
@@ -73,7 +73,7 @@ const MetricCard = ({
     "Total 5× Used": "/support/dashboard/system-report/5xrewards",
     "Total Airdrop": "/support/dashboard/system-report/airdrop",
     "Total Booster": "/support/dashboard/system-report/totalbooster",
-    "Total Xaman": "/support/dashboard/system-report/totalxaman",
+    "Total USDT": "/support/dashboard/system-report/totalusdt",
     "Total Zero Risk": "/support/dashboard/system-report/totalzerorisk",
     "Total Community Rewards":
       "/support/dashboard/system-report/communityrewards",
@@ -261,12 +261,21 @@ const MetricCard = ({
               <strong>Today</strong>:{" "}
               {formatValue(
                 (
-                  parseFloat(LPPositioningToday.XamanToLP || 0) +
+                  parseFloat(
+                    LPPositioningToday.USDTToLP ||
+                      LPPositioningToday.UsdtToLP ||
+                      0
+                  ) +
                   parseFloat(LPPositioningToday.AutoPositioning || 0)
                 ).toString()
               )}
             </div>
-            <div>Xaman → LP: {formatValue(LPPositioningToday.XamanToLP)}</div>
+            <div>
+              USDT → LP:{" "}
+              {formatValue(
+                LPPositioningToday.USDTToLP || LPPositioningToday.UsdtToLP
+              )}
+            </div>
             <div>
               AutoPositioning: {formatValue(LPPositioningToday.AutoPositioning)}
             </div>
@@ -360,7 +369,7 @@ const MetricCard = ({
   );
 };
 
-// ===================== Users list with per-row Details (fetches from /support/system-report-xaman) =====================
+// ===================== Users list with per-row Details (fetches from /support/system-report-usdt) =====================
 function DefaultUsersList({ data, detailsFetcher }) {
   const rows = Array.isArray(data?.rows)
     ? data.rows
@@ -426,7 +435,7 @@ function DefaultUsersList({ data, detailsFetcher }) {
       <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr .4fr" }}>
         <div style={th}>Username</div>
         <div className="textaligncenter" style={th}>
-          Amount (XRP)
+          Amount (USDT)
         </div>
 
         <div style={th}></div>
@@ -529,7 +538,7 @@ function DefaultUsersList({ data, detailsFetcher }) {
                   </div>
                 )}
                 {!s.loading && !s.error && s.data && (
-                  <XamanDetails data={s.data} />
+                  <USDTDetails data={s.data} />
                 )}
               </div>
             )}
@@ -623,7 +632,7 @@ function X1RewardsUsersList({ data, detailsFetcher }) {
       >
         <div style={th}>Username</div>
         <div style={th}>xRank</div>
-        <div style={{ ...th, textAlign: "center" }}>Earnings (XRP)</div>
+        <div style={{ ...th, textAlign: "center" }}>Earnings (USDT)</div>
         <div style={th}></div>
       </div>
 
@@ -722,8 +731,8 @@ function X1RewardsUsersList({ data, detailsFetcher }) {
   );
 }
 
-// Default details renderer for /support/system-report-xaman
-function XamanDetails({ data }) {
+// Default details renderer for /support/system-report-usdt
+function USDTDetails({ data }) {
   // Accepts either { rows: [...] } or a plain array
   const rows = Array.isArray(data?.rows)
     ? data.rows
@@ -731,9 +740,9 @@ function XamanDetails({ data }) {
     ? data
     : [];
 
-  // If your endpoint returns a summary like { xaman: { total, rows: [...] } }
-  const list = data?.xaman?.rows || rows;
-  const total = data?.xaman?.total;
+  // If your endpoint returns a summary like { usdt: { total, rows: [...] } }
+  const list = data?.usdt?.rows || rows;
+  const total = data?.usdt?.total;
 
   if (!list || !list.length) {
     return (
@@ -796,7 +805,7 @@ function XamanDetails({ data }) {
   );
 }
 
-// Default details renderer for /support/system-report-xaman
+// Default details renderer for /support/system-report-usdt
 function X1RewardsDetails({ data, currentPage = 1, onPageChange }) {
   const list = data?.rows || [];
   const totalRecords = data?.totalRecords ?? list.length;
@@ -1085,7 +1094,7 @@ export default function SystemReportPage() {
     total5xUsed,
     totalAirdrop,
     totalBooster,
-    totalXaman,
+    totalUsdt,
     totalZeroRisk,
     totalCommunityRewards,
     onChainDeposits,
@@ -1096,7 +1105,7 @@ export default function SystemReportPage() {
     totalCascadeRewards,
     totalX1Rewards,
     totalCommunityBoosterRewards,
-    usersWithXamanGtZero,
+    usersWithUsdtGtZero,
     UserWithAutopositioning,
     userCountzeroRisk,
     userCountcommunityRewards,
@@ -1217,27 +1226,27 @@ export default function SystemReportPage() {
           carddetailspage={EYE_SVG_PAGEVIEWE}
         />
 
-        {/* Xaman with clickable count -> users list + per-row details fetch */}
+        {/* USDT with clickable count -> users list + per-row details fetch */}
         <MetricCard
-          label="Total Xaman"
-          value={totalXaman}
+          label="Total USDT"
+          value={totalUsdt}
           usericon={EYE_SVG}
           carddetailspage={EYE_SVG_PAGEVIEWE}
-          count={usersWithXamanGtZero}
-          countTitle="Users with Xaman Balance"
+          count={usersWithUsdtGtZero}
+          countTitle="Users with USDT Balance"
           countFetcher={async () => {
             const token =
               typeof window !== "undefined"
                 ? localStorage.getItem("token")
                 : null;
 
-            console.log("[XAMAN] Fetching users…", {
+            console.log("[USDT] Fetching users…", {
               API_BASE_URL,
               hasToken: !!token,
             });
 
             const res = await fetch(
-              `${API_BASE_URL}/api/support/system-report-xaman-users`,
+              `${API_BASE_URL}/api/support/system-report-usdt-users`,
               { headers: { Authorization: `Bearer ${token}` } }
             );
 
@@ -1245,39 +1254,39 @@ export default function SystemReportPage() {
             try {
               json = await res.json();
             } catch (e) {
-              console.error("[XAMAN] Failed to parse JSON:", e);
+              console.error("[USDT] Failed to parse JSON:", e);
               throw e;
             }
 
-            console.log("[XAMAN] Users response:", res.status, json);
+            console.log("[USDT] Users response:", res.status, json);
 
             if (!res.ok || json?.success === false) {
-              console.error("[XAMAN] Users fetch error:", json);
+              console.error("[USDT] Users fetch error:", json);
               throw new Error(json?.message || "Failed to fetch users");
             }
 
-            console.log("[XAMAN] Users data:", json?.data);
+            console.log("[USDT] Users data:", json?.data);
             return json.data; // expects { rows: [...] }
           }}
           renderCountResults={(data) => {
-            console.log("[XAMAN] renderCountResults data:", data);
+            console.log("[USDT] renderCountResults data:", data);
 
             return (
               <DefaultUsersList
                 data={data}
                 detailsFetcher={async (u) => {
-                  console.log("[XAMAN] detailsFetcher input row:", u);
+                  console.log("[USDT] detailsFetcher input row:", u);
 
                   const token =
                     typeof window !== "undefined"
                       ? localStorage.getItem("token")
                       : null;
                   const userId = u.userId || u._id || u.id || "";
-                  const url = `${API_BASE_URL}/api/support/system-report-xaman?userId=${encodeURIComponent(
+                  const url = `${API_BASE_URL}/api/support/system-report-usdt?userId=${encodeURIComponent(
                     userId
                   )}`;
 
-                  console.log("[XAMAN] detailsFetcher GET:", url, {
+                  console.log("[USDT] detailsFetcher GET:", url, {
                     hasToken: !!token,
                   });
 
@@ -1290,25 +1299,25 @@ export default function SystemReportPage() {
                     json = await res.json();
                   } catch (e) {
                     console.error(
-                      "[XAMAN] detailsFetcher JSON parse error:",
+                      "[USDT] detailsFetcher JSON parse error:",
                       e
                     );
                     throw e;
                   }
 
                   console.log(
-                    "[XAMAN] detailsFetcher response:",
+                    "[USDT] detailsFetcher response:",
                     res.status,
                     json
                   );
 
                   if (!res.ok || json?.success === false) {
-                    console.error("[XAMAN] detailsFetcher error:", json);
+                    console.error("[USDT] detailsFetcher error:", json);
                     throw new Error(json?.message || "Failed to fetch details");
                   }
 
-                  console.log("[XAMAN] detailsFetcher data:", json.data);
-                  return json.data; // e.g. { xaman: { total, rows: [...] } } or { rows: [...] }
+                  console.log("[USDT] detailsFetcher data:", json.data);
+                  return json.data; // e.g. { usdt: { total, rows: [...] } } or { rows: [...] }
                 }}
               />
             );
@@ -1445,7 +1454,7 @@ export default function SystemReportPage() {
             try {
               json = await res.json();
             } catch (e) {
-              console.error("[XAMAN] Failed to parse JSON:", e);
+              console.error("[USDT] Failed to parse JSON:", e);
               throw e;
             }
 
@@ -1456,11 +1465,11 @@ export default function SystemReportPage() {
               throw new Error(json?.message || "Failed to fetch users");
             }
 
-            console.log("[XAMAN] Users data:", json?.data);
+            console.log("[USDT] Users data:", json?.data);
             return json.data; // expects { rows: [...] }
           }}
           renderCountResults={(data) => {
-            console.log("[XAMAN] renderCountResults data:", data);
+            console.log("[USDT] renderCountResults data:", data);
 
             return (
               <X1RewardsUsersList

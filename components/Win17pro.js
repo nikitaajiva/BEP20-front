@@ -85,9 +85,9 @@ export default function Win17Pro({
       </div>
 
       {/* ================= MOBILE VIEW ================= */}
-      <div className="XRPwinreward-banner-container mobile-view">
+      <div className="USDTwinreward-banner-container mobile-view">
         <div
-          className="XRPwinreward-eligibility-badge"
+          className="USDTwinreward-eligibility-badge"
           onClick={onEligibilityClick}
         >
           <span className="lock">
@@ -113,33 +113,33 @@ export default function Win17Pro({
           Eligibilty Criteria
         </div>
 
-        <div className="XRPwinreward-main-content">
-          <h2 className="XRPwinreward-headline">Win {title}</h2>
+        <div className="USDTwinreward-main-content">
+          <h2 className="USDTwinreward-headline">Win {title}</h2>
 
-          <div className="XRPwinreward-image-container">
-            <div className="XRPwinreward-img-wrapper">
+          <div className="USDTwinreward-image-container">
+            <div className="USDTwinreward-img-wrapper">
               <Image src={image} alt={title} />
             </div>
           </div>
 
-          <div className="XRPwinreward-qualification-box">
-            <div className="XRPwinreward-qualification-title">
+          <div className="USDTwinreward-qualification-box">
+            <div className="USDTwinreward-qualification-title">
               {selfLP} <span>USDT</span> Self LP
               <br />
               {teamBusiness} <span>USDT</span> Team Business
             </div>
 
-            <div className="XRPwinreward-qualification-notes">
+            <div className="USDTwinreward-qualification-notes">
               {notes?.map((n, i) => (
                 <p key={i}>{n}</p>
               ))}
             </div>
 
-            <div className="XRPwinreward-qualification-window">
-              <div className="XRPwinreward-window-title">
+            <div className="USDTwinreward-qualification-window">
+              <div className="USDTwinreward-window-title">
                 Qualification Window
               </div>
-              <div className="XRPwinreward-window-date">
+              <div className="USDTwinreward-window-date">
                 {windowStart} to {windowEnd}
               </div>
             </div>

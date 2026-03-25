@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import { getTxUrl } from "@/utils/explorer";
 import "../../../globals.css";
 
 // Ensure API_BASE_URL ends with a trailing slash
@@ -11,9 +12,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL?.endsWith("/")
 
 const depositStatuses = ["pending_verification", "completed", "failed"];
 
-const dropsToXRP = (drops) => (parseFloat(drops) / 1000000).toFixed(6);
-const formatAmount = (amount, isDeposit) =>
-  isDeposit ? dropsToXRP(amount) : parseFloat(amount).toFixed(6);
+const formatAmount = (amount) => parseFloat(amount).toFixed(6);
 
 const getCurrentUTCDate = () => {
   const now = new Date();
@@ -63,13 +62,13 @@ const getStatusBadgeStyle = (status) => {
   }
 };
 
-export default function XrpTransactionsPage() {
+export default function UsdtTransactionsPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("deposits","");
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [xamanMessage, setXamanMessage] = useState(null); // { type: "success" | "error", text: string }
+  const [usdtMessage, setUsdtMessage] = useState(null); // { type: "success" | "error", text: string }
 
   const [error, setError] = useState(null);
   const [selectedDeposit, setSelectedDeposit] = useState(null);
@@ -87,20 +86,20 @@ export default function XrpTransactionsPage() {
   const [showModal, setShowModal] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [xrplAmount, setXrplAmount] = useState(null);
+  const [usdtAmount, setUsdtAmount] = useState(null);
 
   const [users, setUsers] = useState([]);
   const [username, setUsername] = useState([]);
   const [uhid, setUhid] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const endpointMap = {
-    deposits: "xrp-deposits",
-    withdrawals: "xrp-withdrawals",
-    claimed: "xrp-claimed",
-    redeemed: "xrp-redeemed",
-    autopositioning: "xrp-autopositioning",
+    deposits: "usdt-deposits",
+    withdrawals: "usdt-withdrawals",
+    claimed: "usdt-claimed",
+    redeemed: "usdt-redeemed",
+    autopositioning: "usdt-autopositioning",
     lppositioning: "lp-positioning",
-    withdrawalerror :"xrp-withdrawalerror"
+    withdrawalerror :"usdt-withdrawalerror"
   };
   const [userMap, setUserMap] = useState({});
   const [pagination, setPagination] = useState({
@@ -167,9 +166,10 @@ export default function XrpTransactionsPage() {
           case "deposits":
             return {
               ...tx,
-              amount: formatAmount(tx.amount, true),
-              transactionId: tx.transactionId || tx.refId,
-              walletAddress: tx.walletAddress || tx.destinationAddress,
+              amount: formatAmount(tx.amount),
+              transactionId: tx.tx_hash || tx.transactionId || tx.refId,
+              walletAddress:
+                tx.wallet_address || tx.walletAddress || tx.destinationAddress,
               username: tx.userId?.username || tx.username || "Unknown",
               uhid: tx.userId?.uhid || tx.uhid || "",
             };
@@ -177,10 +177,10 @@ export default function XrpTransactionsPage() {
           case "withdrawals":
             return {
               ...tx,
-              amount: formatAmount(tx.amount, false),
-              transactionId: tx.refId,
-              fromWallet: tx.fromWallet,
-              toAddress: tx.toAddress,
+              amount: formatAmount(tx.amount),
+              transactionId: tx.refId || tx.txHash,
+              fromWallet: tx.walletFrom || tx.fromWallet,
+              toAddress: tx.destination || tx.toAddress,
               username: tx.userId?.username || tx.username || "Unknown",
               uhid: tx.userId?.uhid || tx.uhid || "",
             };
@@ -252,12 +252,12 @@ useEffect(() => {
     e.preventDefault();
     fetchTransactions(pagination.currentPage, pagination.limit);
   };
-  const fetchXrplAmount = async (transactionId) => {
+  const fetchUsdtAmount = async (transactionId) => {
     try {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("Authentication required");
       const response = await fetch(
-        `${API_BASE_URL}api/support/xrp-deposits/transaction`,
+        `${API_BASE_URL}api/support/usdt-deposits/transaction`,
         {
           method: "POST",
           headers: {
@@ -275,28 +275,28 @@ useEffect(() => {
       const txdata = result?.data;
       console.log("result", result);
       if (result?.data?.amount) {
-        const amountFromXRPL = result?.data?.amount;
-        setXrplAmount(amountFromXRPL); // convert drops to XRP
+        const amountFromBSC = result?.data?.amount;
+        setUsdtAmount(amountFromBSC); // convert drops to USDT
 
-        setUsername(txdata?.user?.username); // convert drops to XRP
+        setUsername(txdata?.user?.username); // convert drops to USDT
         setUhid(txdata?.user?.uhid); // c
       } else {
-        setXrplAmount("0");
+        setUsdtAmount("0");
       }
     } catch (error) {
-      console.error("XRPL Fetch Error:", error);
-      setXrplAmount("0");
+      console.error("BSC Fetch Error:", error);
+      setUsdtAmount("0");
     }
   };
   useEffect(() => {
     if (selectedTx?.transactionId) {
-      fetchXrplAmount(selectedTx.transactionId);
+      fetchUsdtAmount(selectedTx.transactionId);
     }
   }, [selectedTx]);
 
-  const handleAddToXaman = async (selectedDeposit) => {
+  const handleAddToUsdt = async (selectedDeposit) => {
     if (!selectedDeposit || !selectedDeposit._id) {
-      setXamanMessage({ type: "error", text: "No deposit selected." });
+      setUsdtMessage({ type: "error", text: "No deposit selected." });
       return;
     }
 
@@ -307,7 +307,7 @@ useEffect(() => {
       if (!token) throw new Error("Authentication required");
 
       const response = await fetch(
-        `${API_BASE_URL}api/support/xrp-deposits/add-to-xaman`,
+        `${API_BASE_URL}api/support/usdt-deposits/add-to-usdt`,
         {
           method: "POST",
           headers: {
@@ -316,8 +316,8 @@ useEffect(() => {
           },
           body: JSON.stringify({
             _id: selectedDeposit._id,
-            walletAddress: selectedDeposit.walletAddress,
-            transactionId: selectedDeposit.transactionId,
+            wallet_address: selectedDeposit.wallet_address,
+            tx_hash: selectedDeposit.tx_hash,
           }),
         }
       );
@@ -325,10 +325,10 @@ useEffect(() => {
       const result = await response.json();
 
       if (result.success) {
-        setXamanMessage({ type: "success", text: result.message });
+        setUsdtMessage({ type: "success", text: result.message });
         // ✅ Auto-clear the message after 10 seconds (10000 ms)
         setTimeout(() => {
-          setXamanMessage(null);
+          setUsdtMessage(null);
         }, 5000);
         // ✅ Update local state with new amount and status
         const updatedDeposit = {
@@ -339,14 +339,14 @@ useEffect(() => {
 
         setSelectedTx(updatedDeposit); // <- Update selected item state
       } else {
-        setXamanMessage({
+        setUsdtMessage({
           type: "error",
-          text: result.message || "Failed to add to Xaman.",
+          text: result.message || "Failed to add to USDT.",
         });
       }
     } catch (error) {
       console.error("API Error:", error);
-      setXamanMessage({
+      setUsdtMessage({
         type: "error",
         text: "Something went wrong. Try again.",
       });
@@ -430,7 +430,7 @@ const handleTabChange = (tab) => {
       }}
     >
       <h2 style={{ marginBottom: "1.5rem", color: "#fff" }}>
-        XRP Transactions Explorer
+        USDT Transactions Explorer
       </h2>
       {/* ✅ Tab Bar with Summary */}
 <div
@@ -664,7 +664,7 @@ const handleTabChange = (tab) => {
                   color: "#4f8cff",
                 }}
               >
-                Amount (XRP)
+                Amount (USDT)
               </th>
               {activeTab === "deposits" ? (
                 <>
@@ -768,7 +768,7 @@ const handleTabChange = (tab) => {
                         ) : (
                         <div style={{ display: "flex", flexDirection: "column" }}>
                           <a
-                              href={`https://xrpscan.com/tx/${tx.transactionId}`}
+                              href={getTxUrl(tx.transactionId)}
                               target="_blank"
                               rel="noopener noreferrer"
                               style={{
@@ -903,7 +903,7 @@ const handleTabChange = (tab) => {
               <div className="xrp_section xrp_amount">
                 <strong>Amount:</strong>
                 <span>
-                  {xrplAmount !== null ? `${xrplAmount} XRP` : "Loading..."}
+                  {usdtAmount !== null ? `${usdtAmount} USDT` : "Loading..."}
                 </span>
               </div>
             </div>
@@ -945,7 +945,7 @@ const handleTabChange = (tab) => {
                 </div>
 
                 <div className="xrp_section xrp_status">
-                  <div className="xrp_actionAddXaman_section">
+                  <div className="xrp_actionAddUSDT_section">
                     <div className="xrp_statusDropdownWrapper">
                       <div className="xrp_selectWithIcon">
                         <select
@@ -991,10 +991,10 @@ const handleTabChange = (tab) => {
                     </div>
 
                     {/* {selectedTx.status !== "completed" && ( */}
-                    <div className="xrp_actionAddXaman">
+                    <div className="xrp_actionAddUSDT">
                       <button
-                        className="xrp_buttonAddXaman"
-                        onClick={() => handleAddToXaman(selectedTx)}
+                        className="xrp_buttonAddUSDT"
+                        onClick={() => handleAddToUsdt(selectedTx)}
                         disabled={isSubmitting}
                       >
                         {isSubmitting ? (
@@ -1025,28 +1025,28 @@ const handleTabChange = (tab) => {
                             </circle>
                           </svg>
                         ) : (
-                          "Add to Xaman"
+                          "Add to USDT"
                         )}
                       </button>
                     </div>
                     {/* )} */}
                     {/* {selectedTx.status !== "failed_verification" && ( */}
-                    <div className="xrp_actionAddXaman">
-                      <button className="xrp_buttonAddXaman">Update</button>
+                    <div className="xrp_actionAddUSDT">
+                      <button className="xrp_buttonAddUSDT">Update</button>
                     </div>
                     {/* )} */}
                   </div>
                 </div>
-                {xamanMessage && (
+                {usdtMessage && (
                   <div
                     className={`mt-2 flex items-center space-x-2 ${
-                      xamanMessage.type === "success"
+                      usdtMessage.type === "success"
                         ? "text-green-600 font-bold"
                         : "text-red-600"
                     }`}
                   >
-                    <span>{xamanMessage.type === "success" ? "✅" : "❌"}</span>
-                    <span>{xamanMessage.text}</span>
+                    <span>{usdtMessage.type === "success" ? "✅" : "❌"}</span>
+                    <span>{usdtMessage.text}</span>
                   </div>
                 )}
               </>

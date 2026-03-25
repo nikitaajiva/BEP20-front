@@ -9,7 +9,7 @@ export default function ZeroRiskClaimModal({
   maxAmount,
   isLoading,
   error,
-  xamanBalance = 0,
+  primaryVaultBalance = 0,
   lpBalance = 0,
   isFirstLPMade = false,
 }) {
@@ -20,8 +20,9 @@ export default function ZeroRiskClaimModal({
   const [uniqueTransactionId, setUniqueTransactionId] = useState(null);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const willExceedXamanBalance = parseFloat(amount || 0) > xamanBalance;
-  const showLimitWarning = isFirstLPMade && willExceedXamanBalance;
+  const willExceedPrimaryVault =
+    parseFloat(amount || 0) > primaryVaultBalance;
+  const showLimitWarning = isFirstLPMade && willExceedPrimaryVault;
 
   React.useEffect(() => {
     if (isOpen) {
@@ -256,7 +257,7 @@ export default function ZeroRiskClaimModal({
                    <small style={{ color: "#b3baff" }}>Primary Vault Balance:</small>
                   <div style={{ color: "#4f8cff", fontWeight: "bold" }}>
                
-                    {Math.max(0, parseFloat(xamanBalance)).toFixed(6)} USDT
+                    {Math.max(0, parseFloat(primaryVaultBalance)).toFixed(6)} USDT
                   </div>
                 </div>
                 <div>
@@ -313,7 +314,7 @@ export default function ZeroRiskClaimModal({
                      Boost limits will be reduced to remaining Liquidity Pool balance (
                     {(
                       lpBalance -
-                      (parseFloat(amount || 0) - xamanBalance)
+                      (parseFloat(amount || 0) - primaryVaultBalance)
                     ).toFixed(6)}{" "}
                     USDT).
                   </small>

@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { getTxUrl } from "@/utils/explorer";
 
 export function RefIdDisplay({ refId }) {
   const [copied, setCopied] = useState(false);
@@ -23,7 +24,7 @@ export function RefIdDisplay({ refId }) {
     <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
       {refId !== "N/A" ? (
         <a
-          href={`https://xrpscan.com/tx/${refId}`}
+          href={getTxUrl(refId)}
           target="_blank"
           rel="noopener noreferrer"
           style={{
@@ -426,7 +427,7 @@ export default function HistoryTable({ filters, walletType }) {
                       )}30`,
                     }}
                   >
-                    {entry.eventType === "LP_DEPOSIT_FROM_XAMAN"
+                    {entry.eventType === "LP_DEPOSIT_FROM_USDT"
                       ? "LP POSITIONING"
                       : entry.eventType.replace(/_/g, " ")}
                   </span>

@@ -41,7 +41,7 @@ export const RewardsWalletCard = ({
       <div className={styles.rwHeader}>
         <span className={styles.rwTitle}>REWARDS WALLET</span>
         <div className={styles.rwBadge}>
-          <Gift size={12} color="#000" />
+          <Gift size={12} color="#ffd700" />
           <span>4</span>
         </div>
       </div>
@@ -51,7 +51,7 @@ export const RewardsWalletCard = ({
         <div className={styles.rwMassiveValue}>
           {whole}<span className={styles.rwDecimals}>.{decimal || '00'}</span>
         </div>
-        <div className={styles.rwSubtext}>/ 0 USDT</div>
+        <div className={styles.rwSubtext}>0 USDT</div>
 
         <div className={styles.rwDivider}></div>
 
@@ -75,16 +75,7 @@ export const RewardsWalletCard = ({
           </div>
         </div>
 
-        <div className={styles.rwDivider}></div>
 
-        <div className={styles.rwFooter}>
-          <button className={styles.rwAutoPosBtn} style={{ width: '100%', flexDirection: 'row', gap: '12px', padding: '16px' }} onClick={onAutoPosition}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffd700" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-            </svg>
-            <span style={{ fontSize: '12px' }}>AUTO POSITIONING</span>
-          </button>
-        </div>
       </div>
     </div>
   );
@@ -103,8 +94,11 @@ export const ActionableWalletCard = ({
   type = 'boost',
   showPlusBtn = true,
   subtitle = "Available Balance",
-  layout = "vertical"
+  layout = "vertical",
+  depositLabel
 }) => {
+  const finalDepositLabel = depositLabel || (title === 'System Wallet' || title === 'Primary Vault' ? 'Connect' : 'Deposit');
+
   if (layout === "horizontal") {
     return (
       <div className={styles.cardContainerHorizontal}>
@@ -127,7 +121,7 @@ export const ActionableWalletCard = ({
 
         <div className={styles.horizontalRight}>
           <button className={styles.glassBtnPrimary} onClick={onDeposit}>
-            + {title === 'System Wallet' || title === 'Primary Vault' ? 'Deposit' : 'Deposit'}
+            + {finalDepositLabel}
           </button>
           <button className={styles.glassBtnSecondary} onClick={onViewHistory}>
             <History size={15} />
@@ -179,7 +173,7 @@ export const ActionableWalletCard = ({
       )}
 
       <div className={styles.actionButtons}>
-        <button className={styles.primaryBtn} onClick={onDeposit}>+ {title === 'System Wallet' ? 'Connect' : 'Deposit'}</button>
+        <button className={styles.primaryBtn} onClick={onDeposit}>+ {finalDepositLabel}</button>
         <button className={styles.secondaryBtn} onClick={onViewHistory}>
           <History size={18} />
           View History

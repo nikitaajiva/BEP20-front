@@ -137,65 +137,73 @@ export default function AddLPModal({
     <div className={styles.modalOverlay} onClick={handleClose}>
       <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
-          <h4 className={styles.modalTitle}>
-            {isFirstLP ? "Activate Liquidity Pool" : "Add to Liquidity Pool"}
-          </h4>
+          <div className={styles.headerCentered}>
+            <div className={styles.titleIconBox}>
+                <ShieldCheck size={28} className={styles.protocolIcon} />
+            </div>
+            <h4 className={styles.modalTitle}>
+              {isFirstLP ? "PROTOCOL ACTIVATION" : "LIQUIDITY SYNCHRONIZATION"}
+            </h4>
+            <p className={styles.headerSubtitle}>SECURE REGISTRY INTERFACE</p>
+          </div>
           <button onClick={handleClose} className={styles.closeBtn}>
-            <X size={24} />
+            <X size={20} />
           </button>
         </div>
 
         <div className={styles.modalBody}>
-          {isFirstLP && !show && (
-            <div className={styles.activationInfo}>
-              <div className={styles.activationTitle}>
-                <ShieldCheck size={18} color="#ffd700" />
-                <span>First Activation Protocol</span>
+          <div className={styles.topInfoGrid}>
+            <div className={styles.balanceItemLarge}>
+              <span className={styles.balanceLabel}>VAULT INTERFACE</span>
+              <div className={styles.balanceValueLarge} style={{ color: "#4f8cff" }}>
+                {xamanBalance.toFixed(4)} <span className={styles.currencySmall}>USDT</span>
               </div>
-              <p className={styles.activationText}>
-                This sets your Swift &amp; Boost limits equal to your transfer amount.
-              </p>
             </div>
-          )}
 
-          <div className={styles.balanceRow}>
-            <div className={styles.balanceItem}>
-              <span className={styles.balanceLabel}>Vault Balance</span>
-              <div className={styles.balanceValue} style={{ color: "#4f8cff" }}>
-                {xamanBalance.toFixed(4)} USDT
+            <div className={styles.verticalDetailStack}>
+              {!show && (
+                <div className={styles.detailItem}>
+                  <span className={styles.detailLabel}>NODE CAPACITY</span>
+                  <div className={styles.detailValue} style={{ color: "#ffd700" }}>
+                    {swiftBalance.toFixed(2)} <span className={styles.currencySmall}>USDT</span>
+                  </div>
+                </div>
+              )}
+              <div className={styles.detailItem}>
+                  <span className={styles.detailLabel}>STATUS</span>
+                  <div className={styles.detailValue} style={{ color: "#00ff00" }}>
+                    ACTIVE <span className={styles.currencySmall}>PROTOCOL</span>
+                  </div>
               </div>
             </div>
-            {!show && (
-              <div className={styles.balanceItem}>
-                <span className={styles.balanceLabel}>Swift Limit</span>
-                <div className={styles.balanceValue} style={{ color: "#ffd700" }}>
-                  {swiftBalance.toFixed(2)} USDT
-                </div>
-              </div>
-            )}
           </div>
 
-          <form onSubmit={handleSubmit}>
-            <div className={styles.inputGroup}>
-              <label className={styles.inputLabel}>
-                Transfer Amount
-                <span className={styles.minBadge}>Min 9+</span>
-              </label>
-              <input
-                type="number"
-                step="0.000001"
-                className={styles.amountInput}
-                value={transferAmount}
-                onChange={(e) => setTransferAmount(e.target.value)}
-                placeholder="0.00"
-                required
-              />
-              <div className={styles.percentageGrid}>
+          <form onSubmit={handleSubmit} className={styles.activationForm}>
+            <div className={styles.inputSection}>
+              <div className={styles.inputHeader}>
+                <label className={styles.inputLabel}>AMOUNT</label>
+                <div className={styles.minBadge}>NODE MIN 9+</div>
+              </div>
+              
+              <div className={styles.amountInputWrapper}>
+                <input
+                  type="number"
+                  step="0.000001"
+                  className={styles.premiumInput}
+                  value={transferAmount}
+                  onChange={(e) => setTransferAmount(e.target.value)}
+                  placeholder="0.00"
+                  required
+                />
+                <div className={styles.inputCurrency}>USDT</div>
+              </div>
+
+              <div className={styles.percentageSelector}>
                 {[0.25, 0.5, 0.75, 1].map((p) => (
                   <button
                     key={p}
                     type="button"
-                    className={styles.percentageBtn}
+                    className={styles.glassTileBtn}
                     onClick={() => handlePercentageClick(p)}
                   >
                     {p === 1 ? "MAX" : `${p * 100}%`}
@@ -205,32 +213,32 @@ export default function AddLPModal({
             </div>
 
             {airdropConfig && !show && getAirdropBonusPercentage(airdropConfig, airdropConfig.serverTime) > 0 && (
-              <div className={styles.airdropBonus}>
-                <span className={styles.bonusLabel}>Airdrop Protocol Bonus</span>
-                <div className={styles.bonusValue}>{airdropBonus} USDT</div>
-                <div className={styles.bonusDesc}>
-                  You'll receive a {getAirdropBonusPercentage(airdropConfig, airdropConfig.serverTime) * 100}% bonus, transferred to your Airdrop Wallet from your Swift limit.
+              <div className={styles.protocolIncentiveBox}>
+                <div className={styles.incentiveHeader}>
+                  <Zap size={14} className={styles.incentiveIcon} />
+                  <span>AIRDROP NODE MULTIPLIER IDENTIFIED: {getAirdropBonusPercentage(airdropConfig, airdropConfig.serverTime) * 100}%</span>
                 </div>
+                <div className={styles.incentiveValue}>+{airdropBonus} <span className={styles.currencySmall}>USDT</span></div>
               </div>
             )}
 
             {error && <div className={styles.errorBox}>{error}</div>}
 
-            <div className={styles.buttonRow}>
+            <div className={styles.actionRow}>
               <button
                 type="button"
-                className={styles.cancelBtn}
+                className={styles.ghostBtn}
                 onClick={handleClose}
                 disabled={isLoading}
               >
-                Cancel
+                Abort Protocol
               </button>
               <button
                 type="submit"
-                className={styles.submitBtn}
+                className={styles.vaultActionBtn}
                 disabled={isLoading || !transferAmount || parseFloat(transferAmount) <= 0 || parseFloat(transferAmount) > xamanBalance}
               >
-                {isLoading ? "Processing..." : (isFirstLP ? "Activate Protocol" : "Confirm Transfer")}
+                {isLoading ? "Synchronizing..." : (isFirstLP ? "Initialize Protocol" : "Commit Assets")}
               </button>
             </div>
           </form>

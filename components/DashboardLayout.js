@@ -1483,7 +1483,7 @@ const displayBalance = Math.max(rawBalance, 0);
         onXummLogin={onXummLogin}
         onXummLogout={onXummLogout}
         onOpenZeroRiskModal={() => setShowZeroRiskWarningModal(true)}
-        onOpenAddLPModal={() => !disableButtons && setIsAddLPModalOpen(true)}
+        onOpenAddLPModal={() => setIsAddLPModalOpen(true)}
         onRedeem={() => setIsCommunityRewardsModalOpen(true)}
         ledgerDetails={ledgerDetails}
         orbitCard1={
@@ -1495,6 +1495,7 @@ const displayBalance = Math.max(rawBalance, 0);
             balance={parseFloat(ledgerDetails?.xamanWallet?.balance || "0.0").toLocaleString(undefined, { minimumFractionDigits: 2 })}
             limit="N/A"
             onDeposit={onXummLogin}
+            showPlusBtn={false}
             onViewHistory={() => window.location.href = "/dashboard/ledger"}
           />
         }
@@ -1504,7 +1505,9 @@ const displayBalance = Math.max(rawBalance, 0);
             type="zero-risk"
             balance={parseFloat(ledgerDetails?.zeroRisk?.balance || "0.0").toLocaleString(undefined, { minimumFractionDigits: 2 })}
             limit={parseFloat(ledgerDetails?.zeroRisk?.limit || "0.0").toLocaleString(undefined, { minimumFractionDigits: 2 })}
-            earningRate="Safe"
+            earningRate="0.3%"
+            showPlusBtn={false}
+            depositLabel="Withdraw"
             onDeposit={() => setShowZeroRiskWarningModal(true)}
             onViewHistory={() => window.location.href = "/dashboard/history/zero-risk"}
           />

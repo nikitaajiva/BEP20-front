@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import styles from "./RedesignedDashboard.module.css";
+import { motion } from "framer-motion";
 import { Wallet, Droplets, TrendingUp, Activity, Plus, History, Shield, Eye, Gift, Copy } from "lucide-react";
 import Link from "next/link";
 
@@ -34,10 +35,35 @@ const RedesignedDashboard = ({
   const lpLimitRaw = parseFloat(lpWallet.limit || "0");
   const lpPercent = lpLimitRaw > 0 ? Math.min((lpUsedRaw / lpLimitRaw) * 100, 100) : 0;
 
-  const shortAddress = xummAccount ? `${xummAccount.slice(0, 6)}...${xummAccount.slice(-4)}` : "";
+  const sparkles = React.useMemo(() => Array.from({ length: 120 }, (_, i) => ({
+    id: i,
+    top: `${Math.random() * 100}%`,
+    left: `${Math.random() * 100}%`,
+    duration: `${3 + Math.random() * 5}s`,
+    delay: `${Math.random() * 5}s`,
+    size: `${1 + Math.random() * 2}px`
+  })), []);
 
   return (
     <div className={styles.hubContentWrapper}>
+      {/* Background Sparkles */}
+      <div className={styles.sparklesContainer}>
+        {sparkles.map((s) => (
+          <div 
+            key={s.id} 
+            className={styles.sparkle} 
+            style={{ 
+              top: s.top, 
+              left: s.left, 
+              width: s.size,
+              height: s.size,
+              animationDuration: s.duration, 
+              animationDelay: s.delay 
+            }}
+          ></div>
+        ))}
+      </div>
+
       <div className={styles.topRightActions}>
         <div className={styles.headerBalanceWrapper}>
           <span className={styles.headerBalanceLabel}>Redeemable Balance:</span>
@@ -122,11 +148,6 @@ const RedesignedDashboard = ({
           <div className={styles.techRing + " " + styles.ring2}></div>
 
           <div className={styles.mainCircle}>
-            <div className={styles.onlineBadge}>
-              <div className={styles.onlineDot}></div>
-              <span className={styles.statusText}>Online</span>
-            </div>
-
             {/* LP Icon + Title */}
             <div className={styles.hubLabel}>
               <Droplets size={13} />
@@ -163,9 +184,18 @@ const RedesignedDashboard = ({
               ></div>
             </div>
 
-            <div className={styles.autopositioningBadge}>
-              Autopositioning: <span>{autopositioningValue} USDT</span>
-            </div>
+            {/* Add Funds Action Button - Repositioned inside circle at bottom */}
+            <motion.button 
+              className={styles.addFundsHubBtn} 
+              onClick={onOpenAddLPModal}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Plus size={14} strokeWidth={3} />
+              Add Liquid
+            </motion.button>
+
+
           </div>
         </div>
       </div>

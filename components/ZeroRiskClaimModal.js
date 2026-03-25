@@ -115,77 +115,89 @@ export default function ZeroRiskClaimModal({
           </div>
         ) : showWarning ? (
           <>
-            <div className={styles.modalTitle}>
-              <ShieldAlert className={styles.warningIcon} size={28} />
-              <span>CAUTION: CLAIM RISK</span>
+            <div className={styles.protocolHeader}>
+              <ShieldAlert className={styles.alertIcon} size={32} />
+              <div className={styles.headerText}>
+                <h4 className={styles.headerTitle}>PROTOCOL SECURITY ALERT</h4>
+                <p className={styles.headerSubtitle}>SEGMENT WITHDRAWAL DETECTED</p>
+              </div>
             </div>
             
             <p className={styles.warningDesc}>
-                Claiming from the Stable Pool may affect your current growth limits.
+                Withdrawing liquidity from the <strong>Stable Pool</strong> triggers cross-segment balance checks. Registry synchronization may be affected.
             </p>
 
-            <div className={styles.warningBox}>
-              <div className={`${styles.warningLine} ${styles.warningLineYellow}`}>
-                <Info size={16} style={{ flexShrink: 0, marginTop: 3 }} />
-                <span>Amount ≤ Primary Vault: No limits affected</span>
+            <div className={styles.protocolWarningBox}>
+              <div className={styles.warningItem}>
+                <div className={styles.itemIcon + " " + styles.iconGold}><Info size={16} /></div>
+                <div className={styles.itemContent}>
+                  <p className={styles.itemTitle}>REGISTRY INTEGRITY</p>
+                  <p className={styles.itemDetail}>Amount ≤ Primary Vault: Liquidity segment remains stable. No limits affected.</p>
+                </div>
               </div>
-              <div style={{ height: 12 }}></div>
-              <div className={`${styles.warningLine} ${styles.warningLineRed}`}>
-                <AlertTriangle size={16} style={{ flexShrink: 0, marginTop: 3 }} />
-                <span>Amount &gt; Primary Vault: Swift &amp; Boost limits will be reduced.</span>
+              
+              <div className={styles.warningDivider}></div>
+
+              <div className={styles.warningItem}>
+                <div className={styles.itemIcon + " " + styles.iconRed}><AlertTriangle size={16} /></div>
+                <div className={styles.itemContent}>
+                  <p className={styles.itemTitle + " " + styles.textRed}>PROTOCOL DE-LEVERAGING</p>
+                  <p className={styles.itemDetail}>Amount &gt; Primary Vault: Swift &amp; Boost Node limits will be reduced proportionally.</p>
+                </div>
               </div>
             </div>
 
             <div className={styles.buttonGroup}>
                 <button
-                className={styles.primaryBtn}
-                style={{ background: "#ff3b30", color: "#fff" }}
-                onClick={handleUnderstand}
-                disabled={isLoading || isSubmitting}
+                  className={styles.riskUnderstandBtn}
+                  onClick={handleUnderstand}
+                  disabled={isLoading || isSubmitting}
                 >
-                I Understand the Risk
+                  Confirm Risk Awareness
                 </button>
                 <button
-                className={styles.secondaryBtn}
-                onClick={onClose}
-                disabled={isLoading || isSubmitting}
+                  className={styles.cancelBtn}
+                  onClick={onClose}
+                  disabled={isLoading || isSubmitting}
                 >
-                Cancel
+                  Cancel Operation
                 </button>
             </div>
           </>
         ) : (
           <>
             <div className={styles.modalTitle}>
-              Claim Stable Pool
+              Withdrawal Protocol
             </div>
 
             <div className={styles.balanceGrid}>
               <div className={styles.balanceItem}>
-                <span className={styles.balanceLabel}>Vault Balance</span>
+                <span className={styles.balanceLabel}>VAULT INTERFACE</span>
                 <div className={styles.balanceValue} style={{ color: "#4f8cff" }}>
-                  {Math.max(0, parseFloat(xamanBalance)).toFixed(4)} USDT
+                  {Math.max(0, parseFloat(xamanBalance)).toFixed(4)} <span className={styles.currencySmall}>USDT</span>
                 </div>
               </div>
               <div className={styles.balanceItem}>
-                <span className={styles.balanceLabel}>Stable Balance</span>
+                <span className={styles.balanceLabel}>POOL LIQUIDITY</span>
                 <div className={styles.balanceValue} style={{ color: "#00ff00" }}>
-                  {Math.max(0, parseFloat(lpBalance)).toFixed(4)} USDT
+                  {Math.max(0, parseFloat(lpBalance)).toFixed(4)} <span className={styles.currencySmall}>USDT</span>
                 </div>
               </div>
             </div>
 
             <div className={styles.inputGroup}>
-              <label className={styles.inputLabel}>Amount to Claim (USDT)</label>
-              <input
-                type="number"
-                step="0.000001"
-                className={styles.amountInput}
-                value={amount}
-                onChange={handleAmountChange}
-                placeholder="0.00"
-                disabled={isLoading || isSubmitting}
-              />
+              <label className={styles.inputLabel}>Disbursement Amount</label>
+              <div className={styles.inputWrapper}>
+                <input
+                  type="number"
+                  step="0.000001"
+                  className={styles.amountInput}
+                  value={amount}
+                  onChange={handleAmountChange}
+                  placeholder="0.00"
+                  disabled={isLoading || isSubmitting}
+                />
+              </div>
               
               {amountError && <div className={styles.errorText}>{amountError}</div>}
               {error && <div className={styles.errorText}>Your last transaction is still processing.</div>}
@@ -195,7 +207,7 @@ export default function ZeroRiskClaimModal({
               <div className={styles.limitWarning}>
                 <AlertTriangle size={18} className={styles.limitWarningIcon} />
                 <div className={styles.limitWarningText}>
-                   Amount exceeds Vault balance. Swift &amp; Boost limits will be reduced to 
+                   <strong>De-leveraging Alert:</strong> Amount exceeds Vault threshold. Registry nodes will be adjusted to 
                    {(lpBalance - (parseFloat(amount || 0) - xamanBalance)).toFixed(4)} USDT.
                 </div>
               </div>
@@ -207,14 +219,14 @@ export default function ZeroRiskClaimModal({
                 onClick={handleSubmit}
                 disabled={isLoading || isSubmitting || !!amountError || !amount}
               >
-                {isLoading || isSubmitting ? "Processing..." : "Confirm Claim"}
+                {isLoading || isSubmitting ? "Syncing Registry..." : "Initiate Withdrawal"}
               </button>
               <button
                 className={styles.secondaryBtn}
                 onClick={onClose}
                 disabled={isLoading || isSubmitting}
               >
-                Cancel
+                Cancel Operation
               </button>
             </div>
           </>

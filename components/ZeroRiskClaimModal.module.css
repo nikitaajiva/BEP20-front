@@ -17,201 +17,320 @@
   background: rgba(15, 15, 15, 0.95);
   border: 1px solid rgba(255, 215, 0, 0.2);
   border-radius: 28px;
-  padding: 35px;
+  padding: 40px;
   max-width: 500px;
   width: 90%;
   position: relative;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 215, 0, 0.05);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(255, 215, 0, 0.05);
   font-family: 'Inter', sans-serif;
   color: #ffffff;
 }
 
-.modalTitle {
-  font-size: 24px;
-  font-weight: 800;
-  color: #ffffff;
-  margin-bottom: 20px;
-  text-align: center;
+.protocolHeader {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 12px;
-}
-
-.warningIcon {
-  color: #ffd700;
-  filter: drop-shadow(0 0 8px rgba(255, 214, 0, 0.4));
-}
-
-.warningBox {
-  background: rgba(255, 215, 0, 0.03);
-  border: 1px solid rgba(255, 215, 0, 0.15);
+  gap: 20px;
+  background: rgba(255, 77, 77, 0.05);
+  border: 1px solid rgba(255, 77, 77, 0.15);
   border-radius: 20px;
   padding: 20px;
-  margin: 20px 0;
-  text-align: left;
+  margin-bottom: 25px;
 }
 
-.warningLine {
-  margin: 0;
-  font-size: 14px;
-  line-height: 1.6;
-  display: flex;
-  gap: 10px;
-}
-
-.warningLineYellow {
-  color: #ffd700;
-}
-
-.warningLineRed {
+.alertIcon {
   color: #ff4d4d;
+  filter: drop-shadow(0 0 10px rgba(255, 77, 77, 0.4));
+}
+
+.headerTitle {
+  font-size: 18px;
+  font-weight: 900;
+  color: #fff;
+  margin: 0;
+  letter-spacing: 1px;
+}
+
+.headerSubtitle {
+  font-size: 11px;
+  font-weight: 700;
+  color: #ff4d4d;
+  margin: 3px 0 0 0;
+  letter-spacing: 2px;
 }
 
 .warningDesc {
-  color: #aaa;
+  color: rgba(255, 255, 255, 0.6);
   font-size: 14px;
+  line-height: 1.6;
   text-align: center;
-  margin-bottom: 25px;
+  margin-bottom: 30px;
+  padding: 0 10px;
+}
+
+.protocolWarningBox {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: rgba(10, 10, 10, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 24px;
+  overflow: hidden;
+  margin-bottom: 30px;
+}
+
+.warningItem {
+  display: flex;
+  gap: 15px;
+  padding: 24px;
+  transition: background 0.3s ease;
+}
+
+.itemIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.iconGold {
+  background: rgba(255, 215, 0, 0.1);
+  color: #ffd700;
+}
+
+.iconRed {
+  background: rgba(255, 77, 77, 0.1);
+  color: #ff4d4d;
+}
+
+.itemContent {
+  flex: 1;
+}
+
+.itemTitle {
+  font-size: 12px;
+  font-weight: 900;
+  color: #ffd700;
+  margin: 0 0 6px 0;
+  letter-spacing: 1px;
+}
+
+.itemDetail {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.warningDivider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.05);
+  margin: 0 24px;
+}
+
+.textRed {
+  color: #ff4d4d !important;
 }
 
 .buttonGroup {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin-top: 25px;
+}
+
+.riskUnderstandBtn {
+  background: linear-gradient(135deg, #ff4c4c 0%, #d42a2a 100%);
+  color: #fff;
+  border: none;
+  border-radius: 16px;
+  padding: 18px;
+  font-weight: 900;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 8px 25px rgba(255, 76, 76, 0.3);
+}
+
+.riskUnderstandBtn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(255, 76, 76, 0.4);
+  filter: brightness(1.1);
+}
+
+.cancelBtn {
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 16px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cancelBtn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Success State Styles */
+.successWrapper {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.successIconBox {
+  margin-bottom: 25px;
+}
+
+.successTitle {
+  font-size: 26px;
+  font-weight: 900;
+  color: #00ff00;
+  margin-bottom: 12px;
+}
+
+.successText {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* Form Layout Styles */
+.balanceGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin: 25px 0;
+}
+
+.balanceItem {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 18px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.balanceLabel {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.balanceValue {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.inputGroup {
+  margin-bottom: 25px;
+}
+
+.inputLabel {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.4);
+  margin-bottom: 12px;
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.amountInput {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  padding: 18px;
+  width: 100%;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 800;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.amountInput:focus {
+  border-color: #ffd700;
+  background: rgba(255, 215, 0, 0.03);
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.1);
+}
+
+.errorText {
+  color: #ff4c4c;
+  font-size: 13px;
+  margin-top: 10px;
+  font-weight: 600;
+}
+
+.limitWarning {
+  background: rgba(255, 76, 76, 0.08);
+  border: 1px solid rgba(255, 76, 76, 0.2);
+  border-radius: 16px;
+  padding: 15px;
+  margin-top: 10px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.limitWarningIcon {
+  color: #ff4c4c;
+  flex-shrink: 0;
+}
+
+.limitWarningText {
+  color: #ff4c4c;
+  font-size: 12px;
+  line-height: 1.5;
+  font-weight: 600;
 }
 
 .primaryBtn {
   background: linear-gradient(135deg, #ffd700 0%, #ffa500 100%);
   color: #000;
   border: none;
-  border-radius: 14px;
-  padding: 16px;
-  font-weight: 800;
+  border-radius: 16px;
+  padding: 18px;
+  font-weight: 900;
   font-size: 15px;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
+  box-shadow: 0 8px 25px rgba(255, 215, 0, 0.2);
 }
 
-.primaryBtn:hover {
+.primaryBtn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255, 215, 1, 0.4);
+  box-shadow: 0 12px 30px rgba(255, 215, 0, 0.3);
+}
+
+.primaryBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .secondaryBtn {
-  background: rgba(255, 255, 255, 0.05);
-  color: #ffffff;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.4);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 14px;
+  border-radius: 16px;
   padding: 16px;
-  font-weight: 600;
-  font-size: 15px;
+  font-weight: 700;
+  font-size: 14px;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .secondaryBtn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
-/* Success State */
-.successTitle {
-  color: #00ff00;
-  font-size: 24px;
-  font-weight: 800;
-  text-align: center;
-  margin-bottom: 15px;
-}
-
-.successText {
-  color: #bbb;
-  text-align: center;
-  margin-bottom: 20px;
-  font-size: 14px;
-}
-
-/* Form Styles */
-.balanceGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
-  margin-bottom: 25px;
-}
-
-.balanceItem {
-  background: rgba(255, 255, 255, 0.03);
-  padding: 12px;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.balanceLabel {
-  font-size: 10px;
-  color: #777;
-  text-transform: uppercase;
-  margin-bottom: 4px;
-  display: block;
-}
-
-.balanceValue {
-  font-weight: 700;
-  font-size: 14px;
-}
-
-.inputGroup {
-  margin-bottom: 20px;
-}
-
-.inputLabel {
-  display: block;
-  font-size: 13px;
-  color: #aaa;
-  margin-bottom: 8px;
-}
-
-.amountInput {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 14px;
-  padding: 15px;
-  width: 100%;
   color: #fff;
-  font-size: 16px;
-  font-weight: 600;
-  transition: all 0.3s ease;
-}
-
-.amountInput:focus {
-  outline: none;
-  border-color: rgba(255, 215, 0, 0.4);
-  background: rgba(255, 215, 0, 0.03);
-}
-
-.errorText {
-  color: #ff4d4d;
-  font-size: 12px;
-  margin-top: 8px;
-}
-
-.limitWarning {
-  background: rgba(255, 77, 77, 0.05);
-  border: 1px solid rgba(255, 77, 77, 0.2);
-  border-radius: 12px;
-  padding: 12px;
-  margin-top: 15px;
-  display: flex;
-  gap: 10px;
-}
-
-.limitWarningIcon {
-  color: #ff4d4d;
-}
-
-.limitWarningText {
-  color: #ff4d4d;
-  font-size: 12px;
-  line-height: 1.4;
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
 }

@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import styles from "./RedesignedDashboard.module.css";
-import { LogOut, Home, Users, FileText, Settings, Activity, PieChart, Database, Zap, Award, ChevronDown, BarChart2, Layers, TrendingUp, Clock } from "lucide-react";
+import { LogOut, Home, Users, FileText, Settings, Activity, PieChart, Database, Zap, Award, ChevronDown, BarChart2, Layers, TrendingUp, Clock, ArrowLeftCircle } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
@@ -132,6 +132,15 @@ export default function SupportSidebar() {
           >
             <Settings size={18} />
             Settings
+          </Link>
+        </div>
+        <div className={styles.navItem}>
+          <Link
+            href="/dashboard"
+            className={styles.navLink}
+          >
+            <ArrowLeftCircle size={18} />
+            Switch to User View
           </Link>
         </div>
         <button

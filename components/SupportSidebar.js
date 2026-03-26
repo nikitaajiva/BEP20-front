@@ -1,77 +1,147 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import styles from "./RedesignedDashboard.module.css";
-import { LogOut, Home, Users, FileText, Settings, Activity, PieChart, Database, Zap, Award, Layers, HelpCircle } from "lucide-react";
+import { LogOut, Home, Users, FileText, Settings, Activity, PieChart, Database, Zap, Award, ChevronDown, BarChart2, Layers, TrendingUp, Clock } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 
-const supportNavLinks = [
-  { name: "Welcome", href: "/support/dashboard", icon: Home },
-  { name: "Users", href: "/support/dashboard/users", icon: Users },
-  { name: "User Ledger", href: "/support/dashboard/user-ledger", icon: Database },
-  { name: "Team View", href: "/support/dashboard/team-view", icon: PieChart },
-  { name: "Ledger Rows", href: "/support/dashboard/ledger-rows", icon: Activity },
-  { name: "USDT Deposits", href: "/support/dashboard/usdt-deposits", icon: Zap },
-  // { name: "Community Booster", href: "/support/dashboard/community-booster-report", icon: Award },
-  // { name: "Community Rewards", href: "/support/dashboard/community-rewards", icon: Layers },
-  // { name: "X1-X5 Bonus", href: "/support/dashboard/x1-bonus-report", icon: Activity },
-  { name: "Users Summary", href: "/support/dashboard/users-summary", icon: FileText },
-  { name: "System Report", href: "/support/dashboard/system-report", icon: Activity },
+const systemReportLinks = [
+  { name: "Wallet Totals",       href: "/support/dashboard/system-report",               icon: Layers },
+  { name: "On-Chain Totals",     href: "/support/dashboard/system-report?tab=onchain",   icon: TrendingUp },
+  { name: "Distribution Totals", href: "/support/dashboard/system-report?tab=distribution", icon: BarChart2 },
+  { name: "Daily Distribution",  href: "/support/dashboard/system-report?tab=daily",     icon: Clock },
+];
+
+const mainNavLinks = [
+  { name: "Welcome",        href: "/support/dashboard",              icon: Home },
+  { name: "Users",          href: "/support/dashboard/users",        icon: Users },
+  { name: "User Ledger",    href: "/support/dashboard/user-ledger",  icon: Database },
+  { name: "Team View",      href: "/support/dashboard/team-view",    icon: PieChart },
+  { name: "Ledger Rows",    href: "/support/dashboard/ledger-rows",  icon: Activity },
+  { name: "USDT Deposits",  href: "/support/dashboard/usdt-deposits", icon: Zap },
+  { name: "Users Summary",  href: "/support/dashboard/users-summary", icon: FileText },
 ];
 
 export default function SupportSidebar() {
   const { logout } = useAuth();
-  const pathname = usePathname();
+  const pathname   = usePathname();
+  const search     = typeof window !== "undefined" ? window.location.search : "";
   const settingsPath = "/support/dashboard/settings";
+
+  const isSystemReportActive = pathname.startsWith("/support/dashboard/system-report");
+  const [sysOpen, setSysOpen] = useState(isSystemReportActive);
 
   return (
     <aside className={styles.sidebar}>
+      <ul className={styles.sidebarNav} style={{ overflowY: "auto", scrollbarWidth: "none", msOverflowStyle: "none" }}>
 
-      <ul className={styles.sidebarNav} style={{ overflowY: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-        {supportNavLinks.map((link) => {
+        {/* Regular nav links */}
+        {mainNavLinks.map((link) => {
           const isActive = pathname === link.href;
           const Icon = link.icon;
-          
           return (
             <li key={link.name} className={styles.navItem}>
-              <Link 
-                href={link.href} 
+              <Link
+                href={link.href}
                 className={`${styles.navLink} ${isActive ? styles.navLinkActive : ""}`}
-                style={{ 
-                  color: isActive ? "#000" : "rgba(255,255,255,0.35)",
-                  transition: 'all 0.2s ease'
-                }}
+                style={{ color: isActive ? "#000" : "rgba(255,255,255,0.35)", transition: "all 0.2s ease" }}
               >
-                <Icon size={18} style={{ 
-                  minWidth: "18px", 
-                  opacity: isActive ? 1 : 0.6,
-                  color: isActive ? "#000" : "inherit"
-                }} />
-                <span style={{ 
-                  whiteSpace: "nowrap",
-                  fontWeight: isActive ? "800" : "500"
-                }}>{link.name}</span>
+                <Icon size={18} style={{ minWidth: "18px", opacity: isActive ? 1 : 0.6, color: isActive ? "#000" : "inherit" }} />
+                <span style={{ whiteSpace: "nowrap", fontWeight: isActive ? "800" : "500" }}>{link.name}</span>
               </Link>
             </li>
           );
         })}
+
+        {/* System Report — collapsible dropdown */}
+        <li className={styles.navItem}>
+          <button
+            onClick={() => setSysOpen((o) => !o)}
+            className={styles.navLink}
+            style={{
+              width: "100%",
+              background: isSystemReportActive ? "rgba(255,215,0,0.08)" : "transparent",
+              border: isSystemReportActive ? "1px solid rgba(255,215,0,0.2)" : "1px solid transparent",
+              color: isSystemReportActive ? "#ffd700" : "rgba(255,255,255,0.35)",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 0,
+              transition: "all 0.2s ease",
+            }}
+          >
+            <span style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <BarChart2 size={18} style={{ minWidth: "18px", opacity: 0.7 }} />
+              <span style={{ whiteSpace: "nowrap", fontWeight: isSystemReportActive ? "800" : "500" }}>System Report</span>
+            </span>
+            <ChevronDown
+              size={14}
+              style={{
+                transition: "transform 0.25s ease",
+                transform: sysOpen ? "rotate(180deg)" : "rotate(0deg)",
+                opacity: 0.5,
+                flexShrink: 0,
+              }}
+            />
+          </button>
+
+          {/* Sub-links */}
+          {sysOpen && (
+            <ul style={{ listStyle: "none", padding: "4px 0 4px 18px", margin: 0, display: "flex", flexDirection: "column", gap: 2 }}>
+              {systemReportLinks.map((sub) => {
+                const SubIcon = sub.icon;
+                // match active: check href + optional ?tab
+                const isSubActive = pathname === "/support/dashboard/system-report" &&
+                  (sub.href.includes("?tab=")
+                    ? (typeof window !== "undefined" && window.location.href.includes(sub.href.split("?")[1]))
+                    : !window.location.search);
+
+                return (
+                  <li key={sub.name}>
+                    <Link
+                      href={sub.href}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 9,
+                        padding: "9px 14px",
+                        borderRadius: 10,
+                        textDecoration: "none",
+                        fontSize: 12,
+                        fontWeight: isSubActive ? 800 : 500,
+                        color: isSubActive ? "#ffd700" : "rgba(255,255,255,0.28)",
+                        background: isSubActive ? "rgba(255,215,0,0.07)" : "transparent",
+                        transition: "all 0.2s ease",
+                        borderLeft: isSubActive ? "2px solid #ffd700" : "2px solid transparent",
+                      }}
+                    >
+                      <SubIcon size={14} style={{ opacity: 0.7, flexShrink: 0 }} />
+                      {sub.name}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </li>
+
       </ul>
 
       <div className={styles.sidebarFooter}>
         <div className={styles.navItem}>
-            <Link 
-              href={settingsPath} 
-              className={`${styles.navLink} ${pathname === settingsPath ? styles.navLinkActive : ""}`}
-            >
-              <Settings size={18} />
-              Settings
-            </Link>
+          <Link
+            href={settingsPath}
+            className={`${styles.navLink} ${pathname === settingsPath ? styles.navLinkActive : ""}`}
+          >
+            <Settings size={18} />
+            Settings
+          </Link>
         </div>
-        <button 
+        <button
           onClick={logout}
-          className={styles.navLink} 
+          className={styles.navLink}
           style={{ width: "100%", background: "transparent", border: "none", cursor: "pointer", marginTop: "10px" }}
         >
           <LogOut size={18} />

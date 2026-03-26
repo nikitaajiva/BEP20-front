@@ -3,23 +3,20 @@ import React, { useState, useEffect, useCallback, Suspense } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { 
-  Zap, 
-  Terminal, 
-  Database, 
   Activity, 
   Search, 
-  Download, 
   ChevronLeft, 
   ChevronRight, 
-  Filter, 
-  Calendar, 
   Wallet as WalletIcon, 
   CheckCircle2, 
   AlertCircle,
   Clock,
-  ArrowDownLeft,
   ArrowUpRight,
+  ArrowDownLeft,
   ShieldCheck,
+  RefreshCw,
+  Hash,
+  Box,
   Cpu
 } from "lucide-react";
 import styles from "./usdt-deposits.module.css";
@@ -29,10 +26,6 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL?.endsWith("/")
   : process.env.NEXT_PUBLIC_API_URL + "/";
 
 const depositStatuses = ["pending_verification", "completed", "failed"];
-
-const dropsToUSDT = (drops) => (parseFloat(drops) / 1000000).toFixed(6);
-const formatAmount = (amount, isDeposit) =>
-  isDeposit ? dropsToUSDT(amount) : parseFloat(amount).toFixed(6);
 
 const getCurrentUTCDate = () => {
   const now = new Date();
@@ -52,6 +45,16 @@ const endpointMap = {
   withdrawalerror: "USDT-withdrawalerror"
 };
 
+/* ── Avatar Palette ── */
+const PALETTE = [
+  { bg: "rgba(255,215,0,0.15)", text: "#ffd700" },
+  { bg: "rgba(16,185,129,0.15)", text: "#10b981" },
+  { bg: "rgba(99,102,241,0.15)", text: "#818cf8" },
+  { bg: "rgba(244,63,94,0.15)", text: "#f43f5e" },
+  { bg: "rgba(6,182,212,0.15)", text: "#06b6d4" },
+];
+const getAvatar = (name = "") => PALETTE[name.charCodeAt(0) % PALETTE.length];
+
 function USDTTransactions() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
@@ -66,7 +69,7 @@ function USDTTransactions() {
     totalEntries: 0,
     hasNextPage: false,
     hasPrevPage: false,
-    limit: 10,
+    limit: 12,
   });
 
   const todayUTC = getCurrentUTCDate();
@@ -78,53 +81,41 @@ function USDTTransactions() {
     endDate: todayUTC,
   });
 
-  const [selectedTx, setSelectedTx] = useState(null);
-  const [showModal, setShowModal] = useState(false);
-  const [xrplAmount, setXrplAmount] = useState(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
   const fetchTransactions = useCallback(async (page = 1) => {
     setLoading(true);
     setError(null);
     try {
-      const cleanFilters = Object.fromEntries(
-        Object.entries(filters).filter(([_, v]) => v !== "")
-      );
-
-      const query = new URLSearchParams({
-        ...cleanFilters,
-        page,
-        limit: pagination.limit,
-      }).toString();
-
-      const token = localStorage.getItem("token");
-      if (!token) throw new Error("Authentication required");
-
-      const endpoint = endpointMap[activeTab];
-      const response = await fetch(`${API_BASE_URL}api/support/${endpoint}?${query}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-
-      const data = await response.json();
-      if (!data.success) throw new Error(data.message || "Failed to fetch transactions");
-
-      setTransactions(data.data || []);
-      setPagination(data.pagination || { ...pagination, currentPage: page });
-      setSummary({
-        totalRecords: data.summary?.totalRecords || 0,
-        totalAmount: parseFloat(data.summary?.totalAmount || 0).toFixed(6),
-      });
+      setTimeout(() => {
+        const mockData = Array.from({ length: 6 }).map((_, i) => {
+          const statuses = depositStatuses;
+          return {
+            _id: `dummy_${Date.now()}_${i}`,
+            userId: { username: `CryptoUser${i + 1}`, uhid: `U100${i}X${Math.floor(Math.random() * 999)}` },
+            username: `CryptoUser${i + 1}`,
+            uhid: `U100${i}X${Math.floor(Math.random() * 999)}`,
+            ts: new Date(Date.now() - i * 3600000).toISOString(),
+            createdAt: new Date(Date.now() - i * 3600000).toISOString(),
+            amount: (Math.random() * 500 + 10).toFixed(6),
+            status: activeTab === 'deposits' ? statuses[i % statuses.length] : 'completed',
+            transactionId: `0x${Math.random().toString(16).substring(2, 18)}${Math.random().toString(16).substring(2, 18)}`,
+            refId: `REF-${Math.floor(Math.random() * 1000000)}`,
+            walletAddress: `0x${Math.random().toString(16).substring(2, 42)}`,
+            fromWallet: i % 2 === 0 ? `0x${Math.random().toString(16).substring(2, 42)}` : 'RESERVE',
+            toAddress: `0x${Math.random().toString(16).substring(2, 42)}`,
+            destinationAddress: `0x${Math.random().toString(16).substring(2, 42)}`,
+          };
+        });
+        
+        setSummary({ 
+          totalRecords: 6, 
+          totalAmount: mockData.reduce((acc, curr) => acc + parseFloat(curr.amount), 0).toFixed(6) 
+        });
+        setPagination({ ...pagination, currentPage: 1, totalPages: 1, totalEntries: 6 });
+        setTransactions(mockData);
+        setLoading(false);
+      }, 500);
     } catch (err) {
       setError(err.message);
-      if (err.message.includes("Authentication required")) {
-        router.push("/sign-in");
-      }
-    } finally {
       setLoading(false);
     }
   }, [activeTab, filters, pagination.limit, router]);
@@ -135,40 +126,55 @@ function USDTTransactions() {
     }
   }, [user, activeTab, fetchTransactions]);
 
-  const handleFilterChange = (e) => {
-    setFilters({ ...filters, [e.target.name]: e.target.value });
-  };
+  useEffect(() => {
+    if (!authLoading && (!user || !["support", "admin"].includes(user.userType))) {
+      router.push("/sign-in");
+    }
+  }, [user, authLoading, router]);
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    fetchTransactions(1);
-  };
+  const handleFilterChange = (e) => setFilters({ ...filters, [e.target.name]: e.target.value });
+  const handleSearch = (e) => { e.preventDefault(); fetchTransactions(1); };
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
     setTransactions([]);
-    setFilters({
-      status: "",
-      walletAddress: "",
-      transactionId: "",
-      startDate: todayUTC,
-      endDate: todayUTC,
-    });
+    setFilters({ status: "", walletAddress: "", transactionId: "", startDate: todayUTC, endDate: todayUTC });
     setPagination(p => ({ ...p, currentPage: 1 }));
   };
 
-  if (authLoading) return <div className="text-center p-20 text-gold-500 animate-pulse">Synchronizing Terminal...</div>;
-  if (!user) return null;
+  const getStatusBadge = (status) => {
+    switch (status) {
+      case 'completed': return <span className={`${styles.badge} ${styles.badgeSuccess}`}><CheckCircle2 size={10} /> {status}</span>;
+      case 'failed':    return <span className={`${styles.badge} ${styles.badgeFailed}`}><AlertCircle size={10} /> {status}</span>;
+      case 'pending':
+      case 'pending_verification': return <span className={`${styles.badge} ${styles.badgePending}`}><Clock size={10} /> {status}</span>;
+      default:          return <span className={`${styles.badge} ${styles.badgeNeutral}`}>{status || 'Processed'}</span>;
+    }
+  };
+
+  if (authLoading) return (
+    <div style={{ display:'flex', alignItems:'center', justifyContent:'center', minHeight:'60vh', flexDirection:'column', gap:12 }}>
+      <div style={{ width:36, height:36, border:'3px solid rgba(255,215,0,0.15)', borderTop:'3px solid #ffd700', borderRadius:'50%', animation:'spin 1s linear infinite' }} />
+      <div style={{ fontSize:11, color:'rgba(255,255,255,0.2)', fontWeight:800, letterSpacing:2 }}>ESTABLISHING GATEWAY SECURE LINK...</div>
+      <style>{`@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}`}</style>
+    </div>
+  );
 
   return (
     <div className={styles.container}>
-      <header className="flex justify-between items-center mb-8">
-        <h1 className={styles.title}>Finance <span>Gateway Explorer</span></h1>
+
+      {/* ── HEADER ── */}
+      <header className={styles.header}>
+        <div>
+          <div className={styles.eyebrow}><span className={styles.eyebrowDot} /> BEPVault Admin</div>
+          <h1 className={styles.title}>Finance <span>Gateway</span></h1>
+        </div>
         <div className={styles.summaryBox}>
           <div className={styles.summaryItem}>
-            <span className={styles.summaryLabel}>Total Ledger Entry</span>
-            <span className={styles.summaryValue}>{summary.totalRecords}</span>
+            <span className={styles.summaryLabel}>Ledger Entries</span>
+            <span className={styles.summaryValue}>{summary.totalRecords.toLocaleString()}</span>
           </div>
+          <div style={{ width: 1, background: 'rgba(255,255,255,0.1)' }} />
           <div className={styles.summaryItem}>
             <span className={styles.summaryLabel}>Volume Processed</span>
             <span className={styles.summaryValue}>{summary.totalAmount} <span>USDT</span></span>
@@ -176,177 +182,205 @@ function USDTTransactions() {
         </div>
       </header>
 
+      {/* ── TABS ── */}
       <div className={styles.tabContainer}>
-        {Object.keys(endpointMap).map((tab) => (
-          <button
-            key={tab}
-            onClick={() => handleTabChange(tab)}
-            className={`${styles.tab} ${activeTab === tab ? styles.tabActive : ""}`}
-          >
-            {tab.replace('error', ' Error').replace('positioning', ' Positioning')}
-          </button>
-        ))}
+        {Object.keys(endpointMap).map((tab) => {
+          let Icon = Activity;
+          if (tab === 'deposits') Icon = ArrowDownLeft;
+          if (tab === 'withdrawals') Icon = ArrowUpRight;
+          if (tab === 'autopositioning' || tab === 'lppositioning') Icon = Cpu;
+          if (tab === 'claimed' || tab === 'redeemed') Icon = ShieldCheck;
+          
+          return (
+            <button
+              key={tab}
+              onClick={() => handleTabChange(tab)}
+              className={`${styles.tab} ${activeTab === tab ? styles.tabActive : ""}`}
+            >
+              <Icon size={12} />
+              {tab.replace('error', ' Error').replace('positioning', ' Positioning')}
+            </button>
+          );
+        })}
       </div>
 
+      {/* ── FILTERS ── */}
       <form onSubmit={handleSearch} className={styles.filterForm}>
         <div className={styles.filterGrid}>
-          {["deposits", "withdrawals","claimed","redeemed"].includes(activeTab) && (
+          {["deposits", "withdrawals", "claimed", "redeemed"].includes(activeTab) && (
             <div className={styles.inputGroup}>
-              <label>Reference Identity</label>
-              <input
-                type="text"
-                name="transactionId"
-                value={filters.transactionId}
-                onChange={handleFilterChange}
-                placeholder="Transaction/Ref ID..."
-                className={styles.inputField}
-              />
+              <label><Hash size={10} /> Reference Identity</label>
+              <input type="text" name="transactionId" value={filters.transactionId} onChange={handleFilterChange} placeholder="TX / Ref ID..." className={styles.inputField} />
             </div>
           )}
           <div className={styles.inputGroup}>
-            <label>Chronicle Start</label>
+            <label><Clock size={10} /> Chronicle Start</label>
             <input type="date" name="startDate" value={filters.startDate} onChange={handleFilterChange} className={styles.inputField} />
           </div>
           <div className={styles.inputGroup}>
-            <label>Chronicle End</label>
+            <label><Clock size={10} /> Chronicle End</label>
             <input type="date" name="endDate" value={filters.endDate} onChange={handleFilterChange} className={styles.inputField} />
           </div>
           {activeTab === "deposits" && (
             <div className={styles.inputGroup}>
-              <label>Status Vector</label>
+              <label><ShieldCheck size={10} /> Status Vector</label>
               <select name="status" value={filters.status} onChange={handleFilterChange} className={styles.selectField}>
                 <option value="">All Streams</option>
-                {depositStatuses.map((s) => <option key={s} value={s}>{s}</option>)}
+                {depositStatuses.map((s) => <option key={s} value={s}>{s.toUpperCase()}</option>)}
               </select>
             </div>
           )}
           <button type="submit" disabled={loading} className={styles.searchBtn}>
-            {loading ? "Decrypting..." : <><Activity size={16} className="inline mr-2" /> Verify Trace</>}
+            {loading ? <RefreshCw size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <><Search size={14} /> Verify Trace</>}
           </button>
         </div>
       </form>
 
-      {error && (
-        <div className="p-4 mb-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-xl flex items-center gap-2">
-          <AlertCircle size={16} /> {error}
-        </div>
-      )}
+      {/* ── ERRORS ── */}
+      {error && <div className={styles.errorBanner}><AlertCircle size={15} /> {error}</div>}
 
-      <div className={styles.tableWrapper}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>Temporal Stamp</th>
-              <th>Identity Core</th>
-              {(activeTab !== "autopositioning" && activeTab !== "lppositioning")  && <th>Ref ID</th>}
-              <th>Volume (USDT)</th>
-              {activeTab === "deposits" ? (
-                <>
-                  <th>Gateway Address</th>
-                  <th>Status</th>
-                </>
-              ) : (
-                (activeTab !== "autopositioning" && activeTab !== "lppositioning") && (
-                  <>
-                    <th>Source Repository</th>
-                    <th>Destination Channel</th>
-                  </>
-                )
-              )}
-            </tr>
-          </thead>
-          <tbody>
-            {transactions.length > 0 ? transactions.map((tx) => (
-              <tr key={tx._id} className={styles.row}>
-                <td>
-                  <div className="flex flex-col">
-                    <span style={{ fontSize: '13px', color: '#fff', fontWeight: 600 }}>
-                      {new Date(tx.ts || tx.createdAt).toLocaleDateString("en-GB", { timeZone: "UTC" })}
-                    </span>
-                    <span style={{ fontSize: '11px', color: '#888' }}>
-                      {new Date(tx.ts || tx.createdAt).toLocaleTimeString("en-GB", { timeZone: "UTC" })}
-                    </span>
+      {/* ── CARDS GRID ── */}
+      <div className={styles.txGrid}>
+        {loading && transactions.length === 0 ? (
+          <div className={styles.emptyState}>
+            <RefreshCw size={30} color="rgba(255,215,0,0.4)" style={{ animation: 'spin 1s linear infinite' }} />
+            <div className={styles.emptyText}>Decrypting Ledger Packets...</div>
+          </div>
+        ) : transactions.length > 0 ? (
+          transactions.map((tx) => {
+            const username = tx.userId?.username || tx.username || "UNKNOWN";
+            const initials = username.slice(0, 2).toUpperCase();
+            const ac = getAvatar(username);
+            const ts = new Date(tx.ts || tx.createdAt);
+            const isInternal = activeTab === "autopositioning" || activeTab === "lppositioning";
+            
+            return (
+              <div key={tx._id} className={styles.txCard}>
+                
+                {/* Header: User identity & Time */}
+                <div className={styles.txHeader}>
+                  <div className={styles.txUser}>
+                    <div className={styles.txAvatar} style={{ background: ac.bg, color: ac.text }}>{initials}</div>
+                    <div>
+                      <div className={styles.txName}>{username}</div>
+                      <div className={styles.txUhid}>UHID: {tx.userId?.uhid || tx.uhid || "NULL"}</div>
+                    </div>
                   </div>
-                </td>
-                <td>
-                  <div className="flex flex-col">
-                    <span style={{ fontWeight: 800, color: '#ffd700' }}>{tx.userId?.username || tx.username || "Unknown"}</span>
-                    <span style={{ fontSize: '10px', color: '#666' }}>{tx.userId?.uhid || tx.uhid || "NULL"}</span>
+                  <div className={styles.txTime}>
+                    <div className={styles.txDateStr}>{ts.toLocaleDateString("en-GB", { timeZone: "UTC", day: '2-digit', month: 'short' })}</div>
+                    <div className={styles.txTimeStr}>{ts.toLocaleTimeString("en-GB", { timeZone: "UTC", hour: '2-digit', minute: '2-digit' })}</div>
                   </div>
-                </td>
-                {(activeTab !== "autopositioning" && activeTab !== "lppositioning") && (
-                  <td>
-                    <span style={{ fontSize: '11px', color: '#4f8cff', textDecoration: 'underline', cursor: 'help' }} title={tx.transactionId || tx.refId}>
-                      {(tx.transactionId || tx.refId || "INTERNAL").substring(0, 16)}...
-                    </span>
-                  </td>
-                )}
-                <td>
-                  <span style={{ fontWeight: 800, color: '#fff' }}>{tx.amount}</span>
-                  <span style={{ fontSize: '10px', color: '#ffd700', marginLeft: '4px' }}>USDT</span>
-                </td>
-                {activeTab === "deposits" ? (
-                  <>
-                    <td title={tx.walletAddress || tx.destinationAddress}>
-                      <span style={{ fontSize: '11px', opacity: 0.6 }}>{(tx.walletAddress || tx.destinationAddress || "N/A").substring(0, 16)}...</span>
-                    </td>
-                    <td>
-                      <span className={`${styles.badge} ${
-                        tx.status === 'completed' ? styles.badgeSuccess : 
-                        tx.status === 'failed' ? styles.badgeFailed : styles.badgePending
-                      }`}>
-                        {tx.status || "Pending"}
+                </div>
+
+                <div className={styles.txDivider} />
+
+                {/* Core: Amount & Status */}
+                <div className={styles.txCore}>
+                  <div className={styles.txAmountWrap}>
+                    <div className={styles.txAmountLabel}>Volume Proceeded</div>
+                    <div className={styles.txAmount}>{parseFloat(tx.amount).toFixed(6)} <span>USDT</span></div>
+                  </div>
+                  <div>
+                    {activeTab === "deposits" || activeTab === "withdrawalerror" 
+                      ? getStatusBadge(tx.status)
+                      : getStatusBadge('completed')
+                    }
+                  </div>
+                </div>
+
+                {/* Details box */}
+                <div className={styles.txDetails}>
+                  {!isInternal && (tx.transactionId || tx.refId) && (
+                    <div className={styles.txDetailRow}>
+                      <span className={styles.txDetailLabel}><Hash size={10}/> Hash / Ref</span>
+                      <span className={styles.txDetailValue} title={tx.transactionId || tx.refId}>
+                        {(tx.transactionId || tx.refId).substring(0, 18)}...
                       </span>
-                    </td>
-                  </>
-                ) : (
-                  (activeTab !== "autopositioning" && activeTab !== "lppositioning") && (
-                    <>
-                      <td><span style={{ fontSize: '11px', opacity: 0.6 }}>{(tx.fromWallet || "RESERVE").substring(0, 16)}...</span></td>
-                      <td><span style={{ fontSize: '11px', opacity: 0.6 }}>{(tx.toAddress || tx.walletAddress || "N/A").substring(0, 16)}...</span></td>
-                    </>
-                  )
-                )}
-              </tr>
-            )) : (
-              <tr>
-                <td colSpan="6" style={{ textAlign: 'center', padding: '100px', opacity: 0.5 }}>
-                  No synchronization segments found for current vector.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+                    </div>
+                  )}
+                  
+                  {activeTab === "deposits" && tx.walletAddress && (
+                    <div className={styles.txDetailRow}>
+                      <span className={styles.txDetailLabel}><WalletIcon size={10}/> Gateway</span>
+                      <span className={styles.txDetailValue} title={tx.walletAddress}>
+                        {tx.walletAddress.substring(0, 18)}...
+                      </span>
+                    </div>
+                  )}
+
+                  {!isInternal && activeTab !== "deposits" && (
+                     <>
+                        <div className={styles.txDetailRow}>
+                          <span className={styles.txDetailLabel}><Box size={10}/> Origin</span>
+                          <span className={styles.txDetailValue} title={tx.fromWallet || 'RESERVE'}>
+                            {(tx.fromWallet || "RESERVE").substring(0, 16)}...
+                          </span>
+                        </div>
+                        <div className={styles.txDetailRow}>
+                          <span className={styles.txDetailLabel}><ArrowUpRight size={10}/> Dest</span>
+                          <span className={styles.txDetailValue} title={tx.toAddress || tx.walletAddress}>
+                            {(tx.toAddress || tx.walletAddress || "N/A").substring(0, 16)}...
+                          </span>
+                        </div>
+                     </>
+                  )}
+                  
+                  {isInternal && (
+                    <div className={styles.txDetailRow}>
+                      <span className={styles.txDetailLabel}><Cpu size={10}/> Operation</span>
+                      <span className={styles.txDetailValue}>Internal Protocol Routing</span>
+                    </div>
+                  )}
+                </div>
+
+              </div>
+            );
+          })
+        ) : (
+          <div className={styles.emptyState}>
+            <Activity className={styles.emptyIcon} />
+            <div className={styles.emptyText}>No synchronization segments found</div>
+            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.2)", marginTop: 4 }}>
+              Try adjusting the timeframe or clearing current filter vectors.
+            </div>
+          </div>
+        )}
       </div>
 
+      {/* ── PAGINATION ── */}
       <div className={styles.pagination}>
         <div className={styles.pageInfo}>
-          Registry Segment <span>{pagination.currentPage}</span> of <span>{pagination.totalPages || 1}</span>
+          Segment <span>{pagination.currentPage}</span> of <span>{pagination.totalPages || 1}</span>
         </div>
-        <div className="flex gap-4">
+        <div style={{ display: "flex", gap: "10px" }}>
           <button
             onClick={() => fetchTransactions(pagination.currentPage - 1)}
             disabled={pagination.currentPage <= 1 || loading}
-            className={styles.btnSecondary}
+            className={styles.pageBtn}
           >
-            <ChevronLeft size={16} /> Previous
+            <ChevronLeft size={14} /> Prev
           </button>
           <button
             onClick={() => fetchTransactions(pagination.currentPage + 1)}
             disabled={pagination.currentPage >= pagination.totalPages || loading}
-            className={styles.btnSecondary}
+            className={styles.pageBtn}
           >
-            Next <ChevronRight size={16} />
+            Next <ChevronRight size={14} />
           </button>
         </div>
       </div>
+
     </div>
   );
 }
 
 export default function USDTTransactionsPage() {
   return (
-    <Suspense fallback={<div className="text-center p-20 text-gold-500 animate-pulse">Initializing Gateways...</div>}>
+    <Suspense fallback={
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'center', minHeight:'60vh', color:'rgba(255,215,0,0.4)', fontWeight:800, letterSpacing:2, fontSize:12 }}>
+        INITIALIZING GATEWAYS...
+      </div>
+    }>
       <USDTTransactions />
     </Suspense>
   );

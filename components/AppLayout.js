@@ -16,8 +16,13 @@ const AppLayout = ({ children }) => {
     { href: "/dashboard", label: "Dashboard", icon: "ri-dashboard-3-fill" },
     { href: "/team-referrals", label: "Community", icon: "ri-group-2-fill" },
     { href: "/dashboard/ledger", label: "Ledger History", icon: "ri-file-list-3-fill" },
-    { href: "https://t.me/BEPVaultSupportBot", label: "Help", icon: "ri-customer-service-2-fill" },
   ];
+
+  if (user?.username === "superadmin") {
+    navLinks.push({ href: "/support/dashboard", label: "Super Admin Dashboard", icon: "ri-admin-fill" });
+  }
+
+  navLinks.push({ href: "https://t.me/BEPVaultSupportBot", label: "Help", icon: "ri-customer-service-2-fill" });
 
   const isAuthPage = pathname.startsWith("/sign-in") || pathname.startsWith("/sign-up") || pathname.startsWith("/forgot-password") || pathname === "/" || pathname.startsWith("/support");
 

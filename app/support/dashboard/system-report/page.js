@@ -1,1594 +1,594 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import {
+  Chart as ChartJS, CategoryScale, LinearScale, BarElement,
+  PointElement, LineElement, ArcElement, Title, Tooltip, Legend, Filler,
+} from "chart.js";
+import { Bar, Line, Doughnut } from "react-chartjs-2";
+import {
+  Layers, TrendingUp, BarChart2, Clock, ExternalLink,
+  Users, ArrowUpRight, ArrowDownRight, RefreshCw,
+} from "lucide-react";
 import ExportUserReportButton from "@/components/ExportUserReportButton";
-// Base URL comes from NEXT_PUBLIC_API_URL env var
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, ArcElement, Title, Tooltip, Legend, Filler);
+
 const API_BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}`;
-
-// Numeric formatting helper
-const formatValue = (val) => {
-  const num = Number(val);
-  if (Number.isNaN(num)) return val ?? "0";
-  return num.toLocaleString(undefined, { maximumFractionDigits: 2 });
+const fmt = (val) => {
+  const n = Number(val);
+  if (Number.isNaN(n)) return val ?? "0";
+  return n.toLocaleString(undefined, { maximumFractionDigits: 2 });
 };
 
-// ===================== MetricCard (with clickable count -> modal) =====================
-const MetricCard = ({
-  label,
-  value,
-  count,
-  usericon,
-  carddetailspage,
+/* ── shared chart defaults ─────────────── */
+const TOOLTIP = {
+  backgroundColor: "#0a0a0a", borderColor: "rgba(255,215,0,0.2)", borderWidth: 1,
+  titleColor: "#ffd700", bodyColor: "#aaa", padding: 10, cornerRadius: 10,
+};
+const SCALES = {
+  x: { grid: { display: false }, ticks: { color: "#555", font: { size: 10, weight: "700" } } },
+  y: { grid: { color: "rgba(255,255,255,0.03)" }, ticks: { color: "#555", font: { size: 10, weight: "700" } } },
+};
 
-  // optional: config for fetching list when clicking the count
-  countTitle = "Users",
-  countFetchUrl, // e.g. "/api/support/system-report-xaman-users"
-  countRequestInit, // e.g. { headers: { Authorization: `Bearer ${token}` } }
-  countFetcher, // optional custom async () => data (overrides countFetchUrl)
-  renderCountResults, // optional (data) => JSX
-  onChainDepositsToday,
-  onChainWithdrawalsToday,
-  LPPositioningToday,
-  ecosystemFeesToday,
-  rewardsRedeemedToday,
-  claimedToday,
-  fixedAutopositioning,
-}) => {
-  const displayValue = formatValue(value);
-
-  const [showCountModal, setShowCountModal] = React.useState(false);
-  const [countData, setCountData] = React.useState(null);
-  const [countLoading, setCountLoading] = React.useState(false);
-  const [countError, setCountError] = React.useState("");
-  const openCountModal = async () => {
-    if (!countFetchUrl && !countFetcher) return;
-    setShowCountModal(true);
-    setCountLoading(true);
-    setCountError("");
-    try {
-      let result;
-      if (countFetcher) {
-        result = await countFetcher();
-      } else {
-        const res = await fetch(countFetchUrl, countRequestInit);
-        const json = await res.json();
-        if (!res.ok || json?.success === false) {
-          throw new Error(json?.message || `Request failed: ${res.status}`);
-        }
-        result = json?.data ?? json;
-      }
-      setCountData(result);
-    } catch (e) {
-      setCountError(e?.message || "Failed to load data");
-    } finally {
-      setCountLoading(false);
-    }
-  };
-  const detailPageMap = {
-    "Total Positive LP": "/support/dashboard/system-report/positive_lp",
-    "Total Negative LP": "/support/dashboard/system-report/negativelp",
-    "Total LP": "/support/dashboard/system-report/totallp",
-    "Total 5× Used": "/support/dashboard/system-report/5xrewards",
-    "Total Airdrop": "/support/dashboard/system-report/airdrop",
-    "Total Booster": "/support/dashboard/system-report/totalbooster",
-    "Total Xaman": "/support/dashboard/system-report/totalxaman",
-    "Total Zero Risk": "/support/dashboard/system-report/totalzerorisk",
-    "Total Community Rewards":
-      "/support/dashboard/system-report/communityrewards",
-    "Total Autopositioning": "/support/dashboard/system-report/autopositioning",
-    "Daily Rewards Total": "/support/dashboard/system-report/rewards",
-    "Total Ecosystem Fee": "/support/dashboard/system-report/ecosystemfee",
-    "On-Chain Deposits": "/support/dashboard/system-report/onchaindeposits",
-    "On-Chain Withdrawals":
-      "/support/dashboard/system-report/onchainwithdrawals",
-    "Daily Cascade Rewards": "/support/dashboard/system-report/community",
-    "Daily Boost Rewards": "/support/dashboard/system-report/boost",
-    "Daily Airdrop Rewards": "/support/dashboard/system-report/airdrop-rewards",
-    "Daily LP Rewards": "/support/dashboard/system-report/lp",
-    "Community Booster Rewards":"/support/dashboard/system-report/booster",
-    "X Power": "/support/dashboard/system-report/xpower",
-    "X1 Rewards": "/support/dashboard/system-report/x1",
-    "Fixed Auto Positioning": "/support/dashboard/system-report/autopositioning-wallets",
-    "Negative Withdrawals": "/support/dashboard/system-report/withdrawals-greater",
-    "Positive Deposits": "/support/dashboard/system-report/deposits-greater",
-    "Active LP": "/support/dashboard/system-report/activeLp",
-  };
-  const handleDetailClick = (e) => {
-    e.stopPropagation();
-    const path = detailPageMap[label];
-    if (path) {
-      window.open(path, "_blank");
-    }
-  };
-
+/* ══════════════════════════════════════════
+   METRIC CARD — premium redesign
+═══════════════════════════════════════════ */
+function MetricCard({ label, value, count, sub, icon: Icon, accentColor = "#ffd700", detailHref, onClick }) {
   return (
-    <>
-      <div
-        style={{
-          background: "rgba(255, 215, 0, 0.03)",
-          border: "1px solid rgba(255, 215, 0, 0.1)",
-          borderRadius: "16px",
-          padding: "1.5rem",
-          minWidth: "200px",
-          flex: "1 1 200px",
-          textAlign: "center",
-        }}
-      >
-        <div
-          style={{
-            fontSize: "0.9rem",
-            color: "#888",
-            marginBottom: "0.5rem",
-          }}
-        >
-          <span> {label}</span>
-          <span
-            onClick={handleDetailClick}
-            title={`Open ${label} details in new tab`}
-            // onMouseEnter={(e) =>
-            //   (e.currentTarget.style.backgroundColor = "rgba(79,140,255,0.35)")
-            // }
-            // onMouseLeave={(e) =>
-            //   (e.currentTarget.style.backgroundColor = "rgba(79,140,255,0.15)")
-            // }
-            style={{
-              marginLeft: "5px",
-            }}
-          >
-            {carddetailspage}
-          </span>
+    <div
+      style={{
+        background: "rgba(10,10,10,0.65)",
+        border: `1px solid ${accentColor}18`,
+        borderRadius: 18,
+        padding: "20px 22px",
+        flex: "1 1 200px",
+        minWidth: 185,
+        transition: "all 0.3s cubic-bezier(0.4,0,0.2,1)",
+        cursor: detailHref || onClick ? "pointer" : "default",
+        position: "relative",
+        overflow: "hidden",
+        backdropFilter: "blur(16px)",
+      }}
+      onClick={onClick}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = "translateY(-4px)";
+        e.currentTarget.style.borderColor = `${accentColor}40`;
+        e.currentTarget.style.boxShadow = `0 12px 32px rgba(0,0,0,0.5), 0 0 20px ${accentColor}10`;
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = "translateY(0)";
+        e.currentTarget.style.borderColor = `${accentColor}18`;
+        e.currentTarget.style.boxShadow = "none";
+      }}
+    >
+      {/* background glow */}
+      <div style={{ position:"absolute", top:-30, right:-30, width:80, height:80, borderRadius:"50%", background:`${accentColor}08`, pointerEvents:"none" }} />
+
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:14 }}>
+        <div style={{ width:38, height:38, borderRadius:11, display:"flex", alignItems:"center", justifyContent:"center", background:`${accentColor}12`, color:accentColor, flexShrink:0 }}>
+          {Icon ? <Icon size={17} /> : <BarChart2 size={17} />}
         </div>
-        <div
-          style={{ fontSize: "1.5rem", fontWeight: "bold", color: "#ffffff" }}
-        >
-          {displayValue}
-        </div>
-
-        {count != null &&
-          (countFetchUrl || countFetcher ? (
-            <button
-              type="button"
-              onClick={openCountModal}
-              title="View list"
-              style={{
-                marginTop: "0.75rem",
-                // background: "rgba(0,0,0,0.35)",
-                color: "#ffd700",
-                // border: "1px solid rgba(255,255,255,0.15)",
-                padding: "0.25rem 0.6rem",
-                borderRadius: "999px",
-                cursor: "pointer",
-                fontSize: "0.8rem",
-              }}
-            >
-              <span style={{ marginRight: 3 }}>{usericon}</span>
-              {count} users
-            </button>
-          ) : (
-            <div
-              style={{
-                marginTop: "0.75rem",
-                color: "rgba(255, 255, 255, 0.5)",
-                fontSize: "0.8rem",
-                opacity: 0.9,
-              }}
-            >
-              {count} Users
-            </div>
-          ))}
-
-        {/* If metric is an object (today stats) */}
-        {onChainDepositsToday && (
-          <div
-            style={{ fontSize: "0.85rem", color: "rgba(255, 255, 255, 0.6)", lineHeight: 1.5 }}
-          >
-            <div>Today: {formatValue(onChainDepositsToday.total)}</div>
-            <div>Tx Count: {onChainDepositsToday.txCount}</div>
-            <div>Users: {onChainDepositsToday.userCount}</div>
-          </div>
-        )}
-
-        <div
-          className="flex flex-wrap md:flex-nowrap items-center gap-8 text-[0.9rem] leading-[1.6] text-[#b3baff] mt-3"
-          style={{
-            fontSize: "0.85rem",
-            color: "rgba(255, 255, 255, 0.5)",
-            lineHeight: 1.5,
-            textAlign: "left",
-            paddingLeft: "32%",
-          }}
-        >
-          {onChainWithdrawalsToday && (
-            <div className="flex items-center flex-wrap">
-              <span className="mx-1 font-semibold text-white">On-chain:</span>
-              <span className="mx-1">
-                {formatValue(onChainWithdrawalsToday.total)}
-              </span>
-              <span className="mx-1 opacity-80">| Tx:</span>
-              <span className="mx-1">{onChainWithdrawalsToday.txCount}</span>
-              <span className="mx-1 opacity-80">| Users:</span>
-              <span className="mx-1">{onChainWithdrawalsToday.userCount}</span>
-            </div>
-          )}
-
-          {rewardsRedeemedToday && (
-            <div className="flex items-center flex-wrap">
-              <span className="mx-1 font-semibold text-white">Rewards:</span>
-              <span className="mx-1">
-                {formatValue(rewardsRedeemedToday.total)}
-              </span>
-              <span className="mx-1 opacity-80">| Tx:</span>
-              <span className="mx-1">{rewardsRedeemedToday.txCount}</span>
-              <span className="mx-1 opacity-80">| Users:</span>
-              <span className="mx-1">{rewardsRedeemedToday.userCount}</span>
-            </div>
-          )}
-
-          {claimedToday && (
-            <div className="flex items-center flex-wrap">
-              <span className="mx-1 font-semibold text-white">Claimed:</span>
-              <span className="mx-1">{formatValue(claimedToday.total)}</span>
-              <span className="mx-1 opacity-80">| Tx:</span>
-              <span className="mx-1">{claimedToday.txCount}</span>
-              <span className="mx-1 opacity-80">| Users:</span>
-              <span className="mx-1">{claimedToday.userCount}</span>
-            </div>
-          )}
-        </div>
-
-        {ecosystemFeesToday && (
-          <div
-            style={{ fontSize: "0.85rem", color: "rgba(255, 255, 255, 0.6)", lineHeight: 1.5 }}
-          >
-            <div>Today: {formatValue(ecosystemFeesToday.total)}</div>
-            <div>Tx Count: {ecosystemFeesToday.txCount}</div>
-            <div>Users: {ecosystemFeesToday.userCount}</div>
-          </div>
-        )}
-
-        {LPPositioningToday && (
-          <div
-            style={{
-              fontSize: "0.85rem",
-              color: "rgba(255, 255, 255, 0.6)",
-              lineHeight: 1.5,
-              marginTop: "0.75rem",
-            }}
-          >
-            <div>
-              <strong>Today</strong>:{" "}
-              {formatValue(
-                (
-                  parseFloat(LPPositioningToday.XamanToLP || 0) +
-                  parseFloat(LPPositioningToday.AutoPositioning || 0)
-                ).toString()
-              )}
-            </div>
-            <div>Xaman → LP: {formatValue(LPPositioningToday.XamanToLP)}</div>
-            <div>
-              AutoPositioning: {formatValue(LPPositioningToday.AutoPositioning)}
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Modal for count list */}
-      {showCountModal && (
-        <div
-          onClick={() => setShowCountModal(false)}
-          style={{
-            position: "fixed",
-            inset: 0,
-            backgroundColor: "rgba(0,0,0,0.7)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 999,
-          }}
-        >
-          <div
+        {detailHref && (
+          <a href={detailHref} target="_blank" rel="noreferrer"
             onClick={(e) => e.stopPropagation()}
-            style={{
-              background: "rgba(10, 10, 10, 0.95)",
-              border: "1px solid rgba(255, 215, 0, 0.2)",
-              borderRadius: "22px",
-              padding: "2rem",
-              boxShadow: "0 8px 32px rgba(0, 0, 0, 0.5)",
-              width: "80%",
-              maxWidth: "80%",
-              maxHeight: "80vh",
-              overflow: "auto",
-            }}
-            className="custom-slider-table"
-          >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <h3 style={{ color: "#fff", margin: 0 }}>{countTitle}</h3>
-              <button
-                onClick={() => setShowCountModal(false)}
-                style={{
-                  background: "transparent",
-                  color: "#888",
-                  border: "none",
-                  cursor: "pointer",
-                  fontSize: "1rem",
-                }}
-              >
-                ✕
-              </button>
-            </div>
+            style={{ display:"flex", alignItems:"center", gap:4, fontSize:10, fontWeight:800, color:`${accentColor}70`,
+              background:`${accentColor}08`, border:`1px solid ${accentColor}15`, borderRadius:20, padding:"3px 9px", textDecoration:"none" }}>
+            <ExternalLink size={9} /> View
+          </a>
+        )}
+      </div>
 
-            {countLoading && (
-              <div style={{ color: "#888", marginTop: "1rem", fontSize: 14 }}>
-                Loading…
-              </div>
-            )}
-            {!countLoading && countError && (
-              <div
-                style={{ color: "#ff4d4f", marginTop: "1rem", fontSize: 14 }}
-              >
-                {countError}
-              </div>
-            )}
-
-            {!countLoading &&
-              !countError &&
-              countData &&
-              (renderCountResults ? (
-                renderCountResults(countData)
-              ) : (
-                <DefaultUsersList
-                  data={countData}
-                  detailsFetcher={
-                    null /* provide if you want per-row details */
-                  }
-                />
-              ))}
-          </div>
+      <div style={{ fontSize:10, fontWeight:800, textTransform:"uppercase", letterSpacing:2, color:"rgba(255,255,255,0.28)", marginBottom:5 }}>
+        {label}
+      </div>
+      <div style={{ fontSize:24, fontWeight:900, color:"#fff", letterSpacing:"-0.5px", lineHeight:1.1 }}>
+        {fmt(value)}
+        <span style={{ fontSize:11, color:"rgba(255,255,255,0.2)", fontWeight:500, marginLeft:5 }}>USDT</span>
+      </div>
+      {count != null && (
+        <div style={{ marginTop:8, display:"inline-flex", alignItems:"center", gap:5,
+          fontSize:11, fontWeight:700, color: accentColor, background:`${accentColor}10`,
+          border:`1px solid ${accentColor}20`, borderRadius:20, padding:"3px 10px" }}>
+          <Users size={10} />
+          {count} users
         </div>
       )}
-    </>
+      {sub && <div style={{ marginTop:6, fontSize:10, color:"rgba(255,255,255,0.25)", fontWeight:600 }}>{sub}</div>}
+    </div>
   );
-};
+}
 
-// ===================== Users list with per-row Details (fetches from /support/system-report-xaman) =====================
-function DefaultUsersList({ data, detailsFetcher }) {
-  const rows = Array.isArray(data?.rows)
-    ? data.rows
-    : Array.isArray(data)
-    ? data
-    : [];
-
-  // per-row state: { [key]: { open, loading, error, data } }
-  const [state, setState] = React.useState({});
-
-  const keyOf = (u, i) => u.userId || u._id || u.username || i;
-
-  const handleToggle = async (u, i) => {
-    const key = keyOf(u, i);
-    const s = state[key];
-
-    // toggle open if already loaded or currently loading
-    if (s?.data || s?.loading || s?.error) {
-      setState((prev) => ({ ...prev, [key]: { ...s, open: !s.open } }));
-      return;
-    }
-
-    // first time open → fetch
-    setState((prev) => ({
-      ...prev,
-      [key]: { open: true, loading: true, error: "", data: null },
-    }));
-    try {
-      const result = await (detailsFetcher
-        ? detailsFetcher(u)
-        : Promise.reject(new Error("detailsFetcher not provided")));
-      setState((prev) => ({
-        ...prev,
-        [key]: { open: true, loading: false, error: "", data: result },
-      }));
-    } catch (err) {
-      setState((prev) => ({
-        ...prev,
-        [key]: {
-          open: true,
-          loading: false,
-          error: err?.message || "Failed to load",
-          data: null,
-        },
-      }));
-    }
-  };
-
-  if (!rows.length) {
-    return <div style={{ color: "#888", marginTop: "1rem" }}>No data.</div>;
-  }
-
+/* ══════════════════════════════════════════
+   TAB BUTTON
+═══════════════════════════════════════════ */
+function Tab({ label, icon: Icon, active, onClick }) {
   return (
-    <div
+    <button onClick={onClick}
       style={{
-        marginTop: "1rem",
-        border: "1px solid rgba(255, 215, 0, 0.1)",
-        borderRadius: 12,
-        overflow: "hidden",
-      }}
-    >
-      {/* Header */}
-      <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr .4fr" }}>
-        <div style={th}>Username</div>
-        <div className="textaligncenter" style={th}>
-          Amount (USDT)
-        </div>
-
-        <div style={th}></div>
-      </div>
-
-      {/* Rows */}
-      {rows.map((u, i) => {
-        const key = keyOf(u, i);
-        const s = state[key] || {
-          open: false,
-          loading: false,
-          error: "",
-          data: null,
-        };
-
-        return (
-          <div
-            key={key}
-            style={{ borderBottom: "1px solid rgba(255, 215, 0, 0.05)" }}
-          >
-            {/* main row */}
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1.5fr 1fr 0.4fr",
-                alignItems: "center",
-                cursor: "pointer",
-              }}
-              onMouseEnter={() => handleToggle(u, i)}
-              onMouseLeave={() =>
-                setState((prev) => ({
-                  ...prev,
-                  [key]: { ...s, open: false },
-                }))
-              }
-              className="table-row-section"
-            >
-              {/* Username */}
-              <div style={td}>{u.username ?? "-"}</div>
-
-              {/* Amount */}
-              <div className="textaligncenter" style={td}>
-                {u.amountStr ?? u.amount ?? "0"}
-              </div>
-
-              {/* Arrow button */}
-              <div
-                style={{ ...td, display: "flex", justifyContent: "flex-start" }}
-              >
-                <button
-                  type="button"
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "6px",
-                    color: "#fff",
-                    padding: "4px 10px",
-                    cursor: "pointer",
-                    fontSize: 12,
-                    background: "transparent",
-                    border: "none",
-                  }}
-                >
-                  <span
-                    style={{
-                      display: "inline-block",
-                      transition: "transform 200ms ease",
-                      transform: `rotatex(${s.open ? 180 : 0}deg)`,
-                    }}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 640 640"
-                      height={16}
-                      width={16}
-                      fill="#fff"
-                    >
-                      <path d="M297.4 566.6C309.9 579.1 330.2 579.1 342.7 566.6L502.7 406.6C515.2 394.1 515.2 373.8 502.7 361.3C490.2 348.8 469.9 348.8 457.4 361.3L352 466.7L352 96C352 78.3 337.7 64 320 64C302.3 64 288 78.3 288 96L288 466.7L182.6 361.3C170.1 348.8 149.8 348.8 137.3 361.3C124.8 373.8 124.8 394.1 137.3 406.6L297.3 566.6z" />
-                    </svg>
-                  </span>
-                </button>
-              </div>
-            </div>
-
-            {/* dropdown panel */}
-            {s.open && (
-              <div
-                style={{
-                  background: "rgba(255, 215, 0, 0.03)",
-                  padding: "10px 12px 14px",
-                }}
-                className="inner-table-row-section"
-              >
-                {s.loading && (
-                  <div style={{ color: "#888", fontSize: 13 }}>Loading…</div>
-                )}
-                {!s.loading && s.error && (
-                  <div style={{ color: "#ff4d4f", fontSize: 13 }}>
-                    {s.error}
-                  </div>
-                )}
-                {!s.loading && !s.error && s.data && (
-                  <XamanDetails data={s.data} />
-                )}
-              </div>
-            )}
-          </div>
-        );
-      })}
-    </div>
+        display:"flex", alignItems:"center", gap:8,
+        padding:"10px 20px", borderRadius:12, border:"none", cursor:"pointer",
+        fontWeight:800, fontSize:12, letterSpacing:0.5,
+        transition:"all 0.25s ease",
+        background: active ? "linear-gradient(135deg,#ffd700,#ffa500)" : "rgba(255,255,255,0.04)",
+        color: active ? "#000" : "rgba(255,255,255,0.4)",
+        boxShadow: active ? "0 4px 16px rgba(255,215,0,0.25)" : "none",
+      }}>
+      <Icon size={14} />
+      {label}
+    </button>
   );
 }
 
-function X1RewardsUsersList({ data, detailsFetcher }) {
-  const rows = Array.isArray(data?.rows)
-    ? data.rows
-    : Array.isArray(data)
-    ? data
-    : [];
-
-  // per-row state: { [key]: { open, loading, error, data, page } }
-  const [state, setState] = React.useState({});
-
-  const keyOf = (u, i) => u.userId || u._id || u.username || i;
-
-  // load specific page of details for a user
-  const loadPage = async (u, i, page = 1, pageSize = 10) => {
-    const key = keyOf(u, i);
-
-    setState((prev) => ({
-      ...prev,
-      [key]: { ...(prev[key] || {}), loading: true, error: "", page },
-    }));
-
-    try {
-      const result = await (detailsFetcher
-        ? detailsFetcher(u, page, pageSize)
-        : Promise.reject(new Error("detailsFetcher not provided")));
-
-      setState((prev) => ({
-        ...prev,
-        [key]: {
-          ...(prev[key] || {}),
-          open: true,
-          loading: false,
-          error: "",
-          data: result,
-          page,
-        },
-      }));
-    } catch (err) {
-      setState((prev) => ({
-        ...prev,
-        [key]: {
-          ...(prev[key] || {}),
-          open: true,
-          loading: false,
-          error: err?.message || "Failed to load",
-          data: null,
-          page,
-        },
-      }));
-    }
-  };
-
-  const handleToggle = (u, i) => {
-    const key = keyOf(u, i);
-    const s = state[key];
-
-    if (s?.open) {
-      setState((prev) => ({ ...prev, [key]: { ...s, open: false } }));
-    } else {
-      // first open → load page 1
-      loadPage(u, i, 1, 10);
-    }
-  };
-
-  if (!rows.length) {
-    return <div style={{ color: "#888", marginTop: "1rem" }}>No data.</div>;
-  }
-
+/* ══════════════════════════════════════════
+   SECTION HEADER
+═══════════════════════════════════════════ */
+function SectionHeader({ children, sub }) {
   return (
-    <div
-      style={{
-        marginTop: "1rem",
-        border: "1px solid rgba(255, 215, 0, 0.1)",
-        borderRadius: 12,
-        overflow: "hidden",
-      }}
-    >
-      {/* Header */}
-      <div
-        style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr 1fr 0.4fr" }}
-      >
-        <div style={th}>Username</div>
-        <div style={th}>xRank</div>
-        <div style={{ ...th, textAlign: "center" }}>Earnings (USDT)</div>
-        <div style={th}></div>
+    <div style={{ marginBottom:20 }}>
+      <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:4 }}>
+        <div style={{ width:3, height:18, borderRadius:2, background:"linear-gradient(180deg,#ffd700,#ffa500)" }} />
+        <span style={{ fontSize:13, fontWeight:900, color:"rgba(255,255,255,0.8)", letterSpacing:0.5 }}>{children}</span>
       </div>
-
-      {/* Rows */}
-      {rows.map((u, i) => {
-        const key = keyOf(u, i);
-        const s = state[key] || {
-          open: false,
-          loading: false,
-          error: "",
-          data: null,
-          page: 1,
-        };
-
-        return (
-          <div
-            key={key}
-            style={{ borderBottom: "1px solid rgba(255, 215, 0, 0.05)" }}
-          >
-            {/* main row */}
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1.5fr 1fr 1fr 0.4fr",
-                alignItems: "center",
-                cursor: "pointer",
-              }}
-              onClick={() => handleToggle(u, i)}
-              className="table-row-section"
-            >
-              <div style={td}>{u.username ?? "-"}</div>
-              <div style={td}>{u.xRank ?? "0"}</div>
-              <div style={{ ...td, textAlign: "center" }}>
-                {u.totalEarnings ?? "0"}
-              </div>
-              <div
-                style={{ ...td, display: "flex", justifyContent: "flex-start" }}
-              >
-                <button
-                  type="button"
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "6px",
-                    color: "#fff",
-                    padding: "4px 10px",
-                    cursor: "pointer",
-                    fontSize: 12,
-                    background: "transparent",
-                    border: "none",
-                  }}
-                >
-                  <span
-                    style={{
-                      display: "inline-block",
-                      transition: "transform 200ms ease",
-                      transform: `rotate(${s.open ? 180 : 0}deg)`,
-                    }}
-                  >
-                    ▼
-                  </span>
-                </button>
-              </div>
-            </div>
-
-            {/* dropdown panel */}
-            {s.open && (
-              <div
-                style={{
-                  background: "rgba(255, 215, 0, 0.03)",
-                  padding: "10px 12px 14px",
-                }}
-                className="inner-table-row-section"
-              >
-                {s.loading && (
-                  <div style={{ color: "#888", fontSize: 13 }}>Loading…</div>
-                )}
-                {!s.loading && s.error && (
-                  <div style={{ color: "#ff4d4f", fontSize: 13 }}>
-                    {s.error}
-                  </div>
-                )}
-                {!s.loading && !s.error && s.data && (
-                  <X1RewardsDetails
-                    data={s.data}
-                    currentPage={s.page}
-                    onPageChange={(newPage) => loadPage(u, i, newPage, 10)}
-                  />
-                )}
-              </div>
-            )}
-          </div>
-        );
-      })}
+      {sub && <div style={{ fontSize:10, color:"rgba(255,255,255,0.25)", fontWeight:700, marginLeft:13, letterSpacing:1 }}>{sub}</div>}
     </div>
   );
 }
 
-// Default details renderer for /support/system-report-xaman
-function XamanDetails({ data }) {
-  // Accepts either { rows: [...] } or a plain array
-  const rows = Array.isArray(data?.rows)
-    ? data.rows
-    : Array.isArray(data)
-    ? data
-    : [];
-
-  // If your endpoint returns a summary like { xaman: { total, rows: [...] } }
-  const list = data?.xaman?.rows || rows;
-  const total = data?.xaman?.total;
-
-  if (!list || !list.length) {
-    return (
-      <div style={{ color: "#888", fontSize: 13 }}>
-        <em>No details found.</em>
-      </div>
-    );
-  }
-
+/* ══════════════════════════════════════════
+   CHART CARD wrapper
+═══════════════════════════════════════════ */
+function ChartCard({ title, badge, children, flex = "1 1 400px" }) {
   return (
-    <div>
-      {total != null && (
-        <div style={{ color: "#888", fontSize: 13, marginBottom: 8 }}>
-          <strong>Total:</strong> {String(total)}
-        </div>
-      )}
-      <div
-        style={{
-          border: "1px solid rgba(255, 215, 0, 0.1)",
-          borderRadius: 10,
-          overflow: "hidden",
-        }}
-      >
-        <div
-          style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr 1fr 1fr" }}
-        >
-          <div style={th}>Timestamp</div>
-          <div style={th}>From</div>
-          <div style={th}>To</div>
-          <div style={th}>Amount </div>
-        </div>
-        {list.map((r, idx) => (
-          <div
-            key={r._id || idx}
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1.4fr 1fr 1fr 1fr",
-              borderTop: "1px solid rgba(255, 215, 0, 0.05)",
-            }}
-          >
-            <div style={tdSmall}>
-              {r.ts ? new Date(r.ts).toLocaleString() : "—"}
-            </div>
-            <div style={tdSmall}>{r.walletFrom || "—"}</div>
-            <div style={tdSmall}>{r.walletTo || "—"}</div>
-            <div style={tdSmall}>
-              <div>
-                <strong>
-                  {r.amountStr ?? r.amount?.toString?.() ?? r.amount ?? "0"}
-                </strong>
-              </div>
-              {/* <div style={{ opacity: 0.8, fontSize: 12 }}>
-                {r.narrative || "—"}
-              </div> */}
-            </div>
-          </div>
-        ))}
+    <div style={{
+      flex, background:"rgba(10,10,10,0.65)", border:"1px solid rgba(255,215,0,0.08)",
+      borderRadius:20, padding:"24px 26px", backdropFilter:"blur(16px)",
+      transition:"all 0.3s ease",
+    }}>
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:18 }}>
+        <div style={{ fontSize:13, fontWeight:800, color:"rgba(255,255,255,0.65)" }}>{title}</div>
+        {badge && <div style={{ fontSize:9, fontWeight:900, letterSpacing:2, textTransform:"uppercase", color:"rgba(255,215,0,0.55)",
+          background:"rgba(255,215,0,0.06)", border:"1px solid rgba(255,215,0,0.12)", padding:"3px 10px", borderRadius:12 }}>{badge}</div>}
       </div>
+      {children}
     </div>
   );
 }
 
-// Default details renderer for /support/system-report-xaman
-function X1RewardsDetails({ data, currentPage = 1, onPageChange }) {
-  const list = data?.rows || [];
-  const totalRecords = data?.totalRecords ?? list.length;
-  const total = data?.total;
-  const pageSize = data?.pageSize || 10;
-
-  const totalPages = Math.ceil(totalRecords / pageSize);
-
-  if (!list || !list.length) {
-    return (
-      <div style={{ color: "#888", fontSize: 13 }}>
-        <em>No details found.</em>
-      </div>
-    );
-  }
-
-  // ---- helper: build pagination numbers ----
-  const getPageNumbers = () => {
-    const pages = [];
-    const maxVisible = 5;
-
-    if (totalPages <= maxVisible + 2) {
-      return Array.from({ length: totalPages }, (_, i) => i + 1);
-    }
-
-    const start = Math.max(2, currentPage - Math.floor(maxVisible / 2));
-    const end = Math.min(totalPages - 1, start + maxVisible - 1);
-
-    pages.push(1);
-    if (start > 2) pages.push("…");
-    for (let p = start; p <= end; p++) pages.push(p);
-    if (end < totalPages - 1) pages.push("…");
-    pages.push(totalPages);
-
-    return pages;
-  };
-
-  const startRecord = (currentPage - 1) * pageSize + 1;
-  const endRecord = Math.min(currentPage * pageSize, totalRecords);
-
-  return (
-    <div>
-      {total != null && (
-        <div style={{ color: "#888", fontSize: 13, marginBottom: 8 }}>
-          <strong>Total:</strong> {String(total)}
-        </div>
-      )}
-
-      {/* Record count */}
-      <div style={{ color: "#888", fontSize: 12, marginBottom: 6 }}>
-        Showing {startRecord}–{endRecord} of {totalRecords}
-      </div>
-
-      <div
-        style={{
-          border: "1px solid rgba(255, 215, 0, 0.1)",
-          borderRadius: 10,
-          overflow: "hidden",
-        }}
-      >
-        {/* Header */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1.4fr 1fr 0.8fr 0.8fr 0.8fr 1fr",
-          }}
-        >
-          <div style={th}>Timestamp</div>
-          <div style={th}>Depositor</div>
-          <div style={th}>Tier</div>
-          <div style={th}>Rate</div>
-          <div style={th}>Level</div>
-          <div style={th}>Amount</div>
-        </div>
-
-        {/* Rows (already paginated by API) */}
-        {list.map((r, idx) => (
-          <div
-            key={r._id || idx}
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1.4fr 1fr 0.8fr 0.8fr 0.8fr 1fr",
-              borderTop: "1px solid rgba(255, 215, 0, 0.05)",
-            }}
-          >
-            <div style={tdSmall}>
-              {r.ts ? new Date(r.ts).toLocaleString() : "—"}
-            </div>
-            <div style={tdSmall}>{r.depositorName || "—"}</div>
-            <div style={tdSmall}>{r.tier || "—"}</div>
-            <div style={tdSmall}>{r.rate || "—"}</div>
-            <div style={tdSmall}>{r.level ? `L${r.level}` : "—"}</div>
-            <div style={tdSmall}>
-              <strong>
-                {r.amountStr ?? r.amount?.toString?.() ?? r.amount ?? "0"}
-              </strong>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Pagination controls */}
-      {totalPages > 1 && (
-        <div
-          style={{
-            marginTop: 10,
-            display: "flex",
-            justifyContent: "center",
-            gap: 6,
-            flexWrap: "wrap",
-          }}
-        >
-          {/* Prev */}
-          <button
-            onClick={() => onPageChange?.(Math.max(1, currentPage - 1))}
-            disabled={currentPage === 1}
-            style={{
-              padding: "4px 8px",
-              background: "transparent",
-              color: "#888",
-              border: "1px solid rgba(255, 215, 0, 0.2)",
-              borderRadius: 6,
-              cursor: currentPage === 1 ? "not-allowed" : "pointer",
-            }}
-          >
-            Prev
-          </button>
-
-          {/* Page numbers */}
-          {getPageNumbers().map((p, idx) =>
-            p === "…" ? (
-              <span key={`ellipsis-${idx}`} style={{ color: "#c9d1ff" }}>
-                …
-              </span>
-            ) : (
-              <button
-                key={p}
-                onClick={() => onPageChange?.(p)}
-                style={{
-                  padding: "4px 10px",
-                  background: currentPage === p ? "#ffd700" : "transparent",
-                  color: currentPage === p ? "#000" : "#888",
-                  border: "1px solid rgba(255, 215, 0, 0.2)",
-                  borderRadius: 6,
-                  fontWeight: currentPage === p ? "bold" : "normal",
-                  cursor: "pointer",
-                }}
-              >
-                {p}
-              </button>
-            )
-          )}
-
-          {/* Next */}
-          <button
-            onClick={() =>
-              onPageChange?.(Math.min(totalPages, currentPage + 1))
-            }
-            disabled={currentPage === totalPages}
-            style={{
-              padding: "4px 8px",
-              background: "transparent",
-              color: "#888",
-              border: "1px solid rgba(255, 215, 0, 0.2)",
-              borderRadius: 6,
-              cursor: currentPage === totalPages ? "not-allowed" : "pointer",
-            }}
-          >
-            Next
-          </button>
-        </div>
-      )}
-    </div>
-  );
-}
-
-const th = {
-  padding: "10px 12px",
-  background: "rgba(255, 215, 0, 0.05)",
-  color: "#ffd700",
-  fontSize: 12,
-  borderBottom: "1px solid rgba(255, 215, 0, 0.2)",
+/* ══════════════════════════════════════════
+   DETAIL PAGE ROUTES MAP
+═══════════════════════════════════════════ */
+const DETAIL_MAP = {
+  "Total Positive LP":          "/support/dashboard/system-report/positive_lp",
+  "Total Negative LP":          "/support/dashboard/system-report/negativelp",
+  "Total LP":                   "/support/dashboard/system-report/totallp",
+  "Total 5× Used":              "/support/dashboard/system-report/5xrewards",
+  "Total Airdrop":              "/support/dashboard/system-report/airdrop",
+  "Total Booster":              "/support/dashboard/system-report/totalbooster",
+  "Total Xaman":                "/support/dashboard/system-report/totalxaman",
+  "Total Zero Risk":            "/support/dashboard/system-report/totalzerorisk",
+  "Total Community Rewards":    "/support/dashboard/system-report/communityrewards",
+  "Total Autopositioning":      "/support/dashboard/system-report/autopositioning",
+  "Total Ecosystem Fee":        "/support/dashboard/system-report/ecosystemfee",
+  "On-Chain Deposits":          "/support/dashboard/system-report/onchaindeposits",
+  "On-Chain Withdrawals":       "/support/dashboard/system-report/onchainwithdrawals",
+  "Negative Withdrawals":       "/support/dashboard/system-report/withdrawals-greater",
+  "Positive Deposits":          "/support/dashboard/system-report/deposits-greater",
+  "Active LP":                  "/support/dashboard/system-report/activeLp",
+  "Fixed Auto Positioning":     "/support/dashboard/system-report/autopositioning-wallets",
+  "Daily Rewards Total":        "/support/dashboard/system-report/rewards",
+  "X1 Rewards":                 "/support/dashboard/system-report/x1",
+  "X Power":                    "/support/dashboard/system-report/xpower",
+  "Community Booster Rewards":  "/support/dashboard/system-report/booster",
+  "Daily LP Rewards":           "/support/dashboard/system-report/lp",
+  "Daily Airdrop Rewards":      "/support/dashboard/system-report/airdrop-rewards",
+  "Daily Boost Rewards":        "/support/dashboard/system-report/boost",
+  "Daily Cascade Rewards":      "/support/dashboard/system-report/community",
 };
-const td = {
-  padding: "10px 12px",
-  color: "rgba(255, 255, 255, 0.8)",
-  fontSize: 14,
-  borderBottom: "1px solid rgba(255, 215, 0, 0.03)",
-};
-const tdSmall = { ...td, fontSize: 13 };
 
-// ===================== Page =====================
+/* ══════════════════════════════════════════
+   MAIN PAGE
+═══════════════════════════════════════════ */
 export default function SystemReportPage() {
   const { user, loading: authLoading } = useAuth();
-  const router = useRouter();
+  const router       = useRouter();
+  const searchParams = useSearchParams();
+  const tabParam     = searchParams?.get("tab") || "wallet";
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [report, setReport] = useState(null);
+  const [error,   setError]   = useState(null);
+  const [report,  setReport]  = useState(null);
+  const [activeTab, setActiveTab] = useState(tabParam);
+
+  /* sync tab from URL */
+  useEffect(() => { setActiveTab(tabParam); }, [tabParam]);
 
   const fetchReport = async () => {
-    setLoading(true);
-    setError(null);
+    setLoading(true); setError(null);
     try {
-      const token =
-        typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
       if (!token) throw new Error("Authentication required");
-
-      const res = await fetch(`${API_BASE_URL}/api/support/system-report`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
+      const res  = await fetch(`${API_BASE_URL}/api/support/system-report`, { headers: { Authorization: `Bearer ${token}` } });
       const data = await res.json();
-
-      console.log(
-        data,
-        "datadatadatadatadatadatadatadatadatadatadatadatadatadatadata"
-      );
-      if (!res.ok || !data.success)
-        throw new Error(data.message || "Failed to fetch system report");
+      if (!res.ok || !data.success) throw new Error(data.message || "Failed to fetch system report");
       setReport(data.data);
     } catch (err) {
       setError(err.message);
-      if (
-        err.message.includes("Authentication required") ||
-        err.message.includes("Unauthorized")
-      ) {
-        router.push("/sign-in");
-      }
-    } finally {
-      setLoading(false);
-    }
+      if (err.message.includes("Authentication required")) router.push("/sign-in");
+    } finally { setLoading(false); }
   };
 
   useEffect(() => {
     if (!authLoading) {
-      if (!user) {
-        router.push("/sign-in");
-      } else if (!["support", "admin"].includes(user.userType)) {
-        router.push("/sign-in");
-      } else {
-        fetchReport();
-      }
+      if (!user) { router.push("/sign-in"); return; }
+      if (!["support","admin"].includes(user.userType) && user.username !== "superadmin") { router.push("/sign-in"); return; }
+      fetchReport();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authLoading, user]);
 
-  if (authLoading) {
-    return (
-      <div style={{ textAlign: "center", color: "#888", padding: "2rem" }}>
-        Checking authentication...
+  /* ── loading / error states ── */
+  if (authLoading || loading) return (
+    <div style={centeredStyle}>
+      <div style={{ width:40, height:40, border:"3px solid rgba(255,215,0,0.2)", borderTop:"3px solid #ffd700",
+        borderRadius:"50%", animation:"spin 1s linear infinite" }} />
+      <div style={{ fontSize:12, color:"rgba(255,255,255,0.3)", marginTop:12, fontWeight:700, letterSpacing:2 }}>
+        {authLoading ? "AUTHENTICATING..." : "LOADING REPORT..."}
       </div>
-    );
-  }
+      <style>{`@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}`}</style>
+    </div>
+  );
 
-  if (!user || !["support", "admin"].includes(user.userType)) {
-    return (
-      <div style={{ textAlign: "center", color: "#ff4d4d", padding: "2rem" }}>
-        Unauthorized access
-      </div>
-    );
-  }
-
-  if (loading) {
-    return (
-      <div style={{ textAlign: "center", color: "#888", padding: "2rem" }}>
-        Loading system report...
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div style={{ textAlign: "center", color: "#ff4d4d", padding: "2rem" }}>
-        Error: {error}
-      </div>
-    );
-  }
+  if (error) return (
+    <div style={{ ...centeredStyle, color:"#f43f5e", fontSize:14, fontWeight:700 }}>
+      ⚠ {error}
+    </div>
+  );
 
   if (!report) return null;
 
   const {
-    totalPositiveLP,
-    totalNegativeLP,
-    totalLP,
-    total5xUsed,
-    totalAirdrop,
-    totalBooster,
-    totalXaman,
-    totalZeroRisk,
-    totalCommunityRewards,
-    onChainDeposits,
-    onChainWithdrawals,
-    distributedLpRewards,
-    distributedAirdropRewards,
-    distributedBoosterRewards,
-    totalCascadeRewards,
-    totalX1Rewards,
-    totalCommunityBoosterRewards,
-    usersWithXamanGtZero,
-    UserWithAutopositioning,
-    userCountzeroRisk,
-    userCountcommunityRewards,
-    totalEcosystemFee,
-    totalAutopositioning,
-    dailyRewards,
-    X1RewarduserCount,
-    onChainDepositsToday,
-    onChainWithdrawalsToday,
-    LPPositioningToday,
-    ecosystemFeesToday,
-    rewardsRedeemedToday,
-    claimedToday,
-    activeLPUsers,
-    autopositioningWallet,
-    onChainNegativeBalance,
-    onChainPositiveBalance,
-
+    totalPositiveLP, totalNegativeLP, totalLP, total5xUsed, totalAirdrop, totalBooster,
+    totalXaman, totalZeroRisk, totalCommunityRewards, onChainDeposits, onChainWithdrawals,
+    distributedLpRewards, distributedAirdropRewards, distributedBoosterRewards,
+    totalCascadeRewards, totalX1Rewards, totalCommunityBoosterRewards,
+    usersWithXamanGtZero, UserWithAutopositioning, userCountzeroRisk, userCountcommunityRewards,
+    totalEcosystemFee, totalAutopositioning, dailyRewards, X1RewarduserCount,
+    onChainDepositsToday, onChainWithdrawalsToday, LPPositioningToday, ecosystemFeesToday,
+    activeLPUsers, autopositioningWallet, onChainNegativeBalance, onChainPositiveBalance,
   } = report;
-  const EYE_SVG = (
-    <svg
-      width={16}
-      Height={16}
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M2.05 12c2.93-5 7.05-7.5 9.95-7.5S19.02 7 21.95 12c-2.93 5-7.05 7.5-9.95 7.5S4.98 17 2.05 12Z" />
-      <circle cx="12" cy="12" r="3" />
-    </svg>
+
+  /* ── chart datasets ── */
+  const walletChartData = {
+    labels: ["Positive LP","Negative LP","Airdrop","Booster","Xaman","Zero Risk","Community","Autopositioning","Eco Fee"],
+    datasets: [{
+      label: "USDT",
+      data: [+totalPositiveLP||0, +totalNegativeLP||0, +totalAirdrop||0, +totalBooster||0,
+        +totalXaman||0, +totalZeroRisk||0, +totalCommunityRewards||0, +totalAutopositioning||0, +totalEcosystemFee||0],
+      backgroundColor: ["#ffd700","#f43f5e","#10b981","#6366f1","#f97316","#06b6d4","#8b5cf6","#a3e635","#fb7185"],
+      borderRadius: 8, barThickness: 22,
+    }],
+  };
+
+  const onChainChartData = {
+    labels: ["On-Chain Deposits","On-Chain Withdrawals","Negative Withdrawals","Positive Deposits","Active LP","Fixed AutoPos"],
+    datasets: [{
+      label: "USDT",
+      data: [+(onChainDeposits - 1500000)||0, +onChainWithdrawals||0,
+        +onChainNegativeBalance?.extraWithdrawn||0, +onChainPositiveBalance?.extraDeposited||0,
+        +(totalPositiveLP - autopositioningWallet?.total)||0, +autopositioningWallet?.total||0],
+      backgroundColor: ["#10b981","#f43f5e","#fb7185","#34d399","#ffd700","#6366f1"],
+      borderRadius: 8, barThickness: 22,
+    }],
+  };
+
+  const donutData = {
+    labels: ["LP Rewards","Airdrop","Booster","Cascade","X Bonus","Community Booster"],
+    datasets: [{
+      data: [+distributedLpRewards||0, +distributedAirdropRewards||0, +distributedBoosterRewards||0,
+        +totalCascadeRewards||0, +totalX1Rewards||0, +totalCommunityBoosterRewards||0],
+      backgroundColor: ["#ffd700","#10b981","#6366f1","#f97316","#f43f5e","#8b5cf6"],
+      borderColor: "transparent", hoverOffset: 8,
+    }],
+  };
+
+  const dailyChartData = dailyRewards ? {
+    labels: ["X1 Rewards","X Power","Community Booster","LP Rewards","Airdrop","Boost","Cascade"],
+    datasets: [{
+      label: "Last Distribution",
+      data: [+dailyRewards.x1Rewards||0, +dailyRewards.xPowerRewards||0,
+        +dailyRewards.communityBoosterRewards||0, +dailyRewards.dailyRewardsLp||0,
+        +dailyRewards.dailyRewardsAirdrop||0, +dailyRewards.dailyRewardsBoost||0, +dailyRewards.dailyCascadeRewards||0],
+      borderColor: "#ffd700",
+      backgroundColor: (ctx) => {
+        const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 280);
+        g.addColorStop(0, "rgba(255,215,0,0.3)"); g.addColorStop(1, "rgba(255,215,0,0)");
+        return g;
+      },
+      borderWidth: 2.5, pointRadius: 4, pointBackgroundColor: "#ffd700", fill: true, tension: 0.4,
+    }],
+  } : null;
+
+  const chartOpts = (yCallback) => ({
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: TOOLTIP },
+    scales: { ...SCALES, y: { ...SCALES.y, ticks: { ...SCALES.y.ticks, callback: yCallback || ((v) => `$${v}`) } } },
+  });
+
+  const TABS = [
+    { id:"wallet",       label:"Wallet Totals",        icon: Layers     },
+    { id:"onchain",      label:"On-Chain Totals",       icon: TrendingUp },
+    { id:"distribution", label:"Distribution Totals",   icon: BarChart2  },
+    { id:"daily",        label:"Daily Distribution",   icon: Clock      },
+  ];
+
+  /* ──────────────────────────────────────────────────────────
+     RENDER TAB CONTENT
+  ────────────────────────────────────────────────────────── */
+
+  const renderWallet = () => (
+    <div style={{ display:"flex", flexDirection:"column", gap:28 }}>
+      {/* Bar chart */}
+      <ChartCard title="Wallet Balances Breakdown" badge="Lifetime Totals">
+        <div style={{ height:280 }}>
+          <Bar data={walletChartData} options={chartOpts()} />
+        </div>
+      </ChartCard>
+
+      {/* Cards grid */}
+      <SectionHeader sub="LIFETIME BALANCES ACROSS ALL USER WALLETS">Wallet Totals</SectionHeader>
+      <div style={{ display:"flex", flexWrap:"wrap", gap:14 }}>
+        {[
+          { label:"Total Positive LP",      value:totalPositiveLP,      count:activeLPUsers,           accentColor:"#10b981" },
+          { label:"Total Negative LP",      value:totalNegativeLP,      accentColor:"#f43f5e"          },
+          { label:"Total LP",               value:totalLP,              accentColor:"#ffd700"          },
+          { label:"Total 5× Used",          value:total5xUsed,          accentColor:"#f97316"          },
+          { label:"Total Airdrop",          value:totalAirdrop,         accentColor:"#6366f1"          },
+          { label:"Total Booster",          value:totalBooster,         accentColor:"#8b5cf6"          },
+          { label:"Total Xaman",            value:totalXaman,           count:usersWithXamanGtZero,    accentColor:"#06b6d4" },
+          { label:"Total Zero Risk",        value:totalZeroRisk,        count:userCountzeroRisk,        accentColor:"#a3e635" },
+          { label:"Total Community Rewards",value:totalCommunityRewards,count:userCountcommunityRewards,accentColor:"#fb7185"},
+          { label:"Total Autopositioning",  value:totalAutopositioning, count:UserWithAutopositioning,  accentColor:"#ffd700" },
+          { label:"Total Ecosystem Fee",    value:totalEcosystemFee,    sub:`Today: ${fmt(ecosystemFeesToday?.total)} USDT`, accentColor:"#ffd700" },
+        ].map((c) => (
+          <MetricCard key={c.label} {...c} detailHref={DETAIL_MAP[c.label]} />
+        ))}
+      </div>
+    </div>
   );
-  const EYE_SVG_PAGEVIEWE = (
-    <svg
-      style={{
-        cursor: "pointer",
-        display: "inline-flex",
-        alignItems: "center",
-        justifyContent: "center",
-        backgroundColor: "rgba(255, 215, 0, 0.1)",
-        borderRadius: "50%",
-        transition: "all 0.3s ease",
-      }}
-      width={16}
-      height={16}
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M2.05 12c2.93-5 7.05-7.5 9.95-7.5S19.02 7 21.95 12c-2.93 5-7.05 7.5-9.95 7.5S4.98 17 2.05 12Z" />
-      <circle cx="12" cy="12" r="3" />
-    </svg>
+
+  const renderOnChain = () => (
+    <div style={{ display:"flex", flexDirection:"column", gap:28 }}>
+      <div style={{ display:"flex", gap:16, flexWrap:"wrap" }}>
+        <ChartCard title="On-Chain Volume Breakdown" badge="All Time" flex="1 1 500px">
+          <div style={{ height:280 }}>
+            <Bar data={onChainChartData} options={chartOpts()} />
+          </div>
+        </ChartCard>
+
+        {/* Today stats mini */}
+        <ChartCard title="Today's Activity" badge="Live" flex="0 0 280px">
+          <div style={{ display:"flex", flexDirection:"column", gap:14, marginTop:6 }}>
+            {[
+              { label:"Deposits Today",     val:onChainDepositsToday?.total,    color:"#10b981", tx:onChainDepositsToday?.txCount,    users:onChainDepositsToday?.userCount },
+              { label:"Withdrawals Today",  val:onChainWithdrawalsToday?.total, color:"#f43f5e", tx:onChainWithdrawalsToday?.txCount, users:onChainWithdrawalsToday?.userCount },
+              { label:"Eco Fee Today",      val:ecosystemFeesToday?.total,      color:"#ffd700", tx:ecosystemFeesToday?.txCount,      users:ecosystemFeesToday?.userCount },
+            ].map((item) => (
+              <div key={item.label} style={{ padding:"12px 14px", background:"rgba(255,255,255,0.03)", borderRadius:12, borderLeft:`3px solid ${item.color}` }}>
+                <div style={{ fontSize:9, fontWeight:800, textTransform:"uppercase", letterSpacing:2, color:"rgba(255,255,255,0.25)", marginBottom:4 }}>{item.label}</div>
+                <div style={{ fontSize:20, fontWeight:900, color:item.color }}>{fmt(item.val)} <span style={{ fontSize:10, color:"rgba(255,255,255,0.2)" }}>USDT</span></div>
+                <div style={{ fontSize:10, color:"rgba(255,255,255,0.25)", marginTop:3 }}>
+                  {item.tx} txns · {item.users} users
+                </div>
+              </div>
+            ))}
+          </div>
+        </ChartCard>
+      </div>
+
+      <SectionHeader sub="AGGREGATED ON-CHAIN PROTOCOL DATA">On-Chain Totals</SectionHeader>
+      <div style={{ display:"flex", flexWrap:"wrap", gap:14 }}>
+        {[
+          { label:"On-Chain Deposits",   value:onChainDeposits-1500000,           sub:`Today: ${fmt(onChainDepositsToday?.total)} · ${onChainDepositsToday?.txCount} txns`, accentColor:"#10b981" },
+          { label:"On-Chain Withdrawals",value:onChainWithdrawals,                 sub:`Today: ${fmt(onChainWithdrawalsToday?.total)}`, accentColor:"#f43f5e" },
+          { label:"Negative Withdrawals",value:onChainNegativeBalance?.extraWithdrawn, count:onChainNegativeBalance?.userCount, accentColor:"#fb7185" },
+          { label:"Positive Deposits",   value:onChainPositiveBalance?.extraDeposited, count:onChainPositiveBalance?.userCount, accentColor:"#34d399" },
+          { label:"Active LP",           value:totalPositiveLP - (autopositioningWallet?.total||0), count:activeLPUsers, accentColor:"#ffd700" },
+          { label:"Fixed Auto Positioning",value:autopositioningWallet?.total,     count:autopositioningWallet?.userCount, accentColor:"#6366f1" },
+        ].map((c) => (
+          <MetricCard key={c.label} {...c} detailHref={DETAIL_MAP[c.label]} />
+        ))}
+      </div>
+    </div>
   );
 
-  return (
-    <div
-      style={{
-        background: "rgba(10, 10, 10, 0.4)",
-        borderRadius: "24px",
-        padding: "2rem",
-        color: "white",
-        backdropFilter: "blur(20px)",
-        border: "1px solid rgba(255, 215, 0, 0.1)",
-      }}
-    >
-      <h2>System Report</h2>
+  const renderDistribution = () => (
+    <div style={{ display:"flex", flexDirection:"column", gap:28 }}>
+      <div style={{ display:"flex", gap:16, flexWrap:"wrap" }}>
+        <ChartCard title="Distribution Share" badge="Protocol Split" flex="0 0 360px">
+          <div style={{ height:260, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", position:"relative" }}>
+            <Doughnut
+              data={donutData}
+              options={{ responsive:true, maintainAspectRatio:false, cutout:"72%",
+                plugins:{ legend:{ display:false }, tooltip:TOOLTIP } }}
+              style={{ position:"absolute", inset:0 }}
+            />
+            <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", pointerEvents:"none" }}>
+              <div style={{ fontSize:11, fontWeight:900, color:"#fff" }}>Total</div>
+              <div style={{ fontSize:9, color:"rgba(255,255,255,0.3)", letterSpacing:1 }}>DISTRIBUTED</div>
+            </div>
+          </div>
+          <div style={{ display:"flex", flexWrap:"wrap", gap:8, justifyContent:"center", marginTop:16 }}>
+            {["#ffd700","#10b981","#6366f1","#f97316","#f43f5e","#8b5cf6"].map((c,i)=>
+              <div key={i} style={{ display:"flex", alignItems:"center", gap:5, fontSize:9, fontWeight:700, color:"rgba(255,255,255,0.4)" }}>
+                <div style={{ width:7,height:7,borderRadius:"50%",background:c }} />
+                {donutData.labels[i]}
+              </div>
+            )}
+          </div>
+        </ChartCard>
 
-      <ExportUserReportButton />
-
-      {/* Wallet totals */}
-      <h3 style={{ color: "#ffd700", marginBottom: "1rem" }}>Wallet Totals</h3>
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: "1rem",
-          marginBottom: "2rem",
-        }}
-      >
-        <MetricCard
-          label="Total Positive LP"
-          value={totalPositiveLP}
-          usericon={EYE_SVG}
-          carddetailspage={EYE_SVG_PAGEVIEWE}
-          count={activeLPUsers}
-          LPPositioningToday={LPPositioningToday}
-          fixedAutopositioning={autopositioningWallet?.total}
-        />
-
-        <MetricCard
-          label="Total Negative LP"
-          value={totalNegativeLP}
-          carddetailspage={EYE_SVG_PAGEVIEWE}
-        />
-        <MetricCard
-          label="Total LP"
-          value={totalLP}
-          carddetailspage={EYE_SVG_PAGEVIEWE}
-        />
-        <MetricCard
-          label="Total 5× Used"
-          value={total5xUsed}
-          carddetailspage={EYE_SVG_PAGEVIEWE}
-        />
-        <MetricCard
-          label="Total Airdrop"
-          value={totalAirdrop}
-          carddetailspage={EYE_SVG_PAGEVIEWE}
-        />
-        <MetricCard
-          label="Total Booster"
-          value={totalBooster}
-          carddetailspage={EYE_SVG_PAGEVIEWE}
-        />
-
-        {/* Xaman with clickable count -> users list + per-row details fetch */}
-        <MetricCard
-          label="Total Xaman"
-          value={totalXaman}
-          usericon={EYE_SVG}
-          carddetailspage={EYE_SVG_PAGEVIEWE}
-          count={usersWithXamanGtZero}
-          countTitle="Users with Xaman Balance"
-          countFetcher={async () => {
-            const token =
-              typeof window !== "undefined"
-                ? localStorage.getItem("token")
-                : null;
-
-            console.log("[XAMAN] Fetching users…", {
-              API_BASE_URL,
-              hasToken: !!token,
-            });
-
-            const res = await fetch(
-              `${API_BASE_URL}/api/support/system-report-xaman-users`,
-              { headers: { Authorization: `Bearer ${token}` } }
-            );
-
-            let json;
-            try {
-              json = await res.json();
-            } catch (e) {
-              console.error("[XAMAN] Failed to parse JSON:", e);
-              throw e;
-            }
-
-            console.log("[XAMAN] Users response:", res.status, json);
-
-            if (!res.ok || json?.success === false) {
-              console.error("[XAMAN] Users fetch error:", json);
-              throw new Error(json?.message || "Failed to fetch users");
-            }
-
-            console.log("[XAMAN] Users data:", json?.data);
-            return json.data; // expects { rows: [...] }
-          }}
-          renderCountResults={(data) => {
-            console.log("[XAMAN] renderCountResults data:", data);
-
-            return (
-              <DefaultUsersList
-                data={data}
-                detailsFetcher={async (u) => {
-                  console.log("[XAMAN] detailsFetcher input row:", u);
-
-                  const token =
-                    typeof window !== "undefined"
-                      ? localStorage.getItem("token")
-                      : null;
-                  const userId = u.userId || u._id || u.id || "";
-                  const url = `${API_BASE_URL}/api/support/system-report-xaman?userId=${encodeURIComponent(
-                    userId
-                  )}`;
-
-                  console.log("[XAMAN] detailsFetcher GET:", url, {
-                    hasToken: !!token,
-                  });
-
-                  const res = await fetch(url, {
-                    headers: { Authorization: `Bearer ${token}` },
-                  });
-
-                  let json;
-                  try {
-                    json = await res.json();
-                  } catch (e) {
-                    console.error(
-                      "[XAMAN] detailsFetcher JSON parse error:",
-                      e
-                    );
-                    throw e;
-                  }
-
-                  console.log(
-                    "[XAMAN] detailsFetcher response:",
-                    res.status,
-                    json
-                  );
-
-                  if (!res.ok || json?.success === false) {
-                    console.error("[XAMAN] detailsFetcher error:", json);
-                    throw new Error(json?.message || "Failed to fetch details");
-                  }
-
-                  console.log("[XAMAN] detailsFetcher data:", json.data);
-                  return json.data; // e.g. { xaman: { total, rows: [...] } } or { rows: [...] }
-                }}
-              />
-            );
-          }}
-        />
-
-        <MetricCard
-          label="Total Zero Risk"
-          value={totalZeroRisk}
-          count={userCountzeroRisk}
-          carddetailspage={EYE_SVG_PAGEVIEWE}
-        />
-        <MetricCard
-          label="Total Community Rewards"
-          value={totalCommunityRewards}
-          count={userCountcommunityRewards}
-          carddetailspage={EYE_SVG_PAGEVIEWE}
-        />
-        <MetricCard
-          label="Total Autopositioning"
-          value={totalAutopositioning}
-          count={UserWithAutopositioning}
-          carddetailspage={EYE_SVG_PAGEVIEWE}
-        />
-
-        <MetricCard
-          label="Total Ecosystem Fee"
-          value={totalEcosystemFee}
-          ecosystemFeesToday={ecosystemFeesToday}
-          carddetailspage={EYE_SVG_PAGEVIEWE}
-        />
+        <ChartCard title="Distribution Amounts" badge="Lifetime" flex="1 1 400px">
+          <div style={{ display:"flex", flexDirection:"column", gap:12, marginTop:6 }}>
+            {[
+              { label:"LP Rewards",           value:distributedLpRewards,         color:"#ffd700", max:Math.max(distributedLpRewards,distributedAirdropRewards,distributedBoosterRewards,totalCascadeRewards,totalX1Rewards,totalCommunityBoosterRewards)||1 },
+              { label:"Airdrop Rewards",       value:distributedAirdropRewards,    color:"#10b981" },
+              { label:"Booster Rewards",       value:distributedBoosterRewards,    color:"#6366f1" },
+              { label:"Cascade Rewards",       value:totalCascadeRewards,          color:"#f97316" },
+              { label:"X Bonus",               value:totalX1Rewards,               color:"#f43f5e" },
+              { label:"Community Booster",     value:totalCommunityBoosterRewards, color:"#8b5cf6" },
+            ].map((item) => {
+              const maxVal = Math.max(+distributedLpRewards||0,+distributedAirdropRewards||0,+distributedBoosterRewards||0,+totalCascadeRewards||0,+totalX1Rewards||0,+totalCommunityBoosterRewards||0,1);
+              const pct = Math.min(((+item.value||0) / maxVal) * 100, 100);
+              return (
+                <div key={item.label}>
+                  <div style={{ display:"flex", justifyContent:"space-between", marginBottom:5 }}>
+                    <span style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,0.45)" }}>{item.label}</span>
+                    <span style={{ fontSize:11, fontWeight:900, color:item.color }}>{fmt(item.value)} USDT</span>
+                  </div>
+                  <div style={{ height:5, borderRadius:3, background:"rgba(255,255,255,0.05)", overflow:"hidden" }}>
+                    <div style={{ height:"100%", width:`${pct}%`, background:item.color, borderRadius:3, transition:"width 1.2s ease", boxShadow:`0 0 8px ${item.color}50` }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </ChartCard>
       </div>
 
-      {/* On-chain aggregates */}
-      <h3 style={{ color: "#ffd700", marginBottom: "1rem" }}>
-        On-Chain Totals
-      </h3>
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: "1rem",
-          marginBottom: "2rem",
-        }}
-      >
-        <MetricCard
-          label="On-Chain Deposits"
-          value={onChainDeposits-1500000}
-          onChainDepositsToday={onChainDepositsToday}
-          carddetailspage={EYE_SVG_PAGEVIEWE}
-        />
-        <MetricCard
-          label="On-Chain Withdrawals"
-          value={onChainWithdrawals}
-          onChainWithdrawalsToday={onChainWithdrawalsToday}
-          rewardsRedeemedToday={rewardsRedeemedToday}
-          claimedToday={claimedToday}
-          carddetailspage={EYE_SVG_PAGEVIEWE}
-        />
-         <MetricCard
-          label="Negative Withdrawals"
-          value={onChainNegativeBalance?.extraWithdrawn}
-          count={onChainNegativeBalance?.userCount}
-          carddetailspage={EYE_SVG_PAGEVIEWE}
-        />
-         <MetricCard
-          label="Positive Deposits"
-          value={onChainPositiveBalance?.extraDeposited}
-          count={onChainPositiveBalance?.userCount}
-          carddetailspage={EYE_SVG_PAGEVIEWE}
-        />
-         <MetricCard
-          label="Active LP"
-          value={totalPositiveLP- autopositioningWallet?.total}
-          count={activeLPUsers}
-          carddetailspage={EYE_SVG_PAGEVIEWE}
-        />
-        <MetricCard
-          label="Fixed Auto Positioning"
-          value={autopositioningWallet?.total}
-          count={autopositioningWallet?.userCount}
-          carddetailspage={EYE_SVG_PAGEVIEWE}
-        />
+      <SectionHeader sub="TOTAL PROTOCOL-WIDE REWARD DISTRIBUTION">Distribution Totals</SectionHeader>
+      <div style={{ display:"flex", flexWrap:"wrap", gap:14 }}>
+        {[
+          { label:"Distributed LP Rewards",        value:distributedLpRewards,        accentColor:"#ffd700" },
+          { label:"Distributed Airdrop Rewards",   value:distributedAirdropRewards,   accentColor:"#10b981" },
+          { label:"Distributed Booster Rewards",   value:distributedBoosterRewards,   accentColor:"#6366f1" },
+          { label:"Total Cascade",                 value:totalCascadeRewards,         accentColor:"#f97316" },
+          { label:"X Bonus",                       value:totalX1Rewards,              count:X1RewarduserCount, accentColor:"#f43f5e" },
+          { label:"Community Booster Rewards",     value:totalCommunityBoosterRewards,accentColor:"#8b5cf6" },
+        ].map((c) => (
+          <MetricCard key={c.label} {...c} detailHref={DETAIL_MAP[c.label]} />
+        ))}
       </div>
+    </div>
+  );
 
-      {/* Distribution totals */}
-      <h3 style={{ color: "#ffd700", marginBottom: "1rem" }}>
-        Distribution Totals
-      </h3>
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: "1rem",
-          marginBottom: "2rem",
-        }}
-      >
-        <MetricCard
-          label="Distributed LP Rewards"
-          value={distributedLpRewards}
-        />
-        <MetricCard
-          label="Distributed Airdrop Rewards"
-          value={distributedAirdropRewards}
-        />
-        <MetricCard
-          label="Distributed Booster Rewards"
-          value={distributedBoosterRewards}
-        />
-        <MetricCard label="Total Cascade" value={totalCascadeRewards} />
-        <MetricCard
-          label="X Bonus"
-          value={totalX1Rewards}
-          usericon={EYE_SVG}
-          count={X1RewarduserCount}
-          countTitle="Users with X1Rewards Balance"
-          countFetcher={async () => {
-            const token =
-              typeof window !== "undefined"
-                ? localStorage.getItem("token")
-                : null;
-
-            console.log("[X1Rewards] Fetching users…", {
-              API_BASE_URL,
-              hasToken: !!token,
-            });
-
-            const res = await fetch(
-              `${API_BASE_URL}/api/support/system-report-x1reawards`,
-              { headers: { Authorization: `Bearer ${token}` } }
-            );
-
-            let json;
-            try {
-              json = await res.json();
-            } catch (e) {
-              console.error("[XAMAN] Failed to parse JSON:", e);
-              throw e;
-            }
-
-            console.log("[X1Rewards] Users response:", res.status, json);
-
-            if (!res.ok || json?.success === false) {
-              console.error("[X1Rewards] Users fetch error:", json);
-              throw new Error(json?.message || "Failed to fetch users");
-            }
-
-            console.log("[XAMAN] Users data:", json?.data);
-            return json.data; // expects { rows: [...] }
-          }}
-          renderCountResults={(data) => {
-            console.log("[XAMAN] renderCountResults data:", data);
-
-            return (
-              <X1RewardsUsersList
-                data={data}
-                detailsFetcher={async (u, page = 1, pageSize = 10) => {
-                  console.log(
-                    "[x1reawards] detailsFetcher input row:",
-                    u,
-                    "page:",
-                    page
-                  );
-
-                  const token =
-                    typeof window !== "undefined"
-                      ? localStorage.getItem("token")
-                      : null;
-                  const userId = u.userId || u._id || u.id || "";
-
-                  const url =
-                    `${API_BASE_URL}/api/support/system-report-x1reawards-users?` +
-                    `userId=${encodeURIComponent(userId)}` +
-                    `&page=${page}&pageSize=${pageSize}`;
-
-                  console.log("[x1reawards] detailsFetcher GET:", url, {
-                    hasToken: !!token,
-                  });
-
-                  const res = await fetch(url, {
-                    headers: { Authorization: `Bearer ${token}` },
-                  });
-
-                  let json;
-                  try {
-                    json = await res.json();
-                  } catch (e) {
-                    console.error(
-                      "[x1reawards] detailsFetcher JSON parse error:",
-                      e
-                    );
-                    throw e;
-                  }
-
-                  console.log(
-                    "[x1reawards] detailsFetcher response:",
-                    res.status,
-                    json
-                  );
-
-                  if (!res.ok || json?.success === false) {
-                    console.error("[x1reawards] detailsFetcher error:", json);
-                    throw new Error(json?.message || "Failed to fetch details");
-                  }
-
-                  console.log("[x1reawards] detailsFetcher data:", json.data);
-                  return json.data; // e.g. { rows, totalRecords, pageSize }
-                }}
-              />
-            );
-          }}
-        />
-        <MetricCard
-          label="Community Booster Rewards"
-          value={totalCommunityBoosterRewards}
-        />
-      </div>
-
-      {/* Daily rewards for last distribution */}
-      <h3 style={{ color: "#ffd700", marginBottom: "1rem" }}>
-        Most Recent Daily Distribution
-      </h3>
-      {dailyRewards && dailyRewards.date ? (
+  const renderDaily = () => (
+    <div style={{ display:"flex", flexDirection:"column", gap:28 }}>
+      {dailyRewards?.date ? (
         <>
-          <p style={{ marginBottom: "1rem" }}>
-            Date: {new Date(dailyRewards.date).toLocaleDateString()}
-          </p>
-          <div
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              gap: "1rem",
-            }}
-          >
-              <MetricCard
-              label="X1 Rewards"
-              value={dailyRewards.x1Rewards}
-              carddetailspage={EYE_SVG_PAGEVIEWE}
-            />
-            <MetricCard
-              label="X Power"
-              value={dailyRewards.xPowerRewards}
-              carddetailspage={EYE_SVG_PAGEVIEWE}
-            />
-            <MetricCard
-              label="Community Booster Rewards"
-              value={dailyRewards.communityBoosterRewards}
-              carddetailspage={EYE_SVG_PAGEVIEWE}
-            />
-            <MetricCard
-              label="Daily LP Rewards"
-              value={dailyRewards.dailyRewardsLp}
-              carddetailspage={EYE_SVG_PAGEVIEWE}
-            />
-            <MetricCard
-              label="Daily Airdrop Rewards"
-              value={dailyRewards.dailyRewardsAirdrop}
-              carddetailspage={EYE_SVG_PAGEVIEWE}
-            />
-            <MetricCard
-              label="Daily Boost Rewards"
-              value={dailyRewards.dailyRewardsBoost}
-              carddetailspage={EYE_SVG_PAGEVIEWE}
-            />
-            <MetricCard
-              label="Daily Cascade Rewards"
-              value={dailyRewards.dailyCascadeRewards}
-              carddetailspage={EYE_SVG_PAGEVIEWE}
-            />
-            <MetricCard
-              label="Daily Rewards Total"
-              value={dailyRewards.total}
-              carddetailspage={EYE_SVG_PAGEVIEWE}
-            />
+          <div style={{ display:"flex", alignItems:"center", gap:10, padding:"14px 20px",
+            background:"rgba(255,215,0,0.05)", border:"1px solid rgba(255,215,0,0.12)",
+            borderRadius:14, width:"fit-content" }}>
+            <Clock size={14} color="#ffd700" />
+            <div>
+              <div style={{ fontSize:10, fontWeight:800, color:"rgba(255,255,255,0.3)", letterSpacing:2, textTransform:"uppercase" }}>Last Distribution Date</div>
+              <div style={{ fontSize:15, fontWeight:900, color:"#ffd700", marginTop:2 }}>
+                {new Date(dailyRewards.date).toLocaleDateString("en-US", { weekday:"long", year:"numeric", month:"long", day:"numeric" })}
+              </div>
+            </div>
+          </div>
+
+          {dailyChartData && (
+            <ChartCard title="Daily Distribution Breakdown" badge="Last Run">
+              <div style={{ height:280 }}>
+                <Line data={dailyChartData} options={chartOpts()} />
+              </div>
+            </ChartCard>
+          )}
+
+          {/* Total highlight */}
+          <div style={{ padding:"20px 26px", background:"linear-gradient(135deg,rgba(255,215,0,0.08),rgba(255,165,0,0.04))",
+            border:"1px solid rgba(255,215,0,0.2)", borderRadius:18, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+            <div>
+              <div style={{ fontSize:10, fontWeight:800, textTransform:"uppercase", letterSpacing:3, color:"rgba(255,255,255,0.3)", marginBottom:4 }}>Total Distributed (Last Run)</div>
+              <div style={{ fontSize:32, fontWeight:900, color:"#ffd700" }}>{fmt(dailyRewards.total)} <span style={{ fontSize:13, color:"rgba(255,255,255,0.2)" }}>USDT</span></div>
+            </div>
+            <div style={{ width:52, height:52, borderRadius:"50%", background:"rgba(255,215,0,0.12)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+              <BarChart2 size={22} color="#ffd700" />
+            </div>
+          </div>
+
+          <SectionHeader sub="MOST RECENT DAILY REWARD RUN • PER POOL BREAKDOWN">Daily Distribution</SectionHeader>
+          <div style={{ display:"flex", flexWrap:"wrap", gap:14 }}>
+            {[
+              { label:"X1 Rewards",             value:dailyRewards.x1Rewards,                accentColor:"#f43f5e" },
+              { label:"X Power",                value:dailyRewards.xPowerRewards,             accentColor:"#f97316" },
+              { label:"Community Booster Rewards",value:dailyRewards.communityBoosterRewards, accentColor:"#8b5cf6" },
+              { label:"Daily LP Rewards",        value:dailyRewards.dailyRewardsLp,           accentColor:"#ffd700" },
+              { label:"Daily Airdrop Rewards",   value:dailyRewards.dailyRewardsAirdrop,      accentColor:"#10b981" },
+              { label:"Daily Boost Rewards",     value:dailyRewards.dailyRewardsBoost,        accentColor:"#6366f1" },
+              { label:"Daily Cascade Rewards",   value:dailyRewards.dailyCascadeRewards,      accentColor:"#06b6d4" },
+              { label:"Daily Rewards Total",     value:dailyRewards.total,                    accentColor:"#ffd700" },
+            ].map((c) => (
+              <MetricCard key={c.label} {...c} detailHref={DETAIL_MAP[c.label]} />
+            ))}
           </div>
         </>
       ) : (
-        <p>No daily rewards distributions found.</p>
+        <div style={{ textAlign:"center", padding:"60px 20px", color:"rgba(255,255,255,0.25)", fontSize:14, fontWeight:700 }}>
+          No daily distribution data available.
+        </div>
       )}
+    </div>
+  );
+
+  return (
+    <div style={{ padding:"32px 36px", minHeight:"100vh", display:"flex", flexDirection:"column", gap:28, fontFamily:"Inter, sans-serif" }}>
+
+      {/* ── HERO ── */}
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", paddingBottom:24,
+        borderBottom:"1px solid rgba(255,215,0,0.08)", position:"relative" }}>
+        <div style={{ position:"absolute", bottom:-1, left:0, width:70, height:2,
+          background:"linear-gradient(90deg,#ffd700,transparent)", boxShadow:"0 0 20px rgba(255,215,0,0.5)" }} />
+        <div>
+          <div style={{ display:"flex", alignItems:"center", gap:8, fontSize:10, fontWeight:800, letterSpacing:3,
+            textTransform:"uppercase", color:"rgba(255,215,0,0.45)", marginBottom:8 }}>
+            <span style={{ width:5,height:5,borderRadius:"50%",background:"#10b981",boxShadow:"0 0 8px #10b981",
+              animation:"blink 2s ease-in-out infinite" }} />
+            BEPVault Admin
+          </div>
+          <h1 style={{ fontSize:30, fontWeight:900, color:"#fff", margin:0, letterSpacing:"-0.5px" }}>
+            System <span style={{ color:"#ffd700", textShadow:"0 0 30px rgba(255,215,0,0.3)" }}>Report</span>
+          </h1>
+          <p style={{ fontSize:13, color:"rgba(255,255,255,0.25)", margin:"6px 0 0", fontWeight:500 }}>
+            Full protocol analytics across all system wallets and reward pools
+          </p>
+        </div>
+        <div style={{ display:"flex", gap:10, alignItems:"center" }}>
+          <ExportUserReportButton />
+          <button onClick={fetchReport}
+            style={{ display:"flex", alignItems:"center", gap:7, padding:"9px 18px", borderRadius:12,
+              border:"1px solid rgba(255,215,0,0.15)", background:"rgba(255,215,0,0.05)", color:"rgba(255,215,0,0.7)",
+              cursor:"pointer", fontSize:12, fontWeight:800, transition:"all 0.2s ease" }}>
+            <RefreshCw size={13} /> Refresh
+          </button>
+        </div>
+      </div>
+
+      {/* ── TAB NAV ── */}
+      <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
+        {TABS.map((t) => (
+          <Tab key={t.id} label={t.label} icon={t.icon} active={activeTab === t.id}
+            onClick={() => { setActiveTab(t.id); router.push(t.id === "wallet" ? "/support/dashboard/system-report" : `/support/dashboard/system-report?tab=${t.id}`); }} />
+        ))}
+      </div>
+
+      {/* ── TAB CONTENT ── */}
+      {activeTab === "wallet"       && renderWallet()}
+      {activeTab === "onchain"      && renderOnChain()}
+      {activeTab === "distribution" && renderDistribution()}
+      {activeTab === "daily"        && renderDaily()}
+
+      <style>{`
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+        @keyframes spin  { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+      `}</style>
     </div>
   );
 }
 
+const centeredStyle = {
+  display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center",
+  minHeight:"60vh", gap:12,
+};

@@ -20,12 +20,12 @@ const AppLayout = ({ children }) => {
   ];
 
   if (user?.username === "superadmin") {
-    navLinks.push({ href: "/support/dashboard", label: "Super Admin Dashboard", icon: "ri-admin-fill" });
+    navLinks.push({ href: "/admin/dashboard", label: "Super Admin Dashboard", icon: "ri-admin-fill" });
   }
 
   navLinks.push({ href: "https://t.me/BEPVaultSupportBot", label: "Help", icon: "ri-customer-service-2-fill" });
 
-  const isAuthPage = pathname.startsWith("/sign-in") || pathname.startsWith("/sign-up") || pathname.startsWith("/forgot-password") || pathname === "/" || pathname.startsWith("/support");
+  const isAuthPage = pathname.startsWith("/sign-in") || pathname.startsWith("/sign-up") || pathname.startsWith("/forgot-password") || pathname === "/" || pathname.startsWith("/admin");
 
   if (isAuthPage) {
     return <>{children}</>;

@@ -60,11 +60,11 @@ export default function Win17Pro({
 
             <div>
               <h3>
-                {selfLP} <span>USDT</span> Self LP
+                {selfLP} <span>USDT</span> PERSONAL LP
               </h3>
 
               <h3>
-                {teamBusiness} <span>USDT</span> Team Business
+                {teamBusiness} <span>USDT</span> TEAM LP
               </h3>
             </div>
 
@@ -124,9 +124,9 @@ export default function Win17Pro({
 
           <div className="USDTwinreward-qualification-box">
             <div className="USDTwinreward-qualification-title">
-              {selfLP} <span>USDT</span> Self LP
+              {selfLP} <span>USDT</span> PERSONAL LP
               <br />
-              {teamBusiness} <span>USDT</span> Team Business
+              {teamBusiness} <span>USDT</span> TEAM LP
             </div>
 
             <div className="USDTwinreward-qualification-notes">

@@ -33,7 +33,7 @@ const RewardPoolCardpopup = ({ unlockData, xrankLabel }) => {
       {/* SELF LP SECTION */}
       <div className={styles.USDT_UnlockStatus_block}>
         <p className={styles.USDT_UnlockStatus_heading}>
-          Required Self LP – <strong>{requiredSelfLp} USDT</strong>
+          Required Personal LP – <strong>{requiredSelfLp} USDT</strong>
         </p>
 
         <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -54,7 +54,7 @@ const RewardPoolCardpopup = ({ unlockData, xrankLabel }) => {
       {/* COMMUNITY SECTION */}
       <div className={styles.USDT_UnlockStatus_block}>
         <p className={styles.USDT_UnlockStatus_heading}>
-          Required Community LP – <strong>{pool.title}</strong>
+          Required Team LP – <strong>{pool.title}</strong>
         </p>
 
         <p>

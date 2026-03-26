@@ -31,7 +31,7 @@ const UnlockStatus = ({ unlockData, xrankLabel = "Next Rank" }) => {
 
       <div className={styles.USDT_UnlockStatus_block}>
         <p className={styles.USDT_UnlockStatus_heading}>
-          Required Self LP –{" "}
+          Required Personal LP –{" "}
           <strong>{requiredSelfLp.toLocaleString()} USDT</strong>
         </p>
         <div
@@ -76,7 +76,7 @@ const UnlockStatus = ({ unlockData, xrankLabel = "Next Rank" }) => {
 
       <div className={styles.USDT_UnlockStatus_block}>
         <p className={styles.USDT_UnlockStatus_heading}>
-          Required Community LP –{" "}
+          Required Team LP –{" "}
           <strong>{requiredCommunityLp.toLocaleString()} USDT</strong>
         </p>
         <p>

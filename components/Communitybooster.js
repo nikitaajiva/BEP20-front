@@ -158,7 +158,7 @@ export default function Communitybooster() {
   return (
     <div className="booster-shell">
       <div className="booster-title-box">
-        <h5>Community Booster</h5>
+        <h5>Community Growth</h5>
       </div>
 
       <div className="booster-list">
@@ -170,46 +170,41 @@ export default function Communitybooster() {
           return (
             <div key={i} className={`booster-card tier-${i + 1}`}>
               <div className="booster-card-header">
-                <span className="booster-tier-label">TIER {i + 1}</span>
-                <span className="booster-bonus-pct">Bonus: {tierInfo.bonus}</span>
+                <span className="booster-tier-label">LEVEL {i + 1}</span>
+                <span className="booster-bonus-pct">Reward Rate: {tierInfo.bonus}</span>
               </div>
 
               <div className="booster-card-body">
                 <div className="booster-val-row">
+                  <span className="booster-mini-label">Direct Business</span>
                   <div className="booster-val-large">{c.direct}</div>
                 </div>
-                <div className="booster-divider" />
                 <div className="booster-val-row">
+                  <span className="booster-mini-label">Team Business</span>
                   <div className="booster-val-large">{c.community}</div>
                 </div>
-              </div>
-
-              {/* Hover Overlay */}
-              <div className="booster-overlay">
-                <div className="cr-chip">
-                  <FaGift size={10} />
-                  Tier {i + 1} Rewards
+                <div className="booster-val-row" style={{ marginTop: '12px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '12px' }}>
+                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                     <span className="booster-mini-label" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                       Today's Earnings 
+                       <div
+                        className="eye-icon-wrapper"
+                        style={{ cursor: "pointer", display: "flex", alignItems: "center", opacity: 0.6 }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedRewards(allRewards.filter((r) => r.level === i + 1));
+                          setSelectedLevel(i + 1);
+                          setOpenPopup(true);
+                         }}
+                       >
+                         <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" title="View Details">
+                           <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>
+                         </svg>
+                       </div>
+                     </span>
+                     <div className="booster-val-large" style={{ color: '#7fff4c' }}>{levelTotal.toFixed(6)}</div>
+                   </div>
                 </div>
-                <div className="cr-value">
-                  <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                    <span>{levelTotal.toFixed(6)} USDT</span>
-                    <div
-                      className="eye-icon-wrapper"
-                      style={{ cursor: "pointer", display: "flex", alignItems: "center" }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedRewards(allRewards.filter((r) => r.level === i + 1));
-                        setSelectedLevel(i + 1);
-                        setOpenPopup(true);
-                       }}
-                    >
-                      <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" title="View Details">
-                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-                <div className="cr-label">Today's Earnings</div>
               </div>
             </div>
           );
@@ -224,7 +219,7 @@ export default function Communitybooster() {
       />
       
       <p className="booster-footer-note">
-        The Community LP will be calculated from the First 3 Tiers.
+        Community LP is calculated based on the first 3 levels.
       </p>
     </div>
   );

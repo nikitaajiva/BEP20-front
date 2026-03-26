@@ -572,7 +572,7 @@ export default function UsersPage() {
                 <button className={`${styles.actionBtn} ${styles.btnView}`} onClick={() => handleView(u)} title="Impersonate">
                   <FaEye size={11}/><ExternalLink size={10}/>
                 </button>
-                <button className={`${styles.actionBtn} ${styles.btnLedger}`} onClick={() => router.push(`/support/dashboard/user-ledger?userId=${u._id}`)}>
+                <button className={`${styles.actionBtn} ${styles.btnLedger}`} onClick={() => router.push(`/admin/dashboard/user-ledger?userId=${u._id}`)}>
                   <BookOpen size={11}/> Ledger
                 </button>
                 <button className={`${styles.actionBtn} ${styles.btnEmail}`} onClick={() => { setSelectedUserId(u._id); setCredMode("email"); }} title="Update Email">

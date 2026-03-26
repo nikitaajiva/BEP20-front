@@ -1287,22 +1287,7 @@ export default function DashboardLayout({
     );
   }
 
-  if (authLoading || socialAlertLoading) {
-    return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-          background: "#101935",
-          color: "white",
-        }}
-      >
-        Loading Dashboard...
-      </div>
-    );
-  }
+
 
   if (!user) {
     return (
@@ -1402,32 +1387,36 @@ const displayBalance = Math.max(rawBalance, 0);
   const bCurrentIndex = getCurrentIndexFromLabels(bUsageLabels);
   
   const boostChartData = {
-    labels: bUsageLabels.map((l, i) => `WEEK 0${i + 1}`),
+    labels: bUsageLabels.map((l, i) => `0${i + 1}`),
     datasets: [
       {
-        type: 'bar',
-        label: "Usage %",
+        type: 'line',
+        label: "Primary Trend",
         data: bUsageValues,
-        backgroundColor: bUsageLabels.map((_, i) => 
-          i === bCurrentIndex 
-            ? "rgba(255, 215, 0, 0.85)" // Solid Gold for current
-            : "rgba(127, 255, 76, 0.4)"   // Subtle Green for others
-        ),
-        borderColor: bUsageLabels.map((_, i) => 
-          i === bCurrentIndex ? "#ffd700" : "#7fff4c"
-        ),
-        borderWidth: 1,
-        borderRadius: 5,
-        barThickness: 15,
+        borderColor: "#ff8c00", // Dark Orange
+        backgroundColor: "rgba(255, 140, 0, 0.1)",
+        borderWidth: 4,
+        pointBackgroundColor: "#ffd700", // Gold/Yellow point
+        pointBorderColor: "#fff",
+        pointBorderWidth: 2,
+        pointRadius: 6,
+        pointHoverRadius: 8,
+        tension: 0.4,
+        fill: false,
       },
       {
         type: 'line',
-        label: "Trend",
-        data: bUsageValues.map(v => v + 5), // Slightly offset trendline
-        borderColor: "rgba(255, 215, 0, 0.6)",
-        borderWidth: 2,
-        pointRadius: 0,
-        tension: 0.4, // Smooth curve
+        label: "Secondary Trend",
+        data: bUsageValues.map(v => v * 0.7 + 5), // Secondary data line
+        borderColor: "#a020f0", // Purple
+        backgroundColor: "rgba(160, 32, 240, 0.1)",
+        borderWidth: 4,
+        pointBackgroundColor: "#ff00ff", // Magenta/Purple point
+        pointBorderColor: "#fff",
+        pointBorderWidth: 2,
+        pointRadius: 6,
+        pointHoverRadius: 8,
+        tension: 0.4,
         fill: false,
       }
     ]
@@ -1436,39 +1425,71 @@ const displayBalance = Math.max(rawBalance, 0);
   const boostChartOptions = {
     responsive: true,
     maintainAspectRatio: false,
+    animation: {
+      duration: 2000,
+      easing: 'easeOutQuart'
+    },
     plugins: {
       legend: { display: false },
       tooltip: {
-        backgroundColor: "rgba(0,0,0,0.8)",
+        backgroundColor: "rgba(10, 15, 25, 0.95)",
         titleColor: "#ffd700",
         bodyColor: "#fff",
-        callbacks: {
-          label: (context) => `Usage: ${context.parsed.y}%`
-        }
+        borderColor: "rgba(255, 255, 255, 0.1)",
+        borderWidth: 1,
+        padding: 12,
+        displayColors: false,
       },
       datalabels: {
-        display: true,
+        display: (ctx) => ctx.datasetIndex === 0, // Only show for primary line
         color: "#fff",
-        font: { size: 10, weight: 'bold' },
-        formatter: (value, ctx) => ctx.datasetIndex === 0 ? `${value}%` : "",
+        font: { size: 10, weight: 'bold', family: 'Inter' },
+        formatter: (value) => `${value}%`,
         align: 'top',
         anchor: 'end',
-        offset: -2
+        offset: 8,
       }
     },
     scales: {
       y: { 
-        display: false, 
+        display: true, 
         beginAtZero: true, 
-        max: 80 
+        max: 85,
+        grid: {
+          color: "rgba(255, 255, 255, 0.05)", // Visible grid lines as in image
+          drawBorder: false,
+        },
+        ticks: { display: false }
       },
       x: { 
-        ticks: { 
-          color: "#b3baff", 
-          font: { size: 9, weight: 'bold' },
-          padding: 8
+        grid: {
+          color: "rgba(255, 255, 255, 0.05)", // Visible vertical lines
+          drawBorder: false,
         },
-        grid: { display: false }
+        ticks: { 
+          color: "rgba(255, 255, 255, 0.4)", 
+          font: { size: 10, weight: '700', family: 'Inter' },
+          padding: 10
+        }
+      }
+    }
+  };
+
+  // Shadow/Glow Plugin for Chart.js
+  const glowPlugin = {
+    id: 'glowPlugin',
+    beforeDraw: (chart) => {
+      const { ctx } = chart;
+      ctx.save();
+    },
+    afterDatasetDraw: (chart, args) => {
+      if (args.meta.type === 'line') {
+        const { ctx } = chart;
+        ctx.save();
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = 'rgba(255, 215, 0, 0.6)';
+        args.meta.dataset.draw(ctx);
+        ctx.restore();
       }
     }
   };
@@ -1551,6 +1572,7 @@ const displayBalance = Math.max(rawBalance, 0);
                     earningRate="0.6%"
                     chartData={boostChartData}
                     chartOptions={boostChartOptions}
+                    plugins={[glowPlugin]}
                     onViewHistory={() => window.location.href = "/dashboard/history/boost"}
                   />
                   <X_BonusCard />

@@ -199,7 +199,7 @@ export default function CommunityReward() {
           <div style={{ width: "35px", height: "35px", background: "rgba(127,255,76,0.1)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7fff4c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
           </div>
-          COMMUNITY REWARDS
+          NETWORK GROWTH
         </h5>
 
         <div className="USDT-comm-rew-card">
@@ -224,7 +224,7 @@ export default function CommunityReward() {
                         ) : (
                           <FaLock size={10} className={`cr-lock cr-value-${accent}`} />
                         )}
-                        <span className="cr-tier">TIER {row.level}</span>
+                        <span className="cr-tier">LEVEL {row.level}</span>
                       </div>
                       <div className="cr-pct-badge">
                         <Activity size={10} />
@@ -234,24 +234,31 @@ export default function CommunityReward() {
 
                     <div className="cr-main-stats">
                       <div className="stat-group">
-                        <div className="stat-label">Min Directs</div>
+                        <div className="stat-label">Required Directs</div>
                         <div className="stat-value">{row.minDirects}</div>
                       </div>
                       <div className="stat-group">
-                        <div className="stat-label">Self LP</div>
+                        <div className="stat-label">Personal LP</div>
                         <div className={`stat-value cr-value-${accent}`}>{formatNum(selfLp)}</div>
                       </div>
                     </div>
 
                     <div className="cr-footer-bar">
                       <div className="stat-group">
-                        <div className="stat-label">Community LP</div>
+                        <div className="stat-label">Network LP</div>
                         <div className="stat-value">{formatNum(teamLp)} USDT</div>
                       </div>
                       {isUnlocked && (
-                        <div className="stat-group text-end">
-                          <div className="stat-label">Earned Today</div>
-                          <div className="stat-value" style={{ color: '#7fff4c' }}>{rewardAmount.toFixed(4)}</div>
+                        <div className="stat-group text-end" style={{ cursor: 'pointer' }} onClick={() => {
+                          const levelRewards = allRewards.filter((r) => r.narrative?.includes(`(L${row.level} `)) || [];
+                          setSelectedRewards(levelRewards);
+                          setOpenPopup(true);
+                          setSelectedLevel(row.level);
+                        }}>
+                          <div className="stat-label" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '4px' }}>
+                            Today's Earnings <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                          </div>
+                          <div className="stat-value" style={{ color: '#7fff4c', fontWeight: 800 }}>{rewardAmount.toFixed(6)}</div>
                         </div>
                       )}
                     </div>
@@ -266,21 +273,6 @@ export default function CommunityReward() {
                         </div>
                       </div>
                     )}
-
-                    {isUnlocked && (
-                      <div className="cr-overlay" onClick={() => {
-                        const levelRewards = allRewards.filter((r) => r.narrative?.includes(`(L${row.level} `)) || [];
-                        setSelectedRewards(levelRewards);
-                        setOpenPopup(true);
-                        setSelectedLevel(row.level);
-                      }} style={{ cursor: 'pointer' }}>
-                        <div className="stat-label mb-2">Detailed Breakdown</div>
-                        <div className={`cr-value-${accent}`} style={{ fontSize: '1.25rem', fontWeight: 800 }}>
-                          {rewardAmount.toFixed(6)} USDT
-                        </div>
-                        <div className="stat-label mt-2">Click to view all sources</div>
-                      </div>
-                    )}
                   </div>
                 </div>
               );
@@ -289,7 +281,7 @@ export default function CommunityReward() {
         </div>
 
         <div className="cr-total">
-          Total Community Rewards Multiplier:{" "}
+          Total Reward Multiplier:{" "}
           <strong>{cascadeUnlockRules.reduce((s, r) => s + r.pct, 0)}%</strong>
         </div>
 

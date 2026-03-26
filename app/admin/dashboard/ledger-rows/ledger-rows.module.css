@@ -1,0 +1,368 @@
+/* =========================================================
+   SYSTEM AUDIT EXPLORER — PREMIUM TRAIL REDESIGN
+   ========================================================= */
+
+.container {
+  padding: 32px 36px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  font-family: 'Inter', sans-serif;
+  background: transparent;
+}
+
+/* ─── HEADER ───────────────────────────────────────────── */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-bottom: 24px;
+  border-bottom: 1px solid rgba(255,215,0,0.07);
+  position: relative;
+}
+.header::after {
+  content: '';
+  position: absolute;
+  bottom: -1px; left: 0;
+  width: 70px; height: 2px;
+  background: linear-gradient(90deg, #ffd700, transparent);
+  box-shadow: 0 0 18px rgba(255,215,0,0.5);
+}
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(255,215,0,0.4);
+  margin-bottom: 8px;
+}
+.eyebrowDot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 7px #10b981;
+  animation: blink 2s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.title {
+  font-size: 30px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: -0.5px;
+  margin: 0;
+  line-height: 1;
+}
+.title span { color: #ffd700; text-shadow: 0 0 28px rgba(255,215,0,0.3); }
+
+/* ─── ENTRY STAT BADGE ─────────────────────────────────── */
+.statsBadge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 18px;
+  background: rgba(10,10,10,0.6);
+  border: 1px solid rgba(255,215,0,0.1);
+  border-radius: 14px;
+  backdrop-filter: blur(10px);
+}
+.statsBadgeIcon { color: #ffd700; }
+.statsBadgeText { font-size: 13px; font-weight: 800; color: #fff; }
+
+/* ─── FILTER FORM ──────────────────────────────────────── */
+.filterForm {
+  background: rgba(10,10,10,0.55);
+  border: 1px solid rgba(255,215,0,0.08);
+  border-radius: 20px;
+  padding: 24px;
+  backdrop-filter: blur(16px);
+}
+.filterGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.inputGroup label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.85);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+.inputField, .selectField {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,215,0,0.1);
+  border-radius: 12px;
+  padding: 12px 14px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  outline: none;
+  height: 44px;
+  transition: all 0.3s ease;
+}
+.inputField::placeholder { color: rgba(255,255,255,0.85); }
+.inputField:focus, .selectField:focus {
+  border-color: rgba(255,215,0,0.4);
+  background: rgba(255,215,0,0.04);
+}
+.selectField option { background: #0a0a0a; color: #fff; }
+
+/* Form Actions Row */
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.btnPrimary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #ffd700, #ffa500);
+  color: #000;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 24px;
+  font-weight: 900;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  height: 44px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(255,215,0,0.2);
+}
+.btnPrimary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255,215,0,0.3); }
+
+.btnDownload {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(16,185,129,0.1);
+  color: #10b981;
+  border: 1px solid rgba(16,185,129,0.3);
+  border-radius: 12px;
+  padding: 10px 20px;
+  font-weight: 800;
+  font-size: 12px;
+  cursor: pointer;
+  height: 44px;
+  transition: all 0.3s ease;
+}
+.btnDownload:hover:not(:disabled) { background: #10b981; color: #000; }
+.btnDownload:disabled, .btnPrimary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ─── ERROR BANNER ─────────────────────────────────────── */
+.errorBanner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 18px;
+  background: rgba(244,63,94,0.08);
+  border: 1px solid rgba(244,63,94,0.2);
+  border-radius: 12px;
+  color: #f43f5e;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* ─── LEDGER TRAIL LIST ────────────────────────────────── */
+.trailList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+  padding-left: 20px;
+}
+.trailList::before {
+  content: '';
+  position: absolute;
+  top: 10px; bottom: 10px; left: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, rgba(255,215,0,0.5), rgba(255,255,255,0.05));
+  border-radius: 2px;
+}
+
+/* ─── TRAIL CARD ───────────────────────────────────────── */
+.trailCard {
+  background: rgba(10,10,10,0.6);
+  border: 1px solid rgba(255,215,0,0.08);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  position: relative;
+  backdrop-filter: blur(12px);
+  transition: all 0.25s ease;
+}
+.trailCard:hover {
+  transform: translateX(4px);
+  border-color: rgba(255,215,0,0.2);
+  background: rgba(10,10,10,0.8);
+}
+.trailDot {
+  position: absolute;
+  top: 30px; left: -25px;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: #000;
+  border: 2px solid #ffd700;
+  box-shadow: 0 0 10px rgba(255,215,0,0.5);
+  z-index: 2;
+}
+
+/* Timestamp Column */
+.trailTimeCol {
+  display: flex;
+  flex-direction: column;
+  min-width: 80px;
+  border-right: 1px solid rgba(255,255,255,0.05);
+  padding-right: 16px;
+}
+.trailDate { font-size: 11px; font-weight: 800; color: #ffd700; text-transform: uppercase; margin-bottom: 4px; }
+.trailTime { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.85); }
+
+/* Core Info Column */
+.trailCoreCol {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+.trailHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.trailIdentity { display: flex; align-items: center; gap: 10px; }
+.trailAvatar {
+  width: 34px; height: 34px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.05);
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 900;
+}
+.trailUser { font-size: 14px; font-weight: 900; color: #fff; }
+.trailUhid { font-size: 10px; color: rgba(255,255,255,0.85); font-weight: 700; font-family: monospace; }
+.trailEventType {
+  padding: 5px 12px;
+  border-radius: 8px;
+  font-size: 9px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.trailMetrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+  background: rgba(0,0,0,0.2);
+  border-radius: 12px;
+  padding: 12px;
+}
+.tMetric {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.tMetricLabel { font-size: 9px; font-weight: 800; color: rgba(255,255,255,0.85); text-transform: uppercase; letter-spacing: 1px; }
+.tMetricVal { font-size: 14px; font-weight: 800; color: #fff; display: flex; align-items: baseline; gap: 4px; }
+.tMetricVal span { font-size: 10px; color: #ffd700; }
+.tMetricValYield { color: #10b981; font-weight: 900; }
+
+.trailNarrative {
+  font-size: 11px;
+  line-height: 1.5;
+  color: rgba(255,255,255,0.6);
+  background: rgba(255,255,255,0.02);
+  padding: 10px 14px;
+  border-left: 2px solid rgba(255,215,0,0.3);
+  border-radius: 0 8px 8px 0;
+  margin-top: 4px;
+}
+
+/* ─── EVENT TYPE COLORS ─── */
+.typeDeposit { background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2); }
+.typeWithdrawal { background: rgba(244,63,94,0.1); color: #f43f5e; border: 1px solid rgba(244,63,94,0.2); }
+.typeBoost { background: rgba(249,115,22,0.1); color: #f97316; border: 1px solid rgba(249,115,22,0.2); }
+.typeRoi { background: rgba(6,182,212,0.1); color: #06b6d4; border: 1px solid rgba(6,182,212,0.2); }
+.typeAirdrop { background: rgba(139,92,246,0.1); color: #a78bfa; border: 1px solid rgba(139,92,246,0.2); }
+.typeDefault { background: rgba(255,215,0,0.1); color: #ffd700; border: 1px solid rgba(255,215,0,0.2); }
+
+/* ─── EMPTY STATE ──────────────────────────────────────── */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  gap: 14px;
+  background: rgba(10,10,10,0.3);
+  border-radius: 20px;
+  border: 1px dashed rgba(255,255,255,0.1);
+  margin-left: 20px;
+}
+.emptyIcon { font-size: 40px; opacity: 0.15; }
+.emptyText { font-size: 12px; color: rgba(255,255,255,0.85); font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
+
+/* ─── PAGINATION ───────────────────────────────────────── */
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 24px;
+  background: rgba(10,10,10,0.5);
+  border: 1px solid rgba(255,215,0,0.08);
+  border-radius: 18px;
+  backdrop-filter: blur(12px);
+}
+.pageInfo { font-size: 12px; color: rgba(255,255,255,0.85); font-weight: 700; letter-spacing: 0.5px; }
+.pageInfo span { color: #ffd700; font-weight: 900; }
+.btnGroup { display: flex; gap: 8px; }
+
+.btnSecondary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.6);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  padding: 9px 18px;
+  font-weight: 800;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.btnSecondary:hover:not(:disabled) { background: rgba(255,255,255,0.08); color: #fff; }
+.btnSecondary:disabled { opacity: 0.3; cursor: not-allowed; }
+
+/* ─── RESPONSIVE ─────────── */
+@media (max-width: 900px) {
+  .filterGrid { grid-template-columns: repeat(2, 1fr); }
+  .trailCard { flex-direction: column; }
+  .trailTimeCol { padding-right: 0; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 12px; width: 100%; }
+}
+@media (max-width: 600px) {
+  .filterGrid { grid-template-columns: 1fr; }
+}

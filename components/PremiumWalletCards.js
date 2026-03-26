@@ -2,12 +2,14 @@
 import React from "react";
 import styles from "./PremiumWalletCards.module.css";
 import { ArrowRight, Plus, Gift, Rocket, Shield, MousePointer2, Users, History, TrendingUp, Wallet, Eye } from "lucide-react";
-import { Bar } from "react-chartjs-2";
+import { Chart } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
   BarElement,
+  PointElement,
+  LineElement,
   Title,
   Tooltip,
   Legend,
@@ -17,6 +19,8 @@ ChartJS.register(
   CategoryScale,
   LinearScale,
   BarElement,
+  PointElement,
+  LineElement,
   Title,
   Tooltip,
   Legend
@@ -235,7 +239,8 @@ export const BoostWalletCard = ({
   type = 'boost',
   subtitle = "Available Balance",
   chartData,
-  chartOptions
+  chartOptions,
+  plugins = []
 }) => {
   return (
     <div className={styles.boostCardSplit}>
@@ -243,18 +248,22 @@ export const BoostWalletCard = ({
       <div className={styles.boostGaugeArea}>
         <div className={styles.cardHeader} style={{ marginBottom: '10px' }}>
           <div className={styles.headerLeft}>
-            <div className={styles.iconBox} style={{ background: "transparent", border: "1px solid rgba(255, 215, 0, 0.3)", width: '36px', height: '36px' }}>
+            <div className={styles.iconBox} style={{ background: "transparent", border: "1px solid rgba(127, 255, 76, 0.2)", width: '36px', height: '36px' }}>
               {getIcon(type)}
             </div>
             <div className={styles.titleSection}>
-              <h3 style={{ fontSize: '14px' }}>{title}</h3>
-              <p style={{ fontSize: '10px' }}>{subtitle}</p>
+              <h3 style={{ fontSize: '14px', color: '#fff' }}>{title}</h3>
+              <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.5)' }}>{subtitle}</p>
             </div>
           </div>
         </div>
 
         <div className={styles.gaugeWrapper}>
           <div className={styles.gaugeOuter}>
+             {/* Animated Progress Rings */}
+             <div className={styles.rotatingRing}></div>
+             <div className={styles.pulseRing}></div>
+             
              <div className={styles.gaugeInner}>
                <div className={styles.gaugeValue}>{balance}</div>
                <div className={styles.gaugeCurrency}>USDT</div>
@@ -267,13 +276,26 @@ export const BoostWalletCard = ({
       <div className={styles.boostChartArea}>
         <div className={styles.chartTitleRow}>
             <span>History</span>
-            {earningRate && <div style={{ color: '#00ff00', fontSize: '11px' }}>Rate: {earningRate}</div>}
+            {earningRate && (
+              <div className={styles.rateBadge}>
+                <TrendingUp size={10} />
+                <span>Rate: {earningRate}</span>
+              </div>
+            )}
         </div>
         <div className={styles.miniChartSection}>
-          {chartData && <Bar data={chartData} options={chartOptions} />}
+          {chartData && (
+            <Chart 
+              type="bar"
+              data={chartData} 
+              options={chartOptions} 
+              plugins={plugins} 
+            />
+          )}
         </div>
-        <button className={styles.viewHistoryBanner} onClick={onViewHistory}>
-           View History
+        <button className={styles.premiumActionBtn} onClick={onViewHistory}>
+           <span>VIEW HISTORY</span>
+           <ArrowRight size={14} />
         </button>
       </div>
     </div>

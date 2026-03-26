@@ -1,0 +1,233 @@
+/* =========================================================
+   SYSTEM TOPOLOGY TERMINAL — PREMIUM TREE REDESIGN
+   ========================================================= */
+
+.container {
+  padding: 32px 36px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  font-family: 'Inter', sans-serif;
+  background: transparent;
+}
+
+/* ─── HEADER ───────────────────────────────────────────── */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-bottom: 24px;
+  border-bottom: 1px solid rgba(255,215,0,0.07);
+  position: relative;
+}
+.header::after {
+  content: '';
+  position: absolute;
+  bottom: -1px; left: 0;
+  width: 70px; height: 2px;
+  background: linear-gradient(90deg, #ffd700, transparent);
+  box-shadow: 0 0 18px rgba(255,215,0,0.5);
+}
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(255,215,0,0.4);
+  margin-bottom: 8px;
+}
+.eyebrowDot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 7px #10b981;
+  animation: blink 2s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.title {
+  font-size: 30px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: -0.5px;
+  margin: 0;
+  line-height: 1;
+}
+.title span { color: #ffd700; text-shadow: 0 0 28px rgba(255,215,0,0.3); }
+
+/* ─── ENTRY STAT BADGE ─────────────────────────────────── */
+.statsBadge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 18px;
+  background: rgba(10,10,10,0.6);
+  border: 1px solid rgba(255,215,0,0.1);
+  border-radius: 14px;
+  backdrop-filter: blur(10px);
+}
+.statsBadgeIcon { color: #ffd700; }
+.statsBadgeText { font-size: 13px; font-weight: 800; color: #fff; }
+
+/* ─── TOPOLOGY TREE CONTAINER ──────────────────────────── */
+.treeWrapper {
+  background: rgba(10,10,10,0.4);
+  border-radius: 20px;
+  border: 1px solid rgba(255,215,0,0.08);
+  padding: 24px;
+  overflow-x: auto;
+  min-height: 400px;
+}
+
+/* ─── TREE NODE (Card) ─────────────────────────────────── */
+.nodeRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 18px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 16px;
+  margin-bottom: 8px;
+  transition: all 0.2s ease;
+  position: relative;
+  min-width: max-content;
+}
+.nodeRow:hover {
+  background: rgba(255,215,0,0.04);
+  border-color: rgba(255,215,0,0.15);
+  transform: translateX(2px);
+}
+.nodeRowExpanded {
+  border-color: rgba(255,215,0,0.3);
+  background: rgba(255,215,0,0.02);
+}
+
+/* Toggle Icon inside Node */
+.toggleWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px; height: 24px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.05);
+  cursor: pointer;
+  color: rgba(255,255,255,0.85);
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+.toggleWrap:hover { background: rgba(255,215,0,0.15); color: #ffd700; }
+.toggleWrapActive { background: rgba(255,215,0,0.1); color: #ffd700; }
+
+.emptySpacer {
+  width: 24px; height: 24px;
+  flex-shrink: 0;
+}
+
+/* Avatar / Identity Box */
+.identityBox {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 230px;
+}
+.nodeAvatar {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+.nodeUser { font-size: 14px; font-weight: 900; color: #fff; letter-spacing: 0.5px; }
+.nodeUhid { font-size: 10px; color: rgba(255,255,255,0.85); font-weight: 700; font-family: monospace; margin-top: 2px; }
+
+/* Metrics Panels inside Node */
+.metricsStrip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.metricBadge {
+  display: flex;
+  flex-direction: column;
+  padding: 6px 12px;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 10px;
+  min-width: 90px;
+}
+.metricLabel { font-size: 8px; font-weight: 800; color: rgba(255,255,255,0.85); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
+.metricVal { font-size: 13px; font-weight: 900; color: #fff; }
+
+.valGold { color: #ffd700; }
+.valGreen { color: #10b981; }
+.valBlue { color: #818cf8; }
+
+/* Actions */
+.btnAudit {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,215,0,0.08);
+  color: #ffd700;
+  border: 1px solid rgba(255,215,0,0.2);
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btnAudit:hover { background: #ffd700; color: #000; box-shadow: 0 0 16px rgba(255,215,0,0.2); }
+
+/* Nested Children Container */
+.childrenWrap {
+  position: relative;
+  padding-left: 36px;
+  margin-left: 20px;
+  margin-top: 6px;
+  margin-bottom: 12px;
+}
+/* The glowing Tree Branch line */
+.childrenWrap::before {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0; left: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, rgba(255,215,0,0.4), rgba(255,255,255,0.05));
+  border-radius: 2px;
+}
+
+/* ─── EMPTY STATE ──────────────────────────────────────── */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  gap: 14px;
+  background: rgba(10,10,10,0.3);
+  border-radius: 20px;
+  border: 1px dashed rgba(255,255,255,0.1);
+}
+.emptyIcon { font-size: 40px; opacity: 0.15; }
+.emptyText { font-size: 12px; color: rgba(255,255,255,0.85); font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
+
+/* ─── LEVEL COLORS ─── */
+/* Adds distinct border colors to nodes based on their depth */
+.level-0 { border-left: 3px solid #ffd700; }
+.level-1 { border-left: 3px solid #10b981; }
+.level-2 { border-left: 3px solid #818cf8; }
+.level-3 { border-left: 3px solid #f43f5e; }
+.level-4 { border-left: 3px solid #f97316; }
+.level-5 { border-left: 3px solid #06b6d4; }

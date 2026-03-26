@@ -130,6 +130,16 @@
     letter-spacing: 0.5px;
 }
 
+.booster-mini-label {
+    font-size: 8px;
+    font-weight: 800;
+    color: rgba(255, 255, 255, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    display: block;
+    margin-bottom: -4px;
+}
+
 .booster-divider {
     width: 60%;
     height: 1px;

@@ -66,12 +66,12 @@ const XBonusBanner = () => {
   };
 
   const rawXBonusLevels = [
-    { level: "X", self: "1,000 USDT", community: "15,000 USDT", color: "#6C5CE7" },
-    { level: "X1", self: "1,500 USDT", community: "30,000 USDT", color: "#00d6c4" },
-    { level: "X2", self: "3,000 USDT", community: "120,000 USDT", color: "#d34be6" },
-    { level: "X3", self: "6,000 USDT", community: "300,000 USDT", color: "#00d19b" },
-    { level: "X4", self: "12,000 USDT", community: "900,000 USDT", color: "#f1802f" },
-    { level: "X5", self: "20,000 USDT", community: "1,500,000 USDT", color: "#007aff" },
+    { level: "X", display: "LEVEL 1", self: "1,000", community: "15,000 USDT", color: "#6C5CE7" },
+    { level: "X1", display: "LEVEL 2", self: "1,500", community: "30,000 USDT", color: "#00d6c4" },
+    { level: "X2", display: "LEVEL 3", self: "3,000", community: "120,000 USDT", color: "#d34be6" },
+    { level: "X3", display: "LEVEL 4", self: "6,000", community: "300,000 USDT", color: "#00d19b" },
+    { level: "X4", display: "LEVEL 5", self: "12,000", community: "900,000 USDT", color: "#f1802f" },
+    { level: "X5", display: "LEVEL 6", self: "20,000", community: "1,500,000 USDT", color: "#007aff" },
   ];
 
   const fetchReferrals = useCallback(
@@ -174,7 +174,7 @@ const XBonusBanner = () => {
     <>
       <div className={styles.xBonusContainer}>
         <div className={styles.xBonusHeader}>
-          <h5 className="mb-0">X-BONUS</h5>
+          <h5 className="mb-0">REWARD MULTIPLIER</h5>
         </div>
 
         <div className={styles.xBonusListWrapper}>
@@ -199,7 +199,21 @@ const XBonusBanner = () => {
                     <div className={styles.iconContainer}>
                       <LevelIcon size={14} />
                     </div>
-                    <span className={styles.levelTitle}>{item.level}</span>
+                    <span className={styles.levelTitle}>{item.display}</span>
+
+                    {/* Integrated Reward Info */}
+                    <div className={styles.rewardValueSection}>
+                        <span className={styles.rewardValue}>{Number(0).toFixed(6)} USDT</span>
+                        <FaEye
+                          className={styles.eyeIcon}
+                          size={18}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedLevel(item.level);
+                            setShowXBonusPopup(true);
+                          }}
+                        />
+                    </div>
                   </div>
 
                   {/* Center: Molecular Hexagon */}
@@ -213,35 +227,11 @@ const XBonusBanner = () => {
 
                   {/* Right Side: LP Chevron Card */}
                   <div className={styles.lpCard}>
-                    <div className={styles.miniLabel}>SELF LP</div>
+                    <div className={styles.miniLabel}>PERSONAL LP</div>
                     <div className={styles.lpValue}>
                       {item.self.split(' ')[0]}
                     </div>
                   </div>
-
-                    <div className={styles.hoverOverlay}>
-                      <div className={styles.crChip}>
-                        <FaGift size={10} />
-                        {item.level} Rewards Today
-                      </div>
-                      <div className={styles.crValue}>
-                        <div style={{ display: "flex", alignItems: "center" }}>
-                          <span>{Number(0).toFixed(6)} USDT</span>
-                          <FaEye
-                            className={styles.eyeIcon}
-                            size={18}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedLevel(item.level);
-                              setShowXBonusPopup(true);
-                            }}
-                          />
-                        </div>
-                      </div>
-                      <div className={styles.miniLabel} style={{ marginTop: '10px', opacity: 0.6 }}>
-                        COMMUNITY LP: {item.community}
-                      </div>
-                    </div>
                 </div>
               );
             })}
@@ -264,7 +254,7 @@ const XBonusBanner = () => {
             </button>
             <UnlockStatusPopop
               unlockData={unlockData}
-              xrankLabel={nextLocked?.level}
+              xrankLabel={nextLocked?.display}
             />
           </div>
         </div>
@@ -274,6 +264,7 @@ const XBonusBanner = () => {
         isOpen={showXBonusPopup}
         onClose={() => setShowXBonusPopup(false)}
         level={selectedLevel}
+        displayLevel={xBonusLevels.find(l => l.level === selectedLevel)?.display}
       />
     </>
   );

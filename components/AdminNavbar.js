@@ -5,22 +5,22 @@ import { usePathname } from "next/navigation";
 import { FiSettings } from "react-icons/fi";
 
 const navLinks = [
-  { name: "Welcome", href: "/support/dashboard" },
-  { name: "Users", href: "/support/dashboard/users" },
-  { name: "User Ledger", href: "/support/dashboard/user-ledger" },
-  { name: "Team View", href: "/support/dashboard/team-view" },
-  { name: "Ledger Rows", href: "/support/dashboard/ledger-rows" },
-  { name: "USDT Deposits", href: "/support/dashboard/usdt-deposits" },
-  { name: "Community Booster", href: "/support/dashboard/community-booster-report" },
-  { name: "Community Rewards", href: "/support/dashboard/community-rewards" },
-  { name: "X1-X5 Bonus", href: "/support/dashboard/x1-bonus-report" },
-  { name: "Users Summary", href: "/support/dashboard/users-summary" },
-  { name: "System Report", href: "/support/dashboard/system-report" },
+  { name: "Welcome", href: "/admin/dashboard" },
+  { name: "Users", href: "/admin/dashboard/users" },
+  { name: "User Ledger", href: "/admin/dashboard/user-ledger" },
+  { name: "Team View", href: "/admin/dashboard/team-view" },
+  { name: "Ledger Rows", href: "/admin/dashboard/ledger-rows" },
+  { name: "USDT Deposits", href: "/admin/dashboard/usdt-deposits" },
+  { name: "Community Booster", href: "/admin/dashboard/community-booster-report" },
+  { name: "Community Rewards", href: "/admin/dashboard/community-rewards" },
+  { name: "X1-X5 Bonus", href: "/admin/dashboard/x1-bonus-report" },
+  { name: "Users Summary", href: "/admin/dashboard/users-summary" },
+  { name: "System Report", href: "/admin/dashboard/system-report" },
 ];
 
-export default function SupportNavbar() {
+export default function AdminNavbar() {
   const pathname = usePathname();
-  const settingsPath = "/support/dashboard/settings";
+  const settingsPath = "/admin/dashboard/settings";
 
   return (
     <nav

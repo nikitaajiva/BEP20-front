@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 
 export default function CommunityBoosterPopup({
   isOpen,
@@ -6,40 +7,39 @@ export default function CommunityBoosterPopup({
   rewards = [],
   level = null,
 }) {
-  if (!isOpen) return null;
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
 
   const [searchTerm, setSearchTerm] = useState("");
 
-function extractUsername(narrative) {
-  if (!narrative) return "";
-  
-  // Try to extract name after 'from'
-  const fromParts = narrative.split("from ");
-  if (fromParts.length > 1) {
-    return fromParts[1].split(" ")[0].replace(/'s$/, "").trim();
+  if (!isOpen || !mounted) return null;
+
+  function extractUsername(narrative) {
+    if (!narrative) return "";
+    
+    const fromParts = narrative.split("from ");
+    if (fromParts.length > 1) {
+      return fromParts[1].split(" ")[0].replace(/'s$/, "").trim();
+    }
+
+    const depositIndex = narrative.toLowerCase().indexOf("deposit");
+    if (depositIndex !== -1) {
+      return narrative.substring(0, depositIndex).replace(/'s$/, "").trim();
+    }
+
+    return narrative.replace(/'s$/, "").trim();
   }
 
-  // If 'from' not found, remove everything after 'deposit'
-  const depositIndex = narrative.toLowerCase().indexOf("deposit");
-  if (depositIndex !== -1) {
-    return narrative.substring(0, depositIndex).replace(/'s$/, "").trim();
-  }
-
-  // Default case
-  return narrative.replace(/'s$/, "").trim();
-}
-
-
-
-  // filter rewards by search
   const filteredRewards = rewards.filter((r) =>
     extractUsername(r.narrative)
       .toLowerCase()
       .includes(searchTerm.toLowerCase())
   );
 
-  console.log(rewards )
-  return (
+  const content = (
     <div
       style={{
         position: "fixed",
@@ -47,193 +47,192 @@ function extractUsername(narrative) {
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: "rgb(0 0 0 / 90%)",
+        backgroundColor: "rgba(0, 0, 0, 0.92)",
+        backdropFilter: "blur(12px)",
+        WebkitBackdropFilter: "blur(12px)",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        zIndex: 1000,
+        zIndex: 9999,
         width: "100%",
+        padding: "20px",
       }}
       onClick={onClose}
     >
       <div
         style={{
-          background: "#181f3a",
-          borderRadius: "22px",
-          maxWidth: "900px",
-          width: "90%",
+          background: "#080b12",
+          borderRadius: "32px",
+          maxWidth: "1000px",
+          width: "100%",
+          maxHeight: "90vh",
           position: "relative",
-          boxShadow: "0 8px 32px 0 rgba(16,25,53,0.18)",
+          boxShadow: "0 25px 50px -12px rgba(0,0,0,0.5), 0 0 40px rgba(255, 215, 0, 0.05)",
           color: "#fff",
+          border: "1px solid rgba(255, 255, 255, 0.05)",
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden"
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Close button */}
-        <button
-          onClick={onClose}
-          style={{
-            position: "absolute",
-            right: "1rem",
-            top: "1rem",
-            background: "none",
-            border: "none",
-            color: "#fff",
-            fontSize: "1.5rem",
-            cursor: "pointer",
-            padding: "0.5rem",
-          }}
-        >
-          ×
-        </button>
+        {/* Header Section */}
+        <div style={{ padding: "30px 40px", borderBottom: "1px solid rgba(255, 255, 255, 0.05)", background: "rgba(255,255,255,0.02)" }}>
+          <button
+            onClick={onClose}
+            style={{
+              position: "absolute",
+              right: "25px",
+              top: "25px",
+              background: "rgba(255,255,255,0.05)",
+              border: "1px solid rgba(255,255,255,0.1)",
+              color: "#fff",
+              width: "40px",
+              height: "40px",
+              borderRadius: "50%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              transition: "all 0.3s ease",
+              fontSize: "20px"
+            }}
+          >
+            ×
+          </button>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+            <div style={{ padding: '10px', background: 'rgba(255, 215, 0, 0.1)', borderRadius: '12px', border: '1px solid rgba(255, 215, 0, 0.2)' }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffd700" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+            </div>
+            <div>
+              <h2 style={{ fontSize: "22px", fontWeight: "900", color: "#fff", margin: 0, letterSpacing: '0.5px' }}>
+                Performance Bonus Analytics
+              </h2>
+              <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)", marginTop: "4px" }}>
+                Level {level} Detailed Booster Performance Breakdown
+              </p>
+            </div>
+          </div>
+        </div>
 
-        {/* Content */}
-        <section className="relative py-6 px-6 text-center overflow-hidden">
-          <h2 className="text-lg font-bold mb-4">
-            Community Rewards Details {level ? `(Level ${level})` : ""}
-          </h2>
-
-          {/* 🔍 Search box */}
+        {/* Content Section */}
+        <section style={{ padding: "30px 40px", flex: 1, overflow: "hidden", display: "flex", flexDirection: "column" }}>
           {rewards.length > 0 && (
-            <div style={{ marginBottom: "12px", textAlign: "right" }}>
-              <input
-                type="text"
-                placeholder="Search username..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                style={{
-                  padding: "6px 10px",
-                  borderRadius: "6px",
-                  border: "1px solid #374151",
-                  background: "#111827",
-                  color: "#e5e7eb",
-                  fontSize: "12px",
-                  outline: "none",
-                }}
-              />
+            <div style={{ marginBottom: "25px" }}>
+              <div style={{ position: "relative", maxWidth: "350px", marginLeft: "auto" }}>
+                <input
+                  type="text"
+                  placeholder="Filter by contributor..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "14px 20px",
+                    borderRadius: "16px",
+                    border: "1px solid rgba(255, 255, 255, 0.1)",
+                    background: "rgba(0, 0, 0, 0.4)",
+                    color: "#fff",
+                    fontSize: "14px",
+                    outline: "none",
+                    boxShadow: "inset 0 2px 4px rgba(0,0,0,0.2)"
+                  }}
+                />
+              </div>
             </div>
           )}
 
           {filteredRewards.length === 0 ? (
-            <p className="text-gray-400">
-              {searchTerm ? "No results found" : "No rewards for this level"}
-            </p>
+            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: "rgba(255,255,255,0.3)" }}>
+              <p>{searchTerm ? "No records match your filter" : "No booster rewards data available currently"}</p>
+            </div>
           ) : (
             <div
+              className="custom-scrollbar"
               style={{
-                overflowX: "auto",
-                display: "flex",
-                justifyContent: "center",
+                flex: 1,
+                overflowY: "auto",
+                width: "100%",
+                borderRadius: "16px",
+                border: "1px solid rgba(255, 255, 255, 0.05)",
+                background: "rgba(0,0,0,0.2)"
               }}
             >
-              <div
+              <table
                 style={{
-                  maxHeight: "500px",
-                  overflowY: "auto",
                   width: "100%",
-                  padding: "12px",
-                  boxSizing: "border-box",
+                  borderCollapse: "separate",
+                  borderSpacing: "0",
+                  fontSize: "13px",
                 }}
               >
-               <table
-  style={{
-    minWidth: "600px",
-    borderCollapse: "collapse",
-    fontSize: "12px",
-    color: "#e5e7eb",
-    width: "100%",
-    tableLayout: "fixed", // 🔹 ensures proper column alignment
-  }}
->
-  <thead
-    style={{
-      position: "sticky",
-      top: 0,
-      background: "#20284a",
-      zIndex: 10,
-    }}
-  >
-    <tr>
-      <th style={{ border: "1px solid #374151", padding: "8px 14px", width: "40px", textAlign: "center" }}>
-        Sr.
-      </th>
-      <th style={{ border: "1px solid #374151", padding: "8px 14px", width: "180px", textAlign: "left" }}>
-        Username
-      </th>
-      {/* <th style={{ border: "1px solid #374151", padding: "8px 14px", width: "120px", textAlign: "right" }}>
-        User LP
-      </th> */}
-      <th style={{ border: "1px solid #374151", padding: "8px 14px", width: "120px", textAlign: "right" }}>
-        LP Reward
-      </th>
-      <th style={{ border: "1px solid #374151", padding: "8px 14px", width: "120px", textAlign: "right" }}>
-        Amount (USDT)
-      </th>
-      <th style={{ border: "1px solid #374151", padding: "8px 14px", width: "80px", textAlign: "center" }}>
-        Rate
-      </th>
-    </tr>
-  </thead>
-  <tbody>
-    {filteredRewards.map((r, idx) => (
-      <tr
-        key={r._id}
-        style={{
-          background: idx % 2 === 0 ? "#1c2444" : "#181f3a",
-        }}
-      >
-        <td style={{ border: "1px solid #374151", padding: "8px 14px", textAlign: "center" }}>
-          {idx + 1}
-        </td>
-        <td style={{ border: "1px solid #374151", padding: "8px 14px", textAlign: "left", color: "#d1d5db" }}>
-          {extractUsername(r.narrative)}
-        </td>
-        {/* <td style={{ border: "1px solid #374151", padding: "8px 14px", textAlign: "right", color: "#7fff4c", fontWeight: "600" }}>
-          {parseFloat(r.lp).toFixed(6)}
-        </td> */}
-        <td style={{ border: "1px solid #374151", padding: "8px 14px", textAlign: "right", color: "#7fff4c", fontWeight: "600" }}>
-          {parseFloat(r.lp_reward.$numberDecimal)?.toFixed(6)}
-        </td>
-        <td style={{ border: "1px solid #374151", padding: "8px 14px", textAlign: "right", color: "#7fff4c", fontWeight: "600" }}>
-          {parseFloat(r.amount.$numberDecimal)?.toFixed(6)}
-        </td>
-        <td style={{ border: "1px solid #374151", padding: "8px 14px", textAlign: "center" }}>
-          {(parseFloat(r.rate.$numberDecimal) * 100)?.toFixed(0)}%
-        </td>
-      </tr>
-    ))}
-  </tbody>
-</table>
-
-              </div>
-              <style jsx>{`
-                /* Custom scrollbar for Webkit browsers */
-                div::-webkit-scrollbar {
-                  width: 8px;
-                  height: 8px;
-                }
-                div::-webkit-scrollbar-track {
-                  background: #181f3a;
-                  border-radius: 10px;
-                }
-                div::-webkit-scrollbar-thumb {
-                  background: #3b4a7a;
-                  border-radius: 10px;
-                  border: 2px solid #181f3a;
-                }
-                div::-webkit-scrollbar-thumb:hover {
-                  background: #5b6bb2;
-                }
-
-                /* Firefox scrollbar */
-                div {
-                  scrollbar-width: thin;
-                  scrollbar-color: #3b4a7a #181f3a;
-                }
-              `}</style>
+                <thead
+                  style={{
+                    position: "sticky",
+                    top: 0,
+                    background: "#111827",
+                    zIndex: 10,
+                  }}
+                >
+                  <tr>
+                    <th style={{ padding: "16px 20px", color: "rgba(255,255,255,0.5)", fontWeight: "600", borderBottom: "1px solid rgba(255, 255, 255, 0.05)", textAlign: "center", width: "60px" }}>Idx</th>
+                    <th style={{ padding: "16px 20px", color: "rgba(255,255,255,0.5)", fontWeight: "600", borderBottom: "1px solid rgba(255, 255, 255, 0.05)", textAlign: "left" }}>Contributor</th>
+                    <th style={{ padding: "16px 20px", color: "rgba(255,255,255,0.5)", fontWeight: "600", borderBottom: "1px solid rgba(255, 255, 255, 0.05)", textAlign: "right" }}>Booster LP</th>
+                    <th style={{ padding: "16px 20px", color: "rgba(255,255,255,0.5)", fontWeight: "600", borderBottom: "1px solid rgba(255, 255, 255, 0.05)", textAlign: "right" }}>Bonus Amt</th>
+                    <th style={{ padding: "16px 20px", color: "rgba(255,255,255,0.5)", fontWeight: "600", borderBottom: "1px solid rgba(255, 255, 255, 0.05)", textAlign: "center" }}>Rate</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredRewards.map((r, idx) => (
+                    <tr
+                      key={r._id}
+                      style={{
+                        background: idx % 2 === 0 ? "transparent" : "rgba(255,255,255,0.01)",
+                      }}
+                    >
+                      <td style={{ padding: "15px 20px", borderBottom: "1px solid rgba(255, 255, 255, 0.03)", textAlign: "center", color: "rgba(255,255,255,0.3)" }}>
+                        {idx + 1}
+                      </td>
+                      <td style={{ padding: "15px 20px", borderBottom: "1px solid rgba(255, 255, 255, 0.03)", color: "#fff", fontWeight: "600" }}>
+                        {extractUsername(r.narrative)}
+                      </td>
+                      <td style={{ padding: "15px 20px", borderBottom: "1px solid rgba(255, 255, 255, 0.03)", textAlign: "right", color: "#ffd700", fontFamily: "monospace", fontWeight: '700' }}>
+                        {parseFloat(r.lp_reward?.$numberDecimal || r.lp_reward || 0).toFixed(6)}
+                      </td>
+                      <td style={{ padding: "15px 20px", borderBottom: "1px solid rgba(255, 255, 255, 0.03)", textAlign: "right", color: "#7fff4c", fontWeight: "800", fontFamily: "monospace" }}>
+                        {parseFloat(r.amount?.$numberDecimal || r.amount || 0).toFixed(6)}
+                      </td>
+                      <td style={{ padding: "15px 20px", borderBottom: "1px solid rgba(255, 255, 255, 0.03)", textAlign: "center" }}>
+                        <span style={{ padding: '4px 10px', background: 'rgba(255,255,255,0.05)', borderRadius: '20px', fontSize: '11px', color: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                          {(parseFloat(r.rate?.$numberDecimal || r.rate || 0) * 100).toFixed(0)}%
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </section>
+
+        <style jsx>{`
+          .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+          }
+          .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+          }
+        `}</style>
       </div>
     </div>
   );
+
+  return createPortal(content, document.body);
 }

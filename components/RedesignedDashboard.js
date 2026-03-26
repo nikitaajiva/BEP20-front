@@ -47,11 +47,17 @@ const RedesignedDashboard = ({
     ? `${walletAccount.slice(0, 6)}...${walletAccount.slice(-4)}`
     : "";
 
-  const referralLink = user?.username
-    ? `${typeof window !== 'undefined' ? window.location.protocol : 'https:'}//${typeof window !== 'undefined' ? window.location.host : 'app.bepvault.io'}/sign-up?sponsorId=${user.username}`
+  const [mounted, setMounted] = React.useState(false);
+  const [copySuccess, setCopySuccess] = React.useState(false);
+
+  const referralLink = (mounted && user?.username)
+    ? `${window.location.protocol}//${window.location.host}/sign-up?sponsorId=${user.username}`
     : "";
 
-  const [copySuccess, setCopySuccess] = React.useState(false);
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const handleCopyLink = () => {
     if (!referralLink) return;
     navigator.clipboard.writeText(referralLink).then(() => {
@@ -162,7 +168,7 @@ const RedesignedDashboard = ({
 
       {/* Background Sparkles */}
       <div className={styles.sparklesContainer}>
-        {sparkles.map((s) => (
+        {mounted && sparkles.map((s) => (
           <div 
             key={s.id} 
             className={styles.sparkle} 

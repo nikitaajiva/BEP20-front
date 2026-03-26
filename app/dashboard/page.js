@@ -65,7 +65,7 @@ export default function DashboardPage() {
   }, [user, API_URL]);
 
   const handleBackendVerification = useCallback(
-    async (txHash, userAccount) => {
+    async (txHash, referenceId) => {
       setTransactionStatus(
         `Transaction sent! TX Hash: ${txHash}. Verifying with backend...`
       );
@@ -86,7 +86,7 @@ export default function DashboardPage() {
           },
           body: JSON.stringify({
             tx_hash: txHash,
-            wallet_address: userAccount,
+            referenceId,
           }),
         });
         const backendData = await backendResponse.json();
@@ -110,28 +110,34 @@ export default function DashboardPage() {
     [API_URL, fetchLedgerDetails]
   );
 
-  const resolveDepositAddress = useCallback(async () => {
-    const configured = process.env.NEXT_PUBLIC_BSC_SYSTEM_DEPOSIT_ADDRESS;
-    if (configured) return configured;
+  const createDepositIntent = useCallback(
+    async (amount, fallbackWallet) => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("Authentication error: No token found. Please re-login.");
+      }
 
-    const token = localStorage.getItem("token");
-    if (!token) {
-      throw new Error("Authentication error: No token found. Please re-login.");
-    }
+      const response = await fetch(`${API_URL}/deposits/intent`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          amount,
+          wallet_address: fallbackWallet || user?.wallet_address,
+        }),
+      });
 
-    const response = await fetch(`${API_URL}/deposits/address`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    const result = await response.json();
-    if (!result.success || !result.deposit_address) {
-      throw new Error(result.message || "Failed to get deposit address.");
-    }
-    return result.deposit_address.wallet_address;
-  }, [API_URL]);
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Failed to create deposit intent.");
+      }
+
+      return data;
+    },
+    [API_URL, user]
+  );
 
   useEffect(() => {
     if (user) {
@@ -248,7 +254,9 @@ export default function DashboardPage() {
 
     try {
       await switchToBsc();
-      const depositAddress = await resolveDepositAddress();
+      const intentData = await createDepositIntent(amount, walletAccount);
+      const depositAddress = intentData.deposit_address;
+      const referenceId = intentData.referenceId;
       setTransactionStatus("Please confirm the transfer in MetaMask...");
 
       const txHash = await sendUsdtTransfer({
@@ -257,7 +265,7 @@ export default function DashboardPage() {
         amount,
       });
 
-      await handleBackendVerification(txHash, walletAccount);
+      await handleBackendVerification(txHash, referenceId);
     } catch (error) {
       setTransactionStatus(
         `Error: ${error.message || "An unknown error occurred."}`
@@ -312,29 +320,8 @@ export default function DashboardPage() {
       setTransactionStatus("No wallet detected. Generating QR deposit...");
       setQrStatus("pending");
 
-      const token = localStorage.getItem("token");
-      if (!token) {
-        setTransactionStatus("Authentication error: No token found. Please re-login.");
-        return;
-      }
-
       try {
-        const response = await fetch(`${API_URL}/deposits/intent`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            amount,
-            wallet_address: user?.wallet_address,
-          }),
-        });
-
-        const data = await response.json();
-        if (!response.ok || !data.success) {
-          throw new Error(data.message || "Failed to create deposit intent.");
-        }
+        const data = await createDepositIntent(amount);
 
         const payload = JSON.stringify({
           network: "BSC",
@@ -382,7 +369,7 @@ export default function DashboardPage() {
         setQrStatus("failed");
       }
     },
-    [API_URL, stopQrPolling, user, verifyQrDeposit]
+    [createDepositIntent, stopQrPolling, verifyQrDeposit]
   );
 
   return (

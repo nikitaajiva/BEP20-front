@@ -1,4 +1,5 @@
-const DEFAULT_CHAIN_ID = process.env.NEXT_PUBLIC_BSC_CHAIN_ID || "0x38";
+const MAINNET_CHAIN_ID = "0x38";
+const DEFAULT_CHAIN_ID = process.env.NEXT_PUBLIC_BSC_CHAIN_ID || MAINNET_CHAIN_ID;
 const DEFAULT_RPC_URL = process.env.NEXT_PUBLIC_BSC_RPC_URL || "";
 const DEFAULT_BLOCK_EXPLORER =
   process.env.NEXT_PUBLIC_BSC_EXPLORER_BASE_URL ||
@@ -36,6 +37,9 @@ async function requestAccounts() {
 }
 
 async function switchToBsc(chainId = DEFAULT_CHAIN_ID) {
+  if (chainId !== MAINNET_CHAIN_ID) {
+    throw new Error("Only BSC mainnet (chainId 0x38) is supported.");
+  }
   const ethereum = getEthereum();
   if (!ethereum) throw new Error("MetaMask is not available.");
   const currentChainId = await ethereum.request({ method: "eth_chainId" });
@@ -57,8 +61,7 @@ async function switchToBsc(chainId = DEFAULT_CHAIN_ID) {
       params: [
         {
           chainId,
-          chainName:
-            chainId === "0x61" ? "BSC Testnet" : "Binance Smart Chain",
+          chainName: "Binance Smart Chain",
           rpcUrls: [DEFAULT_RPC_URL],
           nativeCurrency: {
             name: "BNB",

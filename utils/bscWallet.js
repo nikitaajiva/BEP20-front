@@ -1,29 +1,38 @@
+import { ethers } from "ethers";
+
 const MAINNET_CHAIN_ID = "0x38";
 const DEFAULT_CHAIN_ID = process.env.NEXT_PUBLIC_BSC_CHAIN_ID || MAINNET_CHAIN_ID;
 const DEFAULT_RPC_URL = process.env.NEXT_PUBLIC_BSC_RPC_URL || "";
 const DEFAULT_BLOCK_EXPLORER =
-  process.env.NEXT_PUBLIC_BSC_EXPLORER_BASE_URL ||
-  "https://bscscan.com";
+  process.env.NEXT_PUBLIC_BSC_EXPLORER_BASE_URL || "https://bscscan.com";
 
 const USDT_CONTRACT_ADDRESS =
   process.env.NEXT_PUBLIC_USDT_CONTRACT_ADDRESS || "";
 
-const ADDRESS_PAD = 64;
-const TRANSFER_SELECTOR = "0xa9059cbb";
-const BALANCE_OF_SELECTOR = "0x70a08231";
-const DECIMALS_SELECTOR = "0x313ce567";
+const ERC20_ABI = [
+  "function decimals() view returns (uint8)",
+  "function balanceOf(address) view returns (uint256)",
+  "function transfer(address,uint256) returns (bool)",
+];
 
 function getEthereum() {
   if (typeof window === "undefined") return null;
   return window.ethereum || null;
 }
 
-function padHex(hex, length = ADDRESS_PAD) {
-  return hex.toLowerCase().replace(/^0x/, "").padStart(length, "0");
+function getProvider() {
+  const ethereum = getEthereum();
+  if (!ethereum) throw new Error("MetaMask is not available.");
+  return new ethers.BrowserProvider(ethereum);
 }
 
-function toHex(value) {
-  return "0x" + value.toString(16);
+async function assertBscMainnet() {
+  const ethereum = getEthereum();
+  if (!ethereum) throw new Error("MetaMask is not available.");
+  const chainId = await ethereum.request({ method: "eth_chainId" });
+  if (chainId !== MAINNET_CHAIN_ID) {
+    throw new Error("Please switch to BSC mainnet (chainId 0x38).");
+  }
 }
 
 async function requestAccounts() {
@@ -76,90 +85,51 @@ async function switchToBsc(chainId = DEFAULT_CHAIN_ID) {
 }
 
 async function readTokenDecimals() {
-  const ethereum = getEthereum();
-  if (!ethereum) throw new Error("MetaMask is not available.");
   if (!USDT_CONTRACT_ADDRESS) {
     throw new Error("USDT contract address is not configured.");
   }
-  const result = await ethereum.request({
-    method: "eth_call",
-    params: [
-      {
-        to: USDT_CONTRACT_ADDRESS,
-        data: DECIMALS_SELECTOR,
-      },
-      "latest",
-    ],
-  });
-  return parseInt(result, 16);
-}
-
-function parseUnits(amount, decimals) {
-  const [whole, fraction = ""] = amount.toString().split(".");
-  const sanitizedFraction = fraction.padEnd(decimals, "0").slice(0, decimals);
-  const value = BigInt(whole + sanitizedFraction);
-  return value;
-}
-
-function formatUnits(value, decimals) {
-  const base = 10n ** BigInt(decimals);
-  const whole = value / base;
-  const fraction = value % base;
-  const fractionStr = fraction
-    .toString()
-    .padStart(decimals, "0")
-    .replace(/0+$/, "");
-  return fractionStr ? `${whole}.${fractionStr}` : whole.toString();
+  await assertBscMainnet();
+  const provider = getProvider();
+  const usdt = new ethers.Contract(USDT_CONTRACT_ADDRESS, ERC20_ABI, provider);
+  return Number(await usdt.decimals());
 }
 
 async function readUsdtBalance(address) {
   if (!USDT_CONTRACT_ADDRESS) {
     throw new Error("USDT contract address is not configured.");
   }
-  const ethereum = getEthereum();
-  if (!ethereum) throw new Error("MetaMask is not available.");
-  const decimals = await readTokenDecimals();
-  const data = BALANCE_OF_SELECTOR + padHex(address);
-  const result = await ethereum.request({
-    method: "eth_call",
-    params: [
-      {
-        to: USDT_CONTRACT_ADDRESS,
-        data,
-      },
-      "latest",
-    ],
-  });
-  const value = BigInt(result);
-  return formatUnits(value, decimals);
+  await assertBscMainnet();
+  const provider = getProvider();
+  const usdt = new ethers.Contract(USDT_CONTRACT_ADDRESS, ERC20_ABI, provider);
+  const [decimals, balance] = await Promise.all([
+    usdt.decimals(),
+    usdt.balanceOf(address),
+  ]);
+  return ethers.formatUnits(balance, decimals);
 }
 
 async function sendUsdtTransfer({ from, to, amount }) {
   if (!USDT_CONTRACT_ADDRESS) {
     throw new Error("USDT contract address is not configured.");
   }
-  const decimals = await readTokenDecimals();
-  const value = parseUnits(amount, decimals);
-  const data =
-    TRANSFER_SELECTOR +
-    padHex(to) +
-    padHex(toHex(value), ADDRESS_PAD);
-
-  const ethereum = getEthereum();
-  if (!ethereum) throw new Error("MetaMask is not available.");
-
-  const txHash = await ethereum.request({
-    method: "eth_sendTransaction",
-    params: [
-      {
-        from,
-        to: USDT_CONTRACT_ADDRESS,
-        data,
-        value: "0x0",
-      },
-    ],
-  });
-  return txHash;
+  if (!amount || Number(amount) <= 0) {
+    throw new Error("Invalid USDT amount.");
+  }
+  if (!ethers.isAddress(to)) {
+    throw new Error("Invalid destination address.");
+  }
+  await assertBscMainnet();
+  const provider = getProvider();
+  const signer = await provider.getSigner();
+  const signerAddress = await signer.getAddress();
+  if (from && signerAddress.toLowerCase() !== from.toLowerCase()) {
+    throw new Error("Connected wallet does not match the selected account.");
+  }
+  const usdt = new ethers.Contract(USDT_CONTRACT_ADDRESS, ERC20_ABI, signer);
+  const decimals = await usdt.decimals();
+  const value = ethers.parseUnits(amount.toString(), decimals);
+  const tx = await usdt.transfer(to, value);
+  return tx.hash;
 }
 
 export {

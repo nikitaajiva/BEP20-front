@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect, useCallback, useRef } from "react";
+import { ethers } from "ethers";
 import AuthGuard from "@/components/auth/AuthGuard";
 import DashboardLayout from "@/components/DashboardLayout";
 import AmountEntryModal from "@/components/AmountEntryModal";
@@ -15,6 +16,9 @@ import {
 
 export default function DashboardPage() {
   const { user, API_URL } = useAuth();
+  const usdtContractAddress = process.env.NEXT_PUBLIC_USDT_CONTRACT_ADDRESS || "";
+  const usdtDecimals = Number(process.env.NEXT_PUBLIC_USDT_DECIMALS || "18");
+  const bscChainId = 56;
   const [walletAccount, setWalletAccount] = useState("");
   const [primaryVaultBalance, setPrimaryVaultBalance] = useState("0");
   const [isAmountModalOpen, setIsAmountModalOpen] = useState(false);
@@ -243,10 +247,20 @@ export default function DashboardPage() {
       await startQrDeposit(amount);
       return;
     }
-    if (!walletAccount) {
-      alert("Please connect your wallet first.");
-      setDebugMessage("Debug: Wallet not connected.");
-      return;
+    let activeWallet = walletAccount;
+    if (!activeWallet) {
+      try {
+        await switchToBsc();
+        const accounts = await requestAccounts();
+        activeWallet = accounts?.[0] || "";
+        setWalletAccount(activeWallet);
+      } catch (err) {
+        setTransactionStatus(
+          err.message || "Wallet connection was cancelled. Use QR deposit instead."
+        );
+        await startQrDeposit(amount);
+        return;
+      }
     }
 
     setTransactionStatus(`Preparing transfer for ${amount} USDT...`);
@@ -254,18 +268,25 @@ export default function DashboardPage() {
 
     try {
       await switchToBsc();
-      const intentData = await createDepositIntent(amount, walletAccount);
+      const intentData = await createDepositIntent(amount, activeWallet);
       const depositAddress = intentData.deposit_address;
       const referenceId = intentData.referenceId;
       setTransactionStatus("Please confirm the transfer in MetaMask...");
 
-      const txHash = await sendUsdtTransfer({
-        from: walletAccount,
-        to: depositAddress,
-        amount,
-      });
+      try {
+        const txHash = await sendUsdtTransfer({
+          from: activeWallet,
+          to: depositAddress,
+          amount,
+        });
 
-      await handleBackendVerification(txHash, referenceId);
+        await handleBackendVerification(txHash, referenceId);
+      } catch (transferError) {
+        setTransactionStatus(
+          transferError.message || "Wallet transfer not completed. Use QR to pay."
+        );
+        beginQrTracking(intentData, "Wallet transfer cancelled. Scan QR to pay.");
+      }
     } catch (error) {
       setTransactionStatus(
         `Error: ${error.message || "An unknown error occurred."}`
@@ -315,6 +336,67 @@ export default function DashboardPage() {
   [API_URL, fetchLedgerDetails, stopQrPolling]
 );
 
+  const beginQrTracking = useCallback(
+    (data, statusMessage) => {
+      setTransactionStatus(statusMessage || "Generating QR deposit...");
+      setQrStatus("pending");
+
+      const intentTokenContract = data.tokenContract || usdtContractAddress;
+      const intentDecimals =
+        Number.isFinite(Number(data.decimals)) ? Number(data.decimals) : usdtDecimals;
+      const intentChainId =
+        Number.isFinite(Number(data.chainId)) ? Number(data.chainId) : bscChainId;
+
+      if (!intentTokenContract) {
+        setTransactionStatus("USDT contract is not configured. Unable to build QR.");
+        setQrStatus("failed");
+        return;
+      }
+
+      const baseUnits = ethers.parseUnits(
+        data.amount.toString(),
+        Number.isFinite(intentDecimals) ? intentDecimals : 18
+      );
+      const payload = `ethereum:${intentTokenContract}@${intentChainId}/transfer?address=${data.deposit_address}&uint256=${baseUnits.toString()}&chainId=${intentChainId}`;
+
+      setQrPayload(payload);
+      setQrDisplayData({
+        amount: data.amount,
+        depositAddress: data.deposit_address,
+        referenceId: data.referenceId,
+        network: data.network || "BSC",
+      });
+      setQrStatus("pending");
+      setQrModalOpen(true);
+      qrReferenceRef.current = data.referenceId;
+
+      const expiresAt = new Date(data.expiresAt).getTime();
+      const updateTimer = () => {
+        const secondsLeft = Math.max(
+          0,
+          Math.ceil((expiresAt - Date.now()) / 1000)
+        );
+        setQrTimeLeft(secondsLeft);
+        if (secondsLeft <= 0) {
+          setQrStatus("expired");
+          stopQrPolling();
+          if (qrReferenceRef.current) {
+            verifyQrDeposit(qrReferenceRef.current);
+          }
+        }
+      };
+
+      stopQrPolling();
+      updateTimer();
+
+      qrTimerRef.current = setInterval(updateTimer, 1000);
+      qrPollRef.current = setInterval(async () => {
+        await verifyQrDeposit(data.referenceId);
+      }, 10000);
+    },
+    [stopQrPolling, verifyQrDeposit]
+  );
+
   const startQrDeposit = useCallback(
     async (amount) => {
       setTransactionStatus("No wallet detected. Generating QR deposit...");
@@ -322,54 +404,13 @@ export default function DashboardPage() {
 
       try {
         const data = await createDepositIntent(amount);
-
-        const payload = JSON.stringify({
-          network: "BSC",
-          address: data.deposit_address,
-          amount: data.amount,
-          referenceId: data.referenceId,
-        });
-
-        setQrPayload(payload);
-        setQrDisplayData({
-          amount: data.amount,
-          depositAddress: data.deposit_address,
-          referenceId: data.referenceId,
-          network: data.network || "BSC",
-        });
-        setQrStatus("pending");
-        setQrModalOpen(true);
-        qrReferenceRef.current = data.referenceId;
-
-        const expiresAt = new Date(data.expiresAt).getTime();
-        const updateTimer = () => {
-          const secondsLeft = Math.max(
-            0,
-            Math.ceil((expiresAt - Date.now()) / 1000)
-          );
-          setQrTimeLeft(secondsLeft);
-          if (secondsLeft <= 0) {
-            setQrStatus("expired");
-            stopQrPolling();
-            if (qrReferenceRef.current) {
-              verifyQrDeposit(qrReferenceRef.current);
-            }
-          }
-        };
-
-        stopQrPolling();
-        updateTimer();
-
-        qrTimerRef.current = setInterval(updateTimer, 1000);
-        qrPollRef.current = setInterval(async () => {
-          await verifyQrDeposit(data.referenceId);
-        }, 3000);
+        beginQrTracking(data, "Scan QR to complete your deposit.");
       } catch (error) {
         setTransactionStatus(error.message || "Failed to start QR deposit.");
         setQrStatus("failed");
       }
     },
-    [createDepositIntent, stopQrPolling, verifyQrDeposit]
+    [createDepositIntent, beginQrTracking]
   );
 
   return (

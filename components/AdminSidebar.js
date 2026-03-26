@@ -8,19 +8,19 @@ import { useAuth } from "@/context/AuthContext";
 
 const systemReportLinks = [
   { name: "Wallet Totals",       href: "/admin/dashboard/system-report",               icon: Layers },
-  { name: "On-Chain Totals",     href: "/admin/dashboard/system-report?tab=onchain",   icon: TrendingUp },
+  { name: "Transaction Totals",  href: "/admin/dashboard/system-report?tab=onchain",   icon: TrendingUp },
   { name: "Distribution Totals", href: "/admin/dashboard/system-report?tab=distribution", icon: BarChart2 },
   { name: "Daily Distribution",  href: "/admin/dashboard/system-report?tab=daily",     icon: Clock },
 ];
 
 const mainNavLinks = [
-  { name: "Welcome",        href: "/admin/dashboard",              icon: Home },
-  { name: "Users",          href: "/admin/dashboard/users",        icon: Users },
-  { name: "User Ledger",    href: "/admin/dashboard/user-ledger",  icon: Database },
-  { name: "Team View",      href: "/admin/dashboard/team-view",    icon: PieChart },
-  { name: "Ledger Rows",    href: "/admin/dashboard/ledger-rows",  icon: Activity },
-  { name: "USDT Deposits",  href: "/admin/dashboard/usdt-deposits", icon: Zap },
-  { name: "Users Summary",  href: "/admin/dashboard/users-summary", icon: FileText },
+  { name: "Welcome",             href: "/admin/dashboard",              icon: Home },
+  { name: "Users",               href: "/admin/dashboard/users",        icon: Users },
+  { name: "User Ledger",         href: "/admin/dashboard/user-ledger",  icon: Database },
+  { name: "Team View",           href: "/admin/dashboard/team-view",    icon: PieChart },
+  { name: "Ledger Rows",         href: "/admin/dashboard/ledger-rows",  icon: Activity },
+  { name: "Recent Transactions", href: "/admin/dashboard/usdt-deposits", icon: Zap },
+  { name: "Users Summary",       href: "/admin/dashboard/users-summary", icon: FileText },
 ];
 
 export default function AdminSidebar() {

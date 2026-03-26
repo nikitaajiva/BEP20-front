@@ -121,75 +121,75 @@ export default function CommunityRewardsPopup({
                   boxSizing: "border-box",
                 }}
               >
-               <table
-  style={{
-    minWidth: "600px",
-    borderCollapse: "collapse",
-    fontSize: "12px",
-    color: "#e5e7eb",
-    width: "100%",
-    tableLayout: "fixed", // 🔹 ensures proper column alignment
-  }}
->
-  <thead
-    style={{
-      position: "sticky",
-      top: 0,
-      background: "#20284a",
-      zIndex: 10,
-    }}
-  >
-    <tr>
-      <th style={{ border: "1px solid #374151", padding: "8px 14px", width: "40px", textAlign: "center" }}>
-        Sr.
-      </th>
-      <th style={{ border: "1px solid #374151", padding: "8px 14px", width: "180px", textAlign: "left" }}>
-        Username
-      </th>
-      <th style={{ border: "1px solid #374151", padding: "8px 14px", width: "120px", textAlign: "right" }}>
-        User LP
-      </th>
-      <th style={{ border: "1px solid #374151", padding: "8px 14px", width: "120px", textAlign: "right" }}>
-        LP Reward
-      </th>
-      <th style={{ border: "1px solid #374151", padding: "8px 14px", width: "120px", textAlign: "right" }}>
-        Amount (USDT)
-      </th>
-      <th style={{ border: "1px solid #374151", padding: "8px 14px", width: "80px", textAlign: "center" }}>
-        Rate
-      </th>
-    </tr>
-  </thead>
-  <tbody>
-    {filteredRewards.map((r, idx) => (
-      <tr
-        key={r._id}
-        style={{
-          background: idx % 2 === 0 ? "#1c2444" : "#181f3a",
-        }}
-      >
-        <td style={{ border: "1px solid #374151", padding: "8px 14px", textAlign: "center" }}>
-          {idx + 1}
-        </td>
-        <td style={{ border: "1px solid #374151", padding: "8px 14px", textAlign: "left", color: "#d1d5db" }}>
-          {extractUsername(r.narrative)}
-        </td>
-        <td style={{ border: "1px solid #374151", padding: "8px 14px", textAlign: "right", color: "#7fff4c", fontWeight: "600" }}>
-          {parseFloat(r.lp).toFixed(6)}
-        </td>
-        <td style={{ border: "1px solid #374151", padding: "8px 14px", textAlign: "right", color: "#7fff4c", fontWeight: "600" }}>
-          {parseFloat(r.lp_reward.$numberDecimal).toFixed(6)}
-        </td>
-        <td style={{ border: "1px solid #374151", padding: "8px 14px", textAlign: "right", color: "#7fff4c", fontWeight: "600" }}>
-          {parseFloat(r.amount.$numberDecimal).toFixed(6)}
-        </td>
-        <td style={{ border: "1px solid #374151", padding: "8px 14px", textAlign: "center" }}>
-          {(parseFloat(r.rate.$numberDecimal) * 100).toFixed(0)}%
-        </td>
-      </tr>
-    ))}
-  </tbody>
-</table>
+                <table
+                  style={{
+                    minWidth: "600px",
+                    borderCollapse: "collapse",
+                    fontSize: "12px",
+                    color: "#e5e7eb",
+                    width: "100%",
+                    tableLayout: "fixed", // 🔹 ensures proper column alignment
+                  }}
+                >
+                  <thead
+                    style={{
+                      position: "sticky",
+                      top: 0,
+                      background: "#20284a",
+                      zIndex: 10,
+                    }}
+                  >
+                    <tr>
+                      <th style={{ border: "1px solid #374151", padding: "8px 14px", width: "40px", textAlign: "center" }}>
+                        Sr.
+                      </th>
+                      <th style={{ border: "1px solid #374151", padding: "8px 14px", width: "180px", textAlign: "left" }}>
+                        Username
+                      </th>
+                      <th style={{ border: "1px solid #374151", padding: "8px 14px", width: "120px", textAlign: "right" }}>
+                        User LP
+                      </th>
+                      <th style={{ border: "1px solid #374151", padding: "8px 14px", width: "120px", textAlign: "right" }}>
+                        LP Reward
+                      </th>
+                      <th style={{ border: "1px solid #374151", padding: "8px 14px", width: "120px", textAlign: "right" }}>
+                        Amount (USDT)
+                      </th>
+                      <th style={{ border: "1px solid #374151", padding: "8px 14px", width: "80px", textAlign: "center" }}>
+                        Rate
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredRewards.map((r, idx) => (
+                      <tr
+                        key={r._id}
+                        style={{
+                          background: idx % 2 === 0 ? "#1c2444" : "#181f3a",
+                        }}
+                      >
+                        <td style={{ border: "1px solid #374151", padding: "8px 14px", textAlign: "center" }}>
+                          {idx + 1}
+                        </td>
+                        <td style={{ border: "1px solid #374151", padding: "8px 14px", textAlign: "left", color: "#d1d5db" }}>
+                          {extractUsername(r.narrative)}
+                        </td>
+                        <td style={{ border: "1px solid #374151", padding: "8px 14px", textAlign: "right", color: "#7fff4c", fontWeight: "600" }}>
+                          {parseFloat(r.lp).toFixed(6)}
+                        </td>
+                        <td style={{ border: "1px solid #374151", padding: "8px 14px", textAlign: "right", color: "#7fff4c", fontWeight: "600" }}>
+                          {parseFloat(r.lp_reward.$numberDecimal).toFixed(6)}
+                        </td>
+                        <td style={{ border: "1px solid #374151", padding: "8px 14px", textAlign: "right", color: "#7fff4c", fontWeight: "600" }}>
+                          {parseFloat(r.amount.$numberDecimal).toFixed(6)}
+                        </td>
+                        <td style={{ border: "1px solid #374151", padding: "8px 14px", textAlign: "center" }}>
+                          {(parseFloat(r.rate.$numberDecimal) * 100).toFixed(0)}%
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
 
               </div>
               <style jsx>{`

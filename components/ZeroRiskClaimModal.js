@@ -175,7 +175,7 @@ export default function ZeroRiskClaimModal({
               <div className={styles.balanceItem}>
                 <span className={styles.balanceLabel}>VAULT INTERFACE</span>
                 <div className={styles.balanceValue} style={{ color: "#4f8cff" }}>
-                  {Math.max(0, parseFloat(xamanBalance)).toFixed(4)} <span className={styles.currencySmall}>USDT</span>
+                  {Math.max(0, parseFloat(primaryVaultBalance)).toFixed(4)} <span className={styles.currencySmall}>USDT</span>
                 </div>
               </div>
               <div className={styles.balanceItem}>
@@ -209,7 +209,7 @@ export default function ZeroRiskClaimModal({
                 <AlertTriangle size={18} className={styles.limitWarningIcon} />
                 <div className={styles.limitWarningText}>
                    <strong>De-leveraging Alert:</strong> Amount exceeds Vault threshold. Registry nodes will be adjusted to 
-                   {(lpBalance - (parseFloat(amount || 0) - xamanBalance)).toFixed(4)} USDT.
+                   {(lpBalance - (parseFloat(amount || 0) - primaryVaultBalance)).toFixed(4)} USDT.
                 </div>
               </div>
             )}

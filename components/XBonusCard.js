@@ -1,10 +1,20 @@
-import "./XBonusCard.css";
-import { FaLock, FaLockOpen } from "react-icons/fa";
+import styles from "./XBonusCard.module.css";
+import { 
+  FaLock, 
+  FaLockOpen, 
+  FaGift, 
+  FaEye, 
+  FaBolt, 
+  FaHandHoldingUsd, 
+  FaFire, 
+  FaGem, 
+  FaRocket, 
+  FaCrown 
+} from "react-icons/fa";
 import Image from "next/image";
 import React, { useState, useEffect, useContext, useCallback } from "react";
 import { useAuth } from "@/context/AuthContext";
 import UnlockStatusPopop from "./UnlockStatus";
-import { FaGift, FaEye } from "react-icons/fa";
 import XBonusPopup from "./XBonusCardPopup";
 
 // import XBonus from "../public/assets/images/XBonus.png";
@@ -160,95 +170,81 @@ const XBonusBanner = () => {
         isUnlocked: false,
       }
     : null;
-
   return (
     <>
-      <div className="x-bonus-container">
-        <div
-          className="x-bonus-header"
-          style={{ color: "#fff", display: "flex", gap: "3px" }}
-        >
-          {/* <span className="" style={{ marginTop: "-10px" }}>
-            <Image src={XBonus} width={40} height={40} />
-          </span> */}
-          <h5 className="mb-0">X-Bonus</h5>
+      <div className={styles.xBonusContainer}>
+        <div className={styles.xBonusHeader}>
+          <h5 className="mb-0">X-BONUS</h5>
         </div>
 
-        <div className="mt-4 " style={{ display: "flex" }}>
-          <div className="x-bonus-right mt-4 ">
-            {xBonusLevels.map((item, index) => (
-              <div
+        <div className={styles.xBonusListWrapper}>
+          <div className={styles.xBonusList}>
+            {xBonusLevels.map((item, index) => {
+              // Select an icon for the hexagon based on index
+              const HexIcon = [FaBolt, FaHandHoldingUsd, FaFire, FaGem, FaRocket, FaCrown][index] || FaGem;
+              const LevelIcon = item.locked ? FaLock : FaLockOpen;
+
+              return (
+                <div
                   key={index}
-                  className={`x-bonus-bar-content ${item.locked ? "locked" : ""}`}
+                  className={`${styles.xBonusRow} ${item.locked ? styles.locked : ""}`}
                   onClick={() => handleLockedClick(index)}
                   style={{
                     cursor: item.locked ? "pointer" : "default",
-                    "--x-color": item.color,   // ✅ IMPORTANT
+                    "--x-color": item.color,
                   }}
                 >
-
-                <div className="x-bonus-tag">
-                  <span
-                    className="x-bonus-lock-icon"
-                    style={{ color: item.color }}
-                  >
-                    {item.locked ? <FaLock /> : <FaLockOpen />}
-                  </span>
-                  <span className="x-bonus-level" style={{ color: item.color }}>
-                    {item.level}
-                  </span>
-                </div>
-
-                <div>
-                  <h3 className="x-bonus-left-title">
-                    Self <span>LP</span>
-                  </h3>
-                  <div
-                    className="x-bonus-self-value"
-                    style={{ color: item.color }}
-                  >
-                    {item.self}
-                  </div>
-                </div>
-
-                <div className="x-bonus-community">
-                  <div className="x-bonus-label">COMMUNITY LP</div>
-                  <div className="x-bonus-amount">{item.community}</div>
-                </div>
-            
-                <div className="xbonus-hover-overlay">
-                  {/* Chip */}
-                  <div className="cr-chip mb-2">
-                    <FaGift style={{ marginRight: "6px" }} />
-                    X Bonus Rewards
+                  {/* Left Side: Level Chevron Card */}
+                  <div className={styles.levelCard}>
+                    <div className={styles.iconContainer}>
+                      <LevelIcon size={14} />
+                    </div>
+                    <span className={styles.levelTitle}>{item.level}</span>
                   </div>
 
-                  {/* Value */}
-                  <div className="cr-value">
-                    <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
-                      <div>
-                        {Number(
-                          // ledgerDetails?.daily_rewards?.XBONUS || 0
-                          0
-                        ).toFixed(6)}{" "}
-                        USDT
+                  {/* Center: Molecular Hexagon */}
+                  <div className={styles.hexagonWrapper}>
+                    <div className={styles.hexagon}>
+                      <div className={styles.hexagonInner}>
+                        <HexIcon />
                       </div>
-
-                       <FaEye
-                      className="xbonus-eye"
-                      title="View X Bonus Rewards"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedLevel(item.level);
-                        setShowXBonusPopup(true);
-                      }}
-                    />
                     </div>
                   </div>
-                </div>
 
-              </div>
-            ))}
+                  {/* Right Side: LP Chevron Card */}
+                  <div className={styles.lpCard}>
+                    <div className={styles.miniLabel}>SELF LP</div>
+                    <div className={styles.lpValue}>
+                      {item.self.split(' ')[0]}
+                    </div>
+                  </div>
+
+                    <div className={styles.hoverOverlay}>
+                      <div className={styles.crChip}>
+                        <FaGift size={10} />
+                        {item.level} Rewards Today
+                      </div>
+                      <div className={styles.crValue}>
+                        <div style={{ display: "flex", alignItems: "center" }}>
+                          <span>{Number(0).toFixed(6)} USDT</span>
+                          <FaEye
+                            className={styles.eyeIcon}
+                            size={18}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedLevel(item.level);
+                              setShowXBonusPopup(true);
+                            }}
+                          />
+                        </div>
+                      </div>
+                      <div className={styles.miniLabel} style={{ marginTop: '10px', opacity: 0.6 }}>
+                        COMMUNITY LP: {item.community}
+                      </div>
+                    </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -256,12 +252,12 @@ const XBonusBanner = () => {
        {/* Unlock Status Popup */}
       {showPopup && unlockData && (
         <div
-          className="xbonus-modal-overlay"
+          className={styles.modalOverlay}
           onClick={() => setShowPopup(false)}
         >
-          <div className="xbonus-modal" onClick={(e) => e.stopPropagation()}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
             <button
-              className="xbonus-modal-close"
+              className={styles.modalClose}
               onClick={() => setShowPopup(false)}
             >
               ✖

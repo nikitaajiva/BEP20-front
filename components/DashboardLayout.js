@@ -21,7 +21,7 @@ import SuccessModal from "./SuccessModal";
 import DashboardSidebar from "./DashboardSidebar";
 import RedesignedDashboard from "./RedesignedDashboard";
 import GlobalLoader from "../components/LoaderComponent";
-import { RewardsWalletCard, ActionableWalletCard } from "./PremiumWalletCards";
+import { RewardsWalletCard, ActionableWalletCard, BoostWalletCard } from "./PremiumWalletCards";
 import CommunityRewardsCardnew from "./CommunityReward";
 import Communitybooster from "../components/Communitybooster";
 import X_PowerCard from "../components/XPowercard";
@@ -116,6 +116,89 @@ ChartJS.register(
   Legend
 );
 // Modified LedgerInfoCard to accept an icon component and onTransferClick
+// --- Chart Utility Functions (Moved out for reuse) ---
+const CUTOFF_YMD = "2025-08-09";
+
+function toLocalMidnight(d) {
+  const x = new Date(d);
+  x.setHours(0, 0, 0, 0);
+  return x;
+}
+
+const CUTOFF = toLocalMidnight(new Date(CUTOFF_YMD));
+
+function chooseConfig(startDate) {
+  const start = toLocalMidnight(new Date(startDate));
+  if (start.getTime() >= CUTOFF.getTime()) {
+    return {
+      weekLengths: [8, 7, 7, 8],
+      usageValues: [50, 30, 20, 10],
+    };
+  }
+  return {
+    weekLengths: [2, 7, 7, 7, 8],
+    usageValues: [50, 30, 20, 10, 5],
+  };
+}
+
+function getOrdinalSuffix(n) {
+  const s = ["th", "st", "nd", "rd"];
+  const v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+}
+
+function formatSpanLabel(start, end) {
+  const fmt = (d) =>
+    d.toLocaleDateString(undefined, {
+      day: "2-digit",
+      month: "short",
+    });
+  return `${fmt(start)} – ${fmt(end)}`;
+}
+
+function getUsageLabels(startDate, endDate) {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  const { weekLengths } = chooseConfig(startDate);
+
+  const labels = [];
+  let current = new Date(start);
+
+  for (let i = 0; i < weekLengths.length; i++) {
+    if (current > end) break;
+    const intervalStart = new Date(current);
+    const intervalEnd = new Date(current);
+    intervalEnd.setDate(intervalEnd.getDate() + weekLengths[i] - 1);
+    if (intervalEnd > end) intervalEnd.setTime(end.getTime());
+    labels.push({
+      week: i + 1,
+      label: formatSpanLabel(intervalStart, intervalEnd),
+      start: new Date(intervalStart),
+      end: new Date(intervalEnd),
+    });
+    current = new Date(intervalEnd);
+    current.setDate(current.getDate() + 1);
+  }
+  return labels;
+}
+
+function getUsageValuesForRange(startDate) {
+  return chooseConfig(startDate).usageValues;
+}
+
+function getCurrentIndexFromLabels(labels) {
+  const today = new Date();
+  today.setUTCHours(0, 0, 0, 0); 
+  for (let i = 0; i < labels.length; i++) {
+    const start = new Date(labels[i].start);
+    const end = new Date(labels[i].end);
+    start.setUTCHours(0, 0, 0, 0);
+    end.setUTCHours(23, 59, 59, 999);
+    if (today >= start && today <= end) return i;
+  }
+  return -1;
+}
+
 const LedgerInfoCard = ({
   title,
   limit,
@@ -222,124 +305,6 @@ const LedgerInfoCard = ({
 
   const endDate = new Date(startDate);
   endDate.setDate(startDate.getDate() + 29);
-
-  function getOrdinalSuffix(day) {
-    if (day > 3 && day < 21) return `${day}th`;
-    switch (day % 10) {
-      case 1:
-        return `${day}st`;
-      case 2:
-        return `${day}nd`;
-      case 3:
-        return `${day}rd`;
-      default:
-        return `${day}th`;
-    }
-  }
-
-  function formatSpanLabel(start, end) {
-    const sameMonth =
-      start.getMonth() === end.getMonth() &&
-      start.getFullYear() === end.getFullYear();
-    if (sameMonth) {
-      return `${getOrdinalSuffix(start.getDate())}–${getOrdinalSuffix(
-        end.getDate()
-      )}`;
-    }
-    const mStart = start.toLocaleString("en-US", { month: "short" });
-    const mEnd = end.toLocaleString("en-US", { month: "short" });
-    return `${start.getDate()} ${mStart}–${end.getDate()} ${mEnd}`;
-  }
-
-  /**
-   * Build 4 "week" buckets sized 8,7,7,8 days between startDate and endDate.
-   * Returns [{week,label,start,end}, ...]
-   */
-  // --- cutoff + helpers (drop-in replacement) ---
-  const CUTOFF_YMD = "2025-08-09";
-
-  function toLocalMidnight(d) {
-    const x = new Date(d);
-    x.setHours(0, 0, 0, 0);
-    return x;
-  }
-  function toUtcMidnight(d) {
-    const x = new Date(d);
-    x.setUTCHours(0, 0, 0, 0); // set hours in UTC
-    return x;
-  }
-
-  const CUTOFF = toLocalMidnight(new Date(CUTOFF_YMD));
-
-  function chooseConfig(startDate) {
-    const start = toLocalMidnight(new Date(startDate));
-    if (start.getTime() >= CUTOFF.getTime()) {
-      // New users / new cycles → 4 blocks
-      return {
-        weekLengths: [8, 7, 7, 8],
-        usageValues: [50, 30, 20, 10],
-      };
-    }
-    // Past → 5 blocks
-    return {
-      weekLengths: [2, 7, 7, 7, 8],
-      usageValues: [50, 30, 20, 10, 5],
-    };
-  }
-
-  function formatSpanLabel(start, end) {
-    // e.g., "10 Aug – 17 Aug"
-    const fmt = (d) =>
-      d.toLocaleDateString(undefined, {
-        day: "2-digit",
-        month: "short",
-      });
-    return `${fmt(start)} – ${fmt(end)}`;
-  }
-
-  function getUsageLabels(startDate, endDate) {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    const { weekLengths } = chooseConfig(startDate);
-
-    const labels = [];
-    let current = new Date(start);
-
-    for (let i = 0; i < weekLengths.length; i++) {
-      if (current > end) break;
-
-      const intervalStart = new Date(current);
-      const intervalEnd = new Date(current);
-      intervalEnd.setDate(intervalEnd.getDate() + weekLengths[i] - 1);
-
-      // Clamp to the provided endDate
-      if (intervalEnd > end) intervalEnd.setTime(end.getTime());
-
-      labels.push({
-        week: i + 1,
-        label: formatSpanLabel(intervalStart, intervalEnd),
-        start: new Date(intervalStart),
-        end: new Date(intervalEnd),
-      });
-
-      // Move to next interval (day after this interval ends)
-      current = new Date(intervalEnd);
-      current.setDate(current.getDate() + 1);
-    }
-
-    return labels;
-  }
-
-  // If you also need the usage values alongside the labels:
-  function getUsageValuesForRange(startDate) {
-    return chooseConfig(startDate).usageValues;
-  }
-
-  function getOrdinalSuffix(n) {
-    const s = ["th", "st", "nd", "rd"];
-    const v = n % 100;
-    return n + (s[(v - 20) % 10] || s[v] || s[0]);
-  }
   const usageLabels = getUsageLabels(startDate, endDate);
   const usageValues = getUsageValuesForRange(startDate);
 
@@ -360,25 +325,6 @@ const LedgerInfoCard = ({
 
   const currentIndex = getCurrentIndexFromLabels(usageLabels);
 
-  function getCurrentIndexFromLabels(labels) {
-    const today = new Date();
-    today.setUTCHours(0, 0, 0, 0); // normalize to UTC midnight
-
-    for (let i = 0; i < labels.length; i++) {
-      const start = new Date(labels[i].start);
-      const end = new Date(labels[i].end);
-
-      // Normalize both start and end to UTC
-      start.setUTCHours(0, 0, 0, 0);
-      end.setUTCHours(23, 59, 59, 999); // include whole UTC day
-
-      if (today >= start && today <= end) {
-        return i;
-      }
-    }
-
-    return -1;
-  }
   console.log("Today:", new Date(), "CurrentIndex:", currentIndex, usageLabels);
   // 📈 Chart Data
 
@@ -1444,6 +1390,90 @@ const handleClosePopup = () => {
 
 const displayBalance = Math.max(rawBalance, 0);
 
+  // Boost Wallet Chart Data
+  const bFirstLpTs = user?.firstLpDepositTs || new Date().toISOString();
+  const bStartDate = new Date(bFirstLpTs);
+  const bEndDate = new Date(bStartDate);
+  bEndDate.setDate(bStartDate.getDate() + 29);
+  
+  // 📊 Weekly Boost usage data
+  const bUsageLabels = getUsageLabels(bStartDate, bEndDate);
+  const bUsageValues = getUsageValuesForRange(bStartDate);
+  const bCurrentIndex = getCurrentIndexFromLabels(bUsageLabels);
+  
+  const boostChartData = {
+    labels: bUsageLabels.map((l, i) => `WEEK 0${i + 1}`),
+    datasets: [
+      {
+        type: 'bar',
+        label: "Usage %",
+        data: bUsageValues,
+        backgroundColor: bUsageLabels.map((_, i) => 
+          i === bCurrentIndex 
+            ? "rgba(255, 215, 0, 0.85)" // Solid Gold for current
+            : "rgba(127, 255, 76, 0.4)"   // Subtle Green for others
+        ),
+        borderColor: bUsageLabels.map((_, i) => 
+          i === bCurrentIndex ? "#ffd700" : "#7fff4c"
+        ),
+        borderWidth: 1,
+        borderRadius: 5,
+        barThickness: 15,
+      },
+      {
+        type: 'line',
+        label: "Trend",
+        data: bUsageValues.map(v => v + 5), // Slightly offset trendline
+        borderColor: "rgba(255, 215, 0, 0.6)",
+        borderWidth: 2,
+        pointRadius: 0,
+        tension: 0.4, // Smooth curve
+        fill: false,
+      }
+    ]
+  };
+  
+  const boostChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: "rgba(0,0,0,0.8)",
+        titleColor: "#ffd700",
+        bodyColor: "#fff",
+        callbacks: {
+          label: (context) => `Usage: ${context.parsed.y}%`
+        }
+      },
+      datalabels: {
+        display: true,
+        color: "#fff",
+        font: { size: 10, weight: 'bold' },
+        formatter: (value, ctx) => ctx.datasetIndex === 0 ? `${value}%` : "",
+        align: 'top',
+        anchor: 'end',
+        offset: -2
+      }
+    },
+    scales: {
+      y: { 
+        display: false, 
+        beginAtZero: true, 
+        max: 80 
+      },
+      x: { 
+        ticks: { 
+          color: "#b3baff", 
+          font: { size: 9, weight: 'bold' },
+          padding: 8
+        },
+        grid: { display: false }
+      }
+    }
+  };
+
+
   return (
     <>
       {showLoader && <GlobalLoader />}
@@ -1469,7 +1499,8 @@ const displayBalance = Math.max(rawBalance, 0);
             layout="horizontal"
             balance={parseFloat(primaryVaultBalance || "0").toLocaleString(undefined, { minimumFractionDigits: 2 })}
             limit="N/A"
-            onDeposit={onOpenAmountModal}
+            onDeposit={walletAccount ? onOpenAmountModal : onWalletConnect}
+            depositLabel={walletAccount ? "Deposit" : "Connect"}
             onViewHistory={() => window.location.href = "/dashboard/ledger"}
           />
         }
@@ -1506,11 +1537,40 @@ const displayBalance = Math.max(rawBalance, 0);
             onViewHistory={() => window.location.href = "/dashboard/ledger"}
           />
         }
-      >
-        <div className="container-xxl mt-4">
-          <div className="dashboard-content-area" onClick={handleClick}>
-            {children}
+        orbitCard4={
+          <div style={{ width: '100%', maxWidth: '1400px', margin: '0 auto' }}>
+            {/* Top Row: Analytical & Rewards Stack */}
+            <div className="row g-4 mb-4">
+              <div className="col-12 col-xl-7">
+                <div className="d-flex flex-column gap-4">
+                  <BoostWalletCard 
+                    title="Boost Wallet"
+                    balance={parseFloat(ledgerDetails?.boostWallet?.balance || "0.0").toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    limit={parseFloat(ledgerDetails?.boostWallet?.limit || "0.0").toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    earningRate="0.6%"
+                    chartData={boostChartData}
+                    chartOptions={boostChartOptions}
+                    onViewHistory={() => window.location.href = "/dashboard/history/boost"}
+                  />
+                  <X_BonusCard />
+                </div>
+              </div>
+              <div className="col-12 col-xl-5">
+                <CommunityRewardsCardnew />
+              </div>
+            </div>
+
+            {/* Middle Row: Community Booster */}
+            <div className="row g-4 mb-4">
+              <div className="col-12">
+                <Communitybooster />
+              </div>
+            </div>
           </div>
+        }
+      >
+        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px 100px' }}>
+          {children}
         </div>
       </RedesignedDashboard>
       {isTransferModalOpen && (

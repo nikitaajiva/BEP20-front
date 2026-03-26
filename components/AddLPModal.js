@@ -156,7 +156,7 @@ export default function AddLPModal({
             <div className={styles.balanceItemLarge}>
               <span className={styles.balanceLabel}>VAULT INTERFACE</span>
               <div className={styles.balanceValueLarge} style={{ color: "#4f8cff" }}>
-                {xamanBalance.toFixed(4)} <span className={styles.currencySmall}>USDT</span>
+                {primaryVaultBalance.toFixed(4)} <span className={styles.currencySmall}>USDT</span>
               </div>
             </div>
 
@@ -236,7 +236,7 @@ export default function AddLPModal({
               <button
                 type="submit"
                 className={styles.vaultActionBtn}
-                disabled={isLoading || !transferAmount || parseFloat(transferAmount) <= 0 || parseFloat(transferAmount) > xamanBalance}
+                disabled={isLoading || !transferAmount || parseFloat(transferAmount) <= 0 || parseFloat(transferAmount) > primaryVaultBalance}
               >
                 {isLoading ? "Synchronizing..." : (isFirstLP ? "Initialize Protocol" : "Commit Assets")}
               </button>

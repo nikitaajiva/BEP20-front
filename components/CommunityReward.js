@@ -1,9 +1,10 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { FaGift } from "react-icons/fa";
-import { FaLock, FaLockOpen } from "react-icons/fa";
+import { FaGift, FaLock, FaLockOpen } from "react-icons/fa";
+import { Activity } from "lucide-react";
 import "./CommunityReward.css";
 import CommunityRewardsPopup from "./CommunityRewardsPopup.js";
+
 // Raw data
 const cascadeUnlockRules = [
   {
@@ -141,14 +142,15 @@ async function groupCascadeRewards(rewards) {
 export default function CommunityReward() {
   const [records, setRecords] = useState([]);
   const [selectedLevel, setSelectedLevel] = useState([]);
-  
+
   const [allRewards, setAllRewards] = useState([]);
   const [maxUnlockedLevel, setMaxUnlockedLevel] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-   const [failedLevels, setFailedLevels] = useState([]); // 🔹 added state
+  const [failedLevels, setFailedLevels] = useState([]); // 🔹 added state
   const [openPopup, setOpenPopup] = useState(false);
   const [selectedRewards, setSelectedRewards] = useState([]);
+
   useEffect(() => {
     const fetchCascadeRules = async () => {
       try {
@@ -178,8 +180,7 @@ export default function CommunityReward() {
         const levelRewards = await groupCascadeRewards(
           responseData.data.rewards
         );
-        console.log(levelRewards, "levelRewards=================");
-        setRecords(levelRewards); // assuming API returns array of rules
+        setRecords(levelRewards);
       } catch (err) {
         console.error("❌ Error fetching cascade rules:", err);
         setError(err.message || "Something went wrong");
@@ -192,183 +193,113 @@ export default function CommunityReward() {
   }, []);
 
   return (
-    <div className="card h-100">
-      <div
-        className="card-body single-card-style"
-        style={{ overflowX: "auto" }}
-      >
-        <h5 className="USDT-comm-rew-title" style={{ color: "#b3baff" }}>
-          <FaGift className="me-2" />
-          Community Rewards
+    <div className="card h-100" style={{ background: "rgba(255, 255, 255, 0.03)", backdropFilter: "blur(15px)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: "24px" }}>
+      <div className="card-body single-card-style" style={{ padding: "25px" }}>
+        <h5 className="USDT-comm-rew-title mb-4" style={{ color: "#fff", fontWeight: 800, letterSpacing: "1px", display: "flex", alignItems: "center", gap: "10px" }}>
+          <div style={{ width: "35px", height: "35px", background: "rgba(127,255,76,0.1)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7fff4c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
+          </div>
+          COMMUNITY REWARDS
         </h5>
 
-        {/* keep your container + scroll area */}
         <div className="USDT-comm-rew-card">
-          {/* card list instead of table */}
           <div className="cr-list">
-            {cascadeUnlockRules.map((row) => {
+            {cascadeUnlockRules.map((row, index) => {
               const isLp3 = row.selfLpOrTeamLp3;
               const isLp5 = row.selfLpOrTeamLp5;
               const selfLp = isLp3?.selfLp ?? isLp5?.selfLp ?? "-";
               const teamLp = isLp3?.teamLp3 ?? isLp5?.teamLp5 ?? "-";
               const accent = accentForLevel(row.level);
               const isUnlocked = row.level <= maxUnlockedLevel;
-              const rewardAmount =
-                records?.levelTotals?.find((lt) => lt.level === row.level)
-                  ?.total ?? 0;
-              return (
-                <div key={row.level} className={`cr-card cr-${accent}`}>
-                  <div className="cr-accent" />
+              const rewardAmount = records?.levelTotals?.find((lt) => lt.level === row.level)?.total ?? 0;
+              const isEven = index % 2 === 1;
 
-                  {/* Overlay content */}
-                  {isUnlocked && (
-                    <div className="cr-overlay">
-                      <div className="cr-chip mb-2">
-                        <FaGift className="me-2" /> {row.pct}% Rewards
-                      </div>
-                      <div
-                        className={`cr-value cr-value-${accent} text-2xl font-bold`}
-                      >
-                        <div
-                          className=""
-                          style={{ display: "flex", gap: "5px" }}
-                        >
-                          <div> {rewardAmount.toFixed(6) || "0.0"} USDT </div>
-                          <div
-                            style={{
-                              color: "#7fff4c",
-                            }}
-                           onClick={() => {
-                                          const levelRewards =
-                                            allRewards.filter((r) =>
-                                               r.narrative.includes(`(L${row.level} `)
-                                            ) || [];
-                                          setSelectedRewards(levelRewards);
-                                          setOpenPopup(true);
-                                          setSelectedLevel(row.level);
-                                        }}
-                          >
-                            <svg
-                              width={20}
-                              Height={20}
-                              xmlns="http://www.w3.org/2000/svg"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              stroke-width="1.5"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                              style={{ cursor: "pointer" }}
-                              title="View Community Rewards"
-                            >
-                              <path d="M2.05 12c2.93-5 7.05-7.5 9.95-7.5S19.02 7 21.95 12c-2.93 5-7.05 7.5-9.95 7.5S4.98 17 2.05 12Z" />
-                              <circle cx="12" cy="12" r="3" />
-                            </svg>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="cr-label mt-1">
-                        Level {row.level} Rewards Today
-                      </div>
-                    </div>
-                  )}
-                            {!isUnlocked &&
-                  failedLevels.find((f) => f.level === row.level) && (
-                    <div className="cr-overlay">
-                      <div className={`cr-chip mb-2 text-red-400 cr-value-${accent}`}>
-                        <FaLock className="me-2" /> Locked
-                      </div>
-                      <div className="cr-value text-sm text-red-300">
-                        {failedLevels.find((f) => f.level === row.level)?.reason}
-                      </div>
-                      <div className="cr-label mt-1">
-                        Level {row.level} Requirement Not Met
-                      </div>
-                    </div>
-                  )}
-                  {/* Main content */}
-                  <div className="cr-main">
-                    <div
-                      style={{
-                        display: "flex",
-                        gap: "10px",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                      }}
-                    >
+              return (
+                <div key={row.level} className={`cr-item-wrapper ${isEven ? 'cr-item-right' : 'cr-item-left'}`}>
+                  <div className={`cr-card cr-${accent}`}>
+                    <div className="cr-header-row">
                       <div className="cr-badge">
                         {isUnlocked ? (
-                          <FaLockOpen
-                            className={`cr-unlock cr-tier-${accent}`}
-                          />
+                          <FaLockOpen size={10} className={`cr-unlock cr-value-${accent}`} />
                         ) : (
-                          <FaLock className={`cr-lock cr-tier-${accent}`} />
+                          <FaLock size={10} className={`cr-lock cr-value-${accent}`} />
                         )}
-                        <span className={`cr-tier cr-tier-${accent}`}>
-                          Tier {row.level}
-                        </span>
+                        <span className="cr-tier">TIER {row.level}</span>
                       </div>
-                      <div className="cr-sub">
-                        <span>Min Active Directs:</span>{" "}
-                        <div>{row.minDirects}</div>
+                      <div className="cr-pct-badge">
+                        <Activity size={10} />
+                        {row.pct}%
                       </div>
                     </div>
 
-                    {/* metrics */}
-                    <div style={{ display: "flex", paddingTop: "10px" }}>
-                      <div className="cr-meta">
-                        <div style={{ display: "flex", alignItems: "center" }}>
-                          <div>
-                            <div className="cr-chip">
-                              <FaGift className="me-2" />
-                              {row.pct}%
-                            </div>
-                            <div className="cr-label">Rewards</div>
-                          </div>
-                        </div>
+                    <div className="cr-main-stats">
+                      <div className="stat-group">
+                        <div className="stat-label">Min Directs</div>
+                        <div className="stat-value">{row.minDirects}</div>
                       </div>
-                      <div className="cr-metrics">
-                        <div className="cr-item">
-                          <div className="cr-label">Self LP</div>
-                          <div className={`cr-value cr-value-${accent}`}>
-                            {formatNum(selfLp)} USDT
-                          </div>
-                        </div>
-                        <h6 className="m-0">or</h6>
-                        <div
-                          className="cr-item cr-item-second"
-                          style={{ marginLeft: "15px" }}
-                        >
-                         <div className="cr-label">
-                          Community LP {isLp3 ? "(T1-T3)" : isLp5 ? "(T1-T5)" : ""}
-                        </div>
-                          <div className="cr-value">
-                            {formatNum(teamLp)} USDT
-                          </div>
-                        </div>
+                      <div className="stat-group">
+                        <div className="stat-label">Self LP</div>
+                        <div className={`stat-value cr-value-${accent}`}>{formatNum(selfLp)}</div>
                       </div>
                     </div>
+
+                    <div className="cr-footer-bar">
+                      <div className="stat-group">
+                        <div className="stat-label">Community LP</div>
+                        <div className="stat-value">{formatNum(teamLp)} USDT</div>
+                      </div>
+                      {isUnlocked && (
+                        <div className="stat-group text-end">
+                          <div className="stat-label">Earned Today</div>
+                          <div className="stat-value" style={{ color: '#7fff4c' }}>{rewardAmount.toFixed(4)}</div>
+                        </div>
+                      )}
+                    </div>
+
+                    {!isUnlocked && failedLevels.find((f) => f.level === row.level) && (
+                      <div className="cr-lock-overlay">
+                        <div className="text-center px-3">
+                          <FaLock size={20} color="rgba(255,255,255,0.3)" />
+                          <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.5)', marginTop: '5px' }}>
+                            {failedLevels.find((f) => f.level === row.level)?.reason}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {isUnlocked && (
+                      <div className="cr-overlay" onClick={() => {
+                        const levelRewards = allRewards.filter((r) => r.narrative?.includes(`(L${row.level} `)) || [];
+                        setSelectedRewards(levelRewards);
+                        setOpenPopup(true);
+                        setSelectedLevel(row.level);
+                      }} style={{ cursor: 'pointer' }}>
+                        <div className="stat-label mb-2">Detailed Breakdown</div>
+                        <div className={`cr-value-${accent}`} style={{ fontSize: '1.25rem', fontWeight: 800 }}>
+                          {rewardAmount.toFixed(6)} USDT
+                        </div>
+                        <div className="stat-label mt-2">Click to view all sources</div>
+                      </div>
+                    )}
                   </div>
                 </div>
               );
             })}
           </div>
         </div>
-        {/* ✅ Render Popup */}
-       <CommunityRewardsPopup
+
+        <div className="cr-total">
+          Total Community Rewards Multiplier:{" "}
+          <strong>{cascadeUnlockRules.reduce((s, r) => s + r.pct, 0)}%</strong>
+        </div>
+
+        <CommunityRewardsPopup
           isOpen={openPopup}
           onClose={() => setOpenPopup(false)}
           rewards={selectedRewards}
           level={selectedLevel}
- 
         />
-        {/* total row under cards (optional) */}
-        <div className="cr-total">
-          Total Community Rewards:{" "}
-          <strong>{cascadeUnlockRules.reduce((s, r) => s + r.pct, 0)}%</strong>
-        </div>
       </div>
     </div>
   );
 }
-

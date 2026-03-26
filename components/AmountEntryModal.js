@@ -34,7 +34,7 @@ export default function AmountEntryModal({
         
         <div className={styles.modalHeader}>
             <h4 className={styles.modalTitle}>
-              Deposit From XAMAN
+              Deposit From Primary Vault
             </h4>
         </div>
 

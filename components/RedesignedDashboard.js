@@ -16,6 +16,7 @@ const RedesignedDashboard = ({
   orbitCard1,
   orbitCard2,
   orbitCard3,
+  orbitCard4,
   children
 }) => {
   const lpWallet = ledgerDetails?.lpWallet || {};
@@ -46,8 +47,119 @@ const RedesignedDashboard = ({
     ? `${walletAccount.slice(0, 6)}...${walletAccount.slice(-4)}`
     : "";
 
+  const referralLink = user?.username
+    ? `${typeof window !== 'undefined' ? window.location.protocol : 'https:'}//${typeof window !== 'undefined' ? window.location.host : 'app.bepvault.io'}/sign-up?sponsorId=${user.username}`
+    : "";
+
+  const [copySuccess, setCopySuccess] = React.useState(false);
+  const handleCopyLink = () => {
+    if (!referralLink) return;
+    navigator.clipboard.writeText(referralLink).then(() => {
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    });
+  };
+
   return (
     <div className={styles.hubContentWrapper}>
+      {/* Unified Top Header Actions */}
+      <div className={styles.dashboardTopHeader}>
+        {/* Vault Pass (Invitation Link) - Left */}
+        <div 
+          className={styles.vaultPassCard} 
+          onClick={handleCopyLink} 
+          style={{ cursor: 'pointer' }}
+          title="Click to copy invitation link"
+        >
+          <div className={styles.passHeader}>
+            <span className={styles.passLabel}>INVITE FRIENDS & EARN REWARDS</span>
+          </div>
+          <div className={styles.passLinkWrapper}>
+            <span className={styles.passUrl}>
+              {copySuccess ? "LINK COPIED! SHARE WITH YOUR TEAM" : "CLICK TO COPY REFERRAL LINK"}
+            </span>
+            <button 
+              className={styles.passCopyBtn} 
+              title="Copy Invitation Link"
+            >
+              {copySuccess ? <Activity size={12} color="#7FFF4C" /> : <Copy size={12} />}
+            </button>
+          </div>
+        </div>
+
+        {/* Action Group - Right */}
+        <div className={styles.topRightActions}>
+          <div className={styles.headerBalanceWrapper}>
+            <span className={styles.headerBalanceLabel}>Redeemable Balance:</span>
+            <span className={styles.headerBalanceValue}>
+              {parseFloat(ledgerDetails?.communityRewards?.balance || "0").toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USDT
+            </span>
+          </div>
+          {user?.userType === "superadmin" && (
+            <Link href="/support/dashboard" className={styles.supportAdminBtn}>
+              <Shield size={14} />
+              Support
+            </Link>
+          )}
+          <button
+            className={styles.redeemBtnTop}
+            onClick={onRedeem}
+          >
+            <Gift size={14} />
+            Redeem
+          </button>
+          <button
+            className={styles.connectBtn}
+            onClick={onWalletConnect}
+            title="Connect Wallet"
+          >
+            <Wallet size={14} />
+            {walletAccount ? shortAddress : "Connect Wallet"}
+            {walletAccount && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginLeft: '4px' }}>
+                <span
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigator.clipboard.writeText(walletAccount);
+                  }} 
+                  style={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer', color: '#aaa' }}
+                  title="Copy Address"
+                >
+                  <Copy size={12} />
+                </span>
+                <span
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (onWalletConnect) onWalletConnect();
+                  }} 
+                  style={{ 
+                    display: 'inline-flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    backgroundColor: 'rgba(255,255,255,0.15)',
+                    padding: '2px',
+                    borderRadius: '4px'
+                  }}
+                  title="Add Funds"
+                >
+                  <Plus size={12} />
+                </span>
+              </div>
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* Dynamic Background Elements */}
+      <div className={styles.lightRaysContainer}>
+        <div className={styles.lightRay}></div>
+        <div className={styles.lightRay}></div>
+        <div className={styles.lightRay}></div>
+        <div className={styles.lightRay}></div>
+      </div>
+      <div className={styles.ambientGlow}></div>
+
       {/* Background Sparkles */}
       <div className={styles.sparklesContainer}>
         {sparkles.map((s) => (
@@ -66,63 +178,11 @@ const RedesignedDashboard = ({
         ))}
       </div>
 
-      <div className={styles.topRightActions}>
-        <div className={styles.headerBalanceWrapper}>
-          <span className={styles.headerBalanceLabel}>Redeemable Balance:</span>
-          <span className={styles.headerBalanceValue}>
-            {parseFloat(ledgerDetails?.communityRewards?.balance || "0").toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USDT
-          </span>
-        </div>
-        <button
-          className={styles.redeemBtnTop}
-          onClick={onRedeem}
-        >
-          <Gift size={14} />
-          Redeem
-        </button>
-        <button
-          className={styles.connectBtn}
-          onClick={onWalletConnect}
-          title="Connect Wallet"
-        >
-          <Wallet size={14} />
-          {walletAccount ? shortAddress : "Connect Wallet"}
-          {walletAccount && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginLeft: '4px' }}>
-              <span
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigator.clipboard.writeText(walletAccount);
-                }} 
-                style={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer', color: '#aaa' }}
-                title="Copy Address"
-              >
-                <Copy size={12} />
-              </span>
-              <span
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (onWalletConnect) onWalletConnect();
-                }} 
-                style={{ 
-                  display: 'inline-flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  backgroundColor: 'rgba(255,255,255,0.15)',
-                  padding: '2px',
-                  borderRadius: '4px'
-                }}
-                title="Add Funds"
-              >
-                <Plus size={14} />
-              </span>
-            </div>
-          )}
-        </button>
-      </div>
+{/* Actions moved to Header */}
 
-      {/* Static Floating Cards (Left, Right, Bottom) */}
+      <div className={styles.staticFloatTop}>
+        {orbitCard4} {/* Boost Wallet */}
+      </div>
       <div className={styles.staticFloatLeft}>
         {orbitCard2} {/* Stable Pool */}
       </div>

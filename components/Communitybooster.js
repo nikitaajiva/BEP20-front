@@ -156,140 +156,76 @@ export default function Communitybooster() {
   const blockToShow = tiersPresent.length; // 1, 2, or 3
 
   return (
-    <div
-      className="card h-100"
-      style={{
-        background: "#000000",
-        borderRadius: "24px",
-        border: "1px solid rgba(255, 215, 0, 0.15)",
-        boxShadow: "0 10px 40px rgba(0,0,0,0.8)",
-      }}
-    >
-      <div className="card-body single-card-style">
-        <div className="d-flex align-items-start justify-content-between">
-          <div className="card-title mb-0">
-            <h5
-              className="mb-0"
-              style={{ color: "#fff", display: "flex", gap: "3px" }}
-            >
-              {/* <span className="" style={{ marginTop: "-3px" }}>
-                {" "}
-                <Image src={CommunityBoostericon} width={40} height={40} />
-              </span> */}
-              Community Booster
-            </h5>
-          </div>
-        </div>
+    <div className="booster-shell">
+      <div className="booster-title-box">
+        <h5>Community Booster</h5>
+      </div>
 
-        {/* Card list */}
-        <div className="booster-list">
-          {CARDS.map((c, i) => {
-            // find matching total for this card's level
-            const levelTotal =
-              records?.levelTotals?.find((lt) => lt.level === i + 1)?.total ||
-              0;
-            const accent = accentForLevel(i + 1);
-            return (
-              <div key={i} className="booster-card">
-                <span className="booster-accent" />
+      <div className="booster-list">
+        {CARDS.map((c, i) => {
+          const levelTotal = records?.levelTotals?.find((lt) => lt.level === i + 1)?.total || 0;
+          const accent = accentForLevel(i + 1);
+          const tierInfo = c.tiers[0];
 
-                <div
-                  className=""
-                  style={{ display: "flex", justifyContent: "space-between" }}
-                >
-                  {/* header */}
-                  <div className="booster-head">
-                    <div className="lp-col">
-                      <div className="lp-label">TIER {i + 1}</div>
-                      <div className="lp-val self">{c.direct}</div>
-                    </div>
-                    <div className="lp-col">
-                      <div className="lp-label">COMMUNITY LP</div>
-                      <div className="lp-val community">{c.community}</div>
-                    </div>
-                  </div>
+          return (
+            <div key={i} className={`booster-card tier-${i + 1}`}>
+              <div className="booster-card-header">
+                <span className="booster-tier-label">TIER {i + 1}</span>
+                <span className="booster-bonus-pct">Bonus: {tierInfo.bonus}</span>
+              </div>
 
-                  {/* tiers row */}
-                  <div className="tiers-row">
-                    {c.tiers.map((t, idx) => (
-                      <div key={idx} className="tier-box">
-                        <div className="tier-name">{t.name}</div>
-                        <div className="tier-bonus">Bonus {t.bonus}</div>
-
-                        {/* ✅ hover overlay (dynamic value) */}
-                        <div className="booster-overlay">
-                          {/* Bonus chip */}
-                          <div className="cr-chip mb-2">
-                            <FaGift className="me-2" /> {c.tiers[0].bonus}{" "}
-                            Rewards
-                          </div>
-
-                          {/* Value row */}
-                          <div
-                            className={`cr-value text-2xl font-bold cr-value-${accent}`}
-                          >
-                            <div
-                              style={{
-                                display: "flex",
-                                gap: "5px",
-                                alignItems: "center",
-                              }}
-                            >
-                              <div>{levelTotal.toFixed(6)} USDT</div>
-                              <div
-                                style={{ color: "#7fff4c", cursor: "pointer" }}
-                                onClick={() => {
-                                  setSelectedRewards(
-                                    allRewards.filter((r) => r.level === i + 1),
-                                  );
-                                  setSelectedLevel(i + 1);
-                                  setOpenPopup(true);
-                                }}
-                              >
-                                <svg
-                                  width={20}
-                                  height={20}
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  viewBox="0 0 24 24"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  strokeWidth="1.5"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  title="View Booster Rewards"
-                                >
-                                  <path d="M2.05 12c2.93-5 7.05-7.5 9.95-7.5S19.02 7 21.95 12c-2.93 5-7.05 7.5-9.95 7.5S4.98 17 2.05 12Z" />
-                                  <circle cx="12" cy="12" r="3" />
-                                </svg>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Label */}
-                          <div className="cr-label mt-1">
-                            Tier {i + 1} Rewards Today
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+              <div className="booster-card-body">
+                <div className="booster-val-row">
+                  <div className="booster-val-large">{c.direct}</div>
+                </div>
+                <div className="booster-divider" />
+                <div className="booster-val-row">
+                  <div className="booster-val-large">{c.community}</div>
                 </div>
               </div>
-            );
-          })}
-        </div>
 
-        {/* ✅ Render Popup */}
-        <CommunityBoosterPopup
-          isOpen={openPopup}
-          onClose={() => setOpenPopup(false)}
-          rewards={selectedRewards}
-          level={selectedLevel}
-        />
-        <p className="booster-note">
-          The Community LP will be calculated from the <b>First 3 Tiers</b>.
-        </p>
+              {/* Hover Overlay */}
+              <div className="booster-overlay">
+                <div className="cr-chip">
+                  <FaGift size={10} />
+                  Tier {i + 1} Rewards
+                </div>
+                <div className="cr-value">
+                  <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                    <span>{levelTotal.toFixed(6)} USDT</span>
+                    <div
+                      className="eye-icon-wrapper"
+                      style={{ cursor: "pointer", display: "flex", alignItems: "center" }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedRewards(allRewards.filter((r) => r.level === i + 1));
+                        setSelectedLevel(i + 1);
+                        setOpenPopup(true);
+                       }}
+                    >
+                      <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" title="View Details">
+                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+                <div className="cr-label">Today's Earnings</div>
+              </div>
+            </div>
+          );
+        })}
       </div>
+
+      <CommunityBoosterPopup
+        isOpen={openPopup}
+        onClose={() => setOpenPopup(false)}
+        rewards={selectedRewards}
+        level={selectedLevel}
+      />
+      
+      <p className="booster-footer-note">
+        The Community LP will be calculated from the First 3 Tiers.
+      </p>
     </div>
   );
 }

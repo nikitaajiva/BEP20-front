@@ -60,7 +60,8 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.navLink svg, .navLink i {
+.navLink svg,
+.navLink i {
   transition: all 0.3s ease;
 }
 
@@ -72,12 +73,14 @@
   color: #ffd700;
 }
 
-.navLink:hover svg, .navLink:hover i {
+.navLink:hover svg,
+.navLink:hover i {
   transform: scale(1.1);
   filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.6));
 }
 
-.navLinkActive svg, .navLinkActive i {
+.navLinkActive svg,
+.navLinkActive i {
   filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.5));
   color: #000;
 }
@@ -111,12 +114,12 @@
   width: calc(100% - 260px);
   position: relative;
   z-index: 10;
-  overflow: hidden;
+  min-height: 100vh;
 }
 
 /* Golden Light Rays Animation */
 .lightRaysContainer {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
@@ -164,19 +167,19 @@
 }
 
 .ambientGlow {
-  position: absolute;
-  top: -100px;
-  left: -100px;
-  right: -100px;
-  height: 600px;
-  background: radial-gradient(ellipse at 50% 0%, rgba(255, 215, 0, 0.12) 0%, transparent 70%);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100vh;
+  background: radial-gradient(circle at 50% 0%, rgba(255, 215, 0, 0.15) 0%, transparent 75%);
   z-index: 2;
   pointer-events: none;
 }
 
 /* Golden Sparkles Background */
 .sparklesContainer {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
@@ -199,14 +202,17 @@
 }
 
 @keyframes sparkleTwinkle {
-  0%, 100% { 
-    opacity: 0; 
-    transform: scale(0.5); 
+
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0.5);
   }
-  50% { 
-    opacity: 0.5; 
-    transform: scale(1.3); 
-    box-shadow: 0 0 12px rgba(255, 215, 0, 0.8), 0 0 5px rgba(255, 255, 255, 0.6); 
+
+  50% {
+    opacity: 0.5;
+    transform: scale(1.3);
+    box-shadow: 0 0 12px rgba(255, 215, 0, 0.8), 0 0 5px rgba(255, 255, 255, 0.6);
   }
 }
 
@@ -529,14 +535,30 @@
   position: relative;
 }
 
-.topRightActions {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  gap: 15px;
+
+.supportAdminBtn {
+    background: rgba(43, 85, 255, 0.1);
+    border: 1px solid rgba(43, 85, 255, 0.3);
+    color: #4cc9f0;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    text-decoration: none;
+    height: 38px;
+}
+
+.supportAdminBtn:hover {
+    background: rgba(43, 85, 255, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(43, 85, 255, 0.2);
+    color: #fff;
+    border-color: rgba(43, 85, 255, 0.5);
 }
 
 .redeemBtnTop {
@@ -601,6 +623,106 @@
 .headerBalanceValue {
   color: #ffd700;
   font-size: 14px;
+}
+
+/* Unified Top Header Header */
+.dashboardTopHeader {
+  position: absolute;
+  top: 25px;
+  left: 25px;
+  right: 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  z-index: 100;
+  gap: 20px;
+}
+
+/* Redefine Right Actions as flex child */
+.topRightActions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-top: 5px;
+  /* Alignment with the pass card */
+}
+
+/* Vault Pass - Top Left */
+.vaultPassCard {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 10px 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  min-width: 250px;
+}
+
+.passHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.passBadge {
+  background: linear-gradient(135deg, #ffd700 0%, #ffa500 100%);
+  color: #000;
+  font-size: 8px;
+  font-weight: 900;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+
+.passLabel {
+  font-size: 10px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+.passLinkWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 6px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 215, 0, 0.08);
+}
+
+.passUrl {
+  font-size: 11px;
+  color: #ffd700;
+  font-weight: 600;
+  max-width: 220px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  direction: ltr;
+}
+
+.passCopyBtn {
+  background: transparent;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 2px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.passCopyBtn:hover {
+  color: #ffd700;
+  transform: scale(1.1);
 }
 
 .autopositioningBadge {
@@ -760,21 +882,55 @@
   transform: translate(-50%, -50%);
 }
 
+/* Static Floating Card (Top Edge) */
+.staticFloatTop {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  z-index: 50;
+  animation: floatStaticCardTop 4.5s ease-in-out infinite;
+}
+
+@keyframes floatStaticCardTop {
+  0% {
+    transform: translateX(-50%) translateY(0);
+  }
+
+  50% {
+    transform: translateX(-50%) translateY(10px);
+  }
+
+  100% {
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
 /* Static Floating Card (Left Edge) */
 .staticFloatLeft {
   position: absolute;
   top: 50%;
   left: 20px;
   transform: translateY(-50%);
-  width: 380px; /* Thoda bada bankar */
+  width: 380px;
+  /* Thoda bada bankar */
   z-index: 50;
   animation: floatStaticCard 5s ease-in-out infinite;
 }
 
 @keyframes floatStaticCard {
-  0% { transform: translateY(-50%); }
-  50% { transform: translateY(calc(-50% - 20px)); }
-  100% { transform: translateY(-50%); }
+  0% {
+    transform: translateY(-50%);
+  }
+
+  50% {
+    transform: translateY(calc(-50% - 20px));
+  }
+
+  100% {
+    transform: translateY(-50%);
+  }
 }
 
 .staticFloatRight {
@@ -789,7 +945,7 @@
 
 .staticFloatBottom {
   position: absolute;
-  bottom: 10px;
+  bottom: 10%;
   left: 50%;
   transform: translateX(-50%);
   width: 100%;
@@ -799,21 +955,39 @@
 }
 
 @keyframes floatStaticCardAlt {
-  0% { transform: translateY(-50%); }
-  50% { transform: translateY(calc(-50% - 15px)); }
-  100% { transform: translateY(-50%); }
+  0% {
+    transform: translateY(-50%);
+  }
+
+  50% {
+    transform: translateY(calc(-50% - 15px));
+  }
+
+  100% {
+    transform: translateY(-50%);
+  }
 }
 
 @keyframes floatStaticCardBottom {
-  0% { transform: translateX(-50%) translateY(0); }
-  50% { transform: translateX(-50%) translateY(-15px); }
-  100% { transform: translateX(-50%) translateY(0); }
+  0% {
+    transform: translateX(-50%) translateY(0);
+  }
+
+  50% {
+    transform: translateX(-50%) translateY(-15px);
+  }
+
+  100% {
+    transform: translateX(-50%) translateY(0);
+  }
 }
 
 /* ===== Responsive Mobile Styles ===== */
 
 @media (max-width: 1200px) {
-  .staticFloatLeft, .staticFloatRight {
+
+  .staticFloatLeft,
+  .staticFloatRight {
     width: 340px;
   }
 }
@@ -823,15 +997,19 @@
     width: 80px;
     padding: 20px 10px;
   }
+
   .sidebarNavItem span {
     display: none;
   }
+
   .mainContentArea {
     margin-left: 80px;
     width: calc(100% - 80px);
     padding: 20px;
   }
-  .staticFloatLeft, .staticFloatRight {
+
+  .staticFloatLeft,
+  .staticFloatRight {
     position: relative;
     top: auto;
     left: auto;
@@ -842,6 +1020,7 @@
     margin: 20px auto;
     animation: none;
   }
+
   .staticFloatBottom {
     position: relative;
     bottom: auto;
@@ -851,15 +1030,28 @@
     max-width: 600px;
     animation: none;
   }
+
+  .staticFloatTop {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    width: 100%;
+    max-width: 600px;
+    margin: 20px auto;
+    animation: none;
+  }
+
   .centralDashboard {
     min-height: 500px;
     padding: 20px 0;
   }
+
   .hubContentWrapper {
     display: flex;
     flex-direction: column;
-    overflow-y: auto;
   }
+
   .staticFloatBottom {
     order: 2;
     margin-bottom: 25px;
@@ -868,26 +1060,28 @@
     z-index: 100;
     width: 100%;
   }
+
   .staticFloatLeft {
     order: 4;
   }
+
   .staticFloatRight {
     order: 5;
   }
+
   .centralDashboard {
     order: 3;
     min-height: 480px;
     padding: 15px 0;
   }
+
   .topRightActions {
-    position: relative;
-    top: auto;
-    right: auto;
-    padding: 20px 15px 10px;
-    flex-wrap: wrap;
-    justify-content: center;
     order: 1;
     width: 100%;
+  }
+
+  .staticFloatTop {
+    order: 1.5;
   }
 }
 
@@ -897,17 +1091,22 @@
     width: 100%;
     padding: 15px;
   }
+
   .sidebar {
-    display: none; /* Mobile menu can be added later if needed */
+    display: none;
+    /* Mobile menu can be added later if needed */
   }
+
   .hubAmount {
     font-size: 32px;
   }
+
   .mainCircle {
     width: 230px;
     height: 230px;
     padding-top: 10px;
   }
+
   .hubLabel {
     position: absolute;
     top: -45px;
@@ -921,21 +1120,26 @@
     font-size: 11px;
     opacity: 0.9;
   }
+
   .techRing {
     display: none;
   }
+
   .topRightActions {
     flex-direction: column;
     gap: 10px;
     align-items: center;
   }
+
   .headerBalanceWrapper {
     flex-direction: column;
     gap: 2px;
     margin-right: 0;
     text-align: center;
   }
-  .redeemBtnTop, .connectBtn {
+
+  .redeemBtnTop,
+  .connectBtn {
     width: 100%;
     justify-content: center;
   }
@@ -971,7 +1175,8 @@
   transition: all 0.3s ease;
 }
 
-.mobileNavItem svg, .mobileNavItem i {
+.mobileNavItem svg,
+.mobileNavItem i {
   transition: all 0.3s ease;
 }
 
@@ -979,7 +1184,8 @@
   color: #ffd700;
 }
 
-.mobileNavItemActive svg, .mobileNavItemActive i {
+.mobileNavItemActive svg,
+.mobileNavItemActive i {
   transform: scale(1.1);
   filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.4));
 }
@@ -988,7 +1194,9 @@
   .mobileBottomNav {
     display: flex;
   }
+
   .mainContentArea {
-    padding-bottom: 80px; /* Space for bottom nav */
+    padding-bottom: 80px;
+    /* Space for bottom nav */
   }
 }

@@ -2,15 +2,46 @@
 import React from "react";
 import styles from "./PremiumWalletCards.module.css";
 import { ArrowRight, Plus, Gift, Rocket, Shield, MousePointer2, Users, History, TrendingUp, Wallet, Eye } from "lucide-react";
+import { Bar } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
+
+const getThemeColor = (type) => {
+  switch (type) {
+    case 'boost': return '#f038ff'; // Electric Purple
+    case 'zero-risk': return '#00ff88'; // Emerald
+    case 'lp': return '#4cc9f0'; // Sapphire
+    case 'community': return '#ffd700'; // Gold
+    case 'system': return '#00d2ff'; // Cyan
+    default: return '#ffd700';
+  }
+};
 
 const getIcon = (type) => {
+  const color = getThemeColor(type);
   switch (type) {
-    case 'boost': return <Rocket size={20} />;
-    case 'zero-risk': return <Shield size={20} />;
-    case 'lp': return <MousePointer2 size={20} />;
-    case 'community': return <Users size={20} />;
-    case 'system': return <Wallet size={20} />;
-    default: return <Gift size={20} />;
+    case 'boost': return <Rocket size={20} color={color} />;
+    case 'zero-risk': return <Shield size={20} color={color} />;
+    case 'lp': return <MousePointer2 size={20} color={color} />;
+    case 'community': return <Users size={20} color={color} />;
+    case 'system': return <Wallet size={20} color={color} />;
+    default: return <Gift size={20} color={color} />;
   }
 };
 
@@ -177,6 +208,60 @@ export const ActionableWalletCard = ({
         <button className={styles.secondaryBtn} onClick={onViewHistory}>
           <History size={18} />
           View History
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export const BoostWalletCard = ({
+  title,
+  balance,
+  limit,
+  earningRate,
+  onViewHistory,
+  type = 'boost',
+  subtitle = "Available Balance",
+  chartData,
+  chartOptions
+}) => {
+  return (
+    <div className={styles.boostCardSplit}>
+      {/* Left side: Header & Gauge */}
+      <div className={styles.boostGaugeArea}>
+        <div className={styles.cardHeader} style={{ marginBottom: '10px' }}>
+          <div className={styles.headerLeft}>
+            <div className={styles.iconBox} style={{ background: "transparent", border: "1px solid rgba(255, 215, 0, 0.3)", width: '36px', height: '36px' }}>
+              {getIcon(type)}
+            </div>
+            <div className={styles.titleSection}>
+              <h3 style={{ fontSize: '14px' }}>{title}</h3>
+              <p style={{ fontSize: '10px' }}>{subtitle}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className={styles.gaugeWrapper}>
+          <div className={styles.gaugeOuter}>
+             <div className={styles.gaugeInner}>
+               <div className={styles.gaugeValue}>{balance}</div>
+               <div className={styles.gaugeCurrency}>USDT</div>
+             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Right side: Chart & Button */}
+      <div className={styles.boostChartArea}>
+        <div className={styles.chartTitleRow}>
+            <span>History</span>
+            {earningRate && <div style={{ color: '#00ff00', fontSize: '11px' }}>Rate: {earningRate}</div>}
+        </div>
+        <div className={styles.miniChartSection}>
+          {chartData && <Bar data={chartData} options={chartOptions} />}
+        </div>
+        <button className={styles.viewHistoryBanner} onClick={onViewHistory}>
+           View History
         </button>
       </div>
     </div>

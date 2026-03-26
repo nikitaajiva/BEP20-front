@@ -90,7 +90,7 @@ function LedgerRows() {
                     walletFrom: i % 2===0 ? walletTypes[Math.floor(Math.random() * walletTypes.length)] : 'SYSTEM',
                     walletTo: walletTypes[Math.floor(Math.random() * walletTypes.length)],
                     ratePct: i % 3 === 0 ? (Math.random() * 5).toFixed(2) : 0,
-                    narrative: `Audit Trajectory Executed: Node verification completed. Cross-chain hash sequence verified and synchronized perfectly. Tracing path #${Math.floor(Math.random()*10000)}.`
+                    narrative: `Transaction processed successfully for session #${Math.floor(Math.random()*10000)}.`
                 }));
                 setRows(resultData);
                 setPagination({ ...pagination, currentPage: 1, totalPages: 1, totalRecords: 8 });
@@ -238,7 +238,6 @@ function LedgerRows() {
                         
                         return (
                             <div key={index} className={styles.trailCard}>
-                                <div className={styles.trailDot} />
                                 
                                 {/* Time Column */}
                                 <div className={styles.trailTimeCol}>
@@ -268,31 +267,6 @@ function LedgerRows() {
                                             <span className={styles.tMetricLabel}>Volume Transacted</span>
                                             <span className={styles.tMetricVal}>{row.amount?.toFixed(2) || '0.00'} <span>USDT</span></span>
                                         </div>
-                                        
-                                        <div className={styles.tMetric}>
-                                            <span className={styles.tMetricLabel}>Source Node</span>
-                                            <span className={styles.tMetricVal} style={{ fontSize: 11, color:'rgba(255,255,255,0.6)', fontWeight:700 }}>
-                                                {row.eventType === 'BOOST_BONUS' ? boostDetails.from : (row.walletFrom || 'SYSTEM CORE')}
-                                            </span>
-                                        </div>
-                                        
-                                        <div className={styles.tMetric}>
-                                            <span className={styles.tMetricLabel}>Target Node</span>
-                                            <span className={styles.tMetricVal} style={{ fontSize: 11, color:'rgba(255,255,255,0.6)', fontWeight:700 }}>
-                                                {row.walletTo || 'SYSTEM CORE'}
-                                            </span>
-                                        </div>
-
-                                        <div className={styles.tMetric}>
-                                            <span className={styles.tMetricLabel}>Calculated Yield</span>
-                                            <span className={styles.tMetricVal}>
-                                                <span className={styles.tMetricValYield}>{row.eventType === 'BOOST_BONUS' ? boostDetails.rate : (row.ratePct || '0')}%</span>
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    <div className={styles.trailNarrative}>
-                                        {row.narrative}
                                     </div>
 
                                 </div>

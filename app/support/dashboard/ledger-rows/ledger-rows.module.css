@@ -184,57 +184,41 @@
 
 /* ─── LEDGER TRAIL LIST ────────────────────────────────── */
 .trailList {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
   position: relative;
-  padding-left: 20px;
-}
-.trailList::before {
-  content: '';
-  position: absolute;
-  top: 10px; bottom: 10px; left: 0;
-  width: 2px;
-  background: linear-gradient(to bottom, rgba(255,215,0,0.5), rgba(255,255,255,0.05));
-  border-radius: 2px;
 }
 
 /* ─── TRAIL CARD ───────────────────────────────────────── */
 .trailCard {
   background: rgba(10,10,10,0.6);
   border: 1px solid rgba(255,215,0,0.08);
-  border-radius: 16px;
-  padding: 20px;
+  border-radius: 20px;
+  padding: 24px 20px;
   display: flex;
+  flex-direction: column;
   gap: 20px;
-  align-items: flex-start;
+  align-items: center;
+  text-align: center;
   position: relative;
   backdrop-filter: blur(12px);
-  transition: all 0.25s ease;
+  transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
 }
 .trailCard:hover {
   transform: translateX(4px);
   border-color: rgba(255,215,0,0.2);
   background: rgba(10,10,10,0.8);
 }
-.trailDot {
-  position: absolute;
-  top: 30px; left: -25px;
-  width: 12px; height: 12px;
-  border-radius: 50%;
-  background: #000;
-  border: 2px solid #ffd700;
-  box-shadow: 0 0 10px rgba(255,215,0,0.5);
-  z-index: 2;
-}
 
 /* Timestamp Column */
 .trailTimeCol {
   display: flex;
   flex-direction: column;
-  min-width: 80px;
-  border-right: 1px solid rgba(255,255,255,0.05);
-  padding-right: 16px;
+  align-items: center;
+  width: 100%;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 .trailDate { font-size: 11px; font-weight: 800; color: #ffd700; text-transform: uppercase; margin-bottom: 4px; }
 .trailTime { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.85); }
@@ -243,16 +227,19 @@
 .trailCoreCol {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  flex: 1;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
 }
 
 .trailHeader {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
 }
-.trailIdentity { display: flex; align-items: center; gap: 10px; }
+.trailIdentity { display: flex; flex-direction: column; align-items: center; gap: 10px; }
 .trailAvatar {
   width: 34px; height: 34px;
   border-radius: 10px;
@@ -261,8 +248,8 @@
   display: flex; align-items: center; justify-content: center;
   font-size: 12px; font-weight: 900;
 }
-.trailUser { font-size: 14px; font-weight: 900; color: #fff; }
-.trailUhid { font-size: 10px; color: rgba(255,255,255,0.85); font-weight: 700; font-family: monospace; }
+.trailUser { font-size: 15px; font-weight: 900; color: #fff; text-align: center; }
+.trailUhid { font-size: 10px; color: rgba(255,255,255,0.85); font-weight: 700; font-family: monospace; opacity: 0.8; }
 .trailEventType {
   padding: 5px 12px;
   border-radius: 8px;
@@ -273,12 +260,14 @@
 }
 
 .trailMetrics {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 10px;
-  background: rgba(0,0,0,0.2);
-  border-radius: 12px;
-  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(255,215,0,0.04);
+  border: 1px solid rgba(255,215,0,0.1);
+  border-radius: 14px;
+  padding: 16px;
+  width: 100%;
 }
 .tMetric {
   display: flex;

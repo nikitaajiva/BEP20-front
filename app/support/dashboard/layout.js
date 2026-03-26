@@ -1,9 +1,14 @@
 "use client";
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import SupportSidebar from '@/components/SupportSidebar';
 import styles from '@/components/RedesignedDashboard.module.css';
 
 export default function SupportDashboardLayout({ children }) {
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
   return (
     <div className={styles.dashboardContainer} style={{ display: 'flex' }}>
       {/* Background Ambience Layers */}
@@ -31,7 +36,7 @@ export default function SupportDashboardLayout({ children }) {
 
       {/* Background Star Ambience */}
       <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: -1 }}>
-        {[...Array(10)].map((_, i) => (
+        {mounted && [...Array(10)].map((_, i) => (
           <div key={i} style={{ 
             position: "absolute", 
             width: 2, height: 2, 

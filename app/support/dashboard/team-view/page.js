@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
-import { ChevronRight, ChevronDown, Plus, Minus, User, Users, Wallet, Calendar, ShieldCheck, Network, Activity } from 'lucide-react';
+import { ChevronRight, ChevronDown, Plus, Minus, User, Users, Wallet, Calendar, ShieldCheck, Network, Activity, Search } from 'lucide-react';
 import styles from './team-view.module.css';
 
 const API_BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}`;
@@ -62,6 +62,10 @@ const RecursiveNode = ({ user, level, onToggle, open, onFetch, router }) => {
                     <div>
                         <div className={styles.nodeUser}>{username}</div>
                         <div className={styles.nodeUhid}>{user.uhid || "NULL"}</div>
+                        <div className={styles.nodeDirects}>
+                            <Users size={10} style={{ opacity: 0.6 }} /> 
+                            DIRECTS: <strong>{user.directUsers || 0}</strong>
+                        </div>
                     </div>
                 </div>
 
@@ -76,7 +80,7 @@ const RecursiveNode = ({ user, level, onToggle, open, onFetch, router }) => {
                         <span className={`${styles.metricVal} ${styles.valBlue}`}>{user.teamLp?.toFixed(2) || '0.00'}</span>
                     </div>
                     <div className={styles.metricBadge}>
-                        <span className={styles.metricLabel}>Network Size</span>
+                        <span className={styles.metricLabel}>Max Depth</span>
                         <span className={`${styles.metricVal} ${styles.valGreen}`}>{user.teamSize?.toLocaleString() || '0'}</span>
                     </div>
                     <div className={styles.metricBadge} style={{ minWidth: 120 }}>
@@ -92,11 +96,6 @@ const RecursiveNode = ({ user, level, onToggle, open, onFetch, router }) => {
                         </span>
                     </div>
                 </div>
-
-                {/* Audit Action */}
-                <button className={styles.btnAudit} onClick={() => handleViewLedger(user._id)}>
-                    <ShieldCheck size={12} strokeWidth={3} /> Audit Log
-                </button>
             </div>
 
             {/* Recursively Render Children (Inside the padded border box) */}
@@ -130,6 +129,7 @@ export default function TeamViewPage() {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [searchQuery, setSearchQuery] = useState("");
 
     // Deep merge function to insert children into the appropriate parent UHID
     const updateUserState = (uhid, childrenResponse) => {
@@ -166,13 +166,21 @@ export default function TeamViewPage() {
         });
     };
 
-    // --- DUMMY GENERATORS FOR PREVIEW ---
+    const getFilteredNodes = (nodeList) => {
+        if (!searchQuery) return nodeList;
+        return nodeList.filter(n => 
+            (n.username || "").toLowerCase().includes(searchQuery.toLowerCase()) || 
+            (n.uhid || "").toLowerCase().includes(searchQuery.toLowerCase())
+        );
+    };
+
     const generateDummyTopLevel = () => {
         return Array.from({ length: 4 }).map((_, i) => ({
             _id: `top_${i}`,
             uhid: `U100${i}X${Math.floor(Math.random()*900)}`,
             username: `GenesisNode${i + 1}`,
-            teamSize: Math.floor(Math.random() * 50) + 1,
+            directUsers: Math.floor(Math.random() * 5) + 2,
+            teamSize: Math.floor(Math.random() * 50) + 10,
             selfLp: Math.random() * 1000 + 500,
             teamLp: Math.random() * 5000 + 1000,
             sponsorUsername: 'SYSTEM',
@@ -186,7 +194,8 @@ export default function TeamViewPage() {
             _id: `child_${parentUhid}_${i}`,
             uhid: `${parentUhid.substring(0,4)}Y${Math.floor(Math.random()*900)}`,
             username: `SubNode-${parentUhid.substring(5,7)}-${i+1}`,
-            teamSize: Math.random() > 0.5 ? Math.floor(Math.random() * 10) : 0, // 50% chance to have their own team
+            directUsers: Math.random() > 0.5 ? Math.floor(Math.random() * 3) : 0,
+            teamSize: Math.random() > 0.5 ? Math.floor(Math.random() * 10) : 0,
             selfLp: Math.random() * 500 + 100,
             teamLp: Math.random() * 800,
             sponsorUsername: parentUhid, // Fake sponsor mapping
@@ -249,10 +258,22 @@ export default function TeamViewPage() {
         <div className={styles.container}>
             {/* ── HEADER ── */}
             <header className={styles.header}>
-                <div>
+                <div style={{ flex: 1 }}>
                     <div className={styles.eyebrow}><span className={styles.eyebrowDot} /> BEPVault Admin</div>
                     <h1 className={styles.title}>System <span>Topology Trace</span></h1>
                 </div>
+
+                <div className={styles.searchContainer}>
+                    <Search size={16} className={styles.searchIcon} />
+                    <input 
+                        type="text" 
+                        placeholder="Search by Username or UHID..." 
+                        className={styles.searchInput}
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                </div>
+
                 <div className={styles.statsBadge}>
                     <Network size={14} className={styles.statsBadgeIcon} />
                     <span className={styles.statsBadgeText}>Genesis Nodes: <strong>{users.length}</strong></span>
@@ -268,7 +289,7 @@ export default function TeamViewPage() {
                     </div>
                 ) : users.length > 0 ? (
                     <div>
-                        {users.map(user => (
+                        {getFilteredNodes(users).map(user => (
                             <RecursiveNode
                                 key={user.uhid}
                                 user={user}

@@ -16,7 +16,7 @@ const systemReportLinks = [
 const mainNavLinks = [
   { name: "Welcome",        href: "/support/dashboard",              icon: Home },
   { name: "Users",          href: "/support/dashboard/users",        icon: Users },
-  { name: "User Ledger",    href: "/support/dashboard/user-ledger",  icon: Database },
+  // { name: "User Ledger",    href: "/support/dashboard/user-ledger",  icon: Database },
   { name: "Team View",      href: "/support/dashboard/team-view",    icon: PieChart },
   { name: "Ledger Rows",    href: "/support/dashboard/ledger-rows",  icon: Activity },
   { name: "USDT Deposits",  href: "/support/dashboard/usdt-deposits", icon: Zap },

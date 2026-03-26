@@ -132,6 +132,25 @@ async function sendUsdtTransfer({ from, to, amount }) {
   return tx.hash;
 }
 
+async function sendBnbTransfer({ from, to, amount }) {
+  if (!amount || Number(amount) <= 0) {
+    throw new Error("Invalid BNB amount.");
+  }
+  if (!ethers.isAddress(to)) {
+    throw new Error("Invalid destination address.");
+  }
+  await assertBscMainnet();
+  const provider = getProvider();
+  const signer = await provider.getSigner();
+  const signerAddress = await signer.getAddress();
+  if (from && signerAddress.toLowerCase() !== from.toLowerCase()) {
+    throw new Error("Connected wallet does not match the selected account.");
+  }
+  const value = ethers.parseUnits(amount.toString(), 18);
+  const tx = await signer.sendTransaction({ to, value });
+  return tx.hash;
+}
+
 export {
   DEFAULT_CHAIN_ID,
   DEFAULT_BLOCK_EXPLORER,
@@ -141,4 +160,5 @@ export {
   switchToBsc,
   readUsdtBalance,
   sendUsdtTransfer,
+  sendBnbTransfer,
 };

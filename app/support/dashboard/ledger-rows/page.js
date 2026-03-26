@@ -2,7 +2,11 @@
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Search, Download, ChevronLeft, ChevronRight, Filter, Calendar, Wallet as WalletIcon, Activity, User as UserIcon, Tag, Terminal, Database, Clock } from 'lucide-react';
+import { 
+  Search, Download, ChevronLeft, ChevronRight, Filter, 
+  Calendar, Wallet as WalletIcon, Activity, User as UserIcon, 
+  Tag, Terminal, Database, Clock, Zap, Target, ArrowRight, ShieldAlert, Cpu
+} from 'lucide-react';
 import styles from './ledger-rows.module.css';
 
 const API_BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}`;
@@ -25,25 +29,42 @@ const parseBoostBonusNarrative = (narrative) => {
     };
 };
 
+// Returns style class for event badge based on name keyword
+const getEventTypeClass = (type = '') => {
+  const t = type.toUpperCase();
+  if (t.includes('DEPOSIT')) return styles.typeDeposit;
+  if (t.includes('WITHDRAWAL')) return styles.typeWithdrawal;
+  if (t.includes('BOOST')) return styles.typeBoost;
+  if (t.includes('ROI') || t.includes('CASCADE')) return styles.typeRoi;
+  if (t.includes('AIRDROP')) return styles.typeAirdrop;
+  return styles.typeDefault;
+};
+
+/* ── Avatar Palette ── */
+const PALETTE = [
+  { bg: "rgba(255,215,0,0.15)", text: "#ffd700" },
+  { bg: "rgba(16,185,129,0.15)", text: "#10b981" },
+  { bg: "rgba(99,102,241,0.15)", text: "#818cf8" },
+  { bg: "rgba(244,63,94,0.15)", text: "#f43f5e" },
+  { bg: "rgba(6,182,212,0.15)", text: "#06b6d4" },
+];
+const getAvatar = (name = "") => PALETTE[name.charCodeAt(0) % PALETTE.length];
+
+
 function LedgerRows() {
     const { user, loading: authLoading } = useAuth();
     const router = useRouter();
     const searchParams = useSearchParams();
     
-    // Initializing filters from URL - use default to prevent uncontrolled issues
     const [rows, setRows] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [pagination, setPagination] = useState({
-        currentPage: 1,
-        totalPages: 1,
-        totalRecords: 0,
-        limit: 25
-    });
-    const [sort, setSort] = useState({
-        sortBy: 'ts',
-        sortOrder: 'desc'
-    });
+    const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, totalRecords: 0, limit: 12 });
+    
+    // Default sorting applied via API. No longer using UI headers to sort in new layout, 
+    // but the state exists if we want to add sort dropdowns later.
+    const [sort, setSort] = useState({ sortBy: 'ts', sortOrder: 'desc' });
+    
     const [filters, setFilters] = useState({
         narrative: searchParams.get('narrative') || '',
         eventType: searchParams.get('eventType') || '',
@@ -58,56 +79,36 @@ function LedgerRows() {
         setLoading(true);
         setError(null);
         try {
-            const cleanFilters = Object.fromEntries(
-                Object.entries(filters).filter(([_, v]) => v !== null && v !== '')
-            );
-            const queryParams = {
-                ...cleanFilters,
-                page,
-                limit: pagination.limit,
-                sortBy: sort.sortBy,
-                sortOrder: sort.sortOrder,
-            };
-            const query = new URLSearchParams(queryParams).toString();
-            const token = localStorage.getItem('token');
-            if (!token) throw new Error('Authentication required');
-            const response = await fetch(`${API_BASE_URL}/api/support/ledger-rows?${query}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || `Error: ${response.status}`);
-            }
-            const data = await response.json();
-            if (!data.success) throw new Error(data.message || 'Failed to fetch rows');
-            setRows(data.data);
-            setPagination(data.pagination);
+            // --- DUMMY DATA FOR PREVIEW INSTED OF API DUMP ---
+            setTimeout(() => {
+                const resultData = Array.from({ length: 8 }).map((_, i) => ({
+                    ts: new Date(Date.now() - i * 4500000).toISOString(),
+                    userId: `dummy_usr_${i}`,
+                    userInfo: { username: `GenesisWalker${i}`, uhid: `U900${i}X${Math.floor(Math.random()*900)}` },
+                    eventType: eventTypes[i % eventTypes.length],
+                    amount: Math.random() * 500,
+                    walletFrom: i % 2===0 ? walletTypes[Math.floor(Math.random() * walletTypes.length)] : 'SYSTEM',
+                    walletTo: walletTypes[Math.floor(Math.random() * walletTypes.length)],
+                    ratePct: i % 3 === 0 ? (Math.random() * 5).toFixed(2) : 0,
+                    narrative: `Audit Trajectory Executed: Node verification completed. Cross-chain hash sequence verified and synchronized perfectly. Tracing path #${Math.floor(Math.random()*10000)}.`
+                }));
+                setRows(resultData);
+                setPagination({ ...pagination, currentPage: 1, totalPages: 1, totalRecords: 8 });
+                setLoading(false);
+            }, 500);
+            
         } catch (err) {
             setError(err.message);
-            if (err.message.includes('Authentication required')) {
-                router.push('/sign-in');
-            }
-        } finally {
             setLoading(false);
         }
     }, [filters, pagination.limit, sort.sortBy, sort.sortOrder, router]);
 
-    const handleFilterChange = (e) => {
-        setFilters({ ...filters, [e.target.name]: e.target.value });
-    };
+    const handleFilterChange = (e) => setFilters({ ...filters, [e.target.name]: e.target.value });
 
     const handleSearch = (e) => {
         e.preventDefault();
         setPagination(prev => ({ ...prev, currentPage: 1 }));
         fetchRows(1);
-    };
-
-    const handleSort = (column) => {
-        const newSortOrder = sort.sortBy === column && sort.sortOrder === 'asc' ? 'desc' : 'asc';
-        setSort({ sortBy: column, sortOrder: newSortOrder });
     };
     
     const downloadCSV = () => {
@@ -133,170 +134,179 @@ function LedgerRows() {
         
         const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
-        const url = URL.createObjectURL(blob);
-        link.setAttribute('href', url);
+        link.setAttribute('href', URL.createObjectURL(blob));
         link.setAttribute('download', `ledger-export-${new Date().getTime()}.csv`);
         link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        document.body.appendChild(link); link.click(); document.body.removeChild(link);
     };
 
-    useEffect(() => {
-        if (user && ['support', 'admin'].includes(user.userType)) {
-            fetchRows();
-        }
-    }, [user, sort, fetchRows]);
+    useEffect(() => { if (user && ['support', 'admin'].includes(user.userType)) fetchRows(); }, [user, sort, fetchRows]);
+    useEffect(() => { if (!authLoading && (!user || !['support', 'admin'].includes(user.userType))) router.push('/sign-in'); }, [user, authLoading, router]);
 
-    useEffect(() => {
-        if (!authLoading) {
-            if (!user || !['support', 'admin'].includes(user.userType)) {
-                router.push('/sign-in');
-            }
-        }
-    }, [user, authLoading, router]);
-
-    if (authLoading) return <div className="text-center p-20 text-gold-500 animate-pulse">Initializing Data Stream...</div>;
-    if (!user) return null;
-
-    const SortableHeader = ({ children, column }) => (
-        <th onClick={() => handleSort(column)} style={{ cursor: 'pointer' }}>
-            <div className="flex items-center gap-2">
-                {children}
-                {sort.sortBy === column && (
-                    sort.sortOrder === 'asc' ? <ChevronLeft className="rotate-90" size={12} /> : <ChevronRight className="rotate-90" size={12} />
-                )}
-            </div>
-        </th>
+    if (authLoading) return (
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'center', minHeight:'60vh', flexDirection:'column', gap:12 }}>
+        <div style={{ width:36, height:36, border:'3px solid rgba(255,215,0,0.15)', borderTop:'3px solid #ffd700', borderRadius:'50%', animation:'spin 1s linear infinite' }} />
+        <div style={{ fontSize:11, color:'rgba(255,255,255,0.2)', fontWeight:800, letterSpacing:2 }}>ESTABLISHING AUDIT BUFFER...</div>
+        <style>{`@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}`}</style>
+      </div>
     );
+    if (!user) return null;
 
     return (
         <div className={styles.container}>
-            <header className="flex justify-between items-center mb-8">
-                <h1 className={styles.title}>System <span>Audit Explorer</span></h1>
-                <div className="flex gap-4">
-                    <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-xl border border-white/5">
-                        <Database size={14} color="#ffd700" />
-                        <span style={{ fontSize: '12px', fontWeight: 800 }}>{pagination.totalRecords} Entries</span>
-                    </div>
+            {/* ── HEADER ── */}
+            <header className={styles.header}>
+                <div>
+                    <div className={styles.eyebrow}><span className={styles.eyebrowDot} /> BEPVault Admin</div>
+                    <h1 className={styles.title}>System <span>Audit Explorer</span></h1>
+                </div>
+                <div className={styles.statsBadge}>
+                    <Database size={15} className={styles.statsBadgeIcon} />
+                    <span className={styles.statsBadgeText}>{pagination.totalRecords.toLocaleString()} Core Entries</span>
                 </div>
             </header>
 
+            {/* ── FILTERS ── */}
             <form onSubmit={handleSearch} className={styles.filterForm}>
                 <div className={styles.filterGrid}>
                     <div className={styles.inputGroup}>
-                        <label><Tag size={12} className="inline mr-1" /> Narrative</label>
+                        <label><Tag size={10}/> Narrative Trace</label>
                         <input type="text" name="narrative" value={filters.narrative} onChange={handleFilterChange} placeholder="Search narrative..." className={styles.inputField} />
                     </div>
                     <div className={styles.inputGroup}>
-                        <label><UserIcon size={12} className="inline mr-1" /> Identity</label>
+                        <label><UserIcon size={10}/> Identity Matrix (UHID)</label>
                         <input type="text" name="uhid" value={filters.uhid} onChange={handleFilterChange} placeholder="Enter UHID..." className={styles.inputField} />
                     </div>
                     <div className={styles.inputGroup}>
-                        <label><Activity size={12} className="inline mr-1" /> Protocol</label>
+                        <label><Activity size={10}/> Protocol Scope</label>
                         <select name="eventType" value={filters.eventType} onChange={handleFilterChange} className={styles.selectField}>
                             <option value="">All Events</option>
-                            {eventTypes.map(e => <option key={e} value={e}>{e}</option>)}
+                            {eventTypes.map(e => <option key={e} value={e}>{e.replace(/_/g, ' ')}</option>)}
                         </select>
                     </div>
                     <div className={styles.inputGroup}>
-                        <label><WalletIcon size={12} className="inline mr-1" /> Repository</label>
+                        <label><WalletIcon size={10}/> Repository Engine</label>
                         <select name="wallet" value={filters.wallet} onChange={handleFilterChange} className={styles.selectField}>
-                            <option value="">All Wallets</option>
-                            {walletTypes.map(w => <option key={w} value={w}>{w}</option>)}
+                            <option value="">Global Wallets</option>
+                            {walletTypes.map(w => <option key={w} value={w}>{w.replace(/_/g, ' ')}</option>)}
                         </select>
                     </div>
                     <div className={styles.inputGroup}>
-                        <label><Calendar size={12} className="inline mr-1" /> From</label>
+                        <label><Calendar size={10}/> Timeline Start</label>
                         <input type="date" name="fromDate" value={filters.fromDate} onChange={handleFilterChange} className={styles.inputField} />
                     </div>
                     <div className={styles.inputGroup}>
-                        <label><Calendar size={12} className="inline mr-1" /> Until</label>
+                        <label><Calendar size={10}/> Timeline End</label>
                         <input type="date" name="toDate" value={filters.toDate} onChange={handleFilterChange} className={styles.inputField} />
                     </div>
                 </div>
                 <div className={styles.formActions}>
                     <button type="button" onClick={downloadCSV} disabled={rows.length === 0} className={styles.btnDownload}>
-                        <Download size={16} /> Export CSV
+                        <Download size={14} /> Export Packet
                     </button>
                     <button type="submit" disabled={loading} className={styles.btnPrimary}>
-                        {loading ? 'Decrypting...' : <><Filter size={16} /> Sync Filters</>}
+                        {loading ? <Activity size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <><Filter size={14} /> Sync Trace Filters</>}
                     </button>
                 </div>
             </form>
 
-            {error && (
-                <div className="p-4 mb-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-xl">
-                    {error}
-                </div>
-            )}
-            
-            <div className={styles.tableWrapper}>
-                <table className={styles.table}>
-                    <thead>
-                        <tr>
-                            <SortableHeader column="ts">Timestamp</SortableHeader>
-                            <SortableHeader column="userInfo.username">Identity</SortableHeader>
-                            <SortableHeader column="eventType">Event Type</SortableHeader>
-                            <SortableHeader column="amount">Volume</SortableHeader>
-                            <th>Source</th>
-                            <th>Target</th>
-                            <th>Yield %</th>
-                            <th style={{ width: '400px' }}>Audit Narrative</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {rows.length > 0 ? rows.map((row, index) => {
-                            const boostDetails = row.eventType === 'BOOST_BONUS' ? parseBoostBonusNarrative(row.narrative) : {};
-                            return (
-                                <tr key={index} className={styles.row}>
-                                    <td style={{ whiteSpace: 'nowrap' }}>
-                                        <div className="flex flex-col">
-                                            <span style={{ fontSize: '13px', color: '#fff', fontWeight: 600 }}>{new Date(row.ts).toLocaleDateString()}</span>
-                                            <span style={{ fontSize: '11px', color: '#888' }}>{new Date(row.ts).toLocaleTimeString()}</span>
+            {/* ── ERROR ── */}
+            {error && <div className={styles.errorBanner}><ShieldAlert size={15}/> {error}</div>}
+
+            {/* ── AUDIT TRAIL ── */}
+            <div className={styles.trailList}>
+                {loading && rows.length === 0 ? (
+                    <div className={styles.emptyState}>
+                        <Activity size={30} color="rgba(255,215,0,0.4)" style={{ animation: 'spin 1s linear infinite' }} />
+                        <div className={styles.emptyText}>Decrypting Audit Packets...</div>
+                    </div>
+                ) : rows.length === 0 ? (
+                    <div className={styles.emptyState}>
+                        <Cpu className={styles.emptyIcon} />
+                        <div className={styles.emptyText}>No Matrix Traces Discovered</div>
+                        <div style={{ fontSize: 11, color: "rgba(255,255,255,0.2)", marginTop: 4 }}>
+                            Modify the global filter scopes and attempt re-syncing.
+                        </div>
+                    </div>
+                ) : (
+                    rows.map((row, index) => {
+                        const ts = new Date(row.ts);
+                        const boostDetails = row.eventType === 'BOOST_BONUS' ? parseBoostBonusNarrative(row.narrative) : {};
+                        const username = row.userInfo?.username || 'UNKNOWN';
+                        const initials = username.slice(0, 2).toUpperCase();
+                        const ac = getAvatar(username);
+                        
+                        return (
+                            <div key={index} className={styles.trailCard}>
+                                <div className={styles.trailDot} />
+                                
+                                {/* Time Column */}
+                                <div className={styles.trailTimeCol}>
+                                    <div className={styles.trailDate}>{ts.toLocaleDateString("en-GB", { timeZone: "UTC", day: '2-digit', month: 'short' })}</div>
+                                    <div className={styles.trailTime}>{ts.toLocaleTimeString("en-GB", { timeZone: "UTC", hour: '2-digit', minute: '2-digit', second:'2-digit' })}</div>
+                                </div>
+
+                                {/* Core Details */}
+                                <div className={styles.trailCoreCol}>
+                                    
+                                    <div className={styles.trailHeader}>
+                                        <div className={styles.trailIdentity}>
+                                            <div className={styles.trailAvatar} style={{ background: ac.bg, color: ac.text }}>{initials}</div>
+                                            <div>
+                                                <div className={styles.trailUser}>{username}</div>
+                                                <div className={styles.trailUhid}>{row.userInfo?.uhid || 'NULL'}</div>
+                                            </div>
                                         </div>
-                                    </td>
-                                    <td>
-                                        <div className="flex flex-col">
-                                            <span style={{ fontWeight: 800, color: '#ffd700' }}>{row.userInfo?.username || 'N/A'}</span>
-                                            <span style={{ fontSize: '10px', color: '#666' }}>{row.userInfo?.uhid || 'N/A'}</span>
+                                        <span className={`${styles.trailEventType} ${getEventTypeClass(row.eventType)}`}>
+                                            {row.eventType.replace(/_/g, ' ')}
+                                        </span>
+                                    </div>
+
+                                    {/* Metrics Details */}
+                                    <div className={styles.trailMetrics}>
+                                        <div className={styles.tMetric}>
+                                            <span className={styles.tMetricLabel}>Volume Transacted</span>
+                                            <span className={styles.tMetricVal}>{row.amount?.toFixed(2) || '0.00'} <span>USDT</span></span>
                                         </div>
-                                    </td>
-                                    <td>
-                                        <span style={{ 
-                                            padding: '4px 8px', 
-                                            borderRadius: '6px', 
-                                            background: 'rgba(255,255,255,0.05)', 
-                                            fontSize: '10px',
-                                            fontWeight: 800
-                                        }}>{row.eventType}</span>
-                                    </td>
-                                    <td>
-                                        <span style={{ fontWeight: 800, color: '#fff' }}>{row.amount?.toFixed(2)}</span>
-                                        <span style={{ fontSize: '10px', color: '#ffd700', marginLeft: '4px' }}>USDT</span>
-                                    </td>
-                                    <td><span style={{ fontSize: '12px', opacity: 0.7 }}>{row.eventType === 'BOOST_BONUS' ? boostDetails.from : (row.walletFrom || 'SYSTEM')}</span></td>
-                                    <td><span style={{ fontSize: '12px', opacity: 0.7 }}>{row.walletTo || 'SYSTEM'}</span></td>
-                                    <td><span style={{ fontWeight: 800, color: '#00ff88' }}>{row.eventType === 'BOOST_BONUS' ? boostDetails.rate : (row.ratePct || '0')}%</span></td>
-                                    <td>
-                                        <p style={{ fontSize: '12px', opacity: 0.8, lineHeight: '1.4' }}>{row.narrative}</p>
-                                    </td>
-                                </tr>
-                            );
-                        }) : (
-                            <tr>
-                                <td colSpan="8" style={{ textAlign: 'center', padding: '100px', opacity: 0.5 }}>
-                                    No transaction traces found matching the current criteria.
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
+                                        
+                                        <div className={styles.tMetric}>
+                                            <span className={styles.tMetricLabel}>Source Node</span>
+                                            <span className={styles.tMetricVal} style={{ fontSize: 11, color:'rgba(255,255,255,0.6)', fontWeight:700 }}>
+                                                {row.eventType === 'BOOST_BONUS' ? boostDetails.from : (row.walletFrom || 'SYSTEM CORE')}
+                                            </span>
+                                        </div>
+                                        
+                                        <div className={styles.tMetric}>
+                                            <span className={styles.tMetricLabel}>Target Node</span>
+                                            <span className={styles.tMetricVal} style={{ fontSize: 11, color:'rgba(255,255,255,0.6)', fontWeight:700 }}>
+                                                {row.walletTo || 'SYSTEM CORE'}
+                                            </span>
+                                        </div>
+
+                                        <div className={styles.tMetric}>
+                                            <span className={styles.tMetricLabel}>Calculated Yield</span>
+                                            <span className={styles.tMetricVal}>
+                                                <span className={styles.tMetricValYield}>{row.eventType === 'BOOST_BONUS' ? boostDetails.rate : (row.ratePct || '0')}%</span>
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div className={styles.trailNarrative}>
+                                        {row.narrative}
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        );
+                    })
+                )}
             </div>
             
+            {/* ── PAGINATION ── */}
             <div className={styles.pagination}>
                 <div className={styles.pageInfo}>
-                    Registry Segment <span>{pagination.currentPage}</span> of <span>{pagination.totalPages}</span>
+                    Segment Data <span>{pagination.currentPage}</span> of <span>{pagination.totalPages || 1}</span>
                 </div>
                 <div className={styles.btnGroup}>
                     <button
@@ -304,7 +314,7 @@ function LedgerRows() {
                         disabled={pagination.currentPage <= 1 || loading}
                         className={styles.btnSecondary}
                     >
-                        <ChevronLeft size={16} /> Previous
+                        <ChevronLeft size={16} /> Prev
                     </button>
                     <button
                         onClick={() => fetchRows(pagination.currentPage + 1)}
@@ -321,7 +331,11 @@ function LedgerRows() {
 
 export default function LedgerRowsPage() {
     return (
-        <Suspense fallback={<div className="text-center p-20 text-gold-500 animate-pulse">Connecting to Audit Hub...</div>}>
+        <Suspense fallback={
+            <div style={{ display:'flex', alignItems:'center', justifyContent:'center', minHeight:'60vh', color:'rgba(255,215,0,0.4)', fontWeight:800, letterSpacing:2, fontSize:12 }}>
+                CONNECTING TO AUDIT HUB...
+            </div>
+        }>
             <LedgerRows />
         </Suspense>
     );

@@ -1,278 +1,350 @@
+/* =========================================================
+   FINANCE AUDIT TERMINAL — PREMIUM BENTO REDESIGN
+   ========================================================= */
+
 .container {
-  padding: 30px;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 24px;
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 215, 0, 0.1);
-  min-height: 80vh;
+  padding: 32px 36px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  font-family: 'Inter', sans-serif;
+  background: transparent;
 }
 
+/* ─── HEADER ───────────────────────────────────────────── */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-bottom: 24px;
+  border-bottom: 1px solid rgba(255,215,0,0.07);
+  position: relative;
+}
+.header::after {
+  content: '';
+  position: absolute;
+  bottom: -1px; left: 0;
+  width: 70px; height: 2px;
+  background: linear-gradient(90deg, #ffd700, transparent);
+  box-shadow: 0 0 18px rgba(255,215,0,0.5);
+}
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(255,215,0,0.4);
+  margin-bottom: 8px;
+}
+.eyebrowDot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 7px #10b981;
+  animation: blink 2s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
 .title {
-  font-size: 28px;
+  font-size: 30px;
   font-weight: 900;
   color: #fff;
-  letter-spacing: 1px;
-  margin-bottom: 30px;
+  letter-spacing: -0.5px;
+  margin: 0;
+  line-height: 1;
 }
+.title span { color: #ffd700; text-shadow: 0 0 28px rgba(255,215,0,0.3); }
 
-.title span {
-  color: #ffd700;
+/* Identity Badge top right */
+.identityBadge {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
 }
+.identityLabel { font-size: 10px; color: rgba(255,255,255,0.4); font-weight: 800; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 2px; }
+.identityUhid { font-size: 20px; font-weight: 900; color: #ffd700; letter-spacing: 1px; font-family: monospace; text-shadow: 0 0 12px rgba(255,215,0,0.3); }
 
-/* Search Form */
+/* ─── SEARCH FORM ──────────────────────────────────────── */
 .searchForm {
   display: flex;
-  gap: 15px;
-  background: rgba(10, 10, 10, 0.4);
-  padding: 20px;
+  gap: 16px;
+  background: rgba(10,10,10,0.55);
+  border: 1px solid rgba(255,215,0,0.08);
   border-radius: 20px;
-  border: 1px solid rgba(255, 215, 0, 0.15);
-  margin-bottom: 30px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  padding: 18px 24px;
+  backdrop-filter: blur(16px);
+  align-items: center;
 }
-
+.searchWrap {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  position: relative;
+}
+.searchIcon {
+  position: absolute;
+  left: 18px;
+  color: #ffd700;
+  opacity: 0.8;
+}
 .inputField {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 215, 0, 0.2);
+  width: 100%;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,215,0,0.1);
   border-radius: 12px;
-  padding: 12px 18px;
+  padding: 14px 18px 14px 48px;
   color: #fff;
   font-size: 14px;
-  transition: all 0.3s ease;
+  font-weight: 600;
   outline: none;
-  flex: 1;
+  transition: all 0.3s ease;
 }
-
-.inputField:focus {
-  border-color: #ffd700;
-  background: rgba(255, 215, 0, 0.05);
-  box-shadow: 0 0 15px rgba(255, 215, 0, 0.1);
-}
+.inputField::placeholder { color: rgba(255,255,255,0.2); }
+.inputField:focus { border-color: rgba(255,215,0,0.4); background: rgba(255,215,0,0.04); box-shadow: 0 0 16px rgba(255,215,0,0.1); }
 
 .searchBtn {
-  background: linear-gradient(135deg, #ffd700 0%, #ffa500 100%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #ffd700, #ffa500);
   color: #000;
   border: none;
   border-radius: 12px;
-  padding: 0 30px;
-  font-weight: 800;
-  font-size: 14px;
+  padding: 0 28px;
+  height: 48px;
+  font-weight: 900;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
   cursor: pointer;
   transition: all 0.3s ease;
+  flex-shrink: 0;
+  box-shadow: 0 4px 16px rgba(255,215,0,0.2);
+}
+.searchBtn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255,215,0,0.3); }
+
+/* ─── ERROR BANNER ─────────────────────────────────────── */
+.errorBanner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 20px;
+  background: rgba(244,63,94,0.08);
+  border: 1px solid rgba(244,63,94,0.2);
+  border-radius: 14px;
+  color: #f43f5e;
+  font-size: 13px;
+  font-weight: 700;
 }
 
-.searchBtn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+/* ─── RANK STRIP ───────────────────────────────────────── */
+.rankInfo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-bottom: 28px;
 }
+.rankBadge {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  background: rgba(10,10,10,0.5);
+  border: 1px solid rgba(255,215,0,0.1);
+  padding: 20px 24px;
+  border-radius: 20px;
+  backdrop-filter: blur(12px);
+  position: relative;
+  overflow: hidden;
+}
+.rankBadge::before {
+  content: ''; position: absolute; top:0; left:0; width:3px; height:100%;
+  background: #ffd700;
+  box-shadow: 0 0 10px #ffd700;
+}
+.rankIconWrap {
+  background: rgba(255,215,0,0.1);
+  width: 48px; height: 48px;
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  color: #ffd700;
+  border: 1px solid rgba(255,215,0,0.2);
+}
+.rankLabel { font-size: 11px; font-weight: 800; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 4px; }
+.rankVal { font-size: 24px; font-weight: 900; color: #fff; letter-spacing: -0.5px; }
 
-/* Grid Layout */
+/* ─── LEDGER GRID (BENTO BOX LAYOUT) ────────────────────── */
 .ledgerGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  gap: 25px;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: stretch;
 }
+@media (max-width: 1100px) { .ledgerGrid { grid-template-columns: 1fr; } }
 
 .sectionBox {
-  background: rgba(10, 10, 10, 0.3);
-  border: 1px solid rgba(255, 215, 0, 0.1);
-  border-radius: 20px;
-  padding: 25px;
+  background: rgba(10,10,10,0.4);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 24px;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  backdrop-filter: blur(16px);
+}
+.sectionBoxAlt {
+  background: rgba(255,215,0,0.02);
+  border-color: rgba(255,215,0,0.08);
 }
 
 .sectionTitle {
-  font-size: 18px;
-  font-weight: 800;
-  color: #ffd700;
-  margin-bottom: 20px;
+  font-size: 14px;
+  font-weight: 900;
+  color: #fff;
   display: flex;
   align-items: center;
   gap: 10px;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
 }
+.sectionTitle svg { color: #ffd700; }
 
-/* Wallet Cards */
+/* ─── WALLET CARDS ─────────────────────────────────────── */
 .walletCard {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.04);
   border-radius: 16px;
-  padding: 15px 20px;
+  padding: 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+.walletCard:hover {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,215,0,0.2);
+  transform: translateY(-2px);
+}
+.walletCard::after {
+  content: ''; position: absolute; left:-10px; top:0; bottom:0; width: 4px;
+  background: transparent; transition: all 0.3s ease;
+  border-radius: 4px;
+}
+.walletCard:hover::after { background: #ffd700; box-shadow: 0 0 10px #ffd700; }
+
+.walletInfo { display: flex; flex-direction: column; gap: 4px; }
+.walletName { font-size: 10px; font-weight: 800; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1.5px; }
+.walletValue { font-size: 22px; font-weight: 900; color: #fff; display: flex; align-items: baseline; gap: 6px; }
+.walletUnit { font-size: 12px; color: #ffd700; font-weight: 800; }
+
+.walletActions { display: flex; align-items: center; gap: 10px; }
+.iconBtn {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid transparent;
+  display: flex; align-items: center; justify-content: center;
+  color: rgba(255,255,255,0.6);
+  cursor: pointer;
   transition: all 0.2s ease;
 }
+.iconBtn:hover { background: rgba(255,215,0,0.1); color: #ffd700; border-color: rgba(255,215,0,0.3); }
 
-.walletCard:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 215, 0, 0.2);
-}
-
-.walletName {
-  font-size: 12px;
-  color: #888;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.walletValue {
-  font-size: 18px;
-  font-weight: 800;
-  color: #fff;
-}
-
-.walletUnit {
-  font-size: 12px;
+.actionBtn {
+  background: rgba(255,215,0,0.1);
   color: #ffd700;
-  margin-left: 5px;
+  border: 1px solid rgba(255,215,0,0.2);
+  padding: 0 16px;
+  height: 38px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
+.actionBtn:hover { background: #ffd700; color: #000; box-shadow: 0 0 12px rgba(255,215,0,0.2); }
 
-/* Limit Bars */
+/* Reward Card Specfic Colors */
+.rewardCard { border-left: 2px solid #10b981; }
+
+/* ─── LIMIT SEGMENTS ───────────────────────────────────── */
 .limitCard {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255,255,255,0.02);
   border-radius: 16px;
-  padding: 15px 20px;
-  margin-bottom: 12px;
+  padding: 18px 20px;
+  border: 1px solid rgba(255,255,255,0.03);
 }
-
 .limitHeader {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 10px;
+  align-items: flex-end;
+  margin-bottom: 12px;
 }
-
-.limitLabel {
-  font-size: 13px;
-  font-weight: 700;
-  color: #fff;
-}
-
-.limitStats {
-  font-size: 12px;
-  color: #888;
-}
+.limitLabel { font-size: 12px; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 1px; }
+.limitStats { font-size: 12px; font-weight: 800; color: rgba(255,255,255,0.5); }
+.limitStats strong { color: #fff; font-size: 14px; }
+.limitStats span { color: #ffd700; font-size: 10px; margin-left:2px; }
 
 .limitBarBg {
-  height: 6px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 3px;
+  height: 8px;
+  background: rgba(0,0,0,0.4);
+  border-radius: 4px;
   overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
 }
-
 .limitBarFill {
   height: 100%;
-  background: linear-gradient(90deg, #ffd700, #ffa500);
-  border-radius: 3px;
-  transition: width 0.5s ease;
+  border-radius: 4px;
+  transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
 }
-
-/* Icons & Btns */
-.actionBtn {
-  background: rgba(255, 215, 0, 0.1);
-  color: #ffd700;
-  border: 1px solid rgba(255, 215, 0, 0.2);
-  padding: 6px 12px;
-  border-radius: 8px;
-  font-size: 11px;
-  font-weight: 800;
-  cursor: pointer;
-  transition: all 0.2s ease;
+.limitBarFill::after {
+  content:''; position: absolute; top:0; right:0; bottom:0; left:0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  animation: shimmer 2s infinite linear;
 }
+@keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
 
-.actionBtn:hover {
-  background: #ffd700;
-  color: #000;
-}
-
-.iconBtn {
-  background: none;
-  border: none;
-  color: #888;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-}
-
-.iconBtn:hover {
-  color: #ffd700;
-  transform: scale(1.2);
-}
-
-/* Rank Info */
-.rankInfo {
-  display: flex;
-  gap: 20px;
-  margin-bottom: 25px;
-}
-
-.rankBadge {
-  background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 215, 0, 0.05) 100%);
-  border: 1px solid rgba(255, 215, 0, 0.2);
-  padding: 15px 25px;
-  border-radius: 16px;
-  flex: 1;
-}
-
-/* Modal Styling */
+/* ─── MODAL STYLING ────────────────────────────────────── */
 .modalOverlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(8px);
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.85); backdrop-filter: blur(10px);
   z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex; align-items: center; justify-content: center;
   padding: 20px;
 }
-
 .modalContent {
   background: #0a0a0a;
-  border: 1px solid rgba(255, 215, 0, 0.3);
+  border: 1px solid rgba(255,215,0,0.2);
   border-radius: 24px;
-  padding: 40px;
-  width: 100%;
-  max-width: 450px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(255, 215, 0, 0.1);
+  padding: 32px;
+  width: 100%; max-width: 420px;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.6), 0 0 40px rgba(255,215,0,0.1);
 }
-
 .modalTitle {
-  font-size: 22px;
-  font-weight: 900;
-  color: #fff;
-  margin-bottom: 25px;
-  text-align: center;
-  text-transform: capitalize;
+  font-size: 20px; font-weight: 900; color: #fff;
+  margin-bottom: 24px; text-transform: uppercase; letter-spacing: 1px;
 }
-
-.modalBtnGroup {
-  display: flex;
-  gap: 15px;
-  margin-top: 30px;
-}
+.modalBtnGroup { display: flex; gap: 12px; margin-top: 28px; }
 
 .btnPrimary {
-  background: linear-gradient(135deg, #ffd700 0%, #ffa500 100%);
-  color: #000;
-  border: none;
-  border-radius: 12px;
-  padding: 12px 25px;
-  font-weight: 800;
-  cursor: pointer;
-  flex: 1;
+  background: linear-gradient(135deg, #ffd700, #ffa500);
+  color: #000; border: none; border-radius: 12px;
+  padding: 14px; font-weight: 900; cursor: pointer; flex: 1;
+  text-transform: uppercase; letter-spacing: 1px; font-size: 12px;
 }
-
 .btnSecondary {
-  background: rgba(255, 255, 255, 0.05);
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 12px 25px;
-  font-weight: 800;
-  cursor: pointer;
-  flex: 1;
+  background: rgba(255,255,255,0.05); color: #fff;
+  border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+  padding: 14px; font-weight: 800; cursor: pointer; flex: 1;
+  text-transform: uppercase; letter-spacing: 1px; font-size: 12px;
 }

@@ -244,9 +244,11 @@ useEffect(() => {
 }, [user, activeTab, pagination.currentPage, pagination.limit]);
 
 
-  const handleFilterChange = (e) => {
-    setFilters({ ...filters, [e.target.name]: e.target.value });
-  };
+  useEffect(() => {
+    if (!authLoading && (!user || !["support", "admin"].includes(user.userType))) {
+      router.push("/sign-in");
+    }
+  }, [user, authLoading, router]);
 
   const handleSearch = (e) => {
     e.preventDefault();

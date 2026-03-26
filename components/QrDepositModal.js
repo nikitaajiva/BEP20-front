@@ -12,6 +12,13 @@ export default function QrDepositModal({
   onRetry,
 }) {
   const [qrDataUrl, setQrDataUrl] = useState("");
+  const isMobile =
+    typeof navigator !== "undefined" &&
+    /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const metamaskLink =
+    payload && payload.startsWith("ethereum:")
+      ? `https://metamask.app.link/send/${payload.replace("ethereum:", "")}`
+      : "";
 
   useEffect(() => {
     let isMounted = true;
@@ -97,7 +104,15 @@ export default function QrDepositModal({
 
         <div style={{ marginTop: "18px", textAlign: "left" }}>
           <div style={labelStyle}>Amount</div>
-          <div style={valueStyle}>{displayData?.amount} USDT</div>
+          <div style={valueStyle}>
+            {displayData?.amount} {displayData?.asset || "USDT"}
+          </div>
+          {displayData?.asset !== "BNB" && (
+            <>
+              <div style={labelStyle}>Token Contract</div>
+              <div style={valueStyle}>{displayData?.tokenContract}</div>
+            </>
+          )}
           <div style={labelStyle}>Deposit Address</div>
           <div style={valueStyle}>{displayData?.depositAddress}</div>
           <div style={labelStyle}>Reference ID</div>
@@ -111,6 +126,34 @@ export default function QrDepositModal({
         </div>
 
         <div style={{ marginTop: "18px" }}>
+          {payload ? (
+            <button
+              onClick={() => {
+                try {
+                  const primaryLink = isMobile && metamaskLink ? metamaskLink : payload;
+                  window.location.href = primaryLink;
+                  if (metamaskLink && primaryLink !== metamaskLink) {
+                    setTimeout(() => {
+                      window.location.href = metamaskLink;
+                    }, 400);
+                  }
+                } catch (error) {
+                  // No-op: fallback handled by link below.
+                }
+              }}
+              style={{
+                padding: "10px 16px",
+                marginRight: "10px",
+                borderRadius: "6px",
+                border: "1px solid rgba(255, 215, 0, 0.25)",
+                background: "rgba(255,255,255,0.08)",
+                color: "#ffd766",
+                fontWeight: "bold",
+              }}
+            >
+              Open Wallet
+            </button>
+          ) : null}
           {(status === "expired" || status === "failed") && (
             <button
               onClick={onRetry}

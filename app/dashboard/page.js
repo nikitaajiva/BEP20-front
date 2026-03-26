@@ -10,13 +10,12 @@ import {
   getEthereum,
   requestAccounts,
   switchToBsc,
-  readUsdtBalance,
   sendUsdtTransfer,
+  sendBnbTransfer,
 } from "@/utils/bscWallet";
 
 export default function DashboardPage() {
   const { user, API_URL } = useAuth();
-  const usdtContractAddress = process.env.NEXT_PUBLIC_USDT_CONTRACT_ADDRESS || "";
   const usdtDecimals = Number(process.env.NEXT_PUBLIC_USDT_DECIMALS || "18");
   const bscChainId = 56;
   const [walletAccount, setWalletAccount] = useState("");
@@ -57,6 +56,9 @@ export default function DashboardPage() {
       const data = await response.json();
       if (response.ok && data.success) {
         setLedgerDetails(data.data);
+        if (data?.data?.usdtWallet?.balance) {
+          setPrimaryVaultBalance(data.data.usdtWallet.balance);
+        }
       } else {
         throw new Error(data.message || "Failed to fetch ledger details");
       }
@@ -69,7 +71,7 @@ export default function DashboardPage() {
   }, [user, API_URL]);
 
   const handleBackendVerification = useCallback(
-    async (txHash, referenceId) => {
+    async (txHash, referenceId, asset) => {
       setTransactionStatus(
         `Transaction sent! TX Hash: ${txHash}. Verifying with backend...`
       );
@@ -82,7 +84,9 @@ export default function DashboardPage() {
       }
 
       try {
-        const backendResponse = await fetch(`${API_URL}/deposits/usdt`, {
+        const endpoint =
+          asset && asset.toUpperCase() === "BNB" ? "bnb" : "usdt";
+        const backendResponse = await fetch(`${API_URL}/deposits/${endpoint}`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -115,7 +119,7 @@ export default function DashboardPage() {
   );
 
   const createDepositIntent = useCallback(
-    async (amount, fallbackWallet) => {
+    async (amount, fallbackWallet, asset) => {
       const token = localStorage.getItem("token");
       if (!token) {
         throw new Error("Authentication error: No token found. Please re-login.");
@@ -129,7 +133,9 @@ export default function DashboardPage() {
         },
         body: JSON.stringify({
           amount,
-          wallet_address: fallbackWallet || user?.wallet_address,
+          wallet_address:
+            asset === "BNB" ? "" : fallbackWallet || user?.wallet_address,
+          asset,
         }),
       });
 
@@ -185,21 +191,9 @@ export default function DashboardPage() {
   }, [user, API_URL, fetchLedgerDetails]);
 
   useEffect(() => {
-    const loadPrimaryVaultBalance = async () => {
-      if (!walletAccount) {
-        setPrimaryVaultBalance("0");
-        return;
-      }
-      try {
-        const balance = await readUsdtBalance(walletAccount);
-        setPrimaryVaultBalance(balance);
-      } catch (error) {
-        setPrimaryVaultBalance("0");
-      }
-    };
-
-    loadPrimaryVaultBalance();
-  }, [walletAccount]);
+    if (!ledgerDetails?.usdtWallet?.balance) return;
+    setPrimaryVaultBalance(ledgerDetails.usdtWallet.balance);
+  }, [ledgerDetails]);
 
   const stopQrPolling = useCallback(() => {
     if (qrPollRef.current) {
@@ -237,14 +231,26 @@ export default function DashboardPage() {
 
   const createPayload = async (amount) => {
     setIsAmountModalOpen(false);
-    if (!amount || parseFloat(amount) <= 0) {
+    const payload =
+      typeof amount === "object" && amount !== null ? amount : { amount };
+    const rawAmount = `${payload.amount ?? ""}`.trim();
+    const asset = `${payload.asset || "BNB"}`.toUpperCase();
+    if (!rawAmount || !/^\d+(\.\d+)?$/.test(rawAmount)) {
+      alert("Invalid amount provided.");
+      setDebugMessage("Debug: Invalid amount for payload.");
+      return;
+    }
+    if (/^0+(\.0+)?$/.test(rawAmount)) {
       alert("Invalid amount provided.");
       setDebugMessage("Debug: Invalid amount for payload.");
       return;
     }
     const ethereum = getEthereum();
-    if (!ethereum) {
-      await startQrDeposit(amount);
+    const isMobile =
+      typeof navigator !== "undefined" &&
+      /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if (!ethereum || (asset === "BNB" && !isMobile)) {
+      await startQrDeposit(rawAmount, asset);
       return;
     }
     let activeWallet = walletAccount;
@@ -258,29 +264,36 @@ export default function DashboardPage() {
         setTransactionStatus(
           err.message || "Wallet connection was cancelled. Use QR deposit instead."
         );
-        await startQrDeposit(amount);
+        await startQrDeposit(rawAmount, asset);
         return;
       }
     }
 
-    setTransactionStatus(`Preparing transfer for ${amount} USDT...`);
+    setTransactionStatus(`Preparing transfer for ${rawAmount} ${asset}...`);
     setDebugMessage("");
 
     try {
       await switchToBsc();
-      const intentData = await createDepositIntent(amount, activeWallet);
+      const intentData = await createDepositIntent(rawAmount, activeWallet, asset);
       const depositAddress = intentData.deposit_address;
       const referenceId = intentData.referenceId;
       setTransactionStatus("Please confirm the transfer in MetaMask...");
 
       try {
-        const txHash = await sendUsdtTransfer({
-          from: activeWallet,
-          to: depositAddress,
-          amount,
-        });
+        const txHash =
+          asset === "BNB"
+            ? await sendBnbTransfer({
+                from: activeWallet,
+                to: depositAddress,
+                amount: rawAmount,
+              })
+            : await sendUsdtTransfer({
+                from: activeWallet,
+                to: depositAddress,
+                amount: rawAmount,
+              });
 
-        await handleBackendVerification(txHash, referenceId);
+        await handleBackendVerification(txHash, referenceId, asset);
       } catch (transferError) {
         setTransactionStatus(
           transferError.message || "Wallet transfer not completed. Use QR to pay."
@@ -325,46 +338,74 @@ export default function DashboardPage() {
         }
 
         if (data.status === "failed") {
+          setQrStatus("failed");
+          stopQrPolling();
+        }
+      } catch (error) {
         setQrStatus("failed");
         stopQrPolling();
       }
-    } catch (error) {
-      setQrStatus("failed");
-      stopQrPolling();
-    }
-  },
-  [API_URL, fetchLedgerDetails, stopQrPolling]
-);
+    },
+    [API_URL, fetchLedgerDetails, stopQrPolling]
+  );
 
   const beginQrTracking = useCallback(
     (data, statusMessage) => {
       setTransactionStatus(statusMessage || "Generating QR deposit...");
       setQrStatus("pending");
 
-      const intentTokenContract = data.tokenContract || usdtContractAddress;
+      const asset = `${data.asset || "BNB"}`.toUpperCase();
+      const intentTokenContract = data.tokenContract || "";
       const intentDecimals =
         Number.isFinite(Number(data.decimals)) ? Number(data.decimals) : usdtDecimals;
       const intentChainId =
         Number.isFinite(Number(data.chainId)) ? Number(data.chainId) : bscChainId;
+      const chainId = intentChainId === bscChainId ? intentChainId : bscChainId;
 
-      if (!intentTokenContract) {
+      if (asset === "USDT" && !intentTokenContract) {
         setTransactionStatus("USDT contract is not configured. Unable to build QR.");
+        setQrStatus("failed");
+        return;
+      }
+
+      let checksumToken;
+      let checksumDeposit;
+      try {
+        checksumDeposit = ethers.getAddress(data.deposit_address);
+        if (asset === "USDT") {
+          checksumToken = ethers.getAddress(intentTokenContract);
+        }
+      } catch (error) {
+        setTransactionStatus("Invalid token or deposit address. Unable to build QR.");
         setQrStatus("failed");
         return;
       }
 
       const baseUnits = ethers.parseUnits(
         data.amount.toString(),
-        Number.isFinite(intentDecimals) ? intentDecimals : 18
+        asset === "BNB" ? 18 : Number.isFinite(intentDecimals) ? intentDecimals : 18
       );
-      const payload = `ethereum:${intentTokenContract}@${intentChainId}/transfer?address=${data.deposit_address}&uint256=${baseUnits.toString()}&chainId=${intentChainId}`;
 
-      setQrPayload(payload);
+      const payload =
+        asset === "BNB"
+          ? `ethereum:${checksumDeposit}@${chainId}?value=${baseUnits.toString()}`
+          : `ethereum:${checksumToken}@${chainId}/transfer?address=${checksumDeposit}&uint256=${baseUnits.toString()}`;
+      const fallbackUrl =
+        typeof window !== "undefined"
+          ? `${window.location.origin}/deposit/intent/${data.referenceId}`
+          : "";
+      const encodedPayload = encodeURI(payload);
+
+      setQrPayload(encodedPayload);
       setQrDisplayData({
         amount: data.amount,
         depositAddress: data.deposit_address,
         referenceId: data.referenceId,
         network: data.network || "BSC",
+        tokenContract: asset === "USDT" ? checksumToken : "",
+        decimals: intentDecimals,
+        fallbackUrl,
+        asset,
       });
       setQrStatus("pending");
       setQrModalOpen(true);
@@ -398,12 +439,12 @@ export default function DashboardPage() {
   );
 
   const startQrDeposit = useCallback(
-    async (amount) => {
+    async (amount, asset) => {
       setTransactionStatus("No wallet detected. Generating QR deposit...");
       setQrStatus("pending");
 
       try {
-        const data = await createDepositIntent(amount);
+        const data = await createDepositIntent(amount, "", asset);
         beginQrTracking(data, "Scan QR to complete your deposit.");
       } catch (error) {
         setTransactionStatus(error.message || "Failed to start QR deposit.");
@@ -446,7 +487,7 @@ export default function DashboardPage() {
           stopQrPolling();
           setQrModalOpen(false);
           if (qrDisplayData?.amount) {
-            startQrDeposit(qrDisplayData.amount);
+            startQrDeposit(qrDisplayData.amount, qrDisplayData.asset);
           }
         }}
       />

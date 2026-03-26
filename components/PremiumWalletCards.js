@@ -126,9 +126,11 @@ export const ActionableWalletCard = ({
   showPlusBtn = true,
   subtitle = "Available Balance",
   layout = "vertical",
-  depositLabel
+  depositLabel,
+  currency
 }) => {
   const finalDepositLabel = depositLabel || (title === 'System Wallet' || title === 'Primary Vault' ? 'Connect' : 'Deposit');
+  const displayCurrency = currency || (type === "system" ? "BNB" : "USDT");
 
   if (layout === "horizontal") {
     return (
@@ -145,8 +147,14 @@ export const ActionableWalletCard = ({
         </div>
 
         <div className={styles.horizontalCenter}>
-          <div className={styles.mainBalance} style={{ fontSize: "22px" }}>{balance} <span style={{ fontSize: "13px", color: "#00ff00" }}>USDT</span></div>
-          {limit && limit !== "N/A" && <div className={styles.limitText} style={{ fontSize: "11px" }}>Limit: <span>{limit} USDT</span></div>}
+          <div className={styles.mainBalance} style={{ fontSize: "22px" }}>
+            {balance} <span style={{ fontSize: "13px", color: "#00ff00" }}>{displayCurrency}</span>
+          </div>
+          {limit && limit !== "N/A" && (
+            <div className={styles.limitText} style={{ fontSize: "11px" }}>
+              Limit: <span>{limit} {displayCurrency}</span>
+            </div>
+          )}
           {earningRate && <div className={styles.earningBannerLeft} style={{ marginTop: "5px", color: "#00ff00", fontSize: "12px" }}><TrendingUp size={12} /> Daily Earning: {earningRate}</div>}
         </div>
 
@@ -189,8 +197,12 @@ export const ActionableWalletCard = ({
       </div>
 
       <div className={styles.mainBalanceSection}>
-        <div className={styles.mainBalance}>{balance} <span>USDT</span></div>
-        {limit && limit !== "N/A" && <div className={styles.limitText}>Limit: <span>{limit} USDT</span></div>}
+        <div className={styles.mainBalance}>
+          {balance} <span>{displayCurrency}</span>
+        </div>
+        {limit && limit !== "N/A" && (
+          <div className={styles.limitText}>Limit: <span>{limit} {displayCurrency}</span></div>
+        )}
       </div>
 
       {earningRate && (

@@ -15,13 +15,17 @@ export default function AmountEntryModal({
   }
 
   const handleSubmit = () => {
-    const numericAmount = parseFloat(amount);
-    if (isNaN(numericAmount) || numericAmount <= 0) {
+    const normalizedAmount = amount.trim();
+    if (!normalizedAmount || !/^\d+(\.\d+)?$/.test(normalizedAmount)) {
+      setError("Please enter a valid positive amount.");
+      return;
+    }
+    if (/^0+(\.0+)?$/.test(normalizedAmount)) {
       setError("Please enter a valid positive amount.");
       return;
     }
     setError("");
-    onSubmit(numericAmount);
+    onSubmit({ amount: normalizedAmount, asset: "BNB" });
     setAmount(""); // Reset amount after submission
   };
 
@@ -34,13 +38,13 @@ export default function AmountEntryModal({
         
         <div className={styles.modalHeader}>
             <h4 className={styles.modalTitle}>
-              Deposit From Primary Vault
+              Deposit BNB
             </h4>
         </div>
 
         <div className={styles.inputGroup}>
             <label className={styles.inputLabel}>
-                OnChain Amount (USDT)
+                On-chain Amount
             </label>
             <input
             type="number"

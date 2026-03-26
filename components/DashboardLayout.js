@@ -1499,6 +1499,7 @@ const displayBalance = Math.max(rawBalance, 0);
             layout="horizontal"
             balance={parseFloat(primaryVaultBalance || "0").toLocaleString(undefined, { minimumFractionDigits: 2 })}
             limit="N/A"
+            currency="BNB"
             onDeposit={walletAccount ? onOpenAmountModal : onWalletConnect}
             depositLabel={walletAccount ? "Deposit" : "Connect"}
             onViewHistory={() => window.location.href = "/dashboard/ledger"}
@@ -1637,4 +1638,3 @@ const displayBalance = Math.max(rawBalance, 0);
     </>
   );
 }
-

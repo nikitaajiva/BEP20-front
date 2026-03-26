@@ -64,7 +64,7 @@
   flex-direction: column;
   align-items: flex-end;
 }
-.identityLabel { font-size: 10px; color: rgba(255,255,255,0.4); font-weight: 800; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 2px; }
+.identityLabel { font-size: 10px; color: rgba(255,255,255,0.85); font-weight: 800; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 2px; }
 .identityUhid { font-size: 20px; font-weight: 900; color: #ffd700; letter-spacing: 1px; font-family: monospace; text-shadow: 0 0 12px rgba(255,215,0,0.3); }
 
 /* ─── SEARCH FORM ──────────────────────────────────────── */
@@ -102,7 +102,7 @@
   outline: none;
   transition: all 0.3s ease;
 }
-.inputField::placeholder { color: rgba(255,255,255,0.2); }
+.inputField::placeholder { color: rgba(255,255,255,0.85); }
 .inputField:focus { border-color: rgba(255,215,0,0.4); background: rgba(255,215,0,0.04); box-shadow: 0 0 16px rgba(255,215,0,0.1); }
 
 .searchBtn {
@@ -172,7 +172,7 @@
   color: #ffd700;
   border: 1px solid rgba(255,215,0,0.2);
 }
-.rankLabel { font-size: 11px; font-weight: 800; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 4px; }
+.rankLabel { font-size: 11px; font-weight: 800; color: rgba(255,255,255,0.85); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 4px; }
 .rankVal { font-size: 24px; font-weight: 900; color: #fff; letter-spacing: -0.5px; }
 
 /* ─── LEDGER GRID (BENTO BOX LAYOUT) ────────────────────── */
@@ -240,7 +240,7 @@
 .walletCard:hover::after { background: #ffd700; box-shadow: 0 0 10px #ffd700; }
 
 .walletInfo { display: flex; flex-direction: column; gap: 4px; }
-.walletName { font-size: 10px; font-weight: 800; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1.5px; }
+.walletName { font-size: 10px; font-weight: 800; color: rgba(255,255,255,0.85); text-transform: uppercase; letter-spacing: 1.5px; }
 .walletValue { font-size: 22px; font-weight: 900; color: #fff; display: flex; align-items: baseline; gap: 6px; }
 .walletUnit { font-size: 12px; color: #ffd700; font-weight: 800; }
 

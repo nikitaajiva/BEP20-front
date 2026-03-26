@@ -76,7 +76,7 @@
 
 .heroSub {
   font-size: 13px;
-  color: rgba(255,255,255,0.3);
+  color: rgba(255,255,255,0.85);
   margin-top: 6px;
   font-weight: 500;
 }
@@ -121,7 +121,7 @@
 
 .heroDate {
   font-size: 10px;
-  color: rgba(255,255,255,0.25);
+  color: rgba(255,255,255,0.85);
   font-weight: 700;
   letter-spacing: 1px;
   text-align: right;
@@ -136,7 +136,7 @@
   font-weight: 900;
   letter-spacing: 3px;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.25);
+  color: rgba(255,255,255,0.85);
 }
 
 .sectionLabelLine {
@@ -226,7 +226,7 @@
 .cardLabel {
   font-size: 10px;
   font-weight: 800;
-  color: rgba(255,255,255,0.3);
+  color: rgba(255,255,255,0.85);
   text-transform: uppercase;
   letter-spacing: 2px;
   margin-bottom: 6px;
@@ -243,7 +243,7 @@
 .cardUnit {
   font-size: 12px;
   font-weight: 500;
-  color: rgba(255,255,255,0.25);
+  color: rgba(255,255,255,0.85);
   margin-left: 5px;
 }
 
@@ -396,7 +396,7 @@
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 2px;
-  color: rgba(255,255,255,0.28);
+  color: rgba(255,255,255,0.85);
   margin-bottom: 6px;
 }
 
@@ -411,7 +411,7 @@
 .kpiUnit {
   font-size: 12px;
   font-weight: 500;
-  color: rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.85);
   margin-left: 5px;
   letter-spacing: 1px;
 }
@@ -434,7 +434,7 @@
   font-weight: 800;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.22);
+  color: rgba(255,255,255,0.85);
 }
 
 .kpiMetaValue {
@@ -493,7 +493,7 @@
   font-weight: 800;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.25);
+  color: rgba(255,255,255,0.85);
   margin-bottom: 6px;
 }
 
@@ -620,7 +620,7 @@
   font-weight: 800;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.25);
+  color: rgba(255,255,255,0.85);
   margin-bottom: 3px;
 }
 
@@ -634,7 +634,7 @@
 .stripUnit {
   font-size: 10px;
   font-weight: 600;
-  color: rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.85);
   margin-left: 4px;
 }
 

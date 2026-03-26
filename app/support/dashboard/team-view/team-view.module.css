@@ -115,7 +115,7 @@
   border-radius: 6px;
   background: rgba(255,255,255,0.05);
   cursor: pointer;
-  color: rgba(255,255,255,0.4);
+  color: rgba(255,255,255,0.85);
   transition: all 0.2s ease;
   flex-shrink: 0;
 }
@@ -145,7 +145,7 @@
   text-transform: uppercase;
 }
 .nodeUser { font-size: 14px; font-weight: 900; color: #fff; letter-spacing: 0.5px; }
-.nodeUhid { font-size: 10px; color: rgba(255,255,255,0.3); font-weight: 700; font-family: monospace; margin-top: 2px; }
+.nodeUhid { font-size: 10px; color: rgba(255,255,255,0.85); font-weight: 700; font-family: monospace; margin-top: 2px; }
 
 /* Metrics Panels inside Node */
 .metricsStrip {
@@ -164,7 +164,7 @@
   border-radius: 10px;
   min-width: 90px;
 }
-.metricLabel { font-size: 8px; font-weight: 800; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
+.metricLabel { font-size: 8px; font-weight: 800; color: rgba(255,255,255,0.85); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
 .metricVal { font-size: 13px; font-weight: 900; color: #fff; }
 
 .valGold { color: #ffd700; }
@@ -221,7 +221,7 @@
   border: 1px dashed rgba(255,255,255,0.1);
 }
 .emptyIcon { font-size: 40px; opacity: 0.15; }
-.emptyText { font-size: 12px; color: rgba(255,255,255,0.3); font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
+.emptyText { font-size: 12px; color: rgba(255,255,255,0.85); font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
 
 /* ─── LEVEL COLORS ─── */
 /* Adds distinct border colors to nodes based on their depth */

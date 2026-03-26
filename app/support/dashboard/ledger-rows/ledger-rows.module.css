@@ -97,7 +97,7 @@
   gap: 6px;
   font-size: 10px;
   font-weight: 800;
-  color: rgba(255,255,255,0.3);
+  color: rgba(255,255,255,0.85);
   text-transform: uppercase;
   letter-spacing: 2px;
 }
@@ -113,7 +113,7 @@
   height: 44px;
   transition: all 0.3s ease;
 }
-.inputField::placeholder { color: rgba(255,255,255,0.2); }
+.inputField::placeholder { color: rgba(255,255,255,0.85); }
 .inputField:focus, .selectField:focus {
   border-color: rgba(255,215,0,0.4);
   background: rgba(255,215,0,0.04);
@@ -237,7 +237,7 @@
   padding-right: 16px;
 }
 .trailDate { font-size: 11px; font-weight: 800; color: #ffd700; text-transform: uppercase; margin-bottom: 4px; }
-.trailTime { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.3); }
+.trailTime { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.85); }
 
 /* Core Info Column */
 .trailCoreCol {
@@ -262,7 +262,7 @@
   font-size: 12px; font-weight: 900;
 }
 .trailUser { font-size: 14px; font-weight: 900; color: #fff; }
-.trailUhid { font-size: 10px; color: rgba(255,255,255,0.3); font-weight: 700; font-family: monospace; }
+.trailUhid { font-size: 10px; color: rgba(255,255,255,0.85); font-weight: 700; font-family: monospace; }
 .trailEventType {
   padding: 5px 12px;
   border-radius: 8px;
@@ -285,7 +285,7 @@
   flex-direction: column;
   gap: 4px;
 }
-.tMetricLabel { font-size: 9px; font-weight: 800; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 1px; }
+.tMetricLabel { font-size: 9px; font-weight: 800; color: rgba(255,255,255,0.85); text-transform: uppercase; letter-spacing: 1px; }
 .tMetricVal { font-size: 14px; font-weight: 800; color: #fff; display: flex; align-items: baseline; gap: 4px; }
 .tMetricVal span { font-size: 10px; color: #ffd700; }
 .tMetricValYield { color: #10b981; font-weight: 900; }
@@ -323,7 +323,7 @@
   margin-left: 20px;
 }
 .emptyIcon { font-size: 40px; opacity: 0.15; }
-.emptyText { font-size: 12px; color: rgba(255,255,255,0.3); font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
+.emptyText { font-size: 12px; color: rgba(255,255,255,0.85); font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
 
 /* ─── PAGINATION ───────────────────────────────────────── */
 .pagination {
@@ -336,7 +336,7 @@
   border-radius: 18px;
   backdrop-filter: blur(12px);
 }
-.pageInfo { font-size: 12px; color: rgba(255,255,255,0.3); font-weight: 700; letter-spacing: 0.5px; }
+.pageInfo { font-size: 12px; color: rgba(255,255,255,0.85); font-weight: 700; letter-spacing: 0.5px; }
 .pageInfo span { color: #ffd700; font-weight: 900; }
 .btnGroup { display: flex; gap: 8px; }
 

@@ -56,9 +56,9 @@ export default function SupportNavbar() {
               <Link
                 href={link.href}
                 style={{
-                  color: isActive ? "#fff" : "#b3baff",
+                  color: isActive ? "#fff" : "rgba(255, 255, 255, 0.7)",
                   textDecoration: "none",
-                  fontWeight: isActive ? "bold" : "normal",
+                  fontWeight: isActive ? "bold" : "500",
                   padding: "0.5rem 1rem",
                   borderRadius: "12px",
                   background: isActive
@@ -82,7 +82,7 @@ export default function SupportNavbar() {
       <Link
         href={settingsPath}
         style={{
-          color: pathname === settingsPath ? "#fff" : "#b3baff",
+          color: pathname === settingsPath ? "#fff" : "rgba(255, 255, 255, 0.7)",
           padding: "0.6rem",
           borderRadius: "50%",
           background:

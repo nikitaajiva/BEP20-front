@@ -45,10 +45,9 @@ export default function SupportSidebar() {
               <Link
                 href={link.href}
                 className={`${styles.navLink} ${isActive ? styles.navLinkActive : ""}`}
-                style={{ color: isActive ? "#000" : "rgba(255,255,255,0.35)", transition: "all 0.2s ease" }}
               >
-                <Icon size={18} style={{ minWidth: "18px", opacity: isActive ? 1 : 0.6, color: isActive ? "#000" : "inherit" }} />
-                <span style={{ whiteSpace: "nowrap", fontWeight: isActive ? "800" : "500" }}>{link.name}</span>
+                <Icon size={18} style={{ minWidth: "18px" }} />
+                <span style={{ whiteSpace: "nowrap" }}>{link.name}</span>
               </Link>
             </li>
           );
@@ -58,23 +57,19 @@ export default function SupportSidebar() {
         <li className={styles.navItem}>
           <button
             onClick={() => setSysOpen((o) => !o)}
-            className={styles.navLink}
+            className={`${styles.navLink} ${isSystemReportActive ? styles.navLinkActive : ""}`}
             style={{
               width: "100%",
-              background: isSystemReportActive ? "rgba(255,215,0,0.08)" : "transparent",
-              border: isSystemReportActive ? "1px solid rgba(255,215,0,0.2)" : "1px solid transparent",
-              color: isSystemReportActive ? "#ffd700" : "rgba(255,255,255,0.35)",
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
               gap: 0,
-              transition: "all 0.2s ease",
             }}
           >
             <span style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <BarChart2 size={18} style={{ minWidth: "18px", opacity: 0.7 }} />
-              <span style={{ whiteSpace: "nowrap", fontWeight: isSystemReportActive ? "800" : "500" }}>System Report</span>
+              <BarChart2 size={18} style={{ minWidth: "18px" }} />
+              <span style={{ whiteSpace: "nowrap" }}>System Report</span>
             </span>
             <ChevronDown
               size={14}
@@ -111,13 +106,13 @@ export default function SupportSidebar() {
                         textDecoration: "none",
                         fontSize: 12,
                         fontWeight: isSubActive ? 800 : 500,
-                        color: isSubActive ? "#ffd700" : "rgba(255,255,255,0.28)",
+                        color: isSubActive ? "#ffd700" : "rgba(255,255,255,0.85)",
                         background: isSubActive ? "rgba(255,215,0,0.07)" : "transparent",
                         transition: "all 0.2s ease",
                         borderLeft: isSubActive ? "2px solid #ffd700" : "2px solid transparent",
                       }}
                     >
-                      <SubIcon size={14} style={{ opacity: 0.7, flexShrink: 0 }} />
+                      <SubIcon size={14} style={{ opacity: 0.9, flexShrink: 0 }} />
                       {sub.name}
                     </Link>
                   </li>
@@ -142,7 +137,7 @@ export default function SupportSidebar() {
         <button
           onClick={logout}
           className={styles.navLink}
-          style={{ width: "100%", background: "transparent", border: "none", cursor: "pointer", marginTop: "10px" }}
+          style={{ width: "100%", background: "transparent", cursor: "pointer", marginTop: "10px" }}
         >
           <LogOut size={18} />
           Sign Out

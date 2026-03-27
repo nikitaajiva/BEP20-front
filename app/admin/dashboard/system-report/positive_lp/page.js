@@ -1,7 +1,19 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import { 
+  Search, 
+  Download, 
+  Calendar, 
+  User, 
+  Users, 
+  ArrowLeft, 
+  Filter,
+  Layers,
+  ShieldCheck,
+  Zap
+} from "lucide-react";
 import "../../../../globals.css";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL?.endsWith("/")
@@ -148,314 +160,320 @@ export default function PositiveLPPage() {
     return rangeWithDots;
   };
 
-  const inputStyle = {
-    padding: "0.75rem",
-    borderRadius: "12px",
-    border: "1px solid rgba(79, 140, 255, 0.2)",
-    background: "rgba(79, 140, 255, 0.1)",
-    color: "#fff",
-    minHeight: "44px",
+  const glassStyle = {
+    background: "rgba(255, 255, 255, 0.03)",
+    backdropFilter: "blur(12px)",
+    border: "1px solid rgba(255, 215, 0, 0.1)",
+    borderRadius: "16px",
   };
 
-  const dateStyle = {
-    padding: "0.75rem",
+  const inputStyle = {
+    padding: "0.8rem 1rem",
     borderRadius: "12px",
-    border: "1px solid rgba(79, 140, 255, 0.2)",
-    background: "rgba(79, 140, 255, 0.1)",
+    border: "1px solid rgba(255, 215, 0, 0.2)",
+    background: "rgba(0, 0, 0, 0.3)",
     color: "#fff",
+    fontSize: "0.9rem",
+    outline: "none",
+    transition: "all 0.3s ease",
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
   };
+
+  const SummaryCard = ({ title, value, icon: Icon, color }) => (
+    <div style={{ ...glassStyle, padding: "1.2rem", flex: 1, minWidth: "200px", position: "relative", overflow: "hidden" }}>
+      <div style={{ position: "absolute", top: "-10px", right: "-10px", opacity: 0.1 }}>
+        <Icon size={80} color={color} />
+      </div>
+      <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.75rem", fontWeight: "700", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "8px" }}>{title}</div>
+      <div style={{ color, fontSize: "1.5rem", fontWeight: "800" }}>{value}</div>
+    </div>
+  );
 
   return (
-    <div
-      style={{
-        background: "#181f3a",
-        borderRadius: "22px",
-        padding: "2rem",
-        color: "#fff",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "1.5rem",
-        }}
-      >
-        <h2>Positive LP Report</h2>
+    <div style={{ background: "#060606", minHeight: "100vh", padding: "2rem", fontFamily: "'Inter', sans-serif" }}>
+      {/* Header Area */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2.5rem" }}>
+        <div>
+          <button 
+            onClick={() => router.back()}
+            style={{ display: "flex", alignItems: "center", gap: "8px", background: "none", border: "none", color: "#ffd700", cursor: "pointer", fontSize: "0.85rem", marginBottom: "12px", fontWeight: "700", opacity: 0.8 }}
+          >
+            <ArrowLeft size={14} /> PROTOCOL REPORTS
+          </button>
+          <h1 style={{ fontSize: "2.4rem", fontWeight: "900", color: "#fff", margin: 0, letterSpacing: "-1.5px" }}>
+            Positive <span style={{ color: "#ffd700" }}>LP Positions</span>
+          </h1>
+          <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.95rem", marginTop: "6px" }}>Real-time terminal of active liquidity allocations and risk-exposure metrics.</p>
+        </div>
+        
         <button
           onClick={handleExport}
           style={{
-            background: "rgba(21, 192, 129, 0.15)",
-            border: "1px solid rgba(21, 192, 129, 0.4)",
-            borderRadius: "10px",
-            color: "#15c081",
-            fontWeight: "600",
-            padding: "0.6rem 1.2rem",
+            ...glassStyle,
+            background: "rgba(255, 215, 0, 0.08)",
+            color: "#ffd700",
+            fontWeight: "800",
+            padding: "0.9rem 1.8rem",
             cursor: "pointer",
-          }}
-        >
-          ⬇️ Export to Excel
-        </button>
-      </div>
-
-      {/* Search + Date */}
-      <form
-        onSubmit={handleSearch}
-        style={{
-          display: "flex",
-          gap: "1rem",
-          marginBottom: "2rem",
-          alignItems: "center",
-          flexWrap: "nowrap",
-        }}
-      >
-        {/* 🔍 Search (BIGGEST) */}
-        <input
-          type="text"
-          placeholder="Search by username or UHID..."
-          value={search}
-          disabled={!!parent}
-          onChange={(e) => setSearch(e.target.value)}
-          style={{
-            ...inputStyle,
-            flex: "3",
-          }}
-        />
-
-        {/* 👨‍👩‍👧 Parent */}
-        <input
-          type="text"
-          placeholder="Team / Parent Username or UHID..."
-          value={parent}
-          disabled={!!search}
-          onChange={(e) => setParent(e.target.value)}
-          style={{
-            ...inputStyle,
-            flex: "2",
-          }}
-        />
-
-        {/* 📅 From Date */}
-        <input
-          type="date"
-          value={fromDate}
-          disabled={!!date && !fromDate && !toDate}
-          onChange={(e) => {
-            setFromDate(e.target.value);
-            setPagination((prev) => ({ ...prev, currentPage: 1 }));
-            setDate("");
-          }}
-          style={{ ...dateStyle, flex: "1.3" }}
-        />
-
-        {/* 📅 To Date */}
-        <input
-          type="date"
-          value={toDate}
-          disabled={!!date && !fromDate && !toDate}
-          onChange={(e) => {
-            setToDate(e.target.value);
-            setPagination((prev) => ({ ...prev, currentPage: 1 }));
-            setDate("");
-          }}
-          style={{ ...dateStyle, flex: "1.3" }}
-        />
-
-        {/* 📆 Single Date */}
-        <input
-          type="date"
-          value={date}
-          disabled={!!fromDate || !!toDate}
-          onChange={(e) => {
-            setDate(e.target.value);
-            setPagination((prev) => ({ ...prev, currentPage: 1 }));
-            setFromDate("");
-            setToDate("");
-          }}
-          style={{ ...dateStyle, flex: "1.3" }}
-        />
-
-        {/* 🔘 Button */}
-        <button
-          type="submit"
-          disabled={loading}
-          style={{
-            minHeight: "44px",
-            padding: "0 1.5rem",
-            background: "rgba(79, 140, 255, 0.15)",
-            border: "1px solid rgba(79, 140, 255, 0.3)",
-            borderRadius: "12px",
-            color: "#4f8cff",
-            fontWeight: "bold",
-            whiteSpace: "nowrap",
-          }}
-        >
-          {loading ? "Loading..." : "Search"}
-        </button>
-      </form>
-
-      {/* 🧾 Summary */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          background: "rgba(79,140,255,0.05)",
-          border: "1px solid rgba(79,140,255,0.2)",
-          borderRadius: "12px",
-          padding: "0.8rem 1rem",
-          marginBottom: "1rem",
-          fontSize: "0.9rem",
-        }}
-      >
-        <span>Total Records: {summary.totalRecords}</span>
-        <span>Total LP: {Number(summary.totalLp).toFixed(6)}</span>
-        <span>Total ZeroRisk: {Number(summary.totalZeroRisk).toFixed(6)}</span>
-      </div>
-
-      {/* 📊 Table */}
-      <div style={{ overflowX: "auto" }}>
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <thead>
-            <tr style={{ borderBottom: "1px solid rgba(79, 140, 255, 0.2)" }}>
-              <th style={{ padding: "1rem", color: "#4f8cff", textAlign: "left" }}>Username</th>
-              <th style={{ padding: "1rem", color: "#4f8cff", textAlign: "left" }}>UHID</th>
-              <th style={{ padding: "1rem", color: "#4f8cff", textAlign: "left" }}>LP</th>
-              <th style={{ padding: "1rem", color: "#4f8cff", textAlign: "left" }}>Zero Risk</th>
-              <th style={{ padding: "1rem", color: "#4f8cff", textAlign: "left" }}>AUTOPOSITIONING</th>
-
-
-            </tr>
-          </thead>
-          <tbody>
-            {data.length > 0 ? (
-              data.map((item, idx) => (
-                <tr key={idx} style={{ borderBottom: "1px solid rgba(79, 140, 255, 0.1)" }}>
-                  <td style={{ padding: "1rem", color: "#fff" }}>{item.username}</td>
-                  <td style={{ padding: "1rem", color: "#b3baff" }}>{item.uhid}</td>
-                  <td style={{ padding: "1rem", color: "#15c081" }}>{item.lp}</td>
-                  <td style={{ padding: "1rem", color: "#ffd700" }}>{item.zeroRisk}</td>
-                  <td style={{ padding: "1rem", color: "#00d9fff1" }}>{item.autopositioning}</td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={4} style={{ textAlign: "center", padding: "2rem", color: "#b3baff" }}>
-                  No records found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* 📄 Pagination */}
-      {pagination.totalPages > 1 && (
-        <div
-          style={{
-            marginTop: "2rem",
             display: "flex",
-            flexDirection: "column",
             alignItems: "center",
-            gap: "1rem",
+            gap: "10px",
+            transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+            border: "1px solid rgba(255, 215, 0, 0.4)",
+            fontSize: "0.9rem",
+            boxShadow: "0 0 20px rgba(255, 215, 0, 0.05)"
           }}
         >
-          {/* Rows per page */}
-          <select
-            value={pagination.limit}
-            onChange={(e) =>
-              setPagination((prev) => ({
-                ...prev,
-                limit: Number(e.target.value),
-                currentPage: 1,
-              }))
-            }
-            style={{
-              background: "rgba(79, 140, 255, 0.1)",
-              color: "#4f8cff",
-              border: "1px solid rgba(79, 140, 255, 0.2)",
-              borderRadius: "8px",
-              padding: "0.5rem 1rem",
-              fontSize: "0.85rem",
-            }}
-          >
-            {[10, 20, 50, 100, 200, 500].map((s) => (
-              <option key={s} value={s}>
-                {s} / page
-              </option>
-            ))}
-          </select>
+          <Download size={18} /> EXPORT DATA
+        </button>
+      </div>
 
-          {/* Numbered pagination */}
-          <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", justifyContent: "center" }}>
+      {/* Analytics Summary */}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "1.5rem", marginBottom: "2.5rem" }}>
+        <SummaryCard title="Live Records" value={summary.totalRecords} icon={Layers} color="#ffffff" />
+        <SummaryCard title="Aggregate LP" value={Number(summary.totalLp).toLocaleString(undefined, { minimumFractionDigits: 6 })} icon={Zap} color="#ffd700" />
+        <SummaryCard title="ZeroRisk Offset" value={Number(summary.totalZeroRisk).toLocaleString(undefined, { minimumFractionDigits: 6 })} icon={ShieldCheck} color="#00ff88" />
+      </div>
+
+      {/* Advanced Filter Console */}
+      <div style={{ ...glassStyle, padding: "2rem", marginBottom: "2.5rem", border: "1px solid rgba(255, 255, 255, 0.05)" }}>
+        <form onSubmit={handleSearch} style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(255, 255, 255, 0.05)", paddingBottom: "1rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", color: "#ffd700", fontWeight: "800", fontSize: "0.85rem", letterSpacing: "1.5px" }}>
+              <Filter size={14} /> FILTER ENGINE
+            </div>
             <button
-              onClick={() =>
-                setPagination((prev) => ({ ...prev, currentPage: prev.currentPage - 1 }))
-              }
-              disabled={!pagination.hasPrevPage}
+              type="submit"
+              disabled={loading}
               style={{
-                padding: "0.5rem 1rem",
-                borderRadius: "8px",
-                background: pagination.hasPrevPage
-                  ? "rgba(79, 140, 255, 0.1)"
-                  : "rgba(139, 146, 181, 0.1)",
-                color: pagination.hasPrevPage ? "#4f8cff" : "#8b92b5",
-                border: "1px solid rgba(79, 140, 255, 0.2)",
+                background: "#ffd700",
+                color: "#000",
+                border: "none",
+                borderRadius: "12px",
+                padding: "0.75rem 2rem",
+                fontWeight: "900",
+                cursor: "pointer",
+                transition: "all 0.3s ease",
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                fontSize: "0.9rem",
+                boxShadow: "0 4px 15px rgba(255, 215, 0, 0.3)"
               }}
             >
-              Prev
+              {loading ? "PROCESSING..." : <><Search size={18} /> APPLY FILTERS</>}
             </button>
+          </div>
 
-            {getPageNumbers(pagination.currentPage, pagination.totalPages).map((p, i) =>
-              p === "..." ? (
-                <span key={i} style={{ padding: "0.5rem 0.8rem", color: "#8b92b5" }}>
-                  ...
-                </span>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1.5rem" }}>
+             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+               <label style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.4)", fontWeight: "800", letterSpacing: "1px" }}>ENTITY LOOKUP</label>
+               <div style={{ position: "relative" }}>
+                 <Search size={16} style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", color: "rgba(255,215,0,0.6)" }} />
+                 <input
+                   type="text"
+                   placeholder="Username / UHID"
+                   value={search}
+                   disabled={!!parent}
+                   onChange={(e) => setSearch(e.target.value)}
+                   style={{ ...inputStyle, width: "100%", paddingLeft: "42px" }}
+                 />
+               </div>
+             </div>
+
+             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+               <label style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.4)", fontWeight: "800", letterSpacing: "1px" }}>TEAM CLUSTER</label>
+               <div style={{ position: "relative" }}>
+                 <Users size={16} style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", color: "rgba(255,215,0,0.6)" }} />
+                 <input
+                   type="text"
+                   placeholder="Sponsor UHID"
+                   value={parent}
+                   disabled={!!search}
+                   onChange={(e) => setParent(e.target.value)}
+                   style={{ ...inputStyle, width: "100%", paddingLeft: "42px" }}
+                 />
+               </div>
+             </div>
+
+             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+               <label style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.4)", fontWeight: "800", letterSpacing: "1px" }}>START DATE</label>
+               <input
+                 type="date"
+                 value={fromDate}
+                 onChange={(e) => {
+                   setFromDate(e.target.value);
+                   setPagination((prev) => ({ ...prev, currentPage: 1 }));
+                   setDate("");
+                 }}
+                 style={{ ...inputStyle, width: "100%" }}
+               />
+             </div>
+
+             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+               <label style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.4)", fontWeight: "800", letterSpacing: "1px" }}>END DATE</label>
+               <input
+                 type="date"
+                 value={toDate}
+                 onChange={(e) => {
+                   setToDate(e.target.value);
+                   setPagination((prev) => ({ ...prev, currentPage: 1 }));
+                   setDate("");
+                 }}
+                 style={{ ...inputStyle, width: "100%" }}
+               />
+             </div>
+          </div>
+        </form>
+      </div>
+
+      {/* Main Data Terminal */}
+      <div style={{ ...glassStyle, padding: "1.5rem", overflow: "hidden", border: "1px solid rgba(255, 255, 255, 0.05)" }}>
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: "0 10px" }}>
+            <thead>
+              <tr>
+                {["ASSOCIATED ENTITY", "IDENTIFIER", "LP POSITION", "RISK OFFSET", "VELOCITIES"].map((h) => (
+                  <th key={h} style={{ padding: "0 1rem 1rem 1rem", color: "rgba(255,255,255,0.3)", fontSize: "0.7rem", fontWeight: "900", textAlign: "left", letterSpacing: "1.5px" }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {data.length > 0 ? (
+                data.map((item, idx) => (
+                  <tr key={idx} style={{ background: "rgba(255,255,255,0.02)", transition: "all 0.3s ease", cursor: "default" }} className="table-row">
+                    <td style={{ padding: "1.4rem 1rem", borderTopLeftRadius: "14px", borderBottomLeftRadius: "14px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+                        <div style={{ width: "36px", height: "36px", borderRadius: "10px", background: "linear-gradient(135deg, rgba(255,215,0,0.2) 0%, transparent 100%)", display: "flex", alignItems: "center", justifyContent: "center", color: "#ffd700", border: "1px solid rgba(255,215,0,0.1)" }}>
+                          <User size={16} />
+                        </div>
+                        <span style={{ fontWeight: "800", color: "#fff", fontSize: "0.95rem" }}>{item.username}</span>
+                      </div>
+                    </td>
+                    <td style={{ padding: "1.4rem 1rem", color: "rgba(179, 186, 255, 0.5)", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.85rem", letterSpacing: "0.5px" }}>{item.uhid}</td>
+                    <td style={{ padding: "1.4rem 1rem" }}>
+                      <div style={{ display: "flex", flexDirection: "column" }}>
+                        <span style={{ color: "#ffd700", fontWeight: "900", fontSize: "1.1rem" }}>{Number(item.lp).toLocaleString()}</span>
+                        <span style={{ color: "rgba(255,255,255,0.2)", fontSize: "0.65rem", fontWeight: "800", letterSpacing: "1px" }}>USDT POSITION</span>
+                      </div>
+                    </td>
+                    <td style={{ padding: "1.4rem 1rem" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "#00ff88" }}>
+                        <ShieldCheck size={14} />
+                        <span style={{ fontWeight: "800" }}>{Number(item.zeroRisk).toLocaleString()}</span>
+                      </div>
+                    </td>
+                    <td style={{ padding: "1.4rem 1rem", borderTopRightRadius: "14px", borderBottomRightRadius: "14px" }}>
+                       <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "#00d9ff", background: "rgba(0, 217, 255, 0.05)", padding: "6px 12px", borderRadius: "8px", border: "1px solid rgba(0, 217, 255, 0.1)", width: "fit-content" }}>
+                         <Zap size={14} />
+                         <span style={{ fontWeight: "900", fontSize: "0.85rem" }}>{item.autopositioning}</span>
+                       </div>
+                    </td>
+                  </tr>
+                ))
               ) : (
+                <tr>
+                  <td colSpan={5} style={{ textAlign: "center", padding: "6rem 2rem", color: "rgba(255,255,255,0.1)" }}>
+                    <Layers size={64} style={{ marginBottom: "1.5rem", opacity: 0.2 }} />
+                    <p style={{ fontSize: "1.1rem", fontWeight: "600" }}>PROTOCOL TERMINAL: NO ACTIVE DATA FOUND</p>
+                    <p style={{ fontSize: "0.85rem", marginTop: "4px" }}>Adjust your filters or try a different date range.</p>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Global Pagination Console */}
+        {pagination.totalPages > 1 && (
+          <div style={{ marginTop: "2.5rem", paddingTop: "2rem", borderTop: "1px solid rgba(255,255,255,0.05)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <span style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.3)", fontWeight: "700" }}>TERMINAL DEPTH:</span>
+              <select
+                value={pagination.limit}
+                onChange={(e) => setPagination((prev) => ({ ...prev, limit: Number(e.target.value), currentPage: 1 }))}
+                style={{ background: "#000", color: "#ffd700", border: "1px solid rgba(255,215,0,0.3)", borderRadius: "8px", padding: "6px 12px", fontSize: "0.8rem", fontWeight: "800", outline: "none" }}
+              >
+                {[10, 20, 50, 100, 200, 500].map((s) => <option key={s} value={s}>{s} / VIEW</option>)}
+              </select>
+            </div>
+
+            <div style={{ display: "flex", gap: "8px" }}>
+              <button
+                onClick={() => setPagination((prev) => ({ ...prev, currentPage: prev.currentPage - 1 }))}
+                disabled={!pagination.hasPrevPage}
+                style={{
+                  ...glassStyle,
+                  padding: "0.6rem 1.2rem",
+                  color: pagination.hasPrevPage ? "#ffd700" : "rgba(255,255,255,0.05)",
+                  background: "transparent",
+                  cursor: pagination.hasPrevPage ? "pointer" : "default",
+                  fontSize: "0.8rem",
+                  fontWeight: "900",
+                  letterSpacing: "1px"
+                }}
+              >
+                PREV
+              </button>
+
+              {getPageNumbers(pagination.currentPage, pagination.totalPages).map((p, i) => (
                 <button
                   key={i}
-                  onClick={() => setPagination((prev) => ({ ...prev, currentPage: p }))}
+                  onClick={() => p !== "..." && setPagination((prev) => ({ ...prev, currentPage: p }))}
                   style={{
-                    padding: "0.5rem 0.9rem",
-                    borderRadius: "6px",
-                    border:
-                      pagination.currentPage === p
-                        ? "1px solid rgba(79, 140, 255, 0.5)"
-                        : "1px solid rgba(79, 140, 255, 0.2)",
-                    background:
-                      pagination.currentPage === p
-                        ? "rgba(79, 140, 255, 0.2)"
-                        : "rgba(79, 140, 255, 0.05)",
-                    color: pagination.currentPage === p ? "#4f8cff" : "#8b92b5",
-                    fontWeight: pagination.currentPage === p ? 600 : 500,
+                    ...glassStyle,
+                    padding: "0.6rem 1rem",
+                    background: pagination.currentPage === p ? "#ffd700" : "rgba(255,255,255,0.02)",
+                    color: pagination.currentPage === p ? "#000" : "#fff",
+                    border: pagination.currentPage === p ? "1px solid #ffd700" : "1px solid rgba(255,255,255,0.1)",
+                    cursor: p === "..." ? "default" : "pointer",
                     fontSize: "0.85rem",
+                    fontWeight: "900",
+                    transition: "all 0.2s ease"
                   }}
                 >
                   {p}
                 </button>
-              )
-            )}
+              ))}
 
-            <button
-              onClick={() =>
-                setPagination((prev) => ({ ...prev, currentPage: prev.currentPage + 1 }))
-              }
-              disabled={!pagination.hasNextPage}
-              style={{
-                padding: "0.5rem 1rem",
-                borderRadius: "8px",
-                background: pagination.hasNextPage
-                  ? "rgba(79, 140, 255, 0.1)"
-                  : "rgba(139, 146, 181, 0.1)",
-                color: pagination.hasNextPage ? "#4f8cff" : "#8b92b5",
-                border: "1px solid rgba(79, 140, 255, 0.2)",
-              }}
-            >
-              Next
-            </button>
+              <button
+                onClick={() => setPagination((prev) => ({ ...prev, currentPage: prev.currentPage + 1 }))}
+                disabled={!pagination.hasNextPage}
+                style={{
+                  ...glassStyle,
+                  padding: "0.6rem 1.2rem",
+                  color: pagination.hasNextPage ? "#ffd700" : "rgba(255,255,255,0.05)",
+                  background: "transparent",
+                  cursor: pagination.hasNextPage ? "pointer" : "default",
+                  fontSize: "0.8rem",
+                  fontWeight: "900",
+                  letterSpacing: "1px"
+                }}
+              >
+                NEXT
+              </button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
+
+      <style jsx global>{`
+        .table-row:hover {
+          background: rgba(255, 215, 0, 0.08) !important;
+          transform: translateY(-2px);
+          box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator {
+          filter: invert(1) sepia(100%) saturate(10000%) hue-rotate(10deg);
+          cursor: pointer;
+          opacity: 0.6;
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator:hover {
+          opacity: 1;
+        }
+      `}</style>
     </div>
   );
 }

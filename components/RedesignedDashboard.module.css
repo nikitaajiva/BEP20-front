@@ -14,7 +14,7 @@
 .sidebar {
   width: 260px;
   height: 100vh;
-  background: rgba(10, 10, 10, 0.5);
+  background: rgba(10, 10, 10, 0.55);
   border-right: 1px solid rgba(255, 215, 0, 0.15);
   display: flex;
   flex-direction: column;
@@ -394,12 +394,14 @@
   justify-content: center;
   align-items: center;
   z-index: 10;
+  perspective: 1500px;
+  transform-style: preserve-3d;
 }
 
 .mainCircle {
   width: 280px;
   height: 280px;
-  background: radial-gradient(circle at center, #0a0a0a 0%, #000 100%);
+  background: radial-gradient(circle at center, #0e0e0e 0%, #000 100%);
   border: 4px solid #ffd700;
   border-radius: 50%;
   display: flex;
@@ -407,8 +409,38 @@
   justify-content: center;
   align-items: center;
   position: relative;
-  box-shadow: 0 0 80px rgba(255, 215, 0, 0.2);
+  box-shadow: 
+    0 0 80px rgba(255, 215, 0, 0.2),
+    inset 0 0 40px rgba(255, 215, 0, 0.1);
   z-index: 5;
+  transform: rotateX(15deg) translateZ(50px);
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* 3D Depth Layers */
+.mainCircle::before {
+  content: '';
+  position: absolute;
+  inset: -10px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), transparent);
+  transform: translateZ(-30px);
+  filter: blur(15px);
+  z-index: -1;
+}
+
+.mainCircle::after {
+  content: '';
+  position: absolute;
+  top: 5%;
+  left: 15%;
+  width: 70%;
+  height: 40%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), transparent);
+  border-radius: 50% 50% 0 0;
+  pointer-events: none;
+  transform: translateZ(20px);
 }
 
 /* New Spinning Tech Rings - Fixed Centering */
@@ -476,6 +508,7 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 30;
   position: relative;
+  transform: translateZ(90px); /* Primary button visibility */
 }
 
 .addFundsHubBtn:hover {
@@ -494,15 +527,26 @@
   color: #fff;
 }
 
-.hubLabel {
+.hubLabelOuter {
+  position: absolute;
+  top: -45px;
+  left: 50%;
+  transform: translateX(-50%);
   font-size: 11px;
-  color: #888;
+  color: #ffd700;
   text-transform: uppercase;
   letter-spacing: 2px;
-  margin-bottom: 5px;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  white-space: nowrap;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 6px 16px;
+  border-radius: 50px;
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  backdrop-filter: blur(8px);
+  z-index: 40;
+  transform: translateX(-50%) translateZ(100px); /* Prominent label */
 }
 
 .historyEyeBtn {
@@ -523,7 +567,7 @@
 }
 
 .hubAmount {
-  font-size: 48px;
+  font-size: 40px;
   font-weight: 800;
   color: #ffd700;
   line-height: 1.1;
@@ -654,7 +698,7 @@
 
 /* Vault Pass - Top Left */
 .vaultPassCard {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(10, 10, 10, 0.45);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -725,6 +769,123 @@
   flex-shrink: 0;
 }
 
+.passCopyBtn svg {
+  animation: pulseIcon 2s infinite ease-in-out;
+}
+
+@keyframes pulseIcon {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(1.2); opacity: 1; }
+}
+
+/* Mobile Responsive Overrides */
+@media (max-width: 768px) {
+  .dashboardTopHeader {
+    position: relative;
+    top: 0;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    padding: 15px;
+    gap: 15px;
+    margin: 0;
+  }
+
+  .vaultPassCard {
+    width: 100%;
+    min-width: unset;
+  }
+
+  .topRightActions {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 0;
+  }
+
+  .headerBalanceWrapper {
+    width: 100%;
+    justify-content: center;
+    margin-right: 0;
+  }
+
+  .redeemBtnTop, .connectBtn, .supportAdminBtn {
+    flex: 1;
+    min-width: 140px;
+    justify-content: center;
+  }
+
+  .centralDashboard {
+    margin-left: 0;
+    min-height: auto;
+    padding: 40px 0;
+    flex-direction: column;
+  }
+
+  .hubWrapper, .mainCircle {
+    width: 240px;
+    height: 240px;
+  }
+
+  .hubAmount {
+    font-size: 32px;
+  }
+
+  .staticFloatLeft, .staticFloatRight, .staticFloatTop, .absoluteTop, .staticFloatBottom {
+    position: relative;
+    top: auto;
+    bottom: auto;
+    left: auto;
+    right: auto;
+    transform: none !important;
+    width: 100%;
+    max-width: 100%;
+    margin: 10px 0;
+    padding: 0 15px;
+    animation: none !important;
+    display: block;
+  }
+
+  .orbitCardLeftTop, .orbitCardLeftBottom, .orbitCardRightTop, .orbitCardRightBottom {
+    width: 100% !important;
+    margin: 0 0 20px 0 !important;
+  }
+
+  .hubContentWrapper {
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 80px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hubWrapper, .mainCircle {
+    width: 210px;
+    height: 210px;
+  }
+
+  .hubAmount {
+    font-size: 28px;
+  }
+
+  .redeemBtnTop, .connectBtn, .supportAdminBtn {
+    width: 100%;
+    flex: none;
+  }
+
+  .mobileBottomNav {
+    display: flex;
+  }
+
+  .mainContentArea {
+    padding-bottom: 80px;
+    margin-left: 0;
+    width: 100%;
+    padding: 15px;
+  }
+}
+
 .passCopyBtn:hover {
   color: #ffd700;
   transform: scale(1.1);
@@ -751,10 +912,12 @@
 /* LP Stats */
 .lpStatsGrid {
   display: flex;
+  justify-content: center;
   align-items: center;
-  gap: 10px;
-  margin-top: 8px;
-  margin-bottom: 10px;
+  gap: 15px;
+  width: 90%;
+  margin-bottom: 5px;
+  transform: translateZ(60px); /* Float metrics above surface */
 }
 
 .lpStatItem {
@@ -762,6 +925,7 @@
   flex-direction: column;
   align-items: center;
   gap: 2px;
+  min-width: 80px; /* Ensure some consistent width */
 }
 
 .lpStatIcon {
@@ -773,11 +937,11 @@
   font-size: 9px;
   color: #666;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
 }
 
 .lpStatValue {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   color: #fff;
 }
@@ -1013,162 +1177,221 @@
   }
 }
 
-/* ===== Responsive Mobile Styles ===== */
-
-@media (max-width: 1200px) {
-  .staticFloatLeft {
-    left: 20px;
-    width: 340px;
-  }
-}
+/* ===== CLEAN RESPONSIVE OVERRIDES ===== */
 
 @media (max-width: 1024px) {
   .sidebar {
-    width: 80px;
-    padding: 20px 10px;
-  }
-
-  .sidebarNavItem span {
-    display: none;
+    display: none; /* Hide sidebar on mobile/tablets */
   }
 
   .mainContentArea {
-    margin-left: 80px;
-    width: calc(100% - 80px);
-    padding: 20px;
+    margin-left: 0 !important;
+    width: 100% !important;
+    padding: 20px 15px !important;
   }
 
-  .staticFloatLeft,
-  .staticFloatRight {
-    position: relative;
-    top: auto;
-    left: auto;
-    right: auto;
-    transform: none;
+  /* Header Section */
+  .dashboardTopHeader {
+    position: relative !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    flex-direction: column;
+    padding: 0 0 20px 0;
+    gap: 15px;
     width: 100%;
-    max-width: 600px;
-    margin: 20px auto;
-    animation: none;
+    margin-bottom: 20px;
   }
 
-  .centralDashboard {
-    min-height: 500px;
-    padding: 20px 0;
+  .vaultPassCard {
+    width: 100%;
+    min-width: unset;
+    background: rgba(15, 15, 15, 0.5);
+    border: 1px solid rgba(255, 215, 0, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    animation: pulseBorderMobile 4s infinite ease-in-out;
   }
 
-  .hubContentWrapper {
+  @keyframes pulseBorderMobile {
+    0%, 100% { border-color: rgba(255, 215, 0, 0.2); box-shadow: 0 0 10px rgba(255, 215, 0, 0.1); }
+    50% { border-color: rgba(255, 215, 0, 0.5); box-shadow: 0 0 20px rgba(255, 215, 0, 0.2); }
+  }
+
+  .topRightActions {
+    width: 100%;
     display: flex;
     flex-direction: column;
-  }
-
-  .staticFloatBottom {
-    order: 6;
-    margin-bottom: 25px;
-    position: sticky;
-    top: 10px;
-    z-index: 100;
-    width: 100%;
-  }
-
-  .staticFloatLeft {
-    order: 4;
-  }
-
-  .staticFloatRight {
-    order: 5;
-  }
-
-  .centralDashboard {
-    order: 3;
-    min-height: 480px;
-    padding: 15px 0;
-  }
-
-  .topRightActions {
-    order: 0;
-    width: 100%;
-  }
-
-  .staticFloatTop,
-  .absoluteTop,
-  .staticFloatLeft {
-    position: relative;
-    top: auto;
-    left: auto;
-    transform: none;
-    width: 100%;
-    max-width: 600px;
-    margin: 20px auto;
-    animation: none;
-    order: 1;
-  }
-
-  .orbitCardLeftTop,
-  .orbitCardLeftBottom {
-    width: 100%;
-    margin-left: 0;
-    margin-bottom: 15px;
-  }
-
-}
-
-@media (max-width: 480px) {
-  .mainContentArea {
-    margin-left: 0;
-    width: 100%;
+    gap: 12px;
+    margin-top: 5px;
+    order: 2;
+    background: rgba(10, 10, 10, 0.6);
     padding: 15px;
-  }
-
-  .sidebar {
-    display: none;
-    /* Mobile menu can be added later if needed */
-  }
-
-  .hubAmount {
-    font-size: 32px;
-  }
-
-  .mainCircle {
-    width: 230px;
-    height: 230px;
-    padding-top: 10px;
-  }
-
-  .hubLabel {
-    position: absolute;
-    top: -45px;
-    left: 50%;
-    transform: translateX(-50%);
-    white-space: nowrap;
-    color: #ffd700;
-    font-weight: 900;
-    letter-spacing: 2px;
-    margin-bottom: 0;
-    font-size: 11px;
-    opacity: 0.9;
-  }
-
-  .techRing {
-    display: none;
-  }
-
-  .topRightActions {
-    flex-direction: column;
-    gap: 10px;
-    align-items: center;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
   }
 
   .headerBalanceWrapper {
-    flex-direction: column;
-    gap: 2px;
+    width: 100%;
+    justify-content: space-between;
     margin-right: 0;
-    text-align: center;
+    background: rgba(0, 0, 0, 0.65);
+    padding: 12px 16px;
+    border-radius: 12px;
+    margin-bottom: 5px;
+    border: 1px solid rgba(255, 215, 0, 0.1);
+    box-shadow: inset 0 0 15px rgba(255, 215, 0, 0.05);
   }
 
-  .redeemBtnTop,
-  .connectBtn {
+  .redeemBtnTop, .connectBtn, .supportAdminBtn {
     width: 100%;
+    min-width: unset;
+    height: 48px;
     justify-content: center;
+    font-size: 14px;
+    border-radius: 14px;
+  }
+
+  .redeemBtnTop {
+    background: rgba(255, 215, 0, 0.08);
+    border-color: rgba(255, 215, 0, 0.3);
+  }
+
+  .connectBtn {
+    background: linear-gradient(135deg, #ffd700 0%, #ffa500 100%);
+    box-shadow: 0 8px 20px rgba(255, 215, 0, 0.2);
+    color: #000;
+  }
+
+  /* Core Layout Stacking */
+  .hubContentWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 100px;
+    overflow-x: hidden;
+  }
+
+  /* Central Hub Area */
+  .centralDashboard {
+    margin: 20px 0 !important;
+    width: 100% !important;
+    min-height: auto !important;
+    padding: 60px 0 !important;
+    order: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .hubWrapper, .mainCircle {
+    width: 280px;
+    height: 280px;
+  }
+
+  .mainCircle {
+    transform: rotateX(15deg) translateZ(40px);
+    transform-style: preserve-3d;
+  }
+
+  .hubAmount {
+    font-size: 38px;
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+    transform: translateZ(80px);
+  }
+
+  .hubLabelOuter {
+    top: -55px;
+    font-size: 10px;
+    transform: translateX(-50%) translateZ(100px);
+  }
+
+  .techRing, .orbitArea, .orbitPath, .lightRaysContainer, .sparklesContainer {
+    display: none !important; /* Hide resource-heavy/absolute elements on mobile */
+  }
+
+  /* Card Stacking Logic */
+  .absoluteTop, 
+  .staticFloatLeft, 
+  .staticFloatRight, 
+  .staticFloatTop, 
+  .staticFloatBottom {
+    position: relative !important;
+    top: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    right: auto !important;
+    transform: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 15px 0 !important;
+    padding: 0 !important;
+    animation: none !important;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    z-index: 50;
+  }
+
+  /* Individual Orbiting Card Containers */
+  .orbitCardLeftTop, 
+  .orbitCardLeftBottom, 
+  .orbitCardRightTop, 
+  .orbitCardRightBottom {
+    width: 100% !important;
+    margin: 0 !important;
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    transform: none !important;
+  }
+
+  /* Order Management */
+  .absoluteTop { order: 2; }       /* Primary Wallet */
+  .centralDashboard { order: 1; }   /* Main Hub */
+  .staticFloatLeft { order: 4; }    /* Stable Pool & Community Wallet */
+  .staticFloatRight { order: 5; }   /* Boost Wallet & community Growth */
+  .staticFloatTop { order: 6; }     /* Analytical Area (X Bonus / Community Reward) */
+
+  /* Mobile Bottom Nav Bar */
+  .mobileBottomNav {
+    display: flex !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .hubWrapper, .mainCircle {
+    width: 280px;
+    height: 280px;
+  }
+
+  .mainCircle {
+    transform: rotateX(15deg) translateZ(40px);
+    transform-style: preserve-3d;
+  }
+
+  .hubAmount {
+    font-size: 38px;
+    transform: translateZ(80px);
+  }
+
+  .hubLabelOuter {
+    font-size: 9px;
+    letter-spacing: 1px;
+    transform: translateX(-50%) translateZ(100px);
+  }
+
+  .redeemBtnTop, .connectBtn, .supportAdminBtn {
+    width: 100%;
+    flex: none;
+  }
+
+  .mainContentArea {
+    padding-bottom: 90px !important;
+  }
+  
+  .headerBalanceValue {
+    font-size: 14px;
   }
 }
 
@@ -1209,23 +1432,33 @@
 
 .mobileNavItemActive {
   color: #ffd700;
+  background: rgba(255, 215, 0, 0.05);
+  position: relative;
+}
+
+.mobileNavItemActive::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 2px;
+  background: #ffd700;
+  box-shadow: 0 0 10px #ffd700;
+  border-radius: 2px;
+  animation: pulseActive 2s infinite ease-in-out;
+}
+
+@keyframes pulseActive {
+  0%, 100% { opacity: 0.7; width: 22px; }
+  50% { opacity: 1; width: 28px; }
 }
 
 .mobileNavItemActive svg,
 .mobileNavItemActive i {
   transform: scale(1.1);
   filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.4));
-}
-
-@media (max-width: 480px) {
-  .mobileBottomNav {
-    display: flex;
-  }
-
-  .mainContentArea {
-    padding-bottom: 80px;
-    /* Space for bottom nav */
-  }
 }
 
 .absoluteTop {

@@ -28,19 +28,20 @@ const getLevelClass = (level) => {
 ════════════════════════════════════════════════════════ */
 const RecursiveNode = ({ user, level, onToggle, open, onFetch, router }) => {
     const handleToggle = () => {
-        if (!open && !user.children) {
+        // Fetch children if the branch is being opened and we don't have them yet
+        if (!open && (!user.children || user.children.length === 0)) {
             onFetch(user.uhid);
         }
         onToggle(user.uhid);
     };
 
-    const handleViewLedger = (userId) => {
-        router.push(`/support/dashboard/user-ledger?userId=${userId}`);
-    };
-
     const username = user.username || 'UNKNOWN';
     const init = username.slice(0, 2).toUpperCase();
     const ac = getAvatar(username);
+
+    // Safe Numeric Formatting
+    const fmt = (val) => (Number(val) || 0).toFixed(2);
+    const fmtInt = (val) => (Number(val) || 0).toLocaleString();
 
     return (
         <div>
@@ -69,15 +70,15 @@ const RecursiveNode = ({ user, level, onToggle, open, onFetch, router }) => {
                 <div className={styles.metricsStrip}>
                     <div className={styles.metricBadge}>
                         <span className={styles.metricLabel}>Self LP</span>
-                        <span className={`${styles.metricVal} ${styles.valGold}`}>{user.selfLp?.toFixed(2) || '0.00'}</span>
+                        <span className={`${styles.metricVal} ${styles.valGold}`}>{fmt(user.selfLp)}</span>
                     </div>
                     <div className={styles.metricBadge}>
                         <span className={styles.metricLabel}>Team LP</span>
-                        <span className={`${styles.metricVal} ${styles.valBlue}`}>{user.teamLp?.toFixed(2) || '0.00'}</span>
+                        <span className={`${styles.metricVal} ${styles.valBlue}`}>{fmt(user.teamLp)}</span>
                     </div>
                     <div className={styles.metricBadge}>
                         <span className={styles.metricLabel}>Network Size</span>
-                        <span className={`${styles.metricVal} ${styles.valGreen}`}>{user.teamSize?.toLocaleString() || '0'}</span>
+                        <span className={`${styles.metricVal} ${styles.valGreen}`}>{fmtInt(user.teamSize)}</span>
                     </div>
                     <div className={styles.metricBadge} style={{ minWidth: 120 }}>
                         <span className={styles.metricLabel}>Sponsor Identity</span>
@@ -94,7 +95,7 @@ const RecursiveNode = ({ user, level, onToggle, open, onFetch, router }) => {
                 </div>
 
                 {/* Audit Action */}
-                <button className={styles.btnAudit} onClick={() => handleViewLedger(user._id)}>
+                <button className={styles.btnAudit} onClick={() => router.push(`/admin/dashboard/user-ledger?userId=${user._id}`)}>
                     <ShieldCheck size={12} strokeWidth={3} /> Audit Log
                 </button>
             </div>
@@ -133,13 +134,26 @@ export default function TeamViewPage() {
 
     // Deep merge function to insert children into the appropriate parent UHID
     const updateUserState = (uhid, childrenResponse) => {
+        // Extract the best candidate for an array from the response
+        let rawList = [];
+        if (Array.isArray(childrenResponse)) {
+            rawList = childrenResponse;
+        } else if (childrenResponse && typeof childrenResponse === 'object') {
+            rawList = childrenResponse.users || childrenResponse.descendants || childrenResponse.data || [];
+        }
+        
+        const safeChildren = Array.isArray(rawList) ? rawList : [];
+        console.log(`[Topology] Updating Node ${uhid} with ${safeChildren.length} children`, safeChildren);
+
         setUsers(prevUsers => {
             const updateUserRecursively = (userList) => {
-                return userList.map(u => {
-                    if (u.uhid === uhid) {
-                        return { ...u, children: childrenResponse.map(c => ({ ...c, open: false })), open: true };
+                const list = Array.isArray(userList) ? userList : [];
+                return list.map(u => {
+                    if (String(u.uhid) === String(uhid)) {
+                        console.log(`[Topology] Match found for ${uhid}. Injecting children.`);
+                        return { ...u, children: safeChildren.map(c => ({ ...c, open: false })), open: true };
                     }
-                    if (u.children) {
+                    if (Array.isArray(u.children) && u.children.length > 0) {
                         return { ...u, children: updateUserRecursively(u.children) };
                     }
                     return u;
@@ -152,11 +166,13 @@ export default function TeamViewPage() {
     const toggleNode = (uhid) => {
         setUsers(prevUsers => {
             const toggleUserRecursively = (userList) => {
-                return userList.map(u => {
-                    if (u.uhid === uhid) {
+                const list = Array.isArray(userList) ? userList : [];
+                return list.map(u => {
+                    // Normalize to string to avoid type mismatch
+                    if (String(u.uhid) === String(uhid)) {
                         return { ...u, open: !u.open };
                     }
-                    if (u.children) {
+                    if (Array.isArray(u.children) && u.children.length > 0) {
                         return { ...u, children: toggleUserRecursively(u.children) };
                     }
                     return u;
@@ -166,51 +182,57 @@ export default function TeamViewPage() {
         });
     };
 
-    // --- DUMMY GENERATORS FOR PREVIEW ---
-    const generateDummyTopLevel = () => {
-        return Array.from({ length: 4 }).map((_, i) => ({
-            _id: `top_${i}`,
-            uhid: `U100${i}X${Math.floor(Math.random()*900)}`,
-            username: `GenesisNode${i + 1}`,
-            teamSize: Math.floor(Math.random() * 50) + 1,
-            selfLp: Math.random() * 1000 + 500,
-            teamLp: Math.random() * 5000 + 1000,
-            sponsorUsername: 'SYSTEM',
-            registrationTs: new Date(Date.now() - (i*10000000)).toISOString()
-        }));
-    };
-    
-    const generateDummyChildren = (parentUhid) => {
-        const numChildren = Math.floor(Math.random() * 3) + 1;
-        return Array.from({ length: numChildren }).map((_, i) => ({
-            _id: `child_${parentUhid}_${i}`,
-            uhid: `${parentUhid.substring(0,4)}Y${Math.floor(Math.random()*900)}`,
-            username: `SubNode-${parentUhid.substring(5,7)}-${i+1}`,
-            teamSize: Math.random() > 0.5 ? Math.floor(Math.random() * 10) : 0, // 50% chance to have their own team
-            selfLp: Math.random() * 500 + 100,
-            teamLp: Math.random() * 800,
-            sponsorUsername: parentUhid, // Fake sponsor mapping
-            registrationTs: new Date().toISOString()
-        }));
+    // Fetch root-level nodes
+    const fetchRootNodes = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const token = localStorage.getItem("token");
+            if (!token) throw new Error("Authentication required");
+            const res = await fetch(`${API_BASE_URL}/api/support/hierarchy/top-level`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            const resData = await res.json();
+            if (!res.ok || !resData.success) throw new Error(resData.message || "Failed to fetch top-level nodes");
+            
+            // Flexibly find the array (in .data, .users, or the root object itself)
+            let safeUsers = [];
+            if (Array.isArray(resData.data)) safeUsers = resData.data;
+            else if (Array.isArray(resData.users)) safeUsers = resData.users;
+            else if (Array.isArray(resData)) safeUsers = resData;
+            
+            setUsers(safeUsers.map(u => ({ ...u, open: false })));
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
     };
 
     // Fetch individual descendants node
-    const fetchDescendants = useCallback((uhid) => {
+    const fetchDescendants = useCallback(async (uhid) => {
         setLoading(true);
-        setTimeout(() => {
-            updateUserState(uhid, generateDummyChildren(uhid));
+        try {
+            const token = localStorage.getItem("token");
+            if (!token) throw new Error("Authentication required");
+            const res = await fetch(`${API_BASE_URL}/api/support/hierarchy/descendants/${uhid}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            const resData = await res.json();
+            if (!res.ok || !resData.success) throw new Error(resData.message || "Failed to fetch children");
+            // Pass the whole object so updateUserState can find 'descendants' key
+            updateUserState(uhid, resData);
+        } catch (err) {
+            console.error("Descendant fetch error:", err);
+        } finally {
             setLoading(false);
-        }, 400);
+        }
     }, []);
 
     // Initial Load
     useEffect(() => {
         if (authUser && ['support', 'admin'].includes(authUser.userType)) {
-            setLoading(true);
-            setTimeout(() => {
-                setUsers(generateDummyTopLevel().map(u => ({ ...u, open: false })));
-                setLoading(false);
-            }, 500);
+            fetchRootNodes();
         }
     }, [authUser]);
     

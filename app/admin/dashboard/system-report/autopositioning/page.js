@@ -1,14 +1,28 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import { 
+  Search, 
+  Download, 
+  ArrowLeft, 
+  Filter,
+  BarChart3,
+  ShieldCheck,
+  TrendingDown,
+  User,
+  Users,
+  Activity,
+  Target,
+  MousePointer2
+} from "lucide-react";
 import "../../../../globals.css";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL?.endsWith("/")
   ? process.env.NEXT_PUBLIC_API_URL
   : process.env.NEXT_PUBLIC_API_URL + "/";
 
-export default function FiveXRewardsPage() {
+export default function AutopositioningReport() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
 
@@ -20,12 +34,12 @@ export default function FiveXRewardsPage() {
   });
   const [search, setSearch] = useState("");
   const [parent, setParent] = useState("");
-
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   const [pagination, setPagination] = useState({
     currentPage: 1,
@@ -36,7 +50,6 @@ export default function FiveXRewardsPage() {
     limit: 10,
   });
 
-  // ✅ Authentication check
   useEffect(() => {
     if (!authLoading) {
       if (!user) router.push("/login");
@@ -45,37 +58,26 @@ export default function FiveXRewardsPage() {
     }
   }, [user, authLoading, router]);
 
-  // ✅ Fetch 5X rewards
-  const fetch5xRewards = async (page = 1, limit = pagination.limit) => {
+  const fetchAutopositioning = async (page = 1, limit = pagination.limit) => {
     setLoading(true);
     setError("");
     try {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("Authentication required");
-
       const params = new URLSearchParams({ page, limit });
       if (search) params.append("search", search);
-        if (parent) params.append("parent", parent);
-
+      if (parent) params.append("parent", parent);
       if (fromDate || toDate) {
         if (fromDate) params.append("fromDate", fromDate);
         if (toDate) params.append("toDate", toDate);
       } else {
         params.append("date", date);
       }
-
-
-      const res = await fetch(
-        `${API_BASE_URL}api/support/5xrewards?${params}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
+      const res = await fetch(`${API_BASE_URL}api/support/5xrewards?${params}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       const json = await res.json();
-      if (!json.success)
-        throw new Error(json.message || "Failed to fetch data");
-
+      if (!json.success) throw new Error(json.message || "Failed to fetch data");
       setData(json.data || []);
       setSummary(json.summary || { totalCap: 0, totalUsed: 0, pending: 0 });
       setPagination((prev) => ({
@@ -84,80 +86,63 @@ export default function FiveXRewardsPage() {
         currentPage: json.pagination?.currentPage || page,
       }));
     } catch (err) {
-      console.error("API Error:", err);
       setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  // ✅ Auto-fetch
   useEffect(() => {
     if (user && ["support", "admin"].includes(user.userType)) {
-      fetch5xRewards(pagination.currentPage, pagination.limit);
+      fetchAutopositioning(pagination.currentPage, pagination.limit);
     }
-  }, [user, pagination.currentPage, pagination.limit,date, fromDate, toDate, parent]);
+  }, [user, pagination.currentPage, pagination.limit, date, fromDate, toDate, parent]);
 
-  // ✅ Search Handler
   const handleSearch = (e) => {
     e.preventDefault();
     setPagination((prev) => ({ ...prev, currentPage: 1 }));
-    fetch5xRewards(1, pagination.limit);
+    fetchAutopositioning(1, pagination.limit);
   };
 
-  // ✅ Export Excel
   const handleExport = async () => {
     try {
+      setExporting(true);
       const token = localStorage.getItem("token");
       if (!token) throw new Error("Authentication required");
-
       const params = new URLSearchParams();
       if (search) params.append("search", search);
-       if (parent) params.append("parent", parent);
-
+      if (parent) params.append("parent", parent);
       if (fromDate || toDate) {
         if (fromDate) params.append("fromDate", fromDate);
         if (toDate) params.append("toDate", toDate);
       } else {
         params.append("date", date);
       }
-
-      const res = await fetch(
-        `${API_BASE_URL}api/support/5xrewards/export?${params}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
+      const res = await fetch(`${API_BASE_URL}api/support/5xrewards/export?${params}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       if (!res.ok) throw new Error("Failed to export Excel");
-
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `5xrewards_Report_${
-        new Date().toISOString().split("T")[0]
-      }.xlsx`;
+      a.download = `Autopositioning_Audit_${new Date().toISOString().split("T")[0]}.xlsx`;
       a.click();
       window.URL.revokeObjectURL(url);
     } catch (err) {
-      console.error("Export Error:", err);
       alert("Export failed: " + err.message);
+    } finally {
+      setExporting(false);
     }
   };
 
-  // ✅ Pagination helper
   const getPageNumbers = (currentPage, totalPages) => {
     const delta = 2;
     const range = [];
     const rangeWithDots = [];
     let l;
     for (let i = 1; i <= totalPages; i++) {
-      if (
-        i === 1 ||
-        i === totalPages ||
-        (i >= currentPage - delta && i <= currentPage + delta)
-      ) {
+      if (i === 1 || i === totalPages || (i >= currentPage - delta && i <= currentPage + delta)) {
         range.push(i);
       }
     }
@@ -172,358 +157,216 @@ export default function FiveXRewardsPage() {
     return rangeWithDots;
   };
 
-  // ✅ UI Rendering
+  const glassStyle = {
+    background: "rgba(255, 255, 255, 0.03)",
+    backdropFilter: "blur(12px)",
+    border: "1px solid rgba(255, 215, 0, 0.1)",
+    borderRadius: "16px",
+  };
+
   const inputStyle = {
-    padding: "0.75rem",
+    padding: "0.8rem 1rem",
     borderRadius: "12px",
-    border: "1px solid rgba(79, 140, 255, 0.2)",
-    background: "rgba(79, 140, 255, 0.1)",
+    border: "1px solid rgba(255, 215, 0, 0.2)",
+    background: "rgba(0, 0, 0, 0.3)",
     color: "#fff",
-    minHeight: "44px",
+    fontSize: "0.9rem",
+    outline: "none",
+    transition: "all 0.3s ease",
   };
 
-  const dateStyle = {
-    padding: "0.75rem",
-    borderRadius: "12px",
-    border: "1px solid rgba(79, 140, 255, 0.2)",
-    background: "rgba(79, 140, 255, 0.1)",
-    color: "#fff",
-  };
+  const SummaryCard = ({ title, value, icon: Icon, color }) => (
+    <div style={{ ...glassStyle, padding: "1.2rem", flex: 1, minWidth: "200px", position: "relative", overflow: "hidden" }}>
+      <div style={{ position: "absolute", top: "-10px", right: "-10px", opacity: 0.1 }}>
+        <Icon size={80} color={color} />
+      </div>
+      <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.75rem", fontWeight: "700", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "8px" }}>{title}</div>
+      <div style={{ color: color, fontSize: "1.5rem", fontWeight: "800" }}>{value}</div>
+    </div>
+  );
 
-  // ✅ UI Rendering
   return (
-    <div
-      style={{
-        background: "#181f3a",
-        borderRadius: "22px",
-        padding: "2rem",
-        color: "#fff",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "1.5rem",
-        }}
-      >
-        <h2>Total Autopositioning Report</h2>
+    <div style={{ background: "#060606", minHeight: "100vh", padding: "2rem", fontFamily: "'Inter', sans-serif" }}>
+      {/* Header Area */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2.5rem" }}>
+        <div>
+          <button 
+            onClick={() => router.push("/admin/dashboard/system-report")}
+            style={{ display: "flex", alignItems: "center", gap: "8px", background: "none", border: "none", color: "#ffd700", cursor: "pointer", fontSize: "0.85rem", marginBottom: "12px", fontWeight: "700", opacity: 0.8 }}
+          >
+            <ArrowLeft size={14} /> BACK TO REPORTS
+          </button>
+          <h1 style={{ fontSize: "2.4rem", fontWeight: "900", color: "#fff", margin: 0, letterSpacing: "-1.5px" }}>
+            Autopositioning <span style={{ color: "#ffd700" }}>Audit</span>
+          </h1>
+          <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.95rem", marginTop: "6px" }}>Comprehensive visual audit of automated entity positioning and network topology optimization.</p>
+        </div>
+        
         <button
           onClick={handleExport}
+          disabled={exporting}
           style={{
-            background: "rgba(21, 192, 129, 0.15)",
-            border: "1px solid rgba(21, 192, 129, 0.4)",
-            borderRadius: "10px",
-            color: "#15c081",
-            fontWeight: "600",
-            padding: "0.6rem 1.2rem",
+            ...glassStyle,
+            background: "rgba(255, 215, 0, 0.08)",
+            color: "#ffd700",
+            fontWeight: "800",
+            padding: "0.9rem 1.8rem",
             cursor: "pointer",
-          }}
-        >
-          ⬇️ Export to Excel
-        </button>
-      </div>
-
-      {/* 🔍 Search */}
-     <form
-        onSubmit={handleSearch}
-        style={{
-          display: "flex",
-          gap: "1rem",
-          marginBottom: "2rem",
-          alignItems: "center",
-          flexWrap: "nowrap",
-        }}
-      >
-        {/* 🔍 Search (BIGGEST) */}
-        <input
-          type="text"
-          placeholder="Search by username or UHID..."
-          value={search}
-          disabled={!!parent}
-          onChange={(e) => setSearch(e.target.value)}
-          style={{
-            ...inputStyle,
-            flex: "3",
-          }}
-        />
-
-        {/* 👨‍👩‍👧 Parent */}
-        <input
-          type="text"
-          placeholder="Team / Parent Username or UHID..."
-          value={parent}
-          disabled={!!search}
-          onChange={(e) => setParent(e.target.value)}
-          style={{
-            ...inputStyle,
-            flex: "2",
-          }}
-        />
-
-        {/* 📅 From Date */}
-        <input
-          type="date"
-          value={fromDate}
-          disabled={!!date && !fromDate && !toDate}
-          onChange={(e) => {
-            setFromDate(e.target.value);
-            setPagination((prev) => ({ ...prev, currentPage: 1 }));
-            setDate("");
-          }}
-          style={{ ...dateStyle, flex: "1.3" }}
-        />
-
-        {/* 📅 To Date */}
-        <input
-          type="date"
-          value={toDate}
-          disabled={!!date && !fromDate && !toDate}
-          onChange={(e) => {
-            setToDate(e.target.value);
-            setPagination((prev) => ({ ...prev, currentPage: 1 }));
-            setDate("");
-          }}
-          style={{ ...dateStyle, flex: "1.3" }}
-        />
-
-        {/* 📆 Single Date */}
-        <input
-          type="date"
-          value={date}
-          disabled={!!fromDate || !!toDate}
-          onChange={(e) => {
-            setDate(e.target.value);
-            setPagination((prev) => ({ ...prev, currentPage: 1 }));
-            setFromDate("");
-            setToDate("");
-          }}
-          style={{ ...dateStyle, flex: "1.3" }}
-        />
-
-        {/* 🔘 Button */}
-        <button
-          type="submit"
-          disabled={loading}
-          style={{
-            minHeight: "44px",
-            padding: "0 1.5rem",
-            background: "rgba(79, 140, 255, 0.15)",
-            border: "1px solid rgba(79, 140, 255, 0.3)",
-            borderRadius: "12px",
-            color: "#4f8cff",
-            fontWeight: "bold",
-            whiteSpace: "nowrap",
-          }}
-        >
-          {loading ? "Loading..." : "Search"}
-        </button>
-      </form>
-
-      {/* 🧾 Summary */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          background: "rgba(79,140,255,0.05)",
-          border: "1px solid rgba(79,140,255,0.2)",
-          borderRadius: "12px",
-          padding: "0.8rem 1rem",
-          marginBottom: "1rem",
-          fontSize: "0.9rem",
-        }}
-      >
-        <span>Total Cap: {Number(summary.totalCap).toFixed(6)}</span>
-        <span>Total Used: {Number(summary.totalUsed).toFixed(6)}</span>
-        <span>Pending: {Number(summary.pending).toFixed(6)}</span>
-      </div>
-
-      {/* 📊 Table */}
-      <div style={{ overflowX: "auto" }}>
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <thead>
-            <tr style={{ borderBottom: "1px solid rgba(79, 140, 255, 0.2)" }}>
-              <th
-                style={{ padding: "1rem", color: "#4f8cff", textAlign: "left" }}
-              >
-                Username
-              </th>
-              <th
-                style={{ padding: "1rem", color: "#4f8cff", textAlign: "left" }}
-              >
-                UHID
-              </th>
-              <th
-                style={{ padding: "1rem", color: "#4f8cff", textAlign: "left" }}
-              >
-                Total Autopositioning
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.length > 0 ? (
-              data.map((item, idx) => (
-                <tr
-                  key={idx}
-                  style={{ borderBottom: "1px solid rgba(79, 140, 255, 0.1)" }}
-                >
-                  <td style={{ padding: "1rem", color: "#fff" }}>
-                    {item.username}
-                  </td>
-                  <td style={{ padding: "1rem", color: "#b3baff" }}>
-                    {item.uhid}
-                  </td>
-                  <td style={{ padding: "1rem", color: "#b3baff" }}>
-                    {item.Autopositioning}
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td
-                  colSpan={5}
-                  style={{
-                    textAlign: "center",
-                    padding: "2rem",
-                    color: "#b3baff",
-                  }}
-                >
-                  No records found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* 📄 Pagination */}
-      {pagination.totalPages > 1 && (
-        <div
-          style={{
-            marginTop: "2rem",
             display: "flex",
-            flexDirection: "column",
             alignItems: "center",
-            gap: "1rem",
+            gap: "10px",
+            fontSize: "0.9rem",
+            border: "1px solid rgba(255, 215, 0, 0.4)"
           }}
         >
-          {/* Rows per page */}
-          <select
-            value={pagination.limit}
-            onChange={(e) =>
-              setPagination((prev) => ({
-                ...prev,
-                limit: Number(e.target.value),
-                currentPage: 1,
-              }))
-            }
-            style={{
-              background: "rgba(79, 140, 255, 0.1)",
-              color: "#4f8cff",
-              border: "1px solid rgba(79, 140, 255, 0.2)",
-              borderRadius: "8px",
-              padding: "0.5rem 1rem",
-              fontSize: "0.85rem",
-            }}
-          >
-            {[10, 20, 50, 100, 200, 500].map((s) => (
-              <option key={s} value={s}>
-                {s} / page
-              </option>
-            ))}
-          </select>
+          <Download size={18} /> {exporting ? "EXPORTING..." : "EXPORT DATA"}
+        </button>
+      </div>
 
-          {/* Numbered pagination */}
-          <div
-            style={{
-              display: "flex",
-              gap: "0.5rem",
-              flexWrap: "wrap",
-              justifyContent: "center",
-            }}
-          >
+      {/* Analytics Summary */}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "1.5rem", marginBottom: "2.5rem" }}>
+        <SummaryCard title="Aggregate Volume" value={Number(summary.totalCap).toFixed(2)} icon={Activity} color="#ffffff" />
+        <SummaryCard title="Positioning Yield" value={Number(summary.totalUsed).toFixed(2)} icon={Target} color="#ffd700" />
+        <SummaryCard title="Pending Validation" value={Number(summary.pending).toFixed(2)} icon={ShieldCheck} color="#ff4444" />
+      </div>
+
+      {/* Filter Engine */}
+      <div style={{ ...glassStyle, padding: "2rem", marginBottom: "2.5rem" }}>
+        <form onSubmit={handleSearch} style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(255, 255, 255, 0.05)", paddingBottom: "1rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", color: "#ffd700", fontWeight: "800", fontSize: "0.85rem", letterSpacing: "1px" }}>
+              <Filter size={14} /> FILTER ENGINE
+            </div>
             <button
-              onClick={() =>
-                setPagination((prev) => ({
-                  ...prev,
-                  currentPage: prev.currentPage - 1,
-                }))
-              }
-              disabled={!pagination.hasPrevPage}
+              type="submit"
+              disabled={loading}
               style={{
-                padding: "0.5rem 1rem",
-                borderRadius: "8px",
-                background: pagination.hasPrevPage
-                  ? "rgba(79, 140, 255, 0.1)"
-                  : "rgba(139, 146, 181, 0.1)",
-                color: pagination.hasPrevPage ? "#4f8cff" : "#8b92b5",
-                border: "1px solid rgba(79, 140, 255, 0.2)",
+                background: "#ffd700",
+                color: "#000",
+                border: "none",
+                borderRadius: "10px",
+                padding: "0.7rem 1.8rem",
+                fontWeight: "900",
+                cursor: "pointer",
+                fontSize: "0.9rem"
               }}
             >
-              Prev
-            </button>
-
-            {getPageNumbers(pagination.currentPage, pagination.totalPages).map(
-              (p, i) =>
-                p === "..." ? (
-                  <span
-                    key={i}
-                    style={{ padding: "0.5rem 0.8rem", color: "#8b92b5" }}
-                  >
-                    ...
-                  </span>
-                ) : (
-                  <button
-                    key={i}
-                    onClick={() =>
-                      setPagination((prev) => ({ ...prev, currentPage: p }))
-                    }
-                    style={{
-                      padding: "0.5rem 0.9rem",
-                      borderRadius: "6px",
-                      border:
-                        pagination.currentPage === p
-                          ? "1px solid rgba(79, 140, 255, 0.5)"
-                          : "1px solid rgba(79, 140, 255, 0.2)",
-                      background:
-                        pagination.currentPage === p
-                          ? "rgba(79, 140, 255, 0.2)"
-                          : "rgba(79, 140, 255, 0.05)",
-                      color:
-                        pagination.currentPage === p ? "#4f8cff" : "#8b92b5",
-                      fontWeight: pagination.currentPage === p ? 600 : 500,
-                      fontSize: "0.85rem",
-                    }}
-                  >
-                    {p}
-                  </button>
-                )
-            )}
-
-            <button
-              onClick={() =>
-                setPagination((prev) => ({
-                  ...prev,
-                  currentPage: prev.currentPage + 1,
-                }))
-              }
-              disabled={!pagination.hasNextPage}
-              style={{
-                padding: "0.5rem 1rem",
-                borderRadius: "8px",
-                background: pagination.hasNextPage
-                  ? "rgba(79, 140, 255, 0.1)"
-                  : "rgba(139, 146, 181, 0.1)",
-                color: pagination.hasNextPage ? "#4f8cff" : "#8b92b5",
-                border: "1px solid rgba(79, 140, 255, 0.2)",
-              }}
-            >
-              Next
+              {loading ? "SEARCHING..." : "RELOAD DATA"}
             </button>
           </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1.2rem" }}>
+             <div style={{ position: "relative" }}>
+               <Search size={16} style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", color: "rgba(255,215,0,0.5)" }} />
+               <input
+                 type="text"
+                 placeholder="Search Entity/UHID"
+                 value={search}
+                 disabled={!!parent}
+                 onChange={(e) => setSearch(e.target.value)}
+                 style={{ ...inputStyle, width: "100%", paddingLeft: "42px" }}
+               />
+             </div>
+             <div style={{ position: "relative" }}>
+               <Users size={16} style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", color: "rgba(255,215,0,0.5)" }} />
+               <input
+                 type="text"
+                 placeholder="Search Parent/Team"
+                 value={parent}
+                 disabled={!!search}
+                 onChange={(e) => setParent(e.target.value)}
+                 style={{ ...inputStyle, width: "100%", paddingLeft: "42px" }}
+               />
+             </div>
+             <input
+               type="date"
+               value={fromDate}
+               onChange={(e) => { setFromDate(e.target.value); setDate(""); }}
+               style={{ ...inputStyle, width: "100%" }}
+             />
+             <input
+               type="date"
+               value={toDate}
+               onChange={(e) => { setToDate(e.target.value); setDate(""); }}
+               style={{ ...inputStyle, width: "100%" }}
+             />
+             <input
+               type="date"
+               value={date}
+               disabled={!!fromDate || !!toDate}
+               onChange={(e) => { setDate(e.target.value); setFromDate(""); setToDate(""); }}
+               style={{ ...inputStyle, width: "100%" }}
+             />
+          </div>
+        </form>
+      </div>
+
+      {/* Main Table Terminal */}
+      <div style={{ ...glassStyle, padding: "1.5rem", border: "1px solid rgba(255,255,255,0.05)" }}>
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: "0 8px" }}>
+            <thead>
+              <tr>
+                {["ENTITY", "UHID", "TOTAL AUTOPOSITIONING"].map(h => (
+                  <th key={h} style={{ padding: "0 1rem 1rem 1rem", color: "rgba(255,255,255,0.3)", fontSize: "0.7rem", fontWeight: "900", textAlign: h === "TOTAL AUTOPOSITIONING" ? "right" : "left", letterSpacing: "1px" }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((item, idx) => (
+                <tr key={idx} style={{ background: "rgba(255,255,255,0.02)", transition: "all 0.2s ease" }} className="table-row">
+                  <td style={{ padding: "1.2rem 1rem", borderTopLeftRadius: "12px", borderBottomLeftRadius: "12px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                      <div style={{ width: "24px", height: "24px", borderRadius: "50%", background: "rgba(255,215,0,0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "#ffd700" }}>
+                        <User size={12} />
+                      </div>
+                      <span style={{ fontWeight: "700", color: "#fff" }}>{item.username}</span>
+                    </div>
+                  </td>
+                  <td style={{ padding: "1.2rem 1rem", color: "rgba(255,255,255,0.4)", fontFamily: "monospace", fontSize: "0.85rem" }}>{item.uhid}</td>
+                  <td style={{ padding: "1.2rem 1rem", borderTopRightRadius: "12px", borderBottomRightRadius: "12px", textAlign: "right" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#ffd700", fontWeight: "900", justifyContent: "flex-end" }}>
+                      <MousePointer2 size={14} /> {item.Autopositioning || "0.00"}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {data.length === 0 && !loading && (
+            <div style={{ padding: "4rem", textAlign: "center", color: "rgba(255,255,255,0.2)", fontSize: "0.9rem", fontWeight: "700", letterSpacing: "1px" }}>NO RECORDS MATCH THE CURRENT FILTERS</div>
+          )}
         </div>
-      )}
+
+        {/* Console Pagination */}
+        {pagination.totalPages > 1 && (
+          <div style={{ marginTop: "2rem", display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: "1.5rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+               <span style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.3)", fontWeight: "700" }}>DEPTH</span>
+               <select
+                 value={pagination.limit}
+                 onChange={(e) => setPagination(prev => ({ ...prev, limit: Number(e.target.value), currentPage: 1 }))}
+                 style={{ background: "#000", color: "#ffd700", border: "1px solid rgba(255,215,0,0.3)", borderRadius: "8px", padding: "4px 8px", fontSize: "0.8rem", outline: "none" }}
+               >
+                 {[10, 20, 50, 100, 200, 500].map(s => <option key={s} value={s}>{s}</option>)}
+               </select>
+            </div>
+            
+            <div style={{ display: "flex", gap: "8px" }}>
+              <button disabled={!pagination.hasPrevPage} onClick={() => setPagination(p => ({ ...p, currentPage: p.currentPage - 1 }))} style={{ ...glassStyle, padding: "0.5rem 1rem", color: pagination.hasPrevPage ? "#ffd700" : "rgba(255,255,255,0.1)", cursor: "pointer", fontSize: "0.8rem", fontWeight: "800" }}>PREV</button>
+              {getPageNumbers(pagination.currentPage, pagination.totalPages).map((p, i) => (
+                <button key={i} onClick={() => p !== "..." && setPagination(prev => ({ ...prev, currentPage: p }))} style={{ ...glassStyle, padding: "0.5rem 1rem", background: pagination.currentPage === p ? "#ffd700" : "transparent", color: pagination.currentPage === p ? "#000" : "#fff", border: pagination.currentPage === p ? "1px solid #ffd700" : "1px solid rgba(255,255,255,0.1)", fontSize: "0.85rem", fontWeight: "900" }}>{p}</button>
+              ))}
+              <button disabled={!pagination.hasNextPage} onClick={() => setPagination(p => ({ ...p, currentPage: p.currentPage + 1 }))} style={{ ...glassStyle, padding: "0.5rem 1rem", color: pagination.hasNextPage ? "#ffd700" : "rgba(255,255,255,0.1)", cursor: "pointer", fontSize: "0.8rem", fontWeight: "800" }}>NEXT</button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <style jsx global>{`
+        .table-row:hover { background: rgba(255, 215, 0, 0.05) !important; transform: translateY(-1px); }
+        input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1) sepia(100%) saturate(10000%) hue-rotate(10deg); cursor: pointer; }
+      `}</style>
     </div>
   );
 }

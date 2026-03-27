@@ -2,6 +2,19 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import { 
+  Search, 
+  Download, 
+  ArrowLeft, 
+  Filter,
+  Wallet,
+  Users,
+  User,
+  Activity,
+  TrendingUp,
+  ShieldCheck,
+  Coins
+} from "lucide-react";
 import "../../../../globals.css";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL?.endsWith("/")
@@ -16,6 +29,8 @@ export default function TotalUsdtPage() {
   const [summary, setSummary] = useState({ totalUsers: 0, totalAmount: "0.00" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  
   const [pagination, setPagination] = useState({
     currentPage: 1,
     totalPages: 0,
@@ -42,6 +57,7 @@ export default function TotalUsdtPage() {
         page: String(page),
         pageSize: String(limit),
       });
+      if (searchTerm) params.append("search", searchTerm);
 
       const res = await fetch(
         `${API_BASE_URL}api/support/system-report-usdt-users?${params}`,
@@ -81,161 +97,229 @@ export default function TotalUsdtPage() {
     }
   }, [user, pagination.currentPage, pagination.limit]);
 
+  const handleSearch = (e) => {
+    e.preventDefault();
+    setPagination(p => ({ ...p, currentPage: 1 }));
+    fetchBalances(1, pagination.limit);
+  };
+
+  const getPageNumbers = (currentPage, totalPages) => {
+    const delta = 2;
+    const range = [];
+    const rangeWithDots = [];
+    let l;
+    for (let i = 1; i <= totalPages; i++) {
+        if (i === 1 || i === totalPages || (i >= currentPage - delta && i <= currentPage + delta)) {
+            range.push(i);
+        }
+    }
+    for (let i of range) {
+        if (l) {
+            if (i - l === 2) rangeWithDots.push(l + 1);
+            else if (i - l !== 1) rangeWithDots.push("...");
+        }
+        rangeWithDots.push(i);
+        l = i;
+    }
+    return rangeWithDots;
+  };
+
+  const glassStyle = {
+    background: "rgba(255, 255, 255, 0.03)",
+    backdropFilter: "blur(12px)",
+    border: "1px solid rgba(255, 215, 0, 0.1)",
+    borderRadius: "16px",
+  };
+
+  const inputStyle = {
+    padding: "0.8rem 1rem",
+    borderRadius: "12px",
+    border: "1px solid rgba(255, 215, 0, 0.2)",
+    background: "rgba(0, 0, 0, 0.3)",
+    color: "#fff",
+    fontSize: "0.9rem",
+    outline: "none",
+    transition: "all 0.3s ease",
+  };
+
+  const SummaryCard = ({ title, value, icon: Icon, color, sub }) => (
+    <div style={{ ...glassStyle, padding: "1.2rem", flex: 1, minWidth: "220px", position: "relative", overflow: "hidden" }}>
+      <div style={{ position: "absolute", top: "-10px", right: "-10px", opacity: 0.1 }}>
+        <Icon size={80} color={color} />
+      </div>
+      <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.75rem", fontWeight: "700", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "8px" }}>{title}</div>
+      <div style={{ color: color, fontSize: "1.5rem", fontWeight: "800" }}>{value}</div>
+      {sub && <div style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.7rem", marginTop: "4px", fontWeight: "600" }}>{sub}</div>}
+    </div>
+  );
+
   return (
-    <div className="container-xxl py-4">
-      <h2 style={{ color: "#fff", marginBottom: "1rem" }}>USDT Balances</h2>
-
-      {error && (
-        <div style={{ color: "#ff4d4d", marginBottom: "1rem" }}>{error}</div>
-      )}
-
-      <div
-        style={{
-          display: "flex",
-          gap: "1.5rem",
-          background: "rgba(79,140,255,0.05)",
-          border: "1px solid rgba(79,140,255,0.2)",
-          borderRadius: "12px",
-          padding: "0.8rem 1rem",
-          marginBottom: "1rem",
-          fontSize: "0.9rem",
-          color: "#b3baff",
-        }}
-      >
-        <span>Total Users: {summary.totalUsers}</span>
-        <span>Total USDT: {summary.totalAmount}</span>
-      </div>
-
-      <div style={{ overflowX: "auto" }}>
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <thead>
-            <tr style={{ borderBottom: "1px solid rgba(79, 140, 255, 0.2)" }}>
-              <th style={{ padding: "1rem", color: "#4f8cff" }}>Username</th>
-              <th style={{ padding: "1rem", color: "#4f8cff" }}>UHID</th>
-              <th style={{ padding: "1rem", color: "#4f8cff" }}>
-                Wallet Address
-              </th>
-              <th style={{ padding: "1rem", color: "#4f8cff" }}>USDT</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.length ? (
-              rows.map((row) => (
-                <tr
-                  key={row.userId}
-                  style={{ borderBottom: "1px solid rgba(79, 140, 255, 0.1)" }}
-                >
-                  <td style={{ padding: "1rem", color: "#fff" }}>
-                    {row.username}
-                  </td>
-                  <td style={{ padding: "1rem", color: "#b3baff" }}>
-                    {row.uhid}
-                  </td>
-                  <td style={{ padding: "1rem", color: "#b3baff" }}>
-                    {row.wallet_address}
-                  </td>
-                  <td style={{ padding: "1rem", color: "#b3baff" }}>
-                    {row.amountStr}
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td
-                  colSpan={4}
-                  style={{
-                    textAlign: "center",
-                    padding: "2rem",
-                    color: "#b3baff",
-                  }}
-                >
-                  {loading ? "Loading..." : "No records found."}
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {pagination.totalPages > 1 && (
-        <div
+    <div style={{ background: "#060606", minHeight: "100vh", padding: "2rem", fontFamily: "'Inter', sans-serif" }}>
+      {/* Header Area */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2.5rem" }}>
+        <div>
+          <button 
+            onClick={() => router.push("/admin/dashboard/system-report")}
+            style={{ display: "flex", alignItems: "center", gap: "8px", background: "none", border: "none", color: "#ffd700", cursor: "pointer", fontSize: "0.85rem", marginBottom: "12px", fontWeight: "700", opacity: 0.8 }}
+          >
+            <ArrowLeft size={14} /> BACK TO REPORTS
+          </button>
+          <h1 style={{ fontSize: "2.4rem", fontWeight: "900", color: "#fff", margin: 0, letterSpacing: "-1.5px" }}>
+            USDT <span style={{ color: "#ffd700" }}>Balance Ledger</span>
+          </h1>
+          <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.95rem", marginTop: "6px" }}>Administrative terminal for monitoring aggregate user balances and liquidities.</p>
+        </div>
+        
+        <button
+          onClick={() => {}}
           style={{
-            marginTop: "2rem",
+            ...glassStyle,
+            background: "rgba(255, 215, 0, 0.08)",
+            color: "#ffd700",
+            fontWeight: "800",
+            padding: "0.9rem 1.8rem",
+            cursor: "pointer",
             display: "flex",
-            flexDirection: "column",
             alignItems: "center",
-            gap: "1rem",
+            gap: "10px",
+            fontSize: "0.9rem",
+            border: "1px solid rgba(255, 215, 0, 0.4)"
           }}
         >
-          <select
-            value={pagination.limit}
-            onChange={(e) =>
-              setPagination((prev) => ({
-                ...prev,
-                limit: Number(e.target.value),
-                currentPage: 1,
-              }))
-            }
-            style={{
-              background: "rgba(79, 140, 255, 0.1)",
-              color: "#fff",
-              border: "1px solid rgba(79, 140, 255, 0.2)",
-              padding: "0.5rem",
-              borderRadius: "8px",
-            }}
-          >
-            {[10, 20, 50, 100].map((size) => (
-              <option key={size} value={size}>
-                {size} / page
-              </option>
-            ))}
-          </select>
+          <Download size={18} /> EXPORT DATA
+        </button>
+      </div>
 
-          <div style={{ display: "flex", gap: "0.5rem" }}>
+      {/* Analytics Summary */}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "1.5rem", marginBottom: "2.5rem" }}>
+        <SummaryCard title="Total Users" value={summary.totalUsers} icon={Users} color="#ffffff" sub="Active on platform" />
+        <SummaryCard title="Aggregate Liquidity" value={`${Number(summary.totalAmount).toLocaleString()} USDT`} icon={Coins} color="#ffd700" sub="Combined user balances" />
+        <SummaryCard title="System Integrity" value="VERIFIED" icon={ShieldCheck} color="#00ff88" sub="Node status active" />
+      </div>
+
+      {/* Filter Engine */}
+      <div style={{ ...glassStyle, padding: "2rem", marginBottom: "2.5rem" }}>
+        <form onSubmit={handleSearch} style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(255, 255, 255, 0.05)", paddingBottom: "1rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", color: "#ffd700", fontWeight: "800", fontSize: "0.85rem", letterSpacing: "1px" }}>
+              <Filter size={14} /> FILTER ENGINE
+            </div>
             <button
-              disabled={pagination.currentPage === 1}
-              onClick={() =>
-                setPagination((prev) => ({
-                  ...prev,
-                  currentPage: prev.currentPage - 1,
-                }))
-              }
+              type="submit"
+              disabled={loading}
               style={{
-                padding: "0.5rem 1rem",
-                borderRadius: "8px",
-                border: "1px solid rgba(79, 140, 255, 0.2)",
-                background: "rgba(79, 140, 255, 0.1)",
-                color: "#b3baff",
+                background: "#ffd700",
+                color: "#000",
+                border: "none",
+                borderRadius: "10px",
+                padding: "0.7rem 1.8rem",
+                fontWeight: "900",
                 cursor: "pointer",
+                fontSize: "0.9rem"
               }}
             >
-              Prev
-            </button>
-            <span style={{ color: "#b3baff" }}>
-              Page {pagination.currentPage} of {pagination.totalPages}
-            </span>
-            <button
-              disabled={pagination.currentPage >= pagination.totalPages}
-              onClick={() =>
-                setPagination((prev) => ({
-                  ...prev,
-                  currentPage: prev.currentPage + 1,
-                }))
-              }
-              style={{
-                padding: "0.5rem 1rem",
-                borderRadius: "8px",
-                border: "1px solid rgba(79, 140, 255, 0.2)",
-                background: "rgba(79, 140, 255, 0.1)",
-                color: "#b3baff",
-                cursor: "pointer",
-              }}
-            >
-              Next
+              {loading ? "SEARCHING..." : "RELOAD DATA"}
             </button>
           </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "1.2rem" }}>
+             <div style={{ position: "relative" }}>
+               <Search size={16} style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", color: "rgba(255,215,0,0.5)" }} />
+               <input
+                 type="text"
+                 placeholder="Search by username or UHID..."
+                 value={searchTerm}
+                 onChange={(e) => setSearchTerm(e.target.value)}
+                 style={{ ...inputStyle, width: "100%", paddingLeft: "42px" }}
+               />
+             </div>
+          </div>
+        </form>
+      </div>
+
+      {/* Main Table Terminal */}
+      <div style={{ ...glassStyle, padding: "1.5rem", border: "1px solid rgba(255,255,255,0.05)" }}>
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: "0 8px" }}>
+            <thead>
+              <tr>
+                {["ENTITY", "UHID", "WALLET ADDRESS", "BALANCE"].map(h => (
+                  <th key={h} style={{ padding: "0 1rem 1rem 1rem", color: "rgba(255,255,255,0.3)", fontSize: "0.7rem", fontWeight: "900", textAlign: "left", letterSpacing: "1px" }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row) => (
+                <tr key={row.userId} style={{ background: "rgba(255,255,255,0.02)", transition: "all 0.2s ease" }} className="table-row">
+                  <td style={{ padding: "1.2rem 1rem", borderTopLeftRadius: "12px", borderBottomLeftRadius: "12px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                      <div style={{ width: "24px", height: "24px", borderRadius: "50%", background: "rgba(255,215,0,0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "#ffd700" }}>
+                        <User size={12} />
+                      </div>
+                      <span style={{ fontWeight: "700", color: "#fff" }}>{row.username}</span>
+                    </div>
+                  </td>
+                  <td style={{ padding: "1.2rem 1rem", color: "rgba(255,255,255,0.4)", fontFamily: "monospace", fontSize: "0.85rem" }}>{row.uhid}</td>
+                  <td style={{ padding: "1.2rem 1rem" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "rgba(255,255,255,0.5)", fontSize: "0.8rem" }}>
+                      <Wallet size={14} color="#ffd700" />
+                      {row.wallet_address || "N/A"}
+                    </div>
+                  </td>
+                  <td style={{ padding: "1.2rem 1rem", borderTopRightRadius: "12px", borderBottomRightRadius: "12px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#ffd700", fontWeight: "900" }}>
+                      <Activity size={14} /> {row.amountStr} USDT
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {rows.length === 0 && !loading && (
+            <div style={{ padding: "4rem", textAlign: "center", color: "rgba(255,255,255,0.2)", fontSize: "0.9rem", fontWeight: "700", letterSpacing: "1px" }}>NO RECORDS MATCH THE CURRENT FILTERS</div>
+          )}
         </div>
-      )}
+
+        {/* Console Pagination */}
+        {pagination.totalPages > 1 && (
+          <div style={{ marginTop: "2rem", display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: "1.5rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+               <span style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.3)", fontWeight: "700" }}>DEPTH</span>
+               <select
+                 value={pagination.limit}
+                 onChange={(e) => setPagination(prev => ({ ...prev, limit: Number(e.target.value), currentPage: 1 }))}
+                 style={{ background: "#000", color: "#ffd700", border: "1px solid rgba(255,215,0,0.3)", borderRadius: "8px", padding: "4px 8px", fontSize: "0.8rem", outline: "none" }}
+               >
+                 {[10, 20, 50, 100].map(s => <option key={s} value={s}>{s}</option>)}
+               </select>
+            </div>
+            
+            <div style={{ display: "flex", gap: "8px" }}>
+               <button 
+                 disabled={pagination.currentPage === 1} 
+                 onClick={() => setPagination(prev => ({ ...prev, currentPage: prev.currentPage - 1 }))} 
+                 style={{ ...glassStyle, padding: "0.5rem 1rem", color: pagination.currentPage === 1 ? "rgba(255,255,255,0.1)" : "#ffd700", cursor: "pointer", fontSize: "0.8rem", fontWeight: "800" }}
+               >
+                 PREV
+               </button>
+               {getPageNumbers(pagination.currentPage, pagination.totalPages).map((p, i) => (
+                 <button key={i} onClick={() => p !== "..." && setPagination(prev => ({ ...prev, currentPage: p }))} style={{ ...glassStyle, padding: "0.5rem 1rem", background: pagination.currentPage === p ? "#ffd700" : "transparent", color: pagination.currentPage === p ? "#000" : "#fff", border: pagination.currentPage === p ? "1px solid #ffd700" : "1px solid rgba(255,255,255,0.1)", fontSize: "0.85rem", fontWeight: "900" }}>{p}</button>
+               ))}
+               <button 
+                 disabled={pagination.currentPage >= pagination.totalPages} 
+                 onClick={() => setPagination(prev => ({ ...prev, currentPage: prev.currentPage + 1 }))} 
+                 style={{ ...glassStyle, padding: "0.5rem 1rem", color: pagination.currentPage >= pagination.totalPages ? "rgba(255,255,255,0.1)" : "#ffd700", cursor: "pointer", fontSize: "0.8rem", fontWeight: "800" }}
+               >
+                 NEXT
+               </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <style jsx global>{`
+        .table-row:hover { background: rgba(255, 215, 0, 0.05) !important; transform: translateY(-1px); }
+      `}</style>
     </div>
   );
 }

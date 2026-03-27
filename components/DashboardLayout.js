@@ -586,7 +586,7 @@ const LedgerInfoCard = ({
                   }}
                   onClick={onClaimClick}
                 >
-                  Claim
+                  Redeem
                 </button>
               </div>
             </div>
@@ -920,7 +920,7 @@ export default function DashboardLayout({
 
       // ✅ Show styled success modal with transferredAmount & ecosystemFee
       setSuccessModalContent({
-        title: "Claim Successful!",
+        title: "Redemption Successful!",
         message: (
           <>
             <p>
@@ -1096,9 +1096,9 @@ export default function DashboardLayout({
 
       // Close modal if it was open: setIsClaimRewardsModalOpen(false);
       setSuccessModalContent({
-        title: "Claim Successful!",
+        title: "Redemption Successful!",
         message:
-          "Your community rewards have been successfully claimed and sent to your registered USDT address.",
+          "Your community rewards have been successfully redeemed and sent to your registered USDT address.",
         transactionHash: data.transactionHash,
       });
       setIsSuccessModalOpen(true);

@@ -331,7 +331,7 @@ export default function HistoryTable({ filters, walletType }) {
                     "Transaction",
                     "Boost Limit",
                     "Boost Bonus",
-                    ...(hasClaim ? ["Claim"] : []),
+                    ...(hasClaim ? ["Redeem"] : []),
                     "Percentage",
                     "Amount (USDT)",
                     "Balance",

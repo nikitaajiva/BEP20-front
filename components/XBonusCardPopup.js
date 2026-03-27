@@ -51,7 +51,7 @@ export default function XBonusPopup({
     >
       <div
         style={{
-          background: "#080b12",
+          background: "#060606",
           borderRadius: "32px",
           maxWidth: "1000px",
           width: "100%",
@@ -97,10 +97,10 @@ export default function XBonusPopup({
             </div>
             <div>
               <h2 style={{ fontSize: "22px", fontWeight: "900", color: "#fff", margin: 0, letterSpacing: '0.5px' }}>
-                Network Multiplier Analytics
+                Growth Multiplier Analytics
               </h2>
               <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)", marginTop: "4px" }}>
-                Reward Multiplier {displayLevel} - Performance Insights
+                Growth Multiplier {displayLevel} - Performance Insights
               </p>
             </div>
           </div>

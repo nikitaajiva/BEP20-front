@@ -403,7 +403,7 @@ export default function HistoryTable({ filters, walletType }) {
                   letterSpacing: "0.8px",
                 }}
               >
-                X Bonus
+                Growth Multiplier
               </th>
               <th
                 style={{

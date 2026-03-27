@@ -334,7 +334,7 @@ export default function HistoryTable({ filters, walletType = null }) {
             display: "flex",
           }}
         >
-          <p className="content_p_withdrawals">Totat Claimed:</p>
+          <p className="content_p_withdrawals">Total Redeemed:</p>
           <span>{totalWithdrawals}</span>
         </div> */}
       </div>
@@ -509,7 +509,7 @@ export default function HistoryTable({ filters, walletType = null }) {
                     {entry.eventType === "LP_DEPOSIT_FROM_USDT"
                       ? "LP POSITIONING"
                       : entry.eventType === "WITHDRAWAL"
-                      ? "CLAIMED"
+                      ? "REDEEMED"
                       : entry.eventType === "DEPOSIT"
                       ? "ADDED"
                       : entry.eventType.replace(/_/g, " ")}

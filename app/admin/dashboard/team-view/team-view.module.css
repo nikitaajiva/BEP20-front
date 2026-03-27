@@ -220,14 +220,68 @@
   border-radius: 20px;
   border: 1px dashed rgba(255,255,255,0.1);
 }
-.emptyIcon { font-size: 40px; opacity: 0.15; }
-.emptyText { font-size: 12px; color: rgba(255,255,255,0.85); font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
-
 /* ─── LEVEL COLORS ─── */
-/* Adds distinct border colors to nodes based on their depth */
 .level-0 { border-left: 3px solid #ffd700; }
 .level-1 { border-left: 3px solid #10b981; }
 .level-2 { border-left: 3px solid #818cf8; }
 .level-3 { border-left: 3px solid #f43f5e; }
 .level-4 { border-left: 3px solid #f97316; }
 .level-5 { border-left: 3px solid #06b6d4; }
+
+@media (max-width: 1024px) {
+    .container {
+        padding: 20px 15px;
+    }
+
+    .nodeRow {
+        min-width: unset;
+        width: 100%;
+        flex-wrap: wrap;
+        padding: 15px;
+        gap: 12px;
+    }
+
+    .metricsStrip {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        order: 3;
+    }
+
+    .identityBox {
+        min-width: unset;
+        flex: 1;
+    }
+
+    .btnAudit {
+        width: 100%;
+        order: 4;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 600px) {
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .childrenWrap {
+        padding-left: 15px;
+        margin-left: 10px;
+    }
+
+    .metricsStrip {
+        grid-template-columns: 1fr;
+    }
+
+    .metricBadge {
+        width: 100%;
+    }
+
+    .title {
+        font-size: 24px;
+    }
+}

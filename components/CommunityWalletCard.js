@@ -256,7 +256,7 @@ export default function CommunityWalletCard({
                   rewards={ledgerDetails?.daily_rewards?.cascade}
                 />
                 <ProgressBar
-                  label="X Bonus"
+                  label="Growth Multiplier"
                   value={xBonus}
                   // unit=" USDT"
                   color="#00F0FF"

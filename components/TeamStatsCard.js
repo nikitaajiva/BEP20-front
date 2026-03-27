@@ -52,7 +52,7 @@ const TeamStatsCard = ({ user }) => {
                   Current Rank
                 </h6>
                 <small style={{ color: "#b3baff" }}>
-                  Your achievement level
+                  Your Growth Milestone
                 </small>
               </div>
             </div>

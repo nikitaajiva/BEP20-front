@@ -1,7 +1,7 @@
 /* communitybooster.css - Modern Horizontal Redesign */
 
 .booster-shell {
-    background: rgba(255, 255, 255, 0.03) !important;
+    background: rgba(10, 10, 10, 0.45) !important;
     backdrop-filter: blur(25px);
     -webkit-backdrop-filter: blur(25px);
     border: 1px solid rgba(255, 255, 255, 0.08);
@@ -35,7 +35,7 @@
     top: -1px;
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(255, 255, 255, 0.08); /* Matches other dashboard headers */
+    background: rgba(10, 10, 10, 0.5); /* Matches other dashboard headers */
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-top: none;
     padding: 8px 40px;
@@ -63,7 +63,7 @@
 
 .booster-card {
     position: relative;
-    background: rgba(255, 255, 255, 0.02);
+    background: rgba(10, 10, 10, 0.45);
     border: 1px solid rgba(255, 255, 255, 0.05);
     height: 160px;
     display: flex;

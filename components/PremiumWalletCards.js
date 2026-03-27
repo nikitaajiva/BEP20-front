@@ -77,10 +77,6 @@ export const RewardsWalletCard = ({
     <div className={styles.rwCardWrapper}>
       <div className={styles.rwHeader}>
         <span className={styles.rwTitle}>COMMUNITY WALLET</span>
-        <div className={styles.rwBadge}>
-          {/* <Gift size={12} color="#ffd700" />
-          <span>4</span> */}
-        </div>
       </div>
 
       <div className={styles.rwBody}>

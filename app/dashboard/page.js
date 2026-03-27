@@ -172,7 +172,21 @@ export default function DashboardPage() {
   }, []);
 
   useEffect(() => {
-    if (user && !isManualDisconnect) {
+    if (!user) {
+      setWalletAccount("");
+      setPrimaryVaultBalance("0");
+      setNativeBnbBalance("0");
+      setTransactionStatus("");
+      setLedgerDetails(null);
+      setLoadingLedger(true);
+      setLedgerError("");
+      return;
+    }
+
+    // Always fetch ledger details if user exists
+    fetchLedgerDetails();
+
+    if (!isManualDisconnect) {
       const ethereum = getEthereum();
       if (ethereum) {
         ethereum
@@ -212,16 +226,6 @@ export default function DashboardPage() {
           clearInterval(balanceInterval);
         };
       }
-
-      fetchLedgerDetails();
-    } else if (!user) {
-      setWalletAccount("");
-      setPrimaryVaultBalance("0");
-      setNativeBnbBalance("0");
-      setTransactionStatus("");
-      setLedgerDetails(null);
-      setLoadingLedger(true);
-      setLedgerError("");
     }
   }, [user, API_URL, fetchLedgerDetails, fetchNativeBalance, walletAccount, isManualDisconnect]);
 

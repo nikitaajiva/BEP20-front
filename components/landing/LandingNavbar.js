@@ -57,7 +57,7 @@ const LandingNavbar = () => {
 
           {/* Buttons */}
           <div className="nav-desktop" style={{ display: "flex", gap: "0.8rem", alignItems: "center" }}>
-            <Link href="/sign-in" style={{ textDecoration:"none" }}>
+            <Link href="/login" style={{ textDecoration:"none" }}>
               <button style={{
                 background: "transparent", color: "#fff", border: "1px solid rgba(255,215,0,0.4)",
                 padding: "0.55rem 1.4rem", borderRadius: "6px", fontWeight: 700, fontSize: "0.88rem",
@@ -92,7 +92,7 @@ const LandingNavbar = () => {
               }}>{l.label}</a>
             ))}
             <div style={{ display: "flex", gap: "0.8rem", marginTop: "0.5rem" }}>
-              <Link href="/sign-in" style={{ flex: 1, textDecoration: "none" }}>
+              <Link href="/login" style={{ flex: 1, textDecoration: "none" }}>
                 <button style={{ width: "100%", background: "transparent", color: "#fff", border: "1px solid rgba(255,215,0,0.4)", padding: "0.7rem", borderRadius: "6px", fontWeight: 700, fontSize: "0.9rem", cursor: "pointer" }}>Login</button>
               </Link>
               <Link href="/sign-up" style={{ flex: 1, textDecoration: "none" }}>

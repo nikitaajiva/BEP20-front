@@ -597,9 +597,54 @@
 
   .summaryBox {
     width: 100%;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .summaryItem {
+    width: 100%;
   }
 
   .filterGrid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 20px 15px;
+  }
+
+  .txGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .txCard {
+    padding: 15px;
+  }
+
+  .txAmount {
+    font-size: 20px;
+  }
+
+  .tabContainer {
+    gap: 4px;
+  }
+
+  .tab {
+    flex: 1;
+    min-width: 120px;
+    padding: 8px 12px;
+    font-size: 9px;
+  }
+
+  .pagination {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+
+  .txDetailValueContainer {
+    max-width: 50%;
   }
 }

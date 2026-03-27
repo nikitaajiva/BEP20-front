@@ -193,7 +193,7 @@ export default function CommunityReward() {
   }, []);
 
   return (
-    <div className="card h-100" style={{ background: "rgba(255, 255, 255, 0.03)", backdropFilter: "blur(15px)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: "24px" }}>
+    <div className="card h-100" style={{ background: "rgba(10, 10, 10, 0.4)", backdropFilter: "blur(15px)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: "24px" }}>
       <div className="card-body single-card-style" style={{ padding: "25px" }}>
         <h5 className="USDT-comm-rew-title mb-4" style={{ color: "#fff", fontWeight: 800, letterSpacing: "1px", display: "flex", alignItems: "center", gap: "10px" }}>
           <div style={{ width: "35px", height: "35px", background: "rgba(127,255,76,0.1)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}>

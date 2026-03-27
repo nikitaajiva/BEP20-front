@@ -7,7 +7,7 @@ import { FiSettings } from "react-icons/fi";
 const navLinks = [
   { name: "Welcome", href: "/admin/dashboard" },
   { name: "Users", href: "/admin/dashboard/users" },
-  { name: "User Ledger", href: "/admin/dashboard/user-ledger" },
+  // { name: "User Ledger", href: "/admin/dashboard/user-ledger" },
   { name: "Team View", href: "/admin/dashboard/team-view" },
   { name: "Ledger Rows", href: "/admin/dashboard/ledger-rows" },
   { name: "USDT Deposits", href: "/admin/dashboard/usdt-deposits" },

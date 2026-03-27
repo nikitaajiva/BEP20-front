@@ -297,33 +297,54 @@ export default function UsersPage() {
 
   /* ── Fetch users ── */
   const fetchUsers = async (page = 1) => {
-    setLoading(true); setError(null);
+    setLoading(true);
+    setError(null);
     try {
-      /* DUMMY DATA INJECTION - OVERRIDING API */
-      setTimeout(() => {
-        const mockUsers = Array.from({ length: 12 }).map((_, i) => {
-          const statusTypes = ["verified", "active", "inactive"];
-          return {
-            _id: `usrmock_${i}`,
-            uhid: `U100${i}X${Math.floor(Math.random() * 999)}`,
-            username: `CyberUser${i + 1}`,
-            email: `cyber${i + 1}@vault.com`,
-            status: statusTypes[i % statusTypes.length],
-            userType: "user",
-            createdAt: new Date(Date.now() - i * 86400000).toISOString()
-          };
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("Authentication required");
+
+      const queryParams = new URLSearchParams({
+        page,
+        limit: 12,
+        [filterField]: filterValue,
+        status: statusFilter,
+      });
+
+      const res = await fetch(`${API_BASE_URL}/api/support/users?${queryParams}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const resData = await res.json();
+
+      if (!res.ok || !resData.success) {
+        throw new Error(resData.message || "Failed to fetch users");
+      }
+
+      // If data.data is an array, use it directly. Otherwise check for .users
+      const usersList = Array.isArray(resData.data) ? resData.data : (resData.data.users || []);
+      setUsers(usersList);
+      
+      // Handle pagination if it exists, otherwise provide a fallback
+      if (resData.data.pagination) {
+        setPagination(resData.data.pagination);
+      } else {
+        setPagination({
+          currentPage: page,
+          totalPages: 1,
+          totalUsers: usersList.length,
+          hasNextPage: false,
+          hasPrevPage: false
         });
-        setUsers(mockUsers);
-        setPagination({ currentPage: page, limit: 12, totalUsers: 145, totalPages: Math.ceil(145 / 12) });
-        setLoading(false);
-      }, 500);
+      }
     } catch (err) {
       setError(err.message);
+    } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { if (user && ["support","admin"].includes(user.userType)) fetchUsers(1); }, [user]);
+  useEffect(() => {
+    if (user && ["support", "admin"].includes(user.userType)) fetchUsers(1);
+  }, [user, statusFilter]);
 
   const handleUpdateUser   = (u) => setUsers(prev => prev.map(p => p._id === u._id ? u : p));
   const handleDeleteSuccess= (id) => setUsers(prev => prev.filter(u => u._id !== id));

@@ -66,12 +66,12 @@ const XBonusBanner = () => {
   };
 
   const rawXBonusLevels = [
-    { level: "X", display: "LEVEL 1", self: "1,000", community: "15,000 USDT", color: "#6C5CE7" },
-    { level: "X1", display: "LEVEL 2", self: "1,500", community: "30,000 USDT", color: "#00d6c4" },
-    { level: "X2", display: "LEVEL 3", self: "3,000", community: "120,000 USDT", color: "#d34be6" },
-    { level: "X3", display: "LEVEL 4", self: "6,000", community: "300,000 USDT", color: "#00d19b" },
-    { level: "X4", display: "LEVEL 5", self: "12,000", community: "900,000 USDT", color: "#f1802f" },
-    { level: "X5", display: "LEVEL 6", self: "20,000", community: "1,500,000 USDT", color: "#007aff" },
+    { level: "X", display: "TIER 1", self: "1,000", community: "15,000 USDT", color: "#6C5CE7" },
+    { level: "X1", display: "TIER 2", self: "1,500", community: "30,000 USDT", color: "#00d6c4" },
+    { level: "X2", display: "TIER 3", self: "3,000", community: "120,000 USDT", color: "#d34be6" },
+    { level: "X3", display: "TIER 4", self: "6,000", community: "300,000 USDT", color: "#00d19b" },
+    { level: "X4", display: "TIER 5", self: "12,000", community: "900,000 USDT", color: "#f1802f" },
+    { level: "X5", display: "TIER 6", self: "20,000", community: "1,500,000 USDT", color: "#007aff" },
   ];
 
   const fetchReferrals = useCallback(
@@ -174,7 +174,7 @@ const XBonusBanner = () => {
     <>
       <div className={styles.xBonusContainer}>
         <div className={styles.xBonusHeader}>
-          <h5 className="mb-0">REWARD MULTIPLIER</h5>
+          <h5 className="mb-0">GROWTH MULTIPLIER</h5>
         </div>
 
         <div className={styles.xBonusListWrapper}>

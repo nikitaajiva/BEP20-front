@@ -9,6 +9,7 @@ import AffiliateProgram from "../components/landing/AffiliateProgram";
 import FAQSection from "../components/landing/FAQSection";
 import LandingFooter from "../components/landing/LandingFooter";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 
 // ── Particle Canvas Background ──────────────────────────────────────────────
 const ParticleBackground = () => {
@@ -141,68 +142,131 @@ export default function LandingPage() {
       </div>
 
       <main style={{ position: "relative", zIndex: 10 }}>
-        {/* HERO */}
+        {/* HERO - Hero component should have its own internal animations */}
         <HeroSection />
 
         <Divider />
 
         {/* ABOUT */}
-        <AboutBEPVaultSection />
+        <motion.div
+           initial={{ opacity: 0, y: 50 }}
+           whileInView={{ opacity: 1, y: 0 }}
+           viewport={{ once: true, amount: 0.2 }}
+           transition={{ duration: 0.8, ease: "easeOut" }}
+        >
+          <AboutBEPVaultSection />
+        </motion.div>
 
         <Divider />
 
         {/* FEATURES */}
-        <KeyFeaturesSection />
+        <motion.div
+           initial={{ opacity: 0, y: 50 }}
+           whileInView={{ opacity: 1, y: 0 }}
+           viewport={{ once: true, amount: 0.2 }}
+           transition={{ duration: 0.8, ease: "easeOut" }}
+        >
+          <KeyFeaturesSection />
+        </motion.div>
 
         <Divider />
 
         {/* HOW IT WORKS */}
-        <HowItWorksSection />
+        <motion.div
+           initial={{ opacity: 0, scale: 0.95 }}
+           whileInView={{ opacity: 1, scale: 1 }}
+           viewport={{ once: true, amount: 0.2 }}
+           transition={{ duration: 0.8, ease: "easeOut" }}
+        >
+          <HowItWorksSection />
+        </motion.div>
 
         <Divider />
 
         {/* AFFILIATE */}
-        <AffiliateProgram />
+        <motion.div
+           initial={{ opacity: 0, x: -50 }}
+           whileInView={{ opacity: 1, x: 0 }}
+           viewport={{ once: true, amount: 0.2 }}
+           transition={{ duration: 0.8, ease: "easeOut" }}
+        >
+          <AffiliateProgram />
+        </motion.div>
 
         <Divider />
 
         {/* FAQ */}
-        <FAQSection />
+        <motion.div
+           initial={{ opacity: 0, y: 50 }}
+           whileInView={{ opacity: 1, y: 0 }}
+           viewport={{ once: true, amount: 0.1 }}
+           transition={{ duration: 0.8, ease: "easeOut" }}
+        >
+          <FAQSection />
+        </motion.div>
 
         {/* Final CTA Banner */}
-        <section style={{ padding: "100px 0", textAlign: "center", position: "relative", overflow: "hidden" }}>
+        <motion.section 
+          style={{ padding: "100px 0", textAlign: "center", position: "relative", overflow: "hidden" }}
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1 }}
+        >
           <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, rgba(255,215,0,0.08) 0%, transparent 65%)", pointerEvents: "none" }} />
           <div className="container" style={{ position: "relative", zIndex: 2 }}>
-            <div style={{
-              display: "inline-flex", alignItems: "center", gap: "8px",
-              background: "rgba(0,230,118,0.1)", border: "1px solid rgba(0,230,118,0.3)",
-              borderRadius: "30px", padding: "6px 16px", marginBottom: "1.5rem",
-            }}>
+            <motion.div 
+               style={{
+                display: "inline-flex", alignItems: "center", gap: "8px",
+                background: "rgba(0,230,118,0.1)", border: "1px solid rgba(0,230,118,0.3)",
+                borderRadius: "30px", padding: "6px 16px", marginBottom: "1.5rem",
+              }}
+              initial={{ scale: 0.8 }}
+              whileInView={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 200 }}
+            >
               <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#00e676", display: "inline-block", animation: "livePulse 1s infinite" }} />
               <span style={{ color: "#00e676", fontWeight: 700, fontSize: "0.82rem" }}>Platform Accepting New Members</span>
-            </div>
-            <h2 style={{ fontSize: "clamp(2.5rem,5vw,4rem)", fontWeight: 900, color: "#fff", lineHeight: 1.1, marginBottom: "1.2rem" }}>
+            </motion.div>
+            <motion.h2 
+              style={{ fontSize: "clamp(2.5rem,5vw,4rem)", fontWeight: 900, color: "#fff", lineHeight: 1.1, marginBottom: "1.2rem" }}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.6 }}
+            >
               Start Your <span style={{ background: "linear-gradient(135deg,#ffd700,#ff8c00)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>BNB Journey</span><br />Today
-            </h2>
-            <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "1.15rem", maxWidth: "540px", margin: "0 auto 2.5rem", lineHeight: 1.65 }}>
+            </motion.h2>
+            <motion.p 
+              style={{ color: "rgba(255,255,255,0.6)", fontSize: "1.15rem", maxWidth: "540px", margin: "0 auto 2.5rem", lineHeight: 1.65 }}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              transition={{ delay: 0.4, duration: 0.6 }}
+            >
               Join 50,000+ members already earning daily BNB returns with BEPVault. It's free to join and takes less than 2 minutes.
-            </p>
-            <div style={{ display: "flex", gap: "1.2rem", justifyContent: "center", flexWrap: "wrap" }}>
+            </motion.p>
+            <motion.div 
+              style={{ display: "flex", gap: "1.2rem", justifyContent: "center", flexWrap: "wrap" }}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6, duration: 0.6 }}
+            >
               <Link href="https://linktr.ee/BEPVaultOfficial" target="_blank" style={{ textDecoration: "none" }}>
-                <button style={{
-                  background: "transparent", color: "#fff",
-                  border: "1px solid rgba(255,255,255,0.2)", padding: "1.1rem 3rem",
-                  borderRadius: "8px", fontWeight: 700, fontSize: "1.1rem",
-                  cursor: "pointer", transition: "all 0.3s",
-                }}
-                onMouseOver={e => { e.currentTarget.style.borderColor = "#ffd700"; e.currentTarget.style.color = "#ffd700"; }}
-                onMouseOut={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)"; e.currentTarget.style.color = "#fff"; }}>
+                <motion.button 
+                  style={{
+                    background: "transparent", color: "#fff",
+                    border: "1px solid rgba(255,255,255,0.2)", padding: "1.1rem 3rem",
+                    borderRadius: "8px", fontWeight: 700, fontSize: "1.1rem",
+                    cursor: "pointer", transition: "all 0.3s",
+                  }}
+                  whileHover={{ scale: 1.05, borderColor: "#ffd700", color: "#ffd700", boxShadow: "0 0 20px rgba(255,215,0,0.2)" }}
+                  whileTap={{ scale: 0.95 }}
+                >
                   Join Community
-                </button>
+                </motion.button>
               </Link>
-            </div>
+            </motion.div>
           </div>
-        </section>
+        </motion.section>
       </main>
 
       <LandingFooter />

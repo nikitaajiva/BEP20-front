@@ -23,10 +23,19 @@ const RedesignedDashboard = ({
   children
 }) => {
   const lpWallet = ledgerDetails?.lpWallet || {};
-  const lpBalance = parseFloat(lpWallet.balance || "0").toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  const lpUsed = parseFloat(lpWallet.used || "0").toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  const lpLimit = parseFloat(lpWallet.limit || "0").toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  const autopositioningValue = parseFloat(lpWallet.autopositioning || "0").toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const lpBalance = parseFloat(lpWallet?.balance || "0").toLocaleString(undefined, { minimumFractionDigits: 2 });
+  const lpAutopositioning = parseFloat(lpWallet?.autopositioning || "0").toLocaleString(undefined, { minimumFractionDigits: 2 });
+  const lpPending = parseFloat(lpWallet?.pending || "0").toLocaleString(undefined, { minimumFractionDigits: 2 });
+  
+  const getRoi = (b) => {
+    const val = parseFloat(b || 0);
+    if (val >= 11000) return 0.6;
+    if (val >= 5000) return 0.6;
+    if (val >= 1000) return 0.5;
+    if (val >= 9) return 0.5;
+    return 0;
+  };
+  const lpRoi = getRoi(lpWallet?.balance);
 
   const internalVaultBalance = parseFloat(ledgerDetails?.usdtWallet?.balance || "0").toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const primaryVaultBalance = internalVaultBalance;
@@ -214,9 +223,7 @@ const RedesignedDashboard = ({
            {extraHubCard} {/* Community Growth */}
         </div>
       </div>
-      <div className={styles.staticFloatBottom}>
-        {/* Empty or secondary content if needed */}
-      </div>
+
 
       {/* Central Hub */}
       <div className={styles.centralDashboard}>
@@ -235,8 +242,8 @@ const RedesignedDashboard = ({
           <div className={styles.techRing + " " + styles.ring2}></div>
 
           <div className={styles.mainCircle}>
-            {/* LP Icon + Title */}
-            <div className={styles.hubLabel}>
+            {/* LP Icon + Title moved outside for better visibility */}
+            <div className={styles.hubLabelOuter}>
               <Droplets size={13} />
               LIQUIDITY POOL
               <Link href="/dashboard/history/lp" className={styles.historyEyeBtn} title="View LP History">
@@ -252,15 +259,21 @@ const RedesignedDashboard = ({
             <div className={styles.lpStatsGrid}>
               <div className={styles.lpStatItem}>
                 <TrendingUp size={10} className={styles.lpStatIcon} />
-                <span className={styles.lpStatLabel}>Used</span>
-                <span className={styles.lpStatValue}>{lpUsed}</span>
+                <span className={styles.lpStatLabel}>AutoPos</span>
+                <span className={styles.lpStatValue}>{lpAutopositioning}</span>
               </div>
               <div className={styles.lpStatDivider}></div>
               <div className={styles.lpStatItem}>
                 <Activity size={10} className={styles.lpStatIcon} />
-                <span className={styles.lpStatLabel}>Limit</span>
-                <span className={styles.lpStatValue}>{lpLimit}</span>
+                <span className={styles.lpStatLabel}>Pending</span>
+                <span className={styles.lpStatValue}>{lpPending}</span>
               </div>
+            </div>
+
+            {/* Daily Earning Badge */}
+            <div className={styles.hubRate}>
+               <TrendingUp size={14} />
+               <span>+{lpRoi}% DAILY</span>
             </div>
 
             {/* LP Progress Arc */}

@@ -181,10 +181,10 @@ const LiveTicker = () => {
   );
 };
 
+import { motion } from "framer-motion";
+
 // ── Main Hero Section ───────────────────────────────────────────────────────
 const HeroSection = () => {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => { setTimeout(() => setMounted(true), 100); }, []);
 
   return (
     <section style={{ position: "relative", minHeight: "100vh", overflow: "hidden", display: "flex", alignItems: "center" }}>
@@ -195,13 +195,22 @@ const HeroSection = () => {
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4rem", alignItems: "center" }} className="hero-grid">
 
           {/* LEFT */}
-          <div style={{ opacity: mounted ? 1 : 0, transform: mounted ? "translateY(0)" : "translateY(40px)", transition: "all 1s ease" }}>
+          <motion.div 
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, ease: "easeOut" }}
+          >
             <LiveTicker />
 
-            <h1 style={{
-              fontSize: "clamp(2.8rem, 5vw, 5rem)", fontWeight: 900, lineHeight: 1.08,
-              color: "#fff", marginBottom: "1.5rem", letterSpacing: "-1px",
-            }}>
+            <motion.h1 
+              style={{
+                fontSize: "clamp(2.8rem, 5vw, 5rem)", fontWeight: 900, lineHeight: 1.08,
+                color: "#fff", marginBottom: "1.5rem", letterSpacing: "-1px",
+              }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.8 }}
+            >
               Earn Daily with<br />
               <span style={{
                 background: "linear-gradient(135deg, #ffd700 0%, #ff8c00 50%, #ffd700 100%)",
@@ -210,14 +219,24 @@ const HeroSection = () => {
                 animation: "gradShift 4s ease infinite",
               }}>BEP20 BNB</span><br />
               <span style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.7em", fontWeight: 600 }}>Liquidity Network</span>
-            </h1>
+            </motion.h1>
 
-            <p style={{ fontSize: "1.15rem", color: "rgba(255,255,255,0.65)", lineHeight: 1.7, marginBottom: "2rem", maxWidth: "500px" }}>
+            <motion.p 
+              style={{ fontSize: "1.15rem", color: "rgba(255,255,255,0.65)", lineHeight: 1.7, marginBottom: "2rem", maxWidth: "500px" }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4, duration: 0.8 }}
+            >
               The world's most advanced BEP20 community platform. Provide liquidity, earn compounded daily returns, and grow your network of BNB earners all on-chain, secure, and instant.
-            </p>
+            </motion.p>
 
             {/* Stats row */}
-            <div style={{ display: "flex", gap: "2rem", marginBottom: "2.5rem", flexWrap: "wrap" }}>
+            <motion.div 
+              style={{ display: "flex", gap: "2rem", marginBottom: "2.5rem", flexWrap: "wrap" }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6, duration: 0.8 }}
+            >
               {[
                 { val: "$12M+", label: "Total Liquidity" },
                 { val: "0.6%", label: "Daily Returns" },
@@ -228,18 +247,26 @@ const HeroSection = () => {
                   <div style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.5)", marginTop: "3px" }}>{s.label}</div>
                 </div>
               ))}
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
           {/* RIGHT — Charts */}
-          <div style={{ opacity: mounted ? 1 : 0, transform: mounted ? "translateX(0)" : "translateX(60px)", transition: "all 1.2s ease 0.2s" }}>
+          <motion.div 
+            initial={{ opacity: 0, x: 60 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3, duration: 1.2, ease: "easeOut" }}
+          >
             {/* Floating Coin Card */}
-            <div style={{
-              background: "rgba(255,255,255,0.03)", backdropFilter: "blur(20px)",
-              border: "1px solid rgba(255,215,0,0.15)", borderRadius: "24px",
-              padding: "1.5rem", marginBottom: "1.2rem",
-              boxShadow: "0 20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,215,0,0.1)",
-            }}>
+            <motion.div 
+              style={{
+                background: "rgba(255,255,255,0.03)", backdropFilter: "blur(20px)",
+                border: "1px solid rgba(255,215,0,0.15)", borderRadius: "24px",
+                padding: "1.5rem", marginBottom: "1.2rem",
+                boxShadow: "0 20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,215,0,0.1)",
+              }}
+              animate={{ y: [0, -15, 0] }}
+              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+            >
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                   <div style={{ width: 36, height: 36, background: "linear-gradient(135deg,#ffd700,#ff8c00)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, color: "#000", fontSize: "0.9rem" }}>B</div>
@@ -254,7 +281,7 @@ const HeroSection = () => {
                 </div>
               </div>
               <CandleChart />
-            </div>
+            </motion.div>
 
             {/* Mini Stat Cards Grid */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
@@ -263,18 +290,25 @@ const HeroSection = () => {
                 { icon: "ri-group-line", label: "Team Bonus", val: "5 Levels", col: "#ffd700" },
                 { icon: "ri-safe-line", label: "BSC Security", val: "Audit Pass", col: "#4fc3f7" },
                 { icon: "ri-timer-line", label: "Settlement", val: "Instant", col: "#ff8c00" },
-              ].map(s => (
-                <div key={s.label} style={{
-                  background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)",
-                  borderRadius: "16px", padding: "1.2rem", transition: "all 0.3s",
-                }}>
+              ].map((s, i) => (
+                <motion.div 
+                  key={s.label} 
+                  style={{
+                    background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)",
+                    borderRadius: "16px", padding: "1.2rem", transition: "all 0.3s",
+                  }}
+                  whileHover={{ scale: 1.05, background: "rgba(255,255,255,0.05)", borderColor: "rgba(255,215,0,0.3)" }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.8 + (i * 0.1), duration: 0.5 }}
+                >
                   <i className={s.icon} style={{ fontSize: "1.6rem", color: s.col, display: "block", marginBottom: "0.5rem" }} />
                   <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.75rem" }}>{s.label}</div>
                   <div style={{ color: "#fff", fontWeight: 700, fontSize: "1rem", marginTop: "3px" }}>{s.val}</div>
-                </div>
+                </motion.div>
               ))}
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
 

@@ -69,7 +69,7 @@ const LandingFooter = () => {
           {/* Account Links */}
           <div>
             <h4 style={{ color:"#fff", fontWeight:800, fontSize:"1rem", marginBottom:"1.5rem", textTransform:"uppercase", letterSpacing:"1px" }}>Account</h4>
-            <FooterLink href="/sign-in" label="Member Login" />
+            <FooterLink href="/login" label="Member Login" />
             <FooterLink href="/sign-up" label="Get Started" />
             <FooterLink href="/support/dashboard" label="Dashboard" />
             <FooterLink href="https://linktr.ee/BEPVaultOfficial" label="Linktree" />

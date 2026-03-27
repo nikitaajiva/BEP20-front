@@ -39,7 +39,7 @@ const getCurrentUTCDate = () => {
 const endpointMap = {
   deposits: "USDT-deposits",
   withdrawals: "USDT-withdrawals",
-  autopositioning: "USDT-autopositioning",
+  // autopositioning: "USDT-autopositioning",
   lppositioning: "lp-positioning",
   withdrawalerror: "USDT-withdrawalerror"
 };
@@ -128,7 +128,7 @@ function USDTTransactions() {
 
   useEffect(() => {
     if (!authLoading && (!user || !["support", "admin"].includes(user.userType))) {
-      router.push("/sign-in");
+      router.push("/login");
     }
   }, [user, authLoading, router]);
 
@@ -188,7 +188,7 @@ function USDTTransactions() {
           let Icon = Activity;
           if (tab === 'deposits') Icon = ArrowDownLeft;
           if (tab === 'withdrawals') Icon = ArrowUpRight;
-          if (tab === 'autopositioning') Icon = Cpu;
+          // if (tab === 'autopositioning') Icon = Cpu;
           if (tab === 'lppositioning') Icon = ShieldCheck;
 
           let label = tab;

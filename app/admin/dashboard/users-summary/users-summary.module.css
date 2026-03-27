@@ -28,7 +28,6 @@
   background: linear-gradient(90deg, #ffd700, transparent);
   box-shadow: 0 0 18px rgba(255,215,0,0.5);
 }
-.headerLeft {}
 .eyebrow {
   display: flex;
   align-items: center;
@@ -222,7 +221,6 @@
   text-transform: uppercase;
   flex-shrink: 0;
 }
-.userMeta {}
 .userName { font-size: 15px; font-weight: 900; color: #ffd700; }
 .userUhid { font-size: 10px; color: rgba(255,255,255,0.85); font-weight: 700; letter-spacing: 1px; font-family: monospace; margin-top: 2px; }
 
@@ -276,7 +274,6 @@
 @keyframes slideDown { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
 
 /* section inside expanded body */
-.bodySection {}
 .bodySectionTitle {
   font-size: 9px;
   font-weight: 900;
@@ -427,4 +424,83 @@
 
 /* ─── RESPONSIVE ──────────────────────────────── */
 @media (max-width: 1100px) { .filterGrid { grid-template-columns: repeat(2,1fr); } }
-@media (max-width: 768px)  { .container { padding: 20px; } .filterGrid { grid-template-columns: 1fr; } .quickPills { display: none; } }
+@media (max-width: 768px) {
+  .container {
+    padding: 20px 15px;
+  }
+  
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+    padding-bottom: 30px;
+  }
+
+  .title {
+    font-size: 24px;
+  }
+
+  .quickPills {
+    display: none;
+  }
+
+  .filterGrid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+    width: 100%;
+  }
+
+  .searchForm {
+    padding: 15px;
+  }
+
+  .recordsStrip {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  /* User Card Enhancements */
+  .cardHeader {
+    padding: 15px;
+  }
+
+  .metricGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .metricPill {
+    min-width: 100%;
+    max-width: 100%;
+    flex: none;
+  }
+
+  .pagination {
+    flex-direction: column;
+    gap: 15px;
+    padding: 20px 15px;
+    text-align: center;
+  }
+
+  .paginationActions {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .userAvatar {
+    width: 32px;
+    height: 32px;
+    font-size: 11px;
+    border-radius: 8px;
+  }
+
+  .userName {
+    font-size: 13px;
+  }
+
+  .metricPillValue {
+    font-size: 14px;
+  }
+}

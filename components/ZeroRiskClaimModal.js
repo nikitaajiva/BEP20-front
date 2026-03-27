@@ -104,9 +104,9 @@ export default function ZeroRiskClaimModal({
             <div className={styles.successIconBox}>
                 <CheckCircle size={56} color="#00ff00" style={{ margin: "0 auto 20px" }} />
             </div>
-            <h4 className={styles.successTitle}>Claim Successful!</h4>
+            <h4 className={styles.successTitle}>Redemption Successful!</h4>
             <p className={styles.successText}>
-              Your claim has been processed successfully. Boost &amp; Swift limits have been updated.
+              Your redemption has been processed successfully. Boost &amp; Swift limits have been updated.
             </p>
             <div className={styles.buttonGroup}>
                 <button className={styles.primaryBtn} onClick={onClose}>

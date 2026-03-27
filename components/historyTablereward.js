@@ -156,10 +156,10 @@ export default function HistoryTableReward({ filters, walletType = null }) {
     { label: "Reedem", key: "REWARDS_REDEEMED", red: true },
     { label: "Total Credit", key: "credits" },
     { label: "Community booster", key: "COMMUNITY_BOOSTER" },
-    { label: "X Bonus", key: "X_BONUS" },
+          { label: "Growth Multiplier", key: "X_BONUS" },
     { label: "X Men", key: "X_MEN" },
     { label: "X Power", key: "LEADERSHIP_BONUS" },
-    { label: "Claim", key: "CLAIM", red: true }, // ✅ always green
+    { label: "Redeem", key: "CLAIM", red: true }, // ✅ always green
     { label: "Balance", key: "closingBalance" },
   ];
 
@@ -252,7 +252,7 @@ export default function HistoryTableReward({ filters, walletType = null }) {
                             ? "USDT-center-align USDT-larger-label"
                             : "USDT-left-align USDT-small-label"
                         } ${
-                          item.label === "Claim" || item.label === "Reedem"
+                          item.label === "Redeem" || item.label === "Reedem"
                             ? "USDT-red-value"
                             : "USDT-green-value"
                         }`}

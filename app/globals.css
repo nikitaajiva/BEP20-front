@@ -11570,21 +11570,15 @@ select option {
 }
 
 .banner_section_2 {
-  background-image: url("/assets/images/banner1.png");
-  background-repeat: no-repeat;
-  background-size: cover;
+  background: radial-gradient(ellipse at center, rgba(255, 215, 0, 0.05), #000000 70%);
 }
 
 .banner_section_3 {
-  background-image: url("/assets/images/banner_2.png");
-  background-repeat: no-repeat;
-  background-size: cover;
+  background: radial-gradient(ellipse at left, rgba(255, 215, 0, 0.08), #000000 60%);
 }
 
 .banner_section_4 {
-  background-image: url("/assets/images/banner_4.png");
-  background-repeat: no-repeat;
-  background-size: cover;
+  background: radial-gradient(ellipse at right, rgba(255, 215, 0, 0.08), #000000 60%);
 }
 
 .banner_section_3 .event-description,

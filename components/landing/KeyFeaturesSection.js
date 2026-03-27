@@ -1,354 +1,353 @@
 "use client";
-import { useEffect, useRef, memo } from "react";
-import "../../app/herosection.css";
-import Image from "next/image";
-import Link from "next/link";
-import styled from "styled-components";
-import Myteamsection from "./TeamSection";
+import React, { useRef, useEffect, memo, useState } from "react";
 
-// Placeholder for a feature icon (can be replaced with more specific SVGs)
-const FeatureIcon = ({ color = "#ffd700" }) => (
-  <svg
-    width="48"
-    height="48"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <rect width="24" height="24" rx="6" fill={color} fillOpacity="0.2" />
-    <path
-      d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
-      stroke={color}
-      strokeWidth="1.5"
-      strokeLinejoin="round"
-    />
-    <animateTransform
-      attributeName="transform"
-      type="rotate"
-      from="0 12 12"
-      to="360 12 12"
-      dur="15s"
-      repeatCount="indefinite"
-    />
-  </svg>
-);
+// ── Custom Animated BNB/USDT Canvas Chart ────────────────────────────────────
+const generateCandles = (count = 60) => {
+  const candles = [];
+  let price = 310 + Math.random() * 20;
+  for (let i = 0; i < count; i++) {
+    const open = price;
+    const move = (Math.random() - 0.46) * 6;
+    const close = Math.max(200, open + move);
+    const high = Math.max(open, close) + Math.random() * 4;
+    const low  = Math.min(open, close) - Math.random() * 4;
+    const vol  = Math.random() * 100 + 20;
+    candles.push({ open, close, high, low, vol, bull: close >= open });
+    price = close;
+  }
+  return candles;
+};
 
-const FeatureCard = ({ title, children }) => (
-  <div
-    style={{
-      background: "#0a0a0a",
-      padding: "2rem",
-      borderRadius: "12px",
-      border: "1px solid rgba(255, 215, 0, 0.1)",
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      textAlign: "center",
-      boxShadow: "0 8px 20px rgba(0,0,0,0.4)",
-    }}
-  >
-    <div style={{ marginBottom: "1rem" }}>
-      <FeatureIcon />
-    </div>
-    <h3
-      style={{
-        fontSize: "clamp(1.3rem, 2vw, 1.6rem)",
-        color: "#FFFFFF",
-        marginBottom: "1rem",
-        fontFamily: "Inter, sans-serif",
-        fontWeight: "600",
-      }}
-    >
-      {title}
-    </h3>
-    <div
-      style={{
-        fontSize: "clamp(0.9rem, 1.5vw, 1rem)",
-        color: "#888888",
-        lineHeight: "1.6",
-        fontFamily: "Inter, sans-serif",
-      }}
-    >
-      {children}
-    </div>
-  </div>
-);
+const LiveBNBChart = memo(() => {
+  const canvasRef  = useRef(null);
+  const animRef    = useRef(null);
+  const candlesRef = useRef(generateCandles(60));
+  const [price, setPrice]   = useState(312.4);
+  const [change, setChange] = useState(+2.4);
+  const [tab, setTab]       = useState("1D");
 
-// Memoized TradingView Widget to prevent re-renders
-const TradingViewWidget = memo(() => {
-  const container = useRef(null);
-  const scriptAppendedRef = useRef(false);
+  // Push a new candle every 1.8 s
   useEffect(() => {
-    if (scriptAppendedRef.current || !container.current) return;
-    const script = document.createElement("script");
-    script.src =
-      "https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js";
-    script.type = "text/javascript";
-    script.async = true;
-    script.innerHTML = JSON.stringify({
-      symbols: [["BINANCE:BTCUSDT|1Y"], ["CRYPTOCAP:USDT.D|1D"]],
-      chartOnly: false,
-      width: "100%",
-      height: "100%", // Make widget fill container
-      locale: "en",
-      colorTheme: "dark",
-      autosize: true,
-      showVolume: false,
-      showMA: false,
-      hideDateRanges: false,
-      hideMarketStatus: false,
-      hideSymbolLogo: false,
-      scalePosition: "right",
-      scaleMode: "Normal",
-      fontFamily:
-        "Inter, -apple-system, BlinkMacSystemFont, 'Trebuchet MS', Roboto, Ubuntu, sans-serif",
-      fontSize: "12",
-      noTimeScale: false,
-      valuesTracking: "1",
-      changeMode: "price-and-percent",
-      chartType: "area",
-      maLineColor: "#ffd700", // Custom MA line color
-      maLineWidth: 1,
-      maLength: 9,
-      headerFontSize: "medium",
-      backgroundColor: "rgba(26, 18, 46, 0)", // Transparent background for widget
-      lineWidth: 2,
-      lineType: 0,
-      dateRanges: ["1d|1", "1m|30", "3m|60", "12m|1D", "60m|1W", "all|1M"],
-    });
-    container.current.appendChild(script);
-    scriptAppendedRef.current = true;
-    return () => {
-      // Clean up script to prevent duplicates if component were to unmount and remount (though memoized)
-      if (container.current && container.current.contains(script)) {
-        container.current.removeChild(script);
+    const id = setInterval(() => {
+      const last = candlesRef.current[candlesRef.current.length - 1];
+      const newClose = Math.max(200, last.close + (Math.random() - 0.47) * 4);
+      candlesRef.current = [
+        ...candlesRef.current.slice(-59),
+        {
+          open: last.close,
+          close: newClose,
+          high: Math.max(last.close, newClose) + Math.random() * 3,
+          low:  Math.min(last.close, newClose) - Math.random() * 3,
+          vol:  Math.random() * 100 + 20,
+          bull: newClose >= last.close,
+        },
+      ];
+      const basePrice = 312.4;
+      const ch = +((newClose - basePrice) / (basePrice / 100)).toFixed(2);
+      setPrice(+newClose.toFixed(2));
+      setChange(ch);
+    }, 1800);
+    return () => clearInterval(id);
+  }, []);
+
+  // Canvas render loop
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+
+    const resize = () => {
+      canvas.width  = canvas.parentElement?.clientWidth  || 700;
+      canvas.height = 340;
+    };
+    resize();
+    window.addEventListener("resize", resize);
+
+    const draw = () => {
+      const W = canvas.width;
+      const H = canvas.height;
+      const candles = candlesRef.current;
+      const VOL_H = 44;
+      const CHART_H = H - VOL_H - 12;
+      const PAD_L = 8;
+      const PAD_R = 54;
+
+      // ── Clear ──────────────────────────────────────────────────────────
+      ctx.clearRect(0, 0, W, H);
+
+      // ── Price scale ────────────────────────────────────────────────────
+      const prices = candles.flatMap(c => [c.high, c.low]);
+      const minP = Math.min(...prices) - 3;
+      const maxP = Math.max(...prices) + 3;
+      const range = maxP - minP || 1;
+      const toY = v => CHART_H - ((v - minP) / range) * CHART_H;
+
+      // ── Grid ───────────────────────────────────────────────────────────
+      ctx.setLineDash([4, 6]);
+      ctx.lineWidth = 1;
+      for (let i = 1; i <= 4; i++) {
+        const y = (CHART_H / 5) * i;
+        ctx.beginPath(); ctx.moveTo(PAD_L, y); ctx.lineTo(W - PAD_R, y);
+        ctx.strokeStyle = "rgba(255,215,0,0.06)"; ctx.stroke();
+        // Y label
+        const val = maxP - (range / 5) * i;
+        ctx.fillStyle = "rgba(255,215,0,0.35)";
+        ctx.font = "9px Inter,sans-serif";
+        ctx.textAlign = "left";
+        ctx.fillText("$" + val.toFixed(0), W - PAD_R + 4, y + 4);
       }
-      scriptAppendedRef.current = false;
+      for (let i = 1; i <= 5; i++) {
+        const x = PAD_L + ((W - PAD_L - PAD_R) / 6) * i;
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, CHART_H);
+        ctx.strokeStyle = "rgba(255,215,0,0.04)"; ctx.stroke();
+      }
+      ctx.setLineDash([]);
+
+      // ── Column width ───────────────────────────────────────────────────
+      const chartW = W - PAD_L - PAD_R;
+      const cW = Math.max(3, chartW / candles.length - 1.2);
+      const step = chartW / candles.length;
+
+      // ── Area fill ──────────────────────────────────────────────────────
+      ctx.beginPath();
+      candles.forEach((c, i) => {
+        const x = PAD_L + i * step + cW / 2;
+        const y = toY(c.close);
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      });
+      const lastAreaX = PAD_L + (candles.length - 1) * step + cW / 2;
+      ctx.lineTo(lastAreaX, CHART_H);
+      ctx.lineTo(PAD_L + cW / 2, CHART_H);
+      ctx.closePath();
+      const aG = ctx.createLinearGradient(0, 0, 0, CHART_H);
+      aG.addColorStop(0, "rgba(255,215,0,0.14)");
+      aG.addColorStop(1, "rgba(255,215,0,0)");
+      ctx.fillStyle = aG;
+      ctx.fill();
+
+      // ── Candles ────────────────────────────────────────────────────────
+      candles.forEach((c, i) => {
+        const x   = PAD_L + i * step;
+        const cx  = x + cW / 2;
+        const col = c.bull ? "#00e676" : "#ff4757";
+        const bTop = toY(Math.max(c.open, c.close));
+        const bBot = toY(Math.min(c.open, c.close));
+        const bH   = Math.max(bBot - bTop, 1.5);
+
+        // wick
+        ctx.globalAlpha = 0.55;
+        ctx.beginPath(); ctx.moveTo(cx, toY(c.high)); ctx.lineTo(cx, toY(c.low));
+        ctx.strokeStyle = col; ctx.lineWidth = 1; ctx.stroke();
+
+        // body
+        ctx.globalAlpha = c.bull ? 0.88 : 0.72;
+        ctx.fillStyle = col;
+        ctx.fillRect(x, bTop, cW, bH);
+        ctx.globalAlpha = 1;
+      });
+
+      // ── Closing line ───────────────────────────────────────────────────
+      ctx.beginPath();
+      candles.forEach((c, i) => {
+        const x = PAD_L + i * step + cW / 2;
+        i === 0 ? ctx.moveTo(x, toY(c.close)) : ctx.lineTo(x, toY(c.close));
+      });
+      ctx.strokeStyle = "rgba(255,215,0,0.45)";
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([3, 5]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // ── Last-price horizontal dashed line ──────────────────────────────
+      const lastClose = candles[candles.length - 1].close;
+      const lastY = toY(lastClose);
+      ctx.beginPath(); ctx.moveTo(PAD_L, lastY); ctx.lineTo(W - PAD_R, lastY);
+      ctx.strokeStyle = "rgba(255,215,0,0.6)";
+      ctx.lineWidth = 1;
+      ctx.setLineDash([5, 4]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // ── Last-price badge ───────────────────────────────────────────────
+      const badgeX = W - PAD_R + 2;
+      ctx.fillStyle = "rgba(255,215,0,0.92)";
+      ctx.beginPath();
+      ctx.roundRect(badgeX, lastY - 10, 48, 20, 4);
+      ctx.fill();
+      ctx.fillStyle = "#000";
+      ctx.font = "bold 9px Inter,sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("$" + lastClose.toFixed(1), badgeX + 24, lastY + 3.5);
+
+      // ── Volume bars ────────────────────────────────────────────────────
+      const maxVol = Math.max(...candles.map(c => c.vol));
+      candles.forEach((c, i) => {
+        const x   = PAD_L + i * step;
+        const barH = (c.vol / maxVol) * (VOL_H * 0.78);
+        ctx.fillStyle = c.bull ? "rgba(0,230,118,0.22)" : "rgba(255,71,87,0.22)";
+        ctx.fillRect(x, H - barH, cW, barH);
+      });
+
+      // ── Time labels ────────────────────────────────────────────────────
+      ctx.fillStyle = "rgba(255,215,0,0.3)";
+      ctx.font = "9px Inter,sans-serif";
+      ctx.textAlign = "center";
+      const now  = new Date();
+      const lblStep = Math.floor(candles.length / 6);
+      for (let i = 0; i < 7; i++) {
+        const idx = i * lblStep;
+        if (idx >= candles.length) continue;
+        const x = PAD_L + idx * step + cW / 2;
+        const t = new Date(now - (candles.length - idx) * 900000);
+        ctx.fillText(
+          t.getHours().toString().padStart(2,"0") + ":" + t.getMinutes().toString().padStart(2,"0"),
+          x, H - 2
+        );
+      }
+
+      animRef.current = requestAnimationFrame(draw);
+    };
+
+    draw();
+    return () => {
+      cancelAnimationFrame(animRef.current);
+      window.removeEventListener("resize", resize);
     };
   }, []);
-  return (
-    <div
-      ref={container}
-      style={{
-        height: "450px",
-        width: "100%",
-        borderRadius: "12px",
-        overflow: "hidden",
-        border: "1px solid rgba(255, 215, 0, 0.1)",
-        background: "#0a0a0a",
-      }}
-    ></div>
-  );
-});
 
-const KeyFeaturesSection = () => {
-  const sectionStyle = {
-    padding: "4rem 2rem",
-    backgroundColor: "#000000",
-    color: "#E0E0E0",
-    borderTop: "1px solid rgba(255, 215, 0, 0.1)",
-  };
-  const sectionTitleStyle = {
-    textAlign: "center",
-    fontSize: "clamp(2.2rem, 4.5vw, 3.2rem)",
-    color: "#FFFFFF",
-    marginBottom: "3.5rem",
-    fontFamily: "Inter, sans-serif",
-    fontWeight: "bold",
-    textShadow: "0 0 10px rgba(255, 215, 0, 0.3)",
-  };
-  const gridStyle = {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", // Responsive grid
-    gap: "2rem",
-    maxWidth: "1200px",
-    margin: "0 auto 3.5rem auto", // Centered with bottom margin
-  };
+  const isUp = change >= 0;
+
   return (
-    <section
-      id="id_ico_about_section"
-      className="ico_about_section section_space pt-5 section_decoration"
-    >
-      <div className="decoration_item shape_divider_1">
-        <img
-          src="assets/images/shapes/shape_section_divider_1.svg"
-          alt="Shape Divider"
-        />
-      </div>
-      <div className="container">
-        <div className="row justify-content-lg-between">
-          <div className="col-lg-6">
-            <div
-              className="ico_heading_block"
-              data-aos="fade-up"
-              data-aos-duration="600"
-            >
-              <h2 className="heading_text mb-0">About USDT & BEPVault</h2>
-            </div>
-            <ul className="about_ico_block unordered_list_block">
-              <li
-                data-aos="fade-up"
-                data-aos-duration="600"
-                data-aos-delay="100"
-              >
-                <p className="info_description mb-0">
-                  USDT is a leading digital stablecoin designed to maintain a 
-                  stable value by being pegged 1:1 to the US Dollar. It provides 
-                  the perfect foundation for the BEPVault liquidity ecosystem, 
-                  allowing for fast, secure, and predictable transactions. 
-                  BEPVault leverages this stability to offer scalable liquidity 
-                  solutions across global financial platforms.
-                </p>
-              </li>
-              <li
-                data-aos="fade-up"
-                data-aos-duration="600"
-                data-aos-delay="200"
-              >
-                <p className="info_description mb-0">
-                  BEPVault's unique liquidity model and partnership networks 
-                  position it as a premier entry point for institutional-grade 
-                  digital asset solutions. By utilizing USDT, the platform 
-                  enables real-time settlements and significantly reduces 
-                  transaction overhead, making it a cornerstone of the 
-                  modern digital economy.
-                </p>
-              </li>
-              <li
-                data-aos="fade-up"
-                data-aos-duration="600"
-                data-aos-delay="300"
-              >
-                <h3 className="title_text">Benefits of USDT for BEPVault:</h3>
-                <p className="info_description mb-0">
-                  Stable Value: Hedged against market volatility with a 1:1 USD peg.
-                </p>
-                <p className="info_description mb-0">
-                  Global Liquidity: Widely accepted and easily convertible across 
-                  all major platforms.
-                </p>
-                <p className="info_description mb-0">
-                  Transparent & Secure: Backed by professional audits and established 
-                  blockchain protocols.
-                </p>
-              </li>
-            </ul>
+    <div style={{ position:"relative" }}>
+      {/* Chart header */}
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"1.2rem", flexWrap:"wrap", gap:"0.8rem" }}>
+        <div style={{ display:"flex", alignItems:"center", gap:"12px" }}>
+          <div style={{ width:38, height:38, borderRadius:"50%", background:"linear-gradient(135deg,#ffd700,#ff8c00)", display:"flex", alignItems:"center", justifyContent:"center", fontWeight:900, color:"#000", fontSize:"1rem", flexShrink:0 }}>B</div>
+          <div>
+            <div style={{ color:"#fff", fontWeight:800, fontSize:"1.05rem" }}>BNB / USDT</div>
+            <div style={{ color:"rgba(255,255,255,0.38)", fontSize:"0.73rem" }}>Binance Smart Chain · BEP20</div>
           </div>
-          <div className="col-lg-5 d-lg-flex flex-lg-column-reverse">
-            <ul className="about_ico_block unordered_list_block">
-              <li
-                data-aos="fade-up"
-                data-aos-duration="600"
-                data-aos-delay="100"
-              >
-                <h3 className="title_text">Yield Structure</h3>
-                <p className="info_description mb-0">
-                  - LP Rewards: Upto 0.6% compounded
-                </p>
-                <p className="info_description mb-0">
-                  - Performance-based yield tied to real market liquidity
-                </p>
-                <p className="info_description mb-0">
-                  - Auto-distributed to wallet, trackable 24/7
-                </p>
-              </li>
-            </ul>
-            <div className="ico_about_image text-center">
-              <div className="ripple_shape">
-                <svg
-                  viewBox="0 0 501 455"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M500.5 227.5C500.5 352.824 388.618 454.5 250.5 454.5C112.382 454.5 0.5 352.824 0.5 227.5C0.5 102.176 112.382 0.5 250.5 0.5C388.618 0.5 500.5 102.176 500.5 227.5Z"
-                    stroke="url(#sro_paint0)"
-                  />
-                  <path
-                    d="M463.5 247.5C463.5 361.81 368.15 454.5 250.5 454.5C132.85 454.5 37.5 361.81 37.5 247.5C37.5 133.19 132.85 40.5 250.5 40.5C368.15 40.5 463.5 133.19 463.5 247.5Z"
-                    stroke="url(#sro_paint1)"
-                  />
-                  <path
-                    d="M425.5 268C425.5 371.031 347.12 454.5 250.5 454.5C153.88 454.5 75.5 371.031 75.5 268C75.5 164.969 153.88 81.5 250.5 81.5C347.12 81.5 425.5 164.969 425.5 268Z"
-                    stroke="url(#sro_paint2)"
-                  />
-                  <path
-                    d="M379.5 268C379.5 343.5 321.715 405.5 250.5 405.5C179.285 405.5 121.5 343.97 121.5 268C121.5 192.03 179.285 130.5 250.5 130.5C321.715 130.5 379.5 192.03 379.5 268Z"
-                    stroke="url(#sro_paint3)"
-                  />
-                  <defs>
-                    <linearGradient
-                      id="sro_paint0"
-                      x1="250.5"
-                      y1="0"
-                      x2="250.5"
-                      y2="455"
-                      gradientUnits="userSpaceOnUse"
-                    >
-                      <stop offset="0" stop-color="#ffd700" />
-                      <stop offset="1" stop-color="#ffd700" stop-opacity="0" />
-                    </linearGradient>
-                    <linearGradient
-                      id="sro_paint1"
-                      x1="250.5"
-                      y1="40"
-                      x2="250.5"
-                      y2="455"
-                      gradientUnits="userSpaceOnUse"
-                    >
-                      <stop offset="0" stop-color="#ffd700" />
-                      <stop offset="1" stop-color="#ffd700" stop-opacity="0" />
-                    </linearGradient>
-                    <linearGradient
-                      id="sro_paint2"
-                      x1="250.5"
-                      y1="81"
-                      x2="250.5"
-                      y2="455"
-                      gradientUnits="userSpaceOnUse"
-                    >
-                      <stop offset="0" stop-color="#ffd700" />
-                      <stop offset="1" stop-color="#ffd700" stop-opacity="0" />
-                    </linearGradient>
-                    <linearGradient
-                      id="sro_paint3"
-                      x1="250.5"
-                      y1="130"
-                      x2="250.5"
-                      y2="406"
-                      gradientUnits="userSpaceOnUse"
-                    >
-                      <stop offset="0" stop-color="#ffd700" />
-                      <stop offset="1" stop-color="#ffd700" stop-opacity="0" />
-                    </linearGradient>
-                  </defs>
-                </svg>
-              </div>
-              <div className="coin_image">
-                <img
-                  src="assets/images/home-hero.svg"
-                  alt="BEPVault"
-                />
-              </div>
+          <div style={{ display:"flex", alignItems:"center", gap:"6px" }}>
+            <span style={{ width:7, height:7, borderRadius:"50%", background:"#00e676", display:"inline-block", boxShadow:"0 0 8px #00e676", animation:"livePulse 1s infinite" }} />
+            <span style={{ color:"#00e676", fontSize:"0.73rem", fontWeight:700 }}>LIVE</span>
+          </div>
+        </div>
+        <div style={{ display:"flex", alignItems:"center", gap:"1rem", flexWrap:"wrap" }}>
+          <div style={{ textAlign:"right" }}>
+            <div style={{ color:"#ffd700", fontWeight:900, fontSize:"1.55rem", lineHeight:1 }}>${price.toFixed(2)}</div>
+            <div style={{ color:isUp ? "#00e676" : "#ff4757", fontSize:"0.82rem", fontWeight:700, marginTop:"3px" }}>
+              {isUp ? "▲" : "▼"} {Math.abs(change).toFixed(2)}%
             </div>
+          </div>
+          {/* Timeframe pills */}
+          <div style={{ display:"flex", gap:"4px" }}>
+            {["1H","4H","1D","1W"].map(t => (
+              <button key={t} onClick={() => setTab(t)} style={{
+                padding:"4px 10px", borderRadius:"6px", border:"none",
+                cursor:"pointer", fontSize:"0.73rem", fontWeight:700, transition:"all 0.2s",
+                background: tab === t ? "linear-gradient(135deg,#ffd700,#ff8c00)" : "rgba(255,215,0,0.07)",
+                color: tab === t ? "#000" : "rgba(255,255,255,0.45)",
+              }}>{t}</button>
+            ))}
           </div>
         </div>
       </div>
-      <div className="decoration_item shape_shadow_1">
-        <img
-          src="assets/images/shapes/shape_poligon.svg"
-          alt="Shape Color Shadow"
-        />
+
+      {/* Canvas wrapper — transparent background */}
+      <div style={{ borderRadius:"14px", overflow:"hidden", border:"1px solid rgba(255,215,0,0.08)", background:"transparent" }}>
+        <canvas ref={canvasRef} style={{ display:"block", width:"100%", height:"340px" }} />
       </div>
-      <div className="decoration_item shape_shadow_2">
-        <img
-          src="assets/images/shapes/shape_poligon.svg"
-          alt="Shape Color Shadow"
-        />
+
+      {/* Footer stats */}
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:"0.8rem", marginTop:"1rem" }}>
+        {[
+          { l:"24h High",   v:`$${(price * 1.04).toFixed(2)}`, c:"#00e676"  },
+          { l:"24h Low",    v:`$${(price * 0.97).toFixed(2)}`, c:"#ff4757"  },
+          { l:"24h Vol",    v:"184.2K BNB",                    c:"rgba(255,255,255,0.7)" },
+          { l:"Market Cap", v:"$47.1B",                        c:"#ffd700"  },
+        ].map(s => (
+          <div key={s.l} style={{ padding:"0.75rem", background:"rgba(255,255,255,0.02)", border:"1px solid rgba(255,255,255,0.045)", borderRadius:"10px", textAlign:"center" }}>
+            <div style={{ color:"rgba(255,255,255,0.38)", fontSize:"0.7rem", marginBottom:"4px" }}>{s.l}</div>
+            <div style={{ color:s.c, fontWeight:700, fontSize:"0.88rem" }}>{s.v}</div>
+          </div>
+        ))}
       </div>
-          <Myteamsection />
-    </section>
+    </div>
+  );
+});
+LiveBNBChart.displayName = "LiveBNBChart";
+
+// ── Feature Card ─────────────────────────────────────────────────────────────
+const FeatureCard = ({ icon, title, desc, badge }) => {
+  const [hov, setHov] = useState(false);
+  return (
+    <div onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)} style={{
+      background: hov ? "rgba(255,215,0,0.05)" : "rgba(255,255,255,0.02)",
+      border: `1px solid ${hov ? "rgba(255,215,0,0.35)" : "rgba(255,255,255,0.06)"}`,
+      borderRadius: "20px", padding: "2rem", cursor: "default",
+      transform: hov ? "translateY(-8px)" : "translateY(0)",
+      boxShadow: hov ? "0 20px 50px rgba(0,0,0,0.6), 0 0 40px rgba(255,215,0,0.08)" : "none",
+      transition: "all 0.4s cubic-bezier(0.4,0,0.2,1)", position: "relative", overflow: "hidden",
+    }}>
+      {badge && (
+        <div style={{ position:"absolute", top:"1rem", right:"1rem", background:"rgba(255,215,0,0.15)", color:"#ffd700", fontSize:"0.7rem", fontWeight:700, padding:"3px 10px", borderRadius:"20px", border:"1px solid rgba(255,215,0,0.25)", textTransform:"uppercase" }}>{badge}</div>
+      )}
+      <div style={{ width:56, height:56, borderRadius:"14px", background:"rgba(255,215,0,0.1)", border:"1px solid rgba(255,215,0,0.2)", display:"flex", alignItems:"center", justifyContent:"center", marginBottom:"1.4rem" }}>
+        <i className={icon} style={{ fontSize:"1.8rem", color:"#ffd700" }} />
+      </div>
+      <h3 style={{ color:"#fff", fontSize:"1.2rem", fontWeight:800, marginBottom:"0.7rem" }}>{title}</h3>
+      <p style={{ color:"rgba(255,255,255,0.6)", fontSize:"0.95rem", lineHeight:1.65, margin:0 }}>{desc}</p>
+      {hov && <div style={{ position:"absolute", inset:0, background:"linear-gradient(135deg,rgba(255,215,0,0.03) 0%,transparent 50%)", borderRadius:"20px", pointerEvents:"none" }} />}
+    </div>
   );
 };
 
+// ── Main Section ──────────────────────────────────────────────────────────────
+const KeyFeaturesSection = () => {
+  const features = [
+    { icon:"ri-secure-payment-line", title:"BSC-Powered Security",    desc:"Every transaction is immutably recorded on the Binance Smart Chain with institutional-grade security protocols and an independently audited smart contract.", badge:"Audited" },
+    { icon:"ri-line-chart-line",     title:"Daily BNB Yields",        desc:"Earn up to 0.6% daily returns from real BEP20 liquidity activity. Your rewards are auto-distributed directly to your connected wallet — no manual claims." },
+    { icon:"ri-global-line",         title:"Global LP Network",       desc:"Our decentralized liquidity routers span across all major BSC-native DEXes, ensuring maximum capital efficiency and deep market coverage 24/7.", badge:"Live" },
+    { icon:"ri-team-line",           title:"Multi-Level Community",   desc:"Build your team across 5 reward tiers. Earn cascading BNB bonuses every time your referrals, and their referrals, contribute to the pool." },
+    { icon:"ri-bar-chart-box-line",  title:"Live Dashboard Analytics",desc:"Track your BNB earnings, team performance, LP positions, and historical returns in real-time via your personalized dashboard." },
+    { icon:"ri-flashlight-line",     title:"Instant Settlements",     desc:"No waiting periods, no lockups. Your daily BNB rewards are settled and claimable within seconds of being generated by the liquidity pool.", badge:"Fast" },
+  ];
+
+  return (
+    <section id="features" style={{ padding:"100px 0", position:"relative" }}>
+      <div style={{ position:"absolute", top:"50%", left:"50%", transform:"translate(-50%,-50%)", width:"800px", height:"600px", background:"radial-gradient(ellipse,rgba(255,215,0,0.04) 0%,transparent 70%)", pointerEvents:"none" }} />
+
+      <div className="container">
+        {/* Header */}
+        <div style={{ textAlign:"center", marginBottom:"5rem" }}>
+          <span style={{ background:"rgba(255,215,0,0.1)", color:"#ffd700", border:"1px solid rgba(255,215,0,0.25)", borderRadius:"30px", padding:"6px 18px", fontSize:"0.82rem", fontWeight:700, textTransform:"uppercase", letterSpacing:"1.5px" }}>Key Features</span>
+          <h2 style={{ fontSize:"clamp(2.2rem,4vw,3.2rem)", fontWeight:900, color:"#fff", marginTop:"1rem", lineHeight:1.2 }}>
+            Everything You Need to <span style={{ color:"#ffd700" }}>Earn More</span>
+          </h2>
+          <p style={{ color:"rgba(255,255,255,0.55)", fontSize:"1.1rem", maxWidth:"600px", margin:"1rem auto 0", lineHeight:1.65 }}>
+            A complete DeFi toolkit built specifically for the BEP20 BNB ecosystem — powerful, secure, and built for growth.
+          </p>
+        </div>
+
+        {/* Feature cards */}
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(300px,1fr))", gap:"1.5rem", marginBottom:"5rem" }}>
+          {features.map(f => <FeatureCard key={f.title} {...f} />)}
+        </div>
+
+        {/* Chart section */}
+        <div style={{ background:"rgba(255,255,255,0.015)", border:"1px solid rgba(255,215,0,0.1)", borderRadius:"24px", padding:"2.5rem" }}>
+          <div style={{ marginBottom:"1.5rem" }}>
+            <h3 style={{ color:"#fff", fontWeight:800, fontSize:"1.4rem", margin:"0 0 4px" }}>Live BNB / USDT Market</h3>
+            <p style={{ color:"rgba(255,255,255,0.4)", fontSize:"0.85rem", margin:0 }}>Simulated real-time BNB price action — Binance Smart Chain</p>
+          </div>
+          <LiveBNBChart />
+        </div>
+      </div>
+
+      <style jsx global>{`
+        @keyframes livePulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+      `}</style>
+    </section>
+  );
+};
 export default KeyFeaturesSection;

@@ -1,544 +1,129 @@
 "use client";
-import "../../app/herosection.css";
-import Image from "next/image";
+import React, { useRef, useEffect, useState } from "react";
 import Link from "next/link";
-import styled from "styled-components";
-import { useEffect, useState } from "react";
 
-// Styled Components
-const StepIconContainer = styled.div`
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background: ${({ color }) => `linear-gradient(135deg, ${color}, #ffc107)`};
-  color: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  font-weight: bold;
-  border: 2px solid #ffffff;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-  margin-bottom: 1rem;
-`;
-
-const Section = styled.section`
-  padding: 4rem 2rem;
-  background-color: #000000;
-  color: #e0e0e0;
-  border-top: 1px solid rgba(255, 215, 0, 0.1);
-`;
-
-const SectionTitle = styled.h2`
-  text-align: center;
-  font-size: clamp(2.2rem, 4.5vw, 3.2rem);
-  color: #ffffff;
-  margin-bottom: 3.5rem;
-  font-family: "Inter, sans-serif";
-  font-weight: bold;
-  text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
-`;
-
-const StepsContainer = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 2.5rem;
-  max-width: 1200px;
-  margin: 0 auto;
-`;
-
-const StepCard = styled.div`
-  background: #0a0a0a;
-  padding: 2rem;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 215, 0, 0.1);
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-`;
-
-const StepTitle = styled.h3`
-  font-size: clamp(1.4rem, 2.2vw, 1.8rem);
-  color: #ffffff;
-  margin-bottom: 1rem;
-  font-family: "Inter, sans-serif";
-  font-weight: 600;
-`;
-
-const StepDescription = styled.p`
-  font-size: clamp(0.9rem, 1.5vw, 1rem);
-  color: #888888;
-  line-height: 1.6;
-  font-family: "Inter, sans-serif";
-`;
-
-const StepIcon = ({ stepNumber, color = "#ffd700" }) => (
-  <StepIconContainer color={color}>{stepNumber}</StepIconContainer>
+// ── Animated Step Connector SVG ──────────────────────────────────────────────
+const StepConnector = () => (
+  <svg width="60" height="2" style={{ margin: "0 0.5rem", opacity: 0.3, flexShrink: 0 }}>
+    <line x1="0" y1="1" x2="60" y2="1" stroke="#ffd700" strokeWidth="1.5" strokeDasharray="6,4" >
+      <animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite" />
+    </line>
+  </svg>
 );
 
-const HowItWorksSection = () => {
-  const [steps, setSteps] = useState([]);
-
+// ── Step Card ────────────────────────────────────────────────────────────────
+const StepCard = ({ num, icon, title, desc, delay = 0 }) => {
+  const [vis, setVis] = useState(false);
+  const ref = useRef(null);
   useEffect(() => {
-    const fetchSteps = async () => {
-      try {
-        const response = await fetch("/api/steps");
-        const data = await response.json();
-        setSteps(data);
-      } catch (error) {
-        console.error("Error fetching steps:", error);
-      }
-    };
-
-    fetchSteps();
-  }, []);
-
-  useEffect(() => {
-    const script = document.createElement("script");
-    script.src =
-      "https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js";
-    script.async = true;
-    script.type = "text/javascript";
-    script.innerHTML = `
-    {
-      "symbols": [
-        ["BINANCE:BTCUSDT|1Y"]
-      ],
-      "chartOnly": false,
-      "width": "100%",
-      "height": "300",
-      "locale": "en",
-      "colorTheme": "dark",
-      "autosize": true,
-      "showVolume": true,
-      "showMA": true,
-      "hideDateRanges": false,
-      "hideMarketStatus": false,
-      "hideSymbolLogo": false,
-      "scalePosition": "right",
-      "scaleMode": "Normal",
-      "fontFamily": "Trebuchet MS, sans-serif",
-      "fontSize": "12",
-      "gridLineColor": "#2a2e39",
-      "lineColor": "#2962FF",
-      "topColor": "rgba(41, 98, 255, 0.3)",
-      "bottomColor": "rgba(41, 98, 255, 0.0)"
-    }
-    `;
-
-    const container = document.querySelector(
-      ".tradingview-widget-container__widget"
-    );
-    if (container) {
-      container.innerHTML = ""; // Clear previous
-      container.appendChild(script);
-    }
-  }, []);
+    const obs = new IntersectionObserver(([e]) => { if(e.isIntersecting) { setTimeout(() => setVis(true), delay); obs.disconnect(); } }, { threshold: 0.2 });
+    if (ref.current) obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, [delay]);
 
   return (
-    <>
-      <section
-        id="id_ico_feature_section"
-        className="problem_solution_section pb-0"
-      >
-        <div className="container">
-          <div
-            className="ico_heading_block text-center"
-            data-aos="fade-up"
-            data-aos-duration="600"
-          >
-            <h2 className="heading_text mb-0">
-              Why Choose BEPVault’s Liquidity Provider Program?
-            </h2>
-          </div>
-          <div
-            className="ico_problem_solution_table"
-            data-aos="fade-up"
-            data-aos-duration="600"
-            data-aos-delay="100"
-          >
-            <div className="column_wrapper">
-              <div className="column_problem">
-                <h3 className="heading_text">
-                  <span className="icon">
-                    <Image
-                      src="/assets/icons/icon_man_question.svg"
-                      alt="Icon Man With Question"
-                      width={32}
-                      height={32}
-                    />
-                  </span>
-                  <span className="text">Benefits</span>
-                </h3>
-                <ul className="iconlist_block unordered_list_block">
-                  <li>
-                    <span className="iconlist_icon">
-                      <Image
-                        src="/assets/icons/icon_check.svg"
-                        alt="Icon Check"
-                        width={20}
-                        height={20}
-                      />
-                    </span>
-                    <span className="iconlist_label">
-                      The BEPVault LP Program is uniquely positioned to
-                      benefit users looking to maximize their profits from
-                      digital asset transactions. By offering deep liquidity,
-                      reduced fees, and fast transaction processing, BEPVault 
-                      has established itself as a leader in the LP space.
-                    </span>
-                  </li>
-                </ul>
-              </div>
-              <div className="column_solution">
-                <h3 className="heading_text">
-                  <span className="icon">
-                    <Image
-                      src="/assets/icons/icon_bulb.svg"
-                      alt="Icon Bulb"
-                      width={32}
-                      height={32}
-                    />
-                  </span>
-                  <span className="text">Ecosystem</span>
-                </h3>
-                <ul className="iconlist_block unordered_list_block">
-                  <li>
-                    <span className="iconlist_icon">
-                      <Image
-                        src="/assets/icons/icon_check.svg"
-                        alt="Icon Check"
-                        width={20}
-                        height={20}
-                      />
-                    </span>
-                    <span className="iconlist_label">
-                      As part of this ecosystem, affiliates have the opportunity
-                      to earn commissions by introducing new users to the
-                      platform, while contributing to the growth of the
-                      USDT-powered liquidity pool.
-                    </span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="ico_feature_section mt-5 section_decoration">
-        <div className="container">
-          <div className="row justify-content-lg-between mb-5">
-            <div
-              className="col-lg-5"
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "flex-end",
-              }}
-            >
-              <div
-                className="ico_heading_block"
-                data-aos="fade-up"
-                data-aos-duration="600"
-              >
-                <h2 className="heading_text mb-0">Why BEPVault?</h2>
-              </div>
-              <ul className="ico_features_group unordered_list_block">
-                <li
-                  data-aos="fade-up"
-                  data-aos-duration="600"
-                  data-aos-delay="100"
-                >
-                  <div className="ico_iconbox_icon_left">
-                    <div className="iconbox_icon">
-                      <Image
-                        src="/assets/icons/icon_dollar_3b.png"
-                        alt="Icon Dollar"
-                        width={40}
-                        height={40}
-                      />
-                    </div>
-                    <div className="iconbox_info">
-                      <h3 className="iconbox_title">
-                        At BEPVault, we understand the power of community and
-                        collaboration. By becoming an affiliate, you’re not just
-                        promoting a product or service; you’re playing a
-                        critical role in growing the global USDT liquidity pool
-                        and driving adoption of a platform that aims to
-                        transform digital finance.
-                      </h3>
-                    </div>
-                  </div>
-                </li>
-                <li
-                  data-aos="fade-up"
-                  data-aos-duration="600"
-                  data-aos-delay="200"
-                >
-                  <div className="ico_iconbox_icon_left mt-4">
-                    <div className="iconbox_icon">
-                      <Image
-                        src="/assets/icons/icon_dollar_3a.png"
-                        alt="Icon Chart"
-                        width={40}
-                        height={40}
-                      />
-                    </div>
-                    <div className="iconbox_info">
-                      <h3 className="iconbox_title">
-                        Our Affiliate Marketing Program is designed to offer
-                        unparalleled earning potential by connecting you with a
-                        network of individuals and businesses looking to enhance
-                        their financial transactions. Whether you’re an
-                        influencer, a financial educator, or just someone with
-                        an interest in the crypto space, BEPVault gives you the
-                        tools to succeed.
-                      </h3>
-                    </div>
-                  </div>
-                </li>
-              </ul>
-            </div>
-
-            <div
-              className="col-lg-6"
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "end",
-              }}
-            >
-              <div
-                className="tradingview-widget-container"
-                style={{ width: "100%", marginBottom: "2rem" }}
-              >
-                <div className="tradingview-widget-container__widget"></div>
-              </div>
-
-              <ul className="ico_features_group unordered_list_block ">
-                <li
-                  data-aos="fade-up"
-                  data-aos-duration="600"
-                  data-aos-delay="300"
-                >
-                  <div className="ico_iconbox_icon_left">
-                    <div className="iconbox_icon">
-                      <Image
-                        src="/assets/icons/icon_dollar_3c.png"
-                        alt="Icon Gift"
-                        width={40}
-                        height={40}
-                      />
-                    </div>
-                    <div className="iconbox_info">
-                      <h3 className="iconbox_title">
-                        The Community Program – Earn While Promoting
-                      </h3>
-                      <p className="iconbox_description mb-0">
-                        BEPVault offers one of the most rewarding affiliate
-                        marketing programs in the cryptocurrency and finance
-                        sector. By promoting BEPVault’s liquidity
-                        services, you can earn commissions for every successful
-                        referral that joins the platform.
-                      </p>
-                    </div>
-                  </div>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        <div className="decoration_item shape_shadow_1">
-          <Image
-            src="/assets/images/shapes/shape_poligon.svg"
-            alt="Shape Color Shadow"
-            width={100}
-            height={100}
-          />
-        </div>
-        <div className="decoration_item shape_shadow_2">
-          <Image
-            src="/assets/images/shapes/shape_poligon.svg"
-            alt="Shape Color Shadow"
-            width={100}
-            height={100}
-          />
-        </div>
-      </section>
-
-      <section
-        id="id_ico_service_section"
-        className="ico_service_section section_space pb-0 section_decoration section_shadow_top"
-      >
-        <div className="decoration_item shape_divider_1">
-          <img
-            src="assets/images/shapes/shape_section_divider_1.svg"
-            alt="Shape Divider"
-          />
-        </div>
-        <div className="container">
-          <div
-            className="ico_heading_block text-center mt-lg-4"
-            data-aos="fade-up"
-            data-aos-duration="600"
-          >
-            <h2 className="heading_text mb-0">How It Works?</h2>
-          </div>
-          <div className="row m-lg-0 justify-content-center">
-            <div
-              className="col-lg-4 p-lg-0"
-              data-aos="fade-up"
-              data-aos-duration="600"
-              data-aos-delay="100"
-            >
-              <div className="ico_service_image mt-3">
-                <img src="/bepvault_logo.png" alt="USDT Service Icon" />
-              </div>
-            </div>
-            <div
-              className="col-lg-4 p-lg-0 order-lg-first text-center"
-              data-aos="fade-up"
-              data-aos-duration="600"
-              data-aos-delay="200"
-            >
-              <div className="ico_iconbox_block">
-                <div className="iconbox_icon">
-                  <img
-                    src="assets/images/services/icon_pinpoint.png"
-                    alt="Icon Pinpoint"
-                  />
-                </div>
-                <div className="iconbox_info">
-                  <h3 className="iconbox_title">Connect</h3>
-                  <p className="iconbox_description mb-0">
-                    Start by securely connecting your Primary Vault (USDT) to the
-                    BEPVault platform. This integration allows you to interact
-                    directly with our infrastructure, enabling smooth deposits,
-                    real-time tracking, and full control over your digital
-                    assets.
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div
-              className="col-lg-4 p-lg-0 text-center"
-              data-aos="fade-up"
-              data-aos-duration="600"
-              data-aos-delay="300"
-            >
-              <div className="ico_iconbox_block">
-                <div className="iconbox_icon">
-                  <img
-                    src="assets/icons/icon_bank_building.svg"
-                    alt="Icon Bank Building"
-                  />
-                </div>
-                <div className="iconbox_info">
-                  <h3 className="iconbox_title">Deposit</h3>
-                  <p className="iconbox_description mb-0">
-                    Once your wallet is connected, deposit USDT into the LP
-                    wallet. Your assets are used to contribute to high-liquidity
-                    pools, enabling efficient transactions across the global
-                    financial network. All deposits are protected with
-                    institutional-grade security protocols.
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div
-              className="col-lg-4 p-lg-0 text-center"
-              data-aos="fade-up"
-              data-aos-duration="600"
-              data-aos-delay="500"
-            >
-              <div className="ico_iconbox_block">
-                <div className="iconbox_icon">
-                  <img
-                    src="assets/icons/icon_dollar_21e.png"
-                    alt="Icon Dollar"
-                  />
-                </div>
-                <div className="iconbox_info">
-                  <h3 className="iconbox_title">Participate</h3>
-                  <p className="iconbox_description mb-0">
-                    Join real institutional liquidity pools designed to optimize
-                    yield and ensure steady flow within the USDT ecosystem. By
-                    participating, you support global liquidity needs while
-                    tapping into sophisticated financial infrastructure.
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div
-              className="col-lg-4 p-lg-0 text-center"
-              data-aos="fade-up"
-              data-aos-duration="600"
-              data-aos-delay="400"
-            >
-              <div className="ico_iconbox_block">
-                <div className="iconbox_icon">
-                  <img
-                    src="assets/icons/icon_dollar_4a.png"
-                    alt="Icon Dollar"
-                  />
-                </div>
-                <div className="iconbox_info">
-                  <h3 className="iconbox_title">Earn</h3>
-                  <p className="iconbox_description mb-0">
-                    Earn daily rewards automatically, based on the performance
-                    and activity of the liquidity pools. Your returns are
-                    calculated transparently, offering compounding benefits with
-                    options including reallocation to LP or redemption,
-                    depending on your financial strategy.
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div
-              className="col-lg-4 p-lg-0 text-center"
-              data-aos="fade-up"
-              data-aos-duration="600"
-              data-aos-delay="500"
-            >
-              <div className="ico_iconbox_block">
-                <div className="iconbox_icon">
-                  <img src="assets/icons/icon_dollar_26c.png" alt="Icon Scan" />
-                </div>
-                <div className="iconbox_info">
-                  <h3 className="iconbox_title">Redeem</h3>
-                  <p className="iconbox_description mb-0">
-                    Maintain full control over your funds with 24/7 access.
-                    Track real-time performance, manage allocations, and Redeem
-                    your earnings at any time. BEPVault is built with user
-                    transparency in mind, offering tools and dashboard that
-                    empower you with actionable insights.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="decoration_item shape_shadow_1">
-          <img
-            src="assets/images/shapes/shape_poligon.svg"
-            alt="Shape Color Shadow"
-          />
-        </div>
-        <div className="decoration_item shape_shadow_2">
-          <img
-            src="assets/images/shapes/shape_poligon.svg"
-            alt="Shape Color Shadow"
-          />
-        </div>
-      </section>
-    </>
+    <div ref={ref} style={{
+      flex: "1 1 220px", minWidth: "200px",
+      background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,215,0,0.1)",
+      borderRadius: "20px", padding: "2.2rem 1.8rem", textAlign: "center",
+      opacity: vis ? 1 : 0, transform: vis ? "translateY(0)" : "translateY(40px)",
+      transition: "all 0.7s ease",
+      position: "relative", overflow: "hidden",
+    }}>
+      {/* Step number background */}
+      <div style={{ position:"absolute", top:-20, right:-10, fontSize:"6rem", fontWeight:900, color:"rgba(255,215,0,0.04)", lineHeight:1, userSelect:"none" }}>{num}</div>
+      {/* Icon circle */}
+      <div style={{ width:70, height:70, borderRadius:"50%", background:"linear-gradient(135deg,rgba(255,215,0,0.15),rgba(255,140,0,0.15))", border:"1px solid rgba(255,215,0,0.3)", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 1.4rem", boxShadow:"0 0 20px rgba(255,215,0,0.15)" }}>
+        <i className={icon} style={{ fontSize:"1.9rem", color:"#ffd700" }} />
+      </div>
+      <div style={{ background:"linear-gradient(135deg,#ffd700,#ff8c00)", width:32, height:32, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 1.2rem", fontWeight:900, color:"#000", fontSize:"0.9rem" }}>{num}</div>
+      <h3 style={{ color:"#fff", fontSize:"1.15rem", fontWeight:800, marginBottom:"0.7rem" }}>{title}</h3>
+      <p style={{ color:"rgba(255,255,255,0.55)", fontSize:"0.92rem", lineHeight:1.6, margin:0 }}>{desc}</p>
+      {/* Bottom glow */}
+      <div style={{ position:"absolute", bottom:0, left:"50%", transform:"translateX(-50%)", width:"60%", height:"1px", background:"linear-gradient(90deg,transparent,rgba(255,215,0,0.4),transparent)" }} />
+    </div>
   );
 };
 
-export default HowItWorksSection;
+// ── Animated Flow Chart ──────────────────────────────────────────────────────
+const FlowChart = () => {
+  const [active, setActive] = useState(0);
+  const steps = ["Deposit BNB", "Pool Allocation", "Liquidity Position", "Yield Generation", "Daily Payout"];
+  
+  useEffect(() => {
+    const id = setInterval(() => setActive(a => (a + 1) % steps.length), 1800);
+    return () => clearInterval(id);
+  }, []);
 
+  return (
+    <div style={{ background:"rgba(255,255,255,0.02)", border:"1px solid rgba(255,215,0,0.1)", borderRadius:"20px", padding:"2rem", marginTop:"4rem" }}>
+      <div style={{ textAlign:"center", color:"rgba(255,255,255,0.5)", fontSize:"0.82rem", textTransform:"uppercase", letterSpacing:"2px", marginBottom:"1.5rem" }}>Live BNB Flow Simulation</div>
+      <div style={{ display:"flex", alignItems:"center", justifyContent:"center", flexWrap:"wrap", gap:"0.5rem" }}>
+        {steps.map((s, i) => (
+          <React.Fragment key={s}>
+            <div style={{
+              padding:"0.6rem 1.2rem", borderRadius:"20px", fontSize:"0.82rem", fontWeight:700, transition:"all 0.5s",
+              background: i === active ? "linear-gradient(135deg,#ffd700,#ff8c00)" : "rgba(255,215,0,0.06)",
+              color: i === active ? "#000" : "rgba(255,255,255,0.5)",
+              transform: i === active ? "scale(1.1)" : "scale(1)",
+              boxShadow: i === active ? "0 4px 20px rgba(255,215,0,0.4)" : "none",
+              border: i === active ? "none" : "1px solid rgba(255,215,0,0.1)",
+            }}>
+              {s}
+            </div>
+            {i < steps.length - 1 && <StepConnector />}
+          </React.Fragment>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const HowItWorksSection = () => {
+  const steps = [
+    { num:1, icon:"ri-user-add-line", title:"Create Your Account", desc:"Sign up in under 60 seconds. Your secure BEPVault dashboard is ready immediately, complete with real-time portfolio tracking." },
+    { num:2, icon:"ri-send-plane-2-line", title:"Deposit BEP20 BNB", desc:"Send BEP20 BNB from your wallet. Your deposit is instantly verified on-chain and allocated to active liquidity pools." },
+    { num:3, icon:"ri-water-flash-line", title:"Provide Liquidity", desc:"Your BNB powers high-volume DEX pools across the Binance Smart Chain, stabilizing markets and earning pool fees." },
+    { num:4, icon:"ri-coins-line", title:"Earn Daily Rewards", desc:"Watch BNB rewards compound daily at up to 0.6%. Claim, reinvest, or withdraw — the choice is always yours, always instant." },
+  ];
+
+  return (
+    <section id="how-it-works" style={{ padding: "100px 0", background: "rgba(255,215,0,0.015)", position: "relative" }}>
+      <div style={{ position:"absolute", bottom:"10%", left:"-5%", width:"400px", height:"400px", background:"radial-gradient(circle,rgba(255,215,0,0.05) 0%,transparent 70%)", filter:"blur(60px)", pointerEvents:"none" }} />
+
+      <div className="container">
+        <div style={{ textAlign:"center", marginBottom:"5rem" }}>
+          <span style={{ background:"rgba(255,215,0,0.1)", color:"#ffd700", border:"1px solid rgba(255,215,0,0.25)", borderRadius:"30px", padding:"6px 18px", fontSize:"0.82rem", fontWeight:700, textTransform:"uppercase", letterSpacing:"1.5px" }}>How It Works</span>
+          <h2 style={{ fontSize:"clamp(2.2rem,4vw,3.2rem)", fontWeight:900, color:"#fff", marginTop:"1rem", lineHeight:1.2 }}>
+            Up and Earning in <span style={{ color:"#ffd700" }}>4 Simple Steps</span>
+          </h2>
+          <p style={{ color:"rgba(255,255,255,0.55)", fontSize:"1.1rem", maxWidth:"560px", margin:"1rem auto 0", lineHeight:1.65 }}>
+            Getting started with BEPVault is designed to be effortless, even for DeFi beginners.
+          </p>
+        </div>
+
+        <div style={{ display:"flex", gap:"1.5rem", flexWrap:"wrap" }}>
+          {steps.map((s, i) => <StepCard key={s.num} {...s} delay={i * 150} />)}
+        </div>
+
+        <FlowChart />
+
+        <div style={{ textAlign:"center", marginTop:"4rem" }}>
+          <Link href="/sign-up" style={{ textDecoration:"none" }}>
+            <button style={{
+              background:"linear-gradient(135deg,#ffd700,#ff8c00)", color:"#000",
+              border:"none", padding:"1.1rem 3rem", borderRadius:"8px",
+              fontWeight:900, fontSize:"1.1rem", cursor:"pointer",
+              boxShadow:"0 8px 30px rgba(255,215,0,0.35)", transition:"all 0.3s",
+            }}
+            onMouseOver={e => { e.currentTarget.style.transform="translateY(-3px)"; e.currentTarget.style.boxShadow="0 14px 40px rgba(255,215,0,0.55)"; }}
+            onMouseOut={e => { e.currentTarget.style.transform="translateY(0)"; e.currentTarget.style.boxShadow="0 8px 30px rgba(255,215,0,0.35)"; }}>
+              Start Your BNB Journey →
+            </button>
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+};
+export default HowItWorksSection;

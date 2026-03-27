@@ -18,6 +18,16 @@ const geistMono = Geist_Mono({
 
 import AppLayout from "@/components/AppLayout";
 
+export const metadata = {
+  title: "BEPVault | Premium BEP20 Liquidity Dashboard",
+  description: "Join BEPVault - The most advanced BEP20 liquidity and rewards dashboard. Stake, earn, and build your community with ease.",
+  icons: {
+    icon: "/bepvault_logo.png",
+    shortcut: "/bepvault_logo.png",
+    apple: "/bepvault_logo.png",
+  },
+};
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en">

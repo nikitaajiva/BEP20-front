@@ -1,79 +1,223 @@
 "use client";
-import Head from "next/head";
+import React, { useEffect, useRef } from "react";
 import LandingNavbar from "../components/landing/LandingNavbar";
 import HeroSection from "../components/landing/HeroSection";
 import AboutBEPVaultSection from "../components/landing/AboutBEPVaultSection";
 import KeyFeaturesSection from "../components/landing/KeyFeaturesSection";
 import HowItWorksSection from "../components/landing/HowItWorksSection";
+import AffiliateProgram from "../components/landing/AffiliateProgram";
 import FAQSection from "../components/landing/FAQSection";
 import LandingFooter from "../components/landing/LandingFooter";
-import AffiliateProgram from "../components/landing/AffiliateProgram";
-// Import other sections as they are created
-// import LandingFooter from '../components/landing/LandingFooter';
+import Link from "next/link";
 
-export default function LandingPage() {
-  const sectionsAdded = 5; // Hero, About, KeyFeatures, HowItWorks, FAQ
+// ── Particle Canvas Background ──────────────────────────────────────────────
+const ParticleBackground = () => {
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    let animId;
+
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    resize();
+    window.addEventListener("resize", resize);
+
+    // Particles
+    const particles = Array.from({ length: 80 }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 1.5 + 0.3,
+      vx: (Math.random() - 0.5) * 0.3,
+      vy: (Math.random() - 0.5) * 0.3,
+      opacity: Math.random() * 0.4 + 0.1,
+    }));
+
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < 0) p.x = canvas.width;
+        if (p.x > canvas.width) p.x = 0;
+        if (p.y < 0) p.y = canvas.height;
+        if (p.y > canvas.height) p.y = 0;
+
+        // Draw particle
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 215, 0, ${p.opacity})`;
+        ctx.fill();
+
+        // Draw connections
+        particles.forEach(p2 => {
+          const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
+          if (dist < 120) {
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.strokeStyle = `rgba(255, 215, 0, ${0.04 * (1 - dist / 120)})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        });
+      });
+      animId = requestAnimationFrame(draw);
+    };
+    draw();
+    return () => { cancelAnimationFrame(animId); window.removeEventListener("resize", resize); };
+  }, []);
 
   return (
-    <div
-      style={{
-        backgroundColor: "#000000",
-        color: "#FFFFFF",
-        minHeight: "100vh",
-      }}
-    >
-      <Head>
-        <title>BEPVault | Level Up Your Financial Game</title>
-        <meta
-          name="description"
-          content="Join BEPVault - Your gateway to the new financial horizon. Claim your airdrop and explore the future of BEP20 liquidity."
-        />
-        <link rel="icon" href="/favicon.ico" />{" "}
-        {/* Make sure favicon exists in /public */}
-      </Head>
-      <LandingNavbar />
-      <HeroSection />
-      <AboutBEPVaultSection />
-      <KeyFeaturesSection />
-      <HowItWorksSection />
-      <AffiliateProgram />
-      <FAQSection />
-      <LandingFooter />
-      {/* Placeholder for page content - to be replaced by sections */}
-      <main
-        style={{
-          padding: "2rem",
-          textAlign: "center",
-          display: sectionsAdded >= 5 ? "none" : "block",
-        }}
-      >
-        <h1 style={{ fontSize: "2.5rem", marginBottom: "1rem" }}>
-          Footer Coming Next!
-        </h1>
-        <p style={{ fontSize: "1.2rem" }}>Almost there!</p>
-      </main>
-      {/* Global styles can be added here or in a separate CSS file later */}
+    <canvas ref={canvasRef} style={{
+      position: "fixed", top: 0, left: 0, width: "100%", height: "100%",
+      pointerEvents: "none", zIndex: 0, opacity: 0.7,
+    }} />
+  );
+};
+
+// ── Scrolling Ticker Bar ────────────────────────────────────────────────────
+const TickerBar = () => {
+  const items = [
+    "BNB / USDT  $312.40  ▲ +2.4%",
+    "BEPVault LP  0.6% Daily",
+    "BSC Gas Fee  < $0.01",
+    "Active Members  50,000+",
+    "Total Paid Out  $12M+",
+    "Smart Contract  Audited ✓",
+    "Uptime  99.9%",
+    "Settlement  Instant ⚡",
+  ];
+  const repeated = [...items, ...items];
+
+  return (
+    <div style={{
+      background: "rgba(255,215,0,0.06)", borderBottom: "1px solid rgba(255,215,0,0.15)",
+      padding: "0.55rem 0", overflow: "hidden", position: "relative", zIndex: 100,
+      marginTop: "0px",
+    }}>
+      <div style={{ display: "flex", animation: "tickerScroll 35s linear infinite", width: "max-content" }}>
+        {repeated.map((item, i) => (
+          <span key={i} style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.82rem", fontWeight: 600, whiteSpace: "nowrap", padding: "0 2.5rem" }}>
+            <span style={{ color: "#ffd700", marginRight: "0.5rem" }}>◆</span>
+            {item}
+          </span>
+        ))}
+      </div>
       <style jsx global>{`
-        body {
-          margin: 0;
-          /* Updated font stack for a more modern, clean sans-serif look */
-          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
-            Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans",
-            "Helvetica Neue", sans-serif;
-          background-color: #000000; /* Ensure body background matches */
-        }
-        a {
-          /* Adjust link color to fit the new theme, e.g., a lighter purple/blue */
-          color: #ffd700;
-          text-decoration: none;
-        }
-        a:hover {
-          text-decoration: underline;
-        }
-        /* Add a Google Font import if Inter is not locally available and if desired later */
-        /* @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap'); */
+        @keyframes tickerScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+      `}</style>
+    </div>
+  );
+};
+
+// ── Section Divider ─────────────────────────────────────────────────────────
+const Divider = () => (
+  <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "0 24px" }}>
+    <div style={{ height: "1px", background: "linear-gradient(90deg, transparent, rgba(255,215,0,0.15), transparent)" }} />
+  </div>
+);
+
+// ── Main Landing Page ───────────────────────────────────────────────────────
+export default function LandingPage() {
+  return (
+    <div style={{ background: "#030303", color: "#fff", fontFamily: "'Inter', sans-serif", position: "relative", overflowX: "hidden" }}>
+      {/* Canvas Particle BG */}
+      <ParticleBackground />
+
+      {/* Background gradients — static deep color blobs */}
+      <div style={{ position: "fixed", top: 0, left: 0, right: 0, height: "100vh", background: "radial-gradient(ellipse at 70% 10%, rgba(255,140,0,0.06) 0%, transparent 50%), radial-gradient(ellipse at 20% 80%, rgba(255,215,0,0.05) 0%, transparent 55%)", pointerEvents: "none", zIndex: 0 }} />
+
+      {/* Navbar */}
+      <LandingNavbar />
+
+      {/* Ticker Bar positioned right below navbar */}
+      <div style={{ paddingTop: "75px", position: "relative", zIndex: 10 }}>
+        <TickerBar />
+      </div>
+
+      <main style={{ position: "relative", zIndex: 10 }}>
+        {/* HERO */}
+        <HeroSection />
+
+        <Divider />
+
+        {/* ABOUT */}
+        <AboutBEPVaultSection />
+
+        <Divider />
+
+        {/* FEATURES */}
+        <KeyFeaturesSection />
+
+        <Divider />
+
+        {/* HOW IT WORKS */}
+        <HowItWorksSection />
+
+        <Divider />
+
+        {/* AFFILIATE */}
+        <AffiliateProgram />
+
+        <Divider />
+
+        {/* FAQ */}
+        <FAQSection />
+
+        {/* Final CTA Banner */}
+        <section style={{ padding: "100px 0", textAlign: "center", position: "relative", overflow: "hidden" }}>
+          <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, rgba(255,215,0,0.08) 0%, transparent 65%)", pointerEvents: "none" }} />
+          <div className="container" style={{ position: "relative", zIndex: 2 }}>
+            <div style={{
+              display: "inline-flex", alignItems: "center", gap: "8px",
+              background: "rgba(0,230,118,0.1)", border: "1px solid rgba(0,230,118,0.3)",
+              borderRadius: "30px", padding: "6px 16px", marginBottom: "1.5rem",
+            }}>
+              <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#00e676", display: "inline-block", animation: "livePulse 1s infinite" }} />
+              <span style={{ color: "#00e676", fontWeight: 700, fontSize: "0.82rem" }}>Platform Accepting New Members</span>
+            </div>
+            <h2 style={{ fontSize: "clamp(2.5rem,5vw,4rem)", fontWeight: 900, color: "#fff", lineHeight: 1.1, marginBottom: "1.2rem" }}>
+              Start Your <span style={{ background: "linear-gradient(135deg,#ffd700,#ff8c00)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>BNB Journey</span><br />Today
+            </h2>
+            <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "1.15rem", maxWidth: "540px", margin: "0 auto 2.5rem", lineHeight: 1.65 }}>
+              Join 50,000+ members already earning daily BNB returns with BEPVault. It's free to join and takes less than 2 minutes.
+            </p>
+            <div style={{ display: "flex", gap: "1.2rem", justifyContent: "center", flexWrap: "wrap" }}>
+              <Link href="https://linktr.ee/BEPVaultOfficial" target="_blank" style={{ textDecoration: "none" }}>
+                <button style={{
+                  background: "transparent", color: "#fff",
+                  border: "1px solid rgba(255,255,255,0.2)", padding: "1.1rem 3rem",
+                  borderRadius: "8px", fontWeight: 700, fontSize: "1.1rem",
+                  cursor: "pointer", transition: "all 0.3s",
+                }}
+                onMouseOver={e => { e.currentTarget.style.borderColor = "#ffd700"; e.currentTarget.style.color = "#ffd700"; }}
+                onMouseOut={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)"; e.currentTarget.style.color = "#fff"; }}>
+                  Join Community
+                </button>
+              </Link>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <LandingFooter />
+
+      <style jsx global>{`
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #030303 !important; color: #fff; font-family: 'Inter', sans-serif; }
+        .container { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,215,0,0.3); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,215,0,0.6); }
+        @keyframes livePulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+        html { scroll-behavior: smooth; }
       `}</style>
     </div>
   );
 }
-

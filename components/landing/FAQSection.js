@@ -1,117 +1,129 @@
 "use client";
-import "../../app/herosection.css";
-import { useState } from "react";
+import React, { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
+const faqs = [
+  {
+    q: "What is BEPVault?",
+    a: "BEPVault is a premier decentralized community liquidity platform built exclusively on the Binance Smart Chain. Members provide BEP20 BNB liquidity to institutional-grade pools and earn up to 0.6% in daily compounded returns, plus cascading referral bonuses across 5 levels.",
+  },
+  {
+    q: "How do I start earning with BEP20 BNB?",
+    a: "Simply create your account, connect your BEP20-compatible wallet (such as MetaMask or Trust Wallet), deposit BNB, and your position is instantly activated. Daily rewards begin accumulating from your very first block confirmation.",
+  },
+  {
+    q: "What is BEP20 BNB and why does it matter?",
+    a: "BEP20 is the token standard on the Binance Smart Chain — the same standard as BNB. It offers near-instant transactions, extremely low gas fees (often under $0.01), and is natively supported by thousands of DeFi protocols, making it ideal for high-frequency liquidity operations.",
+  },
+  {
+    q: "How does the 5-level community program work?",
+    a: "When you refer someone to BEPVault, you earn a BNB bonus every time they deposit. This cascades 5 levels deep — meaning you also earn from the people your referrals bring in, and their referrals, all the way to level 5. All bonuses are paid automatically by the smart contract.",
+  },
+  {
+    q: "When and how can I withdraw my earnings?",
+    a: "Your BNB rewards are claimable at any time — 24/7, with instant on-chain settlement. There are no lock-up periods for earnings. You can choose to claim daily, reinvest for compound growth, or accumulate over time. Your principal follows the terms of your chosen LP position.",
+  },
+  {
+    q: "What returns can I realistically expect?",
+    a: "LP participants earn up to 0.6% daily returns based on real liquidity pool performance. On top of this, active community builders unlock additional BNB from the 5-tier referral system. There is no guaranteed return as performance is subject to market conditions, but the model is fully transparent.",
+  },
+];
+
+const FAQItem = ({ q, a, open, onClick }) => (
+  <div style={{
+    background: open ? "rgba(255,215,0,0.04)" : "rgba(255,255,255,0.02)",
+    border: `1px solid ${open ? "rgba(255,215,0,0.3)" : "rgba(255,255,255,0.06)"}`,
+    borderRadius: "14px", marginBottom: "0.8rem", overflow: "hidden",
+    transition: "all 0.4s ease", cursor: "pointer",
+  }}>
+    <div onClick={onClick} style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"1.3rem 1.8rem", userSelect:"none" }}>
+      <span style={{ color: open ? "#ffd700" : "#fff", fontWeight:700, fontSize:"1rem", transition:"color 0.3s" }}>{q}</span>
+      <div style={{
+        width:32, height:32, borderRadius:"50%", flexShrink:0, marginLeft:"1rem",
+        background: open ? "linear-gradient(135deg,#ffd700,#ff8c00)" : "rgba(255,215,0,0.1)",
+        border: open ? "none" : "1px solid rgba(255,215,0,0.2)",
+        display:"flex", alignItems:"center", justifyContent:"center",
+        transition:"all 0.3s", transform: open ? "rotate(45deg)" : "rotate(0deg)",
+      }}>
+        <i className="ri-add-line" style={{ fontSize:"1.1rem", color: open ? "#000" : "#ffd700" }} />
+      </div>
+    </div>
+    <AnimatePresence initial={false}>
+      {open && (
+        <motion.div
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: "auto", opacity: 1 }}
+          exit={{ height: 0, opacity: 0 }}
+          transition={{ duration: 0.35, ease: "easeInOut" }}
+        >
+          <div style={{ padding:"0 1.8rem 1.5rem", color:"rgba(255,255,255,0.65)", fontSize:"0.97rem", lineHeight:1.75 }}>
+            {a}
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  </div>
+);
+
 const FAQSection = () => {
-  const [hoveredIndex, setHoveredIndex] = useState(null);
+  const [openIdx, setOpenIdx] = useState(null);
 
-  const faqList = [
-    {
-      question: "What is BEPVault?",
-      answer:
-        "BEPVault is a Community Program marketing platform designed to expand USDT liquidity globally. It works as a premier gateway for high-liquidity financial operations.",
-    },
-    {
-      question: "Who can join BEPVault?",
-      answer:
-        "Anyone, from crypto enthusiasts and influencers to professional marketers and financial experts, can join the Community Program program and start earning.",
-    },
-    {
-      question: "How secure are transactions on BEPVault?",
-      answer:
-        "All transactions utilize Ripple's blockchain for fast, secure, and transparent processing.",
-    },
-    {
-      question: "What is USDT?",
-      answer:
-        "USDT is a digital asset created by Ripple Labs to enable fast, low-cost international payments. It's known for its scalability, speed, and integration with financial institutions.",
-    },
-    {
-      question: "Why is USDT ideal for liquidity programs?",
-      answer:
-        "Its consensus mechanism ensures real-time settlement, minimal fees, and easy integration with existing financial systems—making it ideal for liquidity provisioning.",
-    },
-    {
-      question: "How do Community Programs earn commissions?",
-      answer:
-        "Community Programs earn commissions based on the volume of transactions or revenue generated by their referrals. The more referrals and transaction volume you bring, the higher your earnings.",
-    },
-
-    {
-      question: "What are the benefits of joining the BEPVault program?",
-      answer:
-        "You receive:<ul><li>LP Rewards Upto 0.6%, compounded.</li><li>Performance-based yield tied to real market activity.</li><li>Auto-distributed rewards to your wallet.</li></ul>",
-    },
-  ];
+  // Split into 2 columns
+  const col1 = faqs.slice(0, Math.ceil(faqs.length / 2));
+  const col2 = faqs.slice(Math.ceil(faqs.length / 2));
 
   return (
-    <section className="faq_section section_space" id="faq_section">
+    <section id="faq" style={{ padding:"100px 0", position:"relative" }}>
+      <div style={{ position:"absolute", bottom:"10%", left:"50%", transform:"translateX(-50%)", width:"600px", height:"400px", background:"radial-gradient(circle,rgba(255,215,0,0.04) 0%,transparent 60%)", filter:"blur(60px)", pointerEvents:"none" }} />
+
       <div className="container">
-        <div
-          className="ico_heading_block text-center"
-          data-aos="fade-up"
-          data-aos-duration="800"
-        >
-          <h2 className="heading_text mb-0">
-            Frequently Asked Questions (FAQs)
+        {/* Header */}
+        <div style={{ textAlign:"center", marginBottom:"5rem" }}>
+          <span style={{ background:"rgba(255,215,0,0.1)", color:"#ffd700", border:"1px solid rgba(255,215,0,0.25)", borderRadius:"30px", padding:"6px 18px", fontSize:"0.82rem", fontWeight:700, textTransform:"uppercase", letterSpacing:"1.5px" }}>FAQ</span>
+          <h2 style={{ fontSize:"clamp(2.2rem,4vw,3.2rem)", fontWeight:900, color:"#fff", marginTop:"1rem" }}>
+            Common <span style={{ color:"#ffd700" }}>Questions</span>
           </h2>
+          <p style={{ color:"rgba(255,255,255,0.5)", fontSize:"1.05rem", maxWidth:"520px", margin:"1rem auto 0", lineHeight:1.65 }}>
+            Everything you need to know about earning with BEP20 BNB on BEPVault.
+          </p>
         </div>
 
-        <div className="ico_accordion" id="accordion_1">
-          {faqList.map((faq, index) => (
-            <div
-              className="accordion-item"
-              key={index}
-              onMouseEnter={() => setHoveredIndex(index)}
-              onMouseLeave={() => setHoveredIndex(null)}
-            >
-              <div
-                className={`icon_arrow ${
-                  hoveredIndex === index ? "" : "collapsed"
-                }`}
-                role="presentation"
-              >
-                <svg viewBox="0 0 23 27" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M10 14.597L10 2.56731C10 1.56579 10.8115 0.753906 11.8125 0.753906C12.8134 0.753906 13.6249 1.56579 13.6249 2.56731L13.6249 14.597C13.6249 15.5985 12.8134 16.4104 11.8125 16.4104C10.8115 16.4104 10 15.5985 10 14.597Z" />
-                  <path d="M9.71371 25.8348L1.59744 17.7909C1.49009 17.6845 1.42969 17.5396 1.42969 17.3884L1.42969 14.2693C1.42969 13.7658 2.03695 13.5125 2.39443 13.8668L10.5108 21.9106C10.6181 22.017 10.6785 22.1619 10.6785 22.3131L10.6785 25.4323C10.6785 25.9358 10.0712 26.1891 9.71371 25.8348Z" />
-                  <path d="M21.2273 13.8668L13.1111 21.9106C13.0037 22.017 12.9434 22.1619 12.9434 22.3131L12.9434 25.4323C12.9434 25.9358 13.5506 26.1891 13.9081 25.8348L22.0243 17.7909C22.1317 17.6845 22.1921 17.5396 22.1921 17.3884L22.1921 14.2693C22.1921 13.7658 21.5849 13.5125 21.2273 13.8668Z" />
-                </svg>
-              </div>
+        {/* Two-column FAQ */}
+        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"1rem" }} className="faq-grid">
+          <div>
+            {col1.map((f, i) => (
+              <FAQItem key={i} q={f.q} a={f.a} open={openIdx === i} onClick={() => setOpenIdx(openIdx === i ? null : i)} />
+            ))}
+          </div>
+          <div>
+            {col2.map((f, i) => {
+              const idx = i + col1.length;
+              return (
+                <FAQItem key={idx} q={f.q} a={f.a} open={openIdx === idx} onClick={() => setOpenIdx(openIdx === idx ? null : idx)} />
+              );
+            })}
+          </div>
+        </div>
 
-              <div
-                className={`accordion-button ${
-                  hoveredIndex === index ? "" : "collapsed"
-                }`}
-              >
-                {faq.question}
-              </div>
-
-              <AnimatePresence initial={false}>
-                {hoveredIndex === index && (
-                  <motion.div
-                    key={`panel_${index}`}
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.3, ease: "easeInOut" }}
-                    className="accordion-body-wrapper"
-                  >
-                    <div className="accordion-body">
-                      <p
-                        dangerouslySetInnerHTML={{ __html: faq.answer }}
-                        style={{ marginBottom: 0 }}
-                      />
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          ))}
+        {/* Bottom CTA */}
+        <div style={{ marginTop:"4rem", padding:"2.5rem 3rem", background:"rgba(255,215,0,0.04)", border:"1px solid rgba(255,215,0,0.15)", borderRadius:"20px", textAlign:"center" }}>
+          <i className="ri-customer-service-2-line" style={{ fontSize:"2.5rem", color:"#ffd700", marginBottom:"1rem", display:"block" }} />
+          <h3 style={{ color:"#fff", fontWeight:800, fontSize:"1.5rem", marginBottom:"0.8rem" }}>Still have questions?</h3>
+          <p style={{ color:"rgba(255,255,255,0.55)", marginBottom:"1.5rem" }}>Our community team is available 24/7 to help you get started and answer any questions.</p>
+          <div style={{ display:"flex", gap:"1rem", justifyContent:"center", flexWrap:"wrap" }}>
+            <a href="https://linktr.ee/BEPVaultOfficial" target="_blank" rel="noreferrer" style={{ textDecoration:"none" }}>
+              <button style={{ background:"linear-gradient(135deg,#ffd700,#ff8c00)", color:"#000", border:"none", padding:"0.8rem 2rem", borderRadius:"8px", fontWeight:800, fontSize:"0.95rem", cursor:"pointer" }}>
+                Join Community
+              </button>
+            </a>
+          </div>
         </div>
       </div>
+
+      <style jsx global>{`
+        @media (max-width: 768px) { .faq-grid { grid-template-columns: 1fr !important; } }
+      `}</style>
     </section>
   );
 };
-
 export default FAQSection;

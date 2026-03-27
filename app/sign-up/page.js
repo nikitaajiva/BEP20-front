@@ -313,7 +313,7 @@ function SignUpForm() {
 
                 <p className={styles.signInRedirect}>
                   Already have an account?{" "}
-                  <Link href="/sign-in" className={styles.signInLink}>Sign in instead</Link>
+                  <Link href="/login" className={styles.signInLink}>Sign in instead</Link>
                 </p>
               </form>
             )}

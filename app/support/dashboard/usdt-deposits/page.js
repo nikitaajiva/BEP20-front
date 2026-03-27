@@ -128,7 +128,7 @@ function USDTTransactions() {
 
   useEffect(() => {
     if (!authLoading && (!user || !["support", "admin"].includes(user.userType))) {
-      router.push("/sign-in");
+      router.push("/login");
     }
   }, [user, authLoading, router]);
 

@@ -216,14 +216,14 @@ export default function SystemReportPage() {
       setReport(data.data);
     } catch (err) {
       setError(err.message);
-      if (err.message.includes("Authentication required")) router.push("/sign-in");
+      if (err.message.includes("Authentication required")) router.push("/login");
     } finally { setLoading(false); }
   };
 
   useEffect(() => {
     if (!authLoading) {
-      if (!user) { router.push("/sign-in"); return; }
-      if (!["support","admin"].includes(user.userType) && user.username !== "superadmin") { router.push("/sign-in"); return; }
+      if (!user) { router.push("/login"); return; }
+      if (!["support","admin"].includes(user.userType) && user.username !== "superadmin") { router.push("/login"); return; }
       fetchReport();
     }
   }, [authLoading, user]);

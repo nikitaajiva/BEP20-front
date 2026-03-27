@@ -5,6 +5,7 @@
   display: flex;
   /* Sidebar layout */
   font-family: 'Inter', sans-serif;
+  overflow: visible; /* Prevent double scrollbar */
   overflow-x: hidden;
   position: relative;
 }
@@ -115,6 +116,7 @@
   position: relative;
   z-index: 10;
   min-height: 100vh;
+  overflow: visible; /* Prevent double scrollbar */
 }
 
 /* Golden Light Rays Animation */
@@ -333,11 +335,14 @@
 /* Central Dashboard */
 .centralDashboard {
   position: relative;
-  min-height: 850px;
-  padding: 40px 0;
+  width: 100%;
+  min-height: 1000px;
+  padding: 100px 0;
   display: flex;
   justify-content: center;
   align-items: center;
+  margin-left: -80px;
+  /* Shifted hub left towards sidebar */
 }
 
 .orbitArea {
@@ -537,28 +542,28 @@
 
 
 .supportAdminBtn {
-    background: rgba(43, 85, 255, 0.1);
-    border: 1px solid rgba(43, 85, 255, 0.3);
-    color: #4cc9f0;
-    padding: 6px 14px;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
-    text-decoration: none;
-    height: 38px;
+  background: rgba(43, 85, 255, 0.1);
+  border: 1px solid rgba(43, 85, 255, 0.3);
+  color: #4cc9f0;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  text-decoration: none;
+  height: 38px;
 }
 
 .supportAdminBtn:hover {
-    background: rgba(43, 85, 255, 0.2);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(43, 85, 255, 0.2);
-    color: #fff;
-    border-color: rgba(43, 85, 255, 0.5);
+  background: rgba(43, 85, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(43, 85, 255, 0.2);
+  color: #fff;
+  border-color: rgba(43, 85, 255, 0.5);
 }
 
 .redeemBtnTop {
@@ -885,7 +890,7 @@
 /* Static Floating Card (Top Edge) */
 .staticFloatTop {
   position: absolute;
-  top: 100%;
+  top: 95%;
   left: 50%;
   transform: translateX(-50%);
   width: 100%;
@@ -910,14 +915,27 @@
 /* Static Floating Card (Left Edge) */
 .staticFloatLeft {
   position: absolute;
-  top: 50%;
-  left: 20px;
+  top: 55%;
+  left: 60px;
   transform: translateY(-50%);
   width: 380px;
-  /* Thoda bada bankar */
+  display: flex;
+  flex-direction: column;
   z-index: 50;
   animation: floatStaticCard 5s ease-in-out infinite;
 }
+
+.orbitCardLeftTop {
+  width: 420px;
+  margin-left: -60px;
+  margin-bottom: 30px;
+}
+
+.orbitCardLeftBottom {
+  width: 420px;
+  margin-left: 20px;
+}
+
 
 @keyframes floatStaticCard {
   0% {
@@ -935,12 +953,25 @@
 
 .staticFloatRight {
   position: absolute;
-  top: 50%;
-  right: 20px;
+  top: 58%;
+  right: -40px;
   transform: translateY(-50%);
-  width: 380px;
+  width: 800px;
+  display: flex;
+  flex-direction: column;
   z-index: 50;
-  animation: floatStaticCardAlt 6s ease-in-out infinite;
+  animation: floatStaticCard 6s ease-in-out infinite;
+}
+
+.orbitCardRightTop {
+  margin-left: 100px;
+  /* Shift Boost card slightly right */
+  margin-bottom: 30px;
+}
+
+.orbitCardRightBottom {
+  margin-left: -120px;
+  /* Shift Community Growth card towards center hub area */
 }
 
 .staticFloatBottom {
@@ -985,9 +1016,8 @@
 /* ===== Responsive Mobile Styles ===== */
 
 @media (max-width: 1200px) {
-
-  .staticFloatLeft,
-  .staticFloatRight {
+  .staticFloatLeft {
+    left: 20px;
     width: 340px;
   }
 }
@@ -1021,27 +1051,6 @@
     animation: none;
   }
 
-  .staticFloatBottom {
-    position: relative;
-    bottom: auto;
-    left: auto;
-    transform: none;
-    margin: 20px auto;
-    max-width: 600px;
-    animation: none;
-  }
-
-  .staticFloatTop {
-    position: relative;
-    top: auto;
-    left: auto;
-    transform: none;
-    width: 100%;
-    max-width: 600px;
-    margin: 20px auto;
-    animation: none;
-  }
-
   .centralDashboard {
     min-height: 500px;
     padding: 20px 0;
@@ -1053,7 +1062,7 @@
   }
 
   .staticFloatBottom {
-    order: 2;
+    order: 6;
     margin-bottom: 25px;
     position: sticky;
     top: 10px;
@@ -1076,13 +1085,31 @@
   }
 
   .topRightActions {
-    order: 1;
+    order: 0;
     width: 100%;
   }
 
-  .staticFloatTop {
-    order: 1.5;
+  .staticFloatTop,
+  .absoluteTop,
+  .staticFloatLeft {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    width: 100%;
+    max-width: 600px;
+    margin: 20px auto;
+    animation: none;
+    order: 1;
   }
+
+  .orbitCardLeftTop,
+  .orbitCardLeftBottom {
+    width: 100%;
+    margin-left: 0;
+    margin-bottom: 15px;
+  }
+
 }
 
 @media (max-width: 480px) {
@@ -1198,5 +1225,32 @@
   .mainContentArea {
     padding-bottom: 80px;
     /* Space for bottom nav */
+  }
+}
+
+.absoluteTop {
+  position: absolute;
+  top: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 900px;
+  z-index: 60;
+  display: flex;
+  justify-content: center;
+  animation: floatStaticCardTopRel 5s ease-in-out infinite;
+}
+
+@keyframes floatStaticCardTopRel {
+  0% {
+    transform: translateX(-50%) translateY(0);
+  }
+
+  50% {
+    transform: translateX(-50%) translateY(10px);
+  }
+
+  100% {
+    transform: translateX(-50%) translateY(0);
   }
 }

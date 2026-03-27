@@ -33,7 +33,31 @@ export default function SignInPage() {
     await login({ email, password });
   };
 
-  // ⏩ Redirect if already logged in
+  const [particles, setParticles] = useState([]);
+  const [streaks, setStreaks] = useState([]);
+
+  // Generate background animation elements
+  useEffect(() => {
+    const newParticles = Array.from({ length: 25 }, (_, i) => ({
+      id: i,
+      left: `${Math.random() * 100}%`,
+      size: `${Math.random() * 6 + 2}px`,
+      duration: `${Math.random() * 10 + 10}s`,
+      delay: `${Math.random() * 20}s`,
+    }));
+    
+    const newStreaks = Array.from({ length: 8 }, (_, i) => ({
+      id: i,
+      left: `${Math.random() * 100}%`,
+      duration: `${Math.random() * 5 + 3}s`,
+      delay: `${Math.random() * 10}s`,
+    }));
+
+    setParticles(newParticles);
+    setStreaks(newStreaks);
+  }, []);
+
+  // Redirect if already logged in
   useEffect(() => {
     if (!authLoading && user) {
       router.push("/dashboard");
@@ -49,47 +73,58 @@ export default function SignInPage() {
       </Head>
 
       <div className={styles.signInPage}>
-        {/* Left Column: Illustration */}
-        <div className={styles.leftColumn}>
-          <div className={styles.logoContainer}>
-            <a href="/" className="">
-              <Image
-                src="/assets/img/logo-auth-page.png"
-                alt="BEPVault Logo"
-                width={180}
-                height={40}
-                className={styles.logo}
-              />
-            </a>
-          </div>
-          <div className={styles.illustrationContainer}>
-            <Image
-              src="/assets/img/illustrations/auth-character.png"
-              alt="Login Character"
-              width={450}
-              height={450}
-              className={styles.characterImage}
-              priority
+        {/* Animated Background */}
+        <div className={styles.bgAnimation}>
+          {particles.map((p) => (
+            <div
+              key={p.id}
+              className={styles.particle}
+              style={{
+                left: p.left,
+                width: p.size,
+                height: p.size,
+                animationDuration: p.duration,
+                animationDelay: p.delay,
+              }}
             />
-            <Image
-              src="/assets/img/illustrations/floating-sphere.png"
-              alt="Floating Sphere"
-              width={150}
-              height={150}
-              className={styles.floatingSphere}
+          ))}
+          {streaks.map((s) => (
+            <div
+              key={s.id}
+              className={styles.goldenStreak}
+              style={{
+                left: s.left,
+                animationDuration: s.duration,
+                animationDelay: s.delay,
+              }}
             />
-          </div>
+          ))}
         </div>
 
-        {/* Right Column: Form */}
-        <div className={styles.rightColumn}>
-          <div className={styles.formContainer}>
-            <h2 className={styles.title}>Welcome to BEPVault! 👋</h2>
+        <div className={styles.mainContainer}>
+          {/* Glass Form Card */}
+          <div className={styles.formGlassCard}>
+            <div className={styles.logoContainer}>
+              <div className={styles.logoBox}>
+                <Image
+                  src="/bepvault_logo.png"
+                  alt="BEPVault Logo"
+                  width={40}
+                  height={40}
+                  className={styles.logo}
+                />
+              </div>
+            </div>
+
+            <h2 className={styles.title}>
+              <span className={styles.welcomeText}>Welcome to </span>
+              <span className={styles.vaultText}>BEPVault!</span>
+            </h2>
             <p className={styles.subtitle}>
-              Please sign-in to your account and start the adventure
+              Secure access to your administrative command center
             </p>
 
-            {error && <p className={styles.errorMessage}>{error}</p>}
+            {error && <div className={styles.errorMessage}>{error}</div>}
 
             {activationMessage ? (
               <div className={styles.activationMessageContainer}>
@@ -107,13 +142,13 @@ export default function SignInPage() {
                 <form onSubmit={handleSubmit} className={styles.signInForm}>
                   <div className={styles.inputGroup}>
                     <label htmlFor="email" className={styles.label}>
-                      Email | Username | UHID
+                      EMAIL | USERNAME | UHID
                     </label>
                     <input
                       type="text"
                       id="email"
                       className={styles.inputField}
-                      placeholder="johndoe@example.com"
+                      placeholder="Mrperfect2025@icloud.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
@@ -121,17 +156,9 @@ export default function SignInPage() {
                   </div>
 
                   <div className={styles.inputGroup}>
-                    <div className={styles.labelContainer}>
-                      <label htmlFor="password" className={styles.label}>
-                        Password
-                      </label>
-                      <Link
-                        href="/forgot-password"
-                        className={styles.supportLink}
-                      >
-                        Forgot Password?
-                      </Link>
-                    </div>
+                    <label htmlFor="password" className={styles.label}>
+                      PASSWORD
+                    </label>
                     <div className={styles.passwordWrapper}>
                       <input
                         type={showPassword ? "text" : "password"}
@@ -146,6 +173,7 @@ export default function SignInPage() {
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
                         className={styles.eyeButton}
+                        tabIndex="-1"
                       >
                         <i
                           className={`bi ${
@@ -172,59 +200,53 @@ export default function SignInPage() {
 
                   <button
                     type="submit"
-                    className={`${styles.button} ${styles.signInButton}`}
+                    className={styles.signInButton}
                     disabled={authLoading}
                   >
-                    {authLoading ? "Signing In..." : "Sign In"}
+                    {authLoading ? "Signing In..." : "SIGN IN"}
                   </button>
                 </form>
 
-                <p className={styles.createAccountText}>
+                <div className={styles.createAccountText}>
                   New on our platform?{" "}
                   <Link href="/sign-up" className={styles.createAccountLink}>
                     Create an account
                   </Link>
-                </p>
-
-                <div className={styles.dividerContainer}>
-                  <hr className={styles.dividerLine} />
-                  <span className={styles.dividerText}>or</span>
-                  <hr className={styles.dividerLine} />
                 </div>
 
-                <div className={styles.socialLoginContainer}>
-                  <button
-                    className={`${styles.socialButton} ${styles.socialButtonFacebook}`}
-                  >
+                <div className={styles.socialContainer}>
+                  <button className={styles.socialButton}>
                     <i className="bi bi-facebook"></i>
                   </button>
-                  <button
-                    className={`${styles.socialButton} ${styles.socialButtonTwitter}`}
-                  >
+                  <button className={styles.socialButton}>
                     <i className="bi bi-twitter-x"></i>
                   </button>
-                  <button
-                    className={`${styles.socialButton} ${styles.socialButtonGithub}`}
-                  >
-                    <i className="bi bi-github"></i>
-                  </button>
-                  <button
-                    className={`${styles.socialButton} ${styles.socialButtonGoogle}`}
-                  >
+                  <button className={styles.socialButton}>
                     <i className="bi bi-google"></i>
                   </button>
                 </div>
 
-                <p className={styles.airdropClaimText}>
-                  <Link
-                    href="/sign-up"
-                    className={`${styles.button} ${styles.claimButton}`}
-                  >
-                    Sign Up Now!
+                <div className={styles.signUpNowContainer}>
+                  <Link href="/sign-up" className={styles.signUpNowButton}>
+                    SIGN UP NOW!
                   </Link>
-                </p>
+                </div>
               </>
             )}
+          </div>
+
+          {/* Character Illustration */}
+          <div className={styles.illustrationContainer}>
+            <div className={styles.robotWrapper}>
+              <Image
+                src="/assets/img/illustrations/bepvault-robot.png"
+                alt="BEPVault Robot"
+                width={700}
+                height={700}
+                className={styles.robotImage}
+                priority
+              />
+            </div>
           </div>
         </div>
       </div>

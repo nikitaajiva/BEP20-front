@@ -184,7 +184,7 @@ export default function CalculatorPage() {
       <div className={styles.sidebar}>
         <div className={styles.headerTop}>
           <img src="/bepvault_logo.png" alt="BEPVault Logo" />
-          <a href="https://BEPVault.io/sign-in" target="_blank" rel="noopener noreferrer">Dashboard</a>
+          <a href="https://BEPVault.io/login" target="_blank" rel="noopener noreferrer">Dashboard</a>
         </div>
 
         <h1 className={styles.title}>USDT Compound Interest Calculator</h1>

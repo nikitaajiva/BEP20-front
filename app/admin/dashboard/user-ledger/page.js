@@ -231,8 +231,8 @@ function UserLedger() {
 
     useEffect(() => {
         if (!authLoading) {
-            if (!user) router.push('/sign-in');
-            else if (!['support', 'admin'].includes(user.userType)) router.push('/sign-in');
+            if (!user) router.push('/login');
+            else if (!['support', 'admin'].includes(user.userType)) router.push('/login');
             else fetchLedger(); // ALWAYS fetch ledger to show dummy data on blank load
         }
     }, [user, authLoading, router, userId]);

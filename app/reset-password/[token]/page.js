@@ -171,7 +171,7 @@ export default function ResetPasswordTokenPage() {
             </form>
 
             <div className={styles.backToLoginContainer}>
-              <Link href="/sign-in" className={styles.backToLoginLink}>
+              <Link href="/login" className={styles.backToLoginLink}>
                 <i className="bi bi-chevron-left"></i> Back to Sign In
               </Link>
             </div>

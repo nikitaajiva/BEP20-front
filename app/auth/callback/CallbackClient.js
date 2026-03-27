@@ -13,7 +13,7 @@ export default function CallbackClient() {
     hasRun.current = true;
 
     setStatus("Wallet login is handled on the sign-in page.");
-    const timer = setTimeout(() => router.replace("/sign-in"), 1500);
+    const timer = setTimeout(() => router.replace("/login"), 1500);
     return () => clearTimeout(timer);
   }, [router]);
 

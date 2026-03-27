@@ -73,7 +73,7 @@ export default function ManualBonusPage() {
     }
 
     if (!user || !['support', 'admin'].includes(user.userType)) {
-        router.push('/sign-in');
+        router.push('/login');
         return <div style={{ textAlign: 'center', color: '#ff4d4d', padding: '2rem' }}>Unauthorized. Redirecting...</div>;
     }
 

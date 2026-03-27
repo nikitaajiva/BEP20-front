@@ -39,9 +39,9 @@ export default function FiveXRewardsPage() {
   // ✅ Authentication check
   useEffect(() => {
     if (!authLoading) {
-      if (!user) router.push("/sign-in");
+      if (!user) router.push("/login");
       else if (!["support", "admin"].includes(user.userType))
-        router.push("/sign-in");
+        router.push("/login");
     }
   }, [user, authLoading, router]);
 

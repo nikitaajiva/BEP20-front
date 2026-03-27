@@ -217,7 +217,7 @@ export default function TeamViewPage() {
     // Auth Guards
     useEffect(() => {
         if (!authLoading && !authUser) {
-            router.push('/sign-in');
+            router.push('/login');
         } else if (authUser && !['support', 'admin'].includes(authUser.userType)) {
             router.push('/dashboard');
         }

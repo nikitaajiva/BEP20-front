@@ -330,7 +330,7 @@ const UsersSummaryTerminal = () => {
   };
 
   useEffect(() => { if (user && ['support','admin'].includes(user.userType)) fetchData(); }, [page, rowsPerPage, debouncedFilters, user]);
-  useEffect(() => { if (!authLoading && (!user || !['support','admin'].includes(user.userType))) router.push('/sign-in'); }, [user, authLoading, router]);
+  useEffect(() => { if (!authLoading && (!user || !['support','admin'].includes(user.userType))) router.push('/login'); }, [user, authLoading, router]);
 
   const totalPages   = Math.ceil(totalRecords / rowsPerPage) || 1;
   const handleFilter = (field) => (e) => { setFilters(prev => ({ ...prev, [field]: e.target.value })); setPage(0); };

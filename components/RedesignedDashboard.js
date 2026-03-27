@@ -9,6 +9,7 @@ const RedesignedDashboard = ({
   user, 
   walletAccount,
   onWalletConnect,
+  onWalletDisconnect,
   onOpenAddLPModal,
   onOpenZeroRiskModal,
   onRedeem,
@@ -17,6 +18,8 @@ const RedesignedDashboard = ({
   orbitCard2,
   orbitCard3,
   orbitCard4,
+  bottomCards,
+  extraHubCard,
   children
 }) => {
   const lpWallet = ledgerDetails?.lpWallet || {};
@@ -25,7 +28,8 @@ const RedesignedDashboard = ({
   const lpLimit = parseFloat(lpWallet.limit || "0").toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const autopositioningValue = parseFloat(lpWallet.autopositioning || "0").toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-  const primaryVaultBalance = parseFloat(ledgerDetails?.usdtWallet?.balance || "0").toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const internalVaultBalance = parseFloat(ledgerDetails?.usdtWallet?.balance || "0").toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const primaryVaultBalance = internalVaultBalance;
 
   const zeroRiskBalance = parseFloat(ledgerDetails?.zeroRisk?.balance || "0").toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const zeroRiskLimit = zeroRiskBalance;
@@ -117,18 +121,18 @@ const RedesignedDashboard = ({
           <button
             className={styles.connectBtn}
             onClick={onWalletConnect}
-            title="Connect Wallet"
+            title={walletAccount ? "Wallet Connected" : "Connect Wallet"}
           >
             <Wallet size={14} />
             {walletAccount ? shortAddress : "Connect Wallet"}
             {walletAccount && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginLeft: '4px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '6px' }}>
                 <span
                   onClick={(e) => {
                     e.stopPropagation();
                     navigator.clipboard.writeText(walletAccount);
                   }} 
-                  style={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer', color: '#aaa' }}
+                  style={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer', color: '#888' }}
                   title="Copy Address"
                 >
                   <Copy size={12} />
@@ -136,20 +140,21 @@ const RedesignedDashboard = ({
                 <span
                   onClick={(e) => {
                     e.stopPropagation();
-                    if (onWalletConnect) onWalletConnect();
+                    if (onWalletDisconnect) onWalletDisconnect();
                   }} 
                   style={{ 
                     display: 'inline-flex', 
                     alignItems: 'center', 
                     justifyContent: 'center',
                     cursor: 'pointer',
-                    backgroundColor: 'rgba(255,255,255,0.15)',
-                    padding: '2px',
+                    backgroundColor: 'rgba(255,100,100,0.15)',
+                    color: '#ff6666',
+                    padding: '3px',
                     borderRadius: '4px'
                   }}
-                  title="Add Funds"
+                  title="Disconnect Wallet"
                 >
-                  <Plus size={12} />
+                  <Activity size={12} style={{ transform: 'rotate(90deg)' }} />
                 </span>
               </div>
             )}
@@ -186,17 +191,31 @@ const RedesignedDashboard = ({
 
 {/* Actions moved to Header */}
 
+      <div className={styles.absoluteTop}>
+        {orbitCard1} {/* Primary Wallet */}
+      </div>
+
       <div className={styles.staticFloatTop}>
-        {orbitCard4} {/* Boost Wallet */}
+        {bottomCards}
       </div>
       <div className={styles.staticFloatLeft}>
-        {orbitCard2} {/* Stable Pool */}
+        <div className={styles.orbitCardLeftTop}>
+          {orbitCard2} {/* Stable Pool */}
+        </div>
+        <div className={styles.orbitCardLeftBottom}>
+          {orbitCard3} {/* Community Wallet */}
+        </div>
       </div>
       <div className={styles.staticFloatRight}>
-        {orbitCard3} {/* Rewards Wallet */}
+        <div className={styles.orbitCardRightTop}>
+           {orbitCard4} {/* Boost Wallet & Analytics */}
+        </div>
+        <div className={styles.orbitCardRightBottom}>
+           {extraHubCard} {/* Community Growth */}
+        </div>
       </div>
       <div className={styles.staticFloatBottom}>
-        {orbitCard1} {/* Primary Vault */}
+        {/* Empty or secondary content if needed */}
       </div>
 
       {/* Central Hub */}

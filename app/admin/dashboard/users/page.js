@@ -258,8 +258,8 @@ export default function UsersPage() {
 
   useEffect(() => {
     if (!authLoading) {
-      if (!user) { router.push("/sign-in"); return; }
-      if (!["support","admin"].includes(user.userType) && !isImpersonating()) router.push("/sign-in");
+      if (!user) { router.push("/login"); return; }
+      if (!["support","admin"].includes(user.userType) && !isImpersonating()) router.push("/login");
     }
   }, [user, authLoading, router]);
 

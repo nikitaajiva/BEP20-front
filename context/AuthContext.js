@@ -193,7 +193,7 @@ export const AuthProvider = ({ children }) => {
       setActivationMessage(null);
       setForgotPasswordMessage(null);
       setLoading(false);
-      router.push("/sign-in");
+      router.push("/login");
     }
   };
 

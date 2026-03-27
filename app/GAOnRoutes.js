@@ -9,7 +9,8 @@ const GA_ID = process.env.NEXT_PUBLIC_GA_ID || "G-EKBRNJ9C4M";
 
 const ALLOWED = new Set([
   "/", // home
-  "/sign-in",
+  "/login",
+  "/login",
   "/sign-up",
   "/privacy-policy",
   "/disclaimer",

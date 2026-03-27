@@ -203,7 +203,12 @@ const XBonusBanner = () => {
 
                     {/* Integrated Reward Info */}
                     <div className={styles.rewardValueSection}>
-                        <span className={styles.rewardValue}>{Number(0).toFixed(6)} USDT</span>
+                        <span className={styles.rewardValue}>
+                          {item.level === user?.xRank
+                            ? parseFloat(ledgerDetails?.daily_rewards?.XBONUS || 0).toFixed(6)
+                            : Number(0).toFixed(6)
+                          } USDT
+                        </span>
                         <FaEye
                           className={styles.eyeIcon}
                           size={18}

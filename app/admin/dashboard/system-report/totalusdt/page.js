@@ -26,7 +26,7 @@ export default function TotalUsdtPage() {
   useEffect(() => {
     if (!authLoading) {
       if (!user || !["support", "admin"].includes(user.userType)) {
-        router.push("/sign-in");
+        router.push("/login");
       }
     }
   }, [user, authLoading, router]);

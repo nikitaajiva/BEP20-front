@@ -67,17 +67,19 @@ export const RewardsWalletCard = ({
 }) => {
   const [whole, decimal] = totalBalance.split('.');
 
-  // Fake calculated percentage for visual presentation (or you can calculate it based on total)
-  const lpPerc = lpBalance > 0 ? 60 : 0;
-  const commPerc = communityBalance > 0 ? 30 : 0;
+  // Calculate real percentages based on total balance if available
+  const totalNum = parseFloat(totalBalance.replace(/,/g, ''));
+  const lpPerc = totalNum > 0 ? (parseFloat(lpBalance.replace(/,/g, '')) / totalNum) * 100 : 0;
+  const commPerc = totalNum > 0 ? (parseFloat(communityBalance.replace(/,/g, '')) / totalNum) * 100 : 0;
+  const boostPerc = totalNum > 0 ? (parseFloat(boostBalance.replace(/,/g, '')) / totalNum) * 100 : 0;
 
   return (
     <div className={styles.rwCardWrapper}>
       <div className={styles.rwHeader}>
         <span className={styles.rwTitle}>COMMUNITY WALLET</span>
         <div className={styles.rwBadge}>
-          <Gift size={12} color="#ffd700" />
-          <span>4</span>
+          {/* <Gift size={12} color="#ffd700" />
+          <span>4</span> */}
         </div>
       </div>
 
@@ -86,29 +88,31 @@ export const RewardsWalletCard = ({
         <div className={styles.rwMassiveValue}>
           {whole}<span className={styles.rwDecimals}>.{decimal || '00'}</span>
         </div>
-        <div className={styles.rwSubtext}>0 USDT</div>
+        <div className={styles.rwSubtext}>USDT WALLETS DISTRIBUTION</div>
 
         <div className={styles.rwDivider}></div>
 
         <div className={styles.rwPoolItem}>
           <div className={styles.rwPoolHeader}>
-            <span>Liquidity Pool</span>
-            <span>{lpBalance} / 0.00</span>
+            <span>Vault (LP) Pool</span>
+            <span>{lpBalance} USDT</span>
           </div>
           <div className={styles.rwProgressBar}>
-            <div className={styles.rwProgressFill} style={{ width: `${lpPerc}%` }}></div>
+            <div className={styles.rwProgressFill} style={{ width: `${lpPerc}%`, background: '#4cc9f0' }}></div>
           </div>
         </div>
 
         <div className={styles.rwPoolItem}>
           <div className={styles.rwPoolHeader}>
-            <span>Community Pool Rewards</span>
-            <span>{communityBalance} / 0.00</span>
+            <span>Community Rewards</span>
+            <span>{communityBalance} USDT</span>
           </div>
           <div className={styles.rwProgressBar}>
-            <div className={styles.rwProgressFill} style={{ width: `${commPerc}%` }}></div>
+            <div className={styles.rwProgressFill} style={{ width: `${commPerc}%`, background: '#ffd700' }}></div>
           </div>
         </div>
+
+
 
 
       </div>
@@ -260,9 +264,11 @@ export const BoostWalletCard = ({
 
         <div className={styles.gaugeWrapper}>
           <div className={styles.gaugeOuter}>
-             {/* Animated Progress Rings */}
-             <div className={styles.rotatingRing}></div>
-             <div className={styles.pulseRing}></div>
+             {/* Energy Ribbons & Swirls */}
+             <div className={styles.energyRibbon1}></div>
+             <div className={styles.energyRibbon2}></div>
+             <div className={styles.energyRibbon3}></div>
+             <div className={styles.pulsingGlow}></div>
              
              <div className={styles.gaugeInner}>
                <div className={styles.gaugeValue}>{balance}</div>

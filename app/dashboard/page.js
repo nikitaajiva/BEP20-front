@@ -31,6 +31,7 @@ export default function DashboardPage() {
   const qrPollRef = useRef(null);
   const qrTimerRef = useRef(null);
   const qrReferenceRef = useRef("");
+  const [isManualDisconnect, setIsManualDisconnect] = useState(false);
 
   const [ledgerDetails, setLedgerDetails] = useState(null);
   const [loadingLedger, setLoadingLedger] = useState(true);
@@ -48,21 +49,26 @@ export default function DashboardPage() {
     }
 
     try {
+      console.log(`[DashboardPage] Fetching ledger from: ${API_URL}/ledger`);
       const response = await fetch(`${API_URL}/ledger`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
       const data = await response.json();
+      console.log("[DashboardPage] Ledger Response:", data);
+      
       if (response.ok && data.success) {
         setLedgerDetails(data.data);
         if (data?.data?.usdtWallet?.balance) {
           setPrimaryVaultBalance(data.data.usdtWallet.balance);
         }
       } else {
+        console.error("[DashboardPage] Ledger Fetch Error:", data.message);
         throw new Error(data.message || "Failed to fetch ledger details");
       }
     } catch (error) {
+      console.error("[DashboardPage] Catch error:", error.message);
       setLedgerError(error.message);
       setLedgerDetails(null);
     } finally {
@@ -149,21 +155,43 @@ export default function DashboardPage() {
     [API_URL, user]
   );
 
+  const [nativeBnbBalance, setNativeBnbBalance] = useState("0");
+
+  const fetchNativeBalance = useCallback(async (account) => {
+    if (!account) return;
+    const ethereum = getEthereum();
+    if (!ethereum) return;
+    try {
+      const provider = new ethers.BrowserProvider(ethereum);
+      const balance = await provider.getBalance(account);
+      const formatted = ethers.formatEther(balance);
+      setNativeBnbBalance(parseFloat(formatted).toFixed(6));
+    } catch (err) {
+      console.error("Failed to fetch native balance:", err);
+    }
+  }, []);
+
   useEffect(() => {
-    if (user) {
+    if (user && !isManualDisconnect) {
       const ethereum = getEthereum();
       if (ethereum) {
         ethereum
           .request({ method: "eth_accounts" })
           .then((accounts) => {
-            if (accounts?.length) setWalletAccount(accounts[0]);
+            if (accounts?.length && !isManualDisconnect) {
+              setWalletAccount(accounts[0]);
+              fetchNativeBalance(accounts[0]);
+            }
           })
           .catch(() => {
             setWalletAccount("");
           });
 
         const handleAccountsChanged = (accounts) => {
-          setWalletAccount(accounts?.[0] || "");
+          if (isManualDisconnect) return;
+          const account = accounts?.[0] || "";
+          setWalletAccount(account);
+          if (account) fetchNativeBalance(account);
         };
 
         const handleChainChanged = () => {
@@ -173,22 +201,29 @@ export default function DashboardPage() {
         ethereum.on("accountsChanged", handleAccountsChanged);
         ethereum.on("chainChanged", handleChainChanged);
 
+        // Fetch balance periodically
+        const balanceInterval = setInterval(() => {
+          if (walletAccount && !isManualDisconnect) fetchNativeBalance(walletAccount);
+        }, 30000);
+
         return () => {
           ethereum.removeListener("accountsChanged", handleAccountsChanged);
           ethereum.removeListener("chainChanged", handleChainChanged);
+          clearInterval(balanceInterval);
         };
       }
 
       fetchLedgerDetails();
-    } else {
+    } else if (!user) {
       setWalletAccount("");
       setPrimaryVaultBalance("0");
+      setNativeBnbBalance("0");
       setTransactionStatus("");
       setLedgerDetails(null);
       setLoadingLedger(true);
       setLedgerError("");
     }
-  }, [user, API_URL, fetchLedgerDetails]);
+  }, [user, API_URL, fetchLedgerDetails, fetchNativeBalance, walletAccount, isManualDisconnect]);
 
   useEffect(() => {
     if (!ledgerDetails?.usdtWallet?.balance) return;
@@ -213,13 +248,25 @@ export default function DashboardPage() {
   }, [stopQrPolling]);
 
   const connectWallet = async () => {
+    if (walletAccount) return; // Already connected
+    
     setTransactionStatus("Connecting MetaMask...");
     try {
-      await switchToBsc();
+      console.log("[connectWallet] Requesting accounts...");
       const accounts = await requestAccounts();
-      setWalletAccount(accounts[0]);
-      setTransactionStatus("Wallet connected.");
+      
+      if (accounts?.length) {
+        console.log("[connectWallet] Accounts received, switching network...");
+        await switchToBsc();
+        
+        setIsManualDisconnect(false);
+        setWalletAccount(accounts[0]);
+        fetchNativeBalance(accounts[0]);
+        setTransactionStatus("Wallet connected.");
+        console.log("[connectWallet] Successfully connected:", accounts[0]);
+      }
     } catch (err) {
+      console.error("[connectWallet] Connection failed error details:", err);
       setTransactionStatus(err.message || "Failed to connect wallet.");
     }
   };
@@ -454,6 +501,13 @@ export default function DashboardPage() {
     [createDepositIntent, beginQrTracking]
   );
 
+  const disconnectWallet = () => {
+    setIsManualDisconnect(true);
+    setWalletAccount("");
+    setTransactionStatus("Wallet disconnected.");
+    setNativeBnbBalance("0");
+  };
+
   return (
     <AuthGuard>
       <DashboardLayout
@@ -461,8 +515,9 @@ export default function DashboardPage() {
         walletTransactionStatus={transactionStatus}
         walletDebugMessage={debugMessage}
         onWalletConnect={connectWallet}
+        onWalletDisconnect={disconnectWallet}
         onOpenAmountModal={handleOpenAmountModal}
-        primaryVaultBalance={primaryVaultBalance}
+        primaryVaultBalance={nativeBnbBalance}
         ledgerDetails={ledgerDetails}
         loadingLedger={loadingLedger}
         ledgerError={ledgerError}

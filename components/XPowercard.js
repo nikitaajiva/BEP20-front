@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 const columns = [
   { label: "X1", parts: [7, 7, 7] },
@@ -10,11 +11,12 @@ const columns = [
 ];
 
 const leagues = ["1st Gen", "2nd Gen", "3rd Gen"];
-const userColumn = "X3";
 const climbOrder = ["L3", "L2", "L1", "Total"];
 const ARROW_INTERVAL = 2600;
 
 export default function XPowerTable() {
+  const { user } = useAuth();
+  const userColumn = user?.xRank || "X1";
   const rootRef = useRef(null);
   const [step, setStep] = useState(0);
   const [fillPcts, setFillPcts] = useState({}); // animated fill %

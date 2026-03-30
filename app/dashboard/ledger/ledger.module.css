@@ -201,17 +201,149 @@
   transform: translateY(-2px);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .mainContent {
-    padding: 1.5rem;
+    padding: 1.5rem 0.5rem 120px 0.5rem;
+    width: 100%;
+    margin-left: 0;
   }
-  
+}
+
+@media (max-width: 768px) {
   .pageTitle {
     font-size: 1.8rem;
+    text-align: center;
   }
   
+  .pageSubtitle {
+    text-align: center;
+    font-size: 12px;
+  }
+
   .headerRow {
     flex-direction: column;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .filterGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .ledgerTableCard {
+    padding: 0.5rem;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+
+  /* Mobile Card Styling for Ledger Entries */
+  .mobileLedgerCard {
+    background: rgba(15, 15, 15, 0.6);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 215, 0, 0.1);
+    border-radius: 20px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  }
+
+  .cardTop {
+    display: flex;
+    justify-content: space-between;
     align-items: flex-start;
+    margin-bottom: 1rem;
+  }
+
+  .cardDate {
+    font-size: 11px;
+    color: #888;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .cardTypeBadge {
+    font-size: 10px;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 6px;
+    text-transform: uppercase;
+  }
+
+  .cardMainInfo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+  }
+
+  .cardNodes {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 1rem;
+  }
+
+  .nodeItem {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .nodeLabel {
+    font-size: 10px;
+    color: #555;
+    text-transform: uppercase;
+    font-weight: 800;
+    width: 60px;
+  }
+
+  .nodeValue {
+    font-size: 13px;
+    color: #ffd700;
+    font-weight: 700;
+  }
+
+  .cardAmount {
+    font-size: 18px;
+    font-weight: 900;
+  }
+
+  .cardBottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 12px;
+    margin-top: 10px;
+  }
+
+  .yieldValue {
+    font-size: 12px;
+    font-weight: 800;
+    color: #fff;
+  }
+
+  .cardNarrative {
+    font-size: 11px;
+    color: #777;
+    margin-top: 8px;
+    font-style: italic;
+  }
+
+  .desktopOnly {
+    display: none !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .mobileOnly {
+    display: none !important;
   }
 }

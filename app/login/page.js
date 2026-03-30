@@ -38,12 +38,13 @@ export default function SignInPage() {
 
   // Generate background animation elements
   useEffect(() => {
-    const newParticles = Array.from({ length: 25 }, (_, i) => ({
+    const newParticles = Array.from({ length: 120 }, (_, i) => ({
       id: i,
-      left: `${Math.random() * 100}%`,
-      size: `${Math.random() * 6 + 2}px`,
-      duration: `${Math.random() * 10 + 10}s`,
-      delay: `${Math.random() * 20}s`,
+      left: `${(Math.random() * 100).toFixed(2)}%`,
+      top: `${(Math.random() * 100).toFixed(2)}%`,
+      size: `${(1 + Math.random() * 2.5).toFixed(1)}px`,
+      duration: `${(3 + Math.random() * 6).toFixed(1)}s`,
+      delay: `${(Math.random() * 10).toFixed(1)}s`,
     }));
     
     const newStreaks = Array.from({ length: 8 }, (_, i) => ({
@@ -74,6 +75,12 @@ export default function SignInPage() {
 
       <div className={styles.signInPage}>
         {/* Animated Background */}
+        <div className={styles.lightRaysContainer}>
+          <div className={styles.ray}></div>
+          <div className={styles.ray}></div>
+        </div>
+        <div className={styles.ambientGlow}></div>
+
         <div className={styles.bgAnimation}>
           {particles.map((p) => (
             <div
@@ -81,6 +88,7 @@ export default function SignInPage() {
               className={styles.particle}
               style={{
                 left: p.left,
+                top: p.top,
                 width: p.size,
                 height: p.size,
                 animationDuration: p.duration,

@@ -106,7 +106,7 @@
   justify-content: center;
   flex-shrink: 0;
 }
-.analyticBody {}
+
 .analyticLabel {
   font-size: 9px;
   font-weight: 800;
@@ -531,16 +531,31 @@
 .btnDanger:disabled { opacity:0.35; cursor:not-allowed; }
 
 /* ─── RESPONSIVE ─────────────────────────── */
-@media (max-width: 1200px) {
-  .bentoRow { grid-template-columns: 1fr 1fr; }
-  .analyticsStrip { grid-template-columns: repeat(2,1fr); }
-}
 @media (max-width: 900px) {
-  .bentoRow { grid-template-columns: 1fr; }
-  .container { padding: 20px; }
+  .bentoRow { display: flex; flex-direction: column; width: 100%; gap: 16px; margin: 0; }
+  .container { padding: 12px; padding-bottom: 110px !important; gap: 16px; overflow-x: hidden; width: 100%; max-width: 100vw; box-sizing: border-box; }
+  .header { flex-direction: column; align-items: flex-start; gap: 16px; padding-bottom: 20px; width: 100%; box-sizing: border-box; }
+  .headerActions { width: 100%; flex-wrap: wrap; gap: 10px; }
+  .glassCard { padding: 16px; width: 100% !important; margin: 0 !important; box-sizing: border-box; border-radius: 16px; }
 }
+
+@media (max-width: 768px) {
+  .analyticsStrip { grid-template-columns: 1fr; gap: 10px; width: 100%; }
+  .analyticCard { padding: 16px; width: 100% !important; margin: 0; box-sizing: border-box; }
+  
+  .searchRow { flex-direction: column; gap: 12px; width: 100%; }
+  .selectField, .inputField, .searchBtn { width: 100% !important; flex: none; box-sizing: border-box; margin: 0; }
+  
+  .filterActions { flex-wrap: wrap; gap: 8px; justify-content: center; width: 100%; }
+  .chip { flex: 1; min-width: 100px; justify-content: center; }
+}
+
 @media (max-width: 600px) {
-  .analyticsStrip { grid-template-columns: 1fr 1fr; }
-  .cardGrid { grid-template-columns: 1fr; }
+  .analyticsStrip { grid-template-columns: 1fr; }
+  .cardGrid { grid-template-columns: 1fr; width: 100%; }
   .title { font-size: 22px; }
+  
+  .userCard { padding: 16px; width: 100%; box-sizing: border-box; }
+  .userAvatar { width: 34px; height: 34px; font-size: 12px; }
+  .actionBtn { padding: 6px 10px; font-size: 10px; }
 }

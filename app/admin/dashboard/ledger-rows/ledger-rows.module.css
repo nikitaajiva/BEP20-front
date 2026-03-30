@@ -358,11 +358,51 @@
 .btnSecondary:disabled { opacity: 0.3; cursor: not-allowed; }
 
 /* ─── RESPONSIVE ─────────── */
-@media (max-width: 900px) {
-  .filterGrid { grid-template-columns: repeat(2, 1fr); }
-  .trailCard { flex-direction: column; }
-  .trailTimeCol { padding-right: 0; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 12px; width: 100%; }
+@media (max-width: 1024px) {
+  .container { padding: 20px; gap: 24px; }
+  .filterForm { padding: 20px; }
 }
-@media (max-width: 600px) {
+
+@media (max-width: 900px) {
+  .header { flex-direction: column; align-items: flex-start; gap: 20px; padding-bottom: 20px; }
+  .statsBadge { width: 100%; border-radius: 12px; }
+  
+  .filterGrid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .formActions { flex-direction: column; width: 100%; gap: 10px; }
+  .btnPrimary, .btnDownload { width: 100%; justify-content: center; }
+  
+  .trailCard { flex-direction: column; gap: 14px; padding: 18px; }
+  .trailTimeCol { 
+    padding-right: 0; 
+    border-right: none; 
+    border-bottom: 1px solid rgba(255,255,255,0.05); 
+    padding-bottom: 12px; 
+    width: 100%; 
+    flex-direction: row;
+    gap: 12px; 
+    align-items: center;
+  }
+  .trailDate { margin-bottom: 0; }
+  .trailDot { left: -25px; top: 22px; }
+}
+
+@media (max-width: 640px) {
   .filterGrid { grid-template-columns: 1fr; }
+  .trailList { padding-left: 14px; margin-left: 4px; }
+  .trailDot { left: -20px; }
+  
+  .trailHeader { flex-direction: column; gap: 8px; }
+  .trailMetrics { grid-template-columns: 1fr; padding: 10px; }
+  .tMetric { flex-direction: row; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 6px; }
+  .tMetric:last-child { border-bottom: none; }
+  
+  .pagination { flex-direction: column; gap: 12px; padding: 15px; }
+  .btnGroup { width: 100%; }
+  .btnSecondary { flex: 1; justify-content: center; }
+}
+
+@media (max-width: 480px) {
+  .title { font-size: 24px; }
+  .trailCard { border-radius: 14px; }
+  .trailNarrative { padding: 8px 12px; font-size: 10px; }
 }

@@ -633,14 +633,12 @@ export default function DashboardLayout({
   onWalletConnect,
   onWalletDisconnect,
   onOpenAmountModal,
-  primaryVaultBalance: rawPrimaryVaultBalance,
-  ledgerDetails: rawLedgerDetails,
+  walletBalance = "0",
+  ledgerDetails,
   loadingLedger,
   ledgerError,
   refreshLedgerDetails,
 }) {
-  const primaryVaultBalance = rawPrimaryVaultBalance || "0.00";
-  const ledgerDetails = rawLedgerDetails;
 
   const { user, logout, loading: authLoading, API_URL, updateUser } = useAuth();
   const [isAutoPositioningActive, setIsAutoPositioningActive] = useState(false);
@@ -1284,7 +1282,7 @@ export default function DashboardLayout({
   console.log("[DashboardLayout] Ledger Error:", ledgerError);
 
   // Calculate props for ZeroRiskClaimModal safely
-  const primaryVaultBalanceForModal = parseFloat(primaryVaultBalance || "0");
+  const primaryVaultBalanceForModal = parseFloat(walletBalance || "0");
 
   const lpBalanceForModal = parseFloat(
     ledgerDetails?.lpWallet?.balance || "0.0"
@@ -1303,7 +1301,7 @@ export default function DashboardLayout({
     zeroRiskDisplayBalance
   );
   console.log(
-    "[DashboardLayout] Calculated primaryVaultBalanceForModal:",
+    "[DashboardLayout] Calculated walletBalanceForModal:",
     primaryVaultBalanceForModal
   );
   console.log(
@@ -1467,15 +1465,14 @@ export default function DashboardLayout({
             title="Primary Wallet"
             type="system"
             subtitle={
-              walletAccount
-                ? `CONNECTED • ${walletAccount.slice(0, 6)}...${walletAccount.slice(-4)}`
+              (walletAccount && walletAccount.trim())
+                ? `CONNECTED • ${walletAccount.trim().slice(0, 6)}...${walletAccount.trim().slice(-4)}`
                 : "CONNECT WALLET"
             }
             layout="horizontal"
             showPlusBtn={false}
-            balance={parseFloat(primaryVaultBalance || "0").toLocaleString(undefined, { minimumFractionDigits: 2 })}
-            limit="N/A"
-            currency="BNB"
+            balance={walletAccount ? walletBalance : parseFloat(ledgerDetails?.usdtWallet?.balance || "0").toLocaleString(undefined, { minimumFractionDigits: 2 })}
+            currency={walletAccount ? "BNB" : "USDT"}
             onDeposit={walletAccount ? onOpenAmountModal : onWalletConnect}
             depositLabel={walletAccount ? "Deposit" : "Connect"}
             onViewHistory={() => window.location.href = "/dashboard/ledger"}
@@ -1487,7 +1484,7 @@ export default function DashboardLayout({
             type="zero-risk"
             balance={parseFloat(ledgerDetails?.zeroRisk?.balance || "0.0").toLocaleString(undefined, { minimumFractionDigits: 2 })}
             limit={parseFloat(ledgerDetails?.zeroRisk?.limit || "0.0").toLocaleString(undefined, { minimumFractionDigits: 2 })}
-            earningRate="0.3%"
+            earningRate={getRoiPercentage(ledgerDetails?.zeroRisk?.balance) + "% Daily"}
             showPlusBtn={false}
             depositLabel="Withdraw"
             onDeposit={() => setShowZeroRiskWarningModal(true)}
@@ -1519,7 +1516,7 @@ export default function DashboardLayout({
             title="Boost Wallet"
             balance={parseFloat(ledgerDetails?.boostWallet?.balance || "0.0").toLocaleString(undefined, { minimumFractionDigits: 2 })}
             limit={parseFloat(ledgerDetails?.boostWallet?.limit || "0.0").toLocaleString(undefined, { minimumFractionDigits: 2 })}
-            earningRate="0.6%"
+            earningRate={getRoiPercentage(ledgerDetails?.boostWallet?.balance) + "% Daily"}
             chartData={boostChartData}
             chartOptions={boostChartOptions}
             plugins={[glowPlugin]}

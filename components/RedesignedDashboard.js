@@ -5,8 +5,8 @@ import { motion } from "framer-motion";
 import { Wallet, Droplets, TrendingUp, Activity, Plus, History, Shield, Eye, Gift, Copy } from "lucide-react";
 import Link from "next/link";
 
-const RedesignedDashboard = ({ 
-  user, 
+const RedesignedDashboard = ({
+  user,
   walletAccount,
   onWalletConnect,
   onWalletDisconnect,
@@ -26,7 +26,8 @@ const RedesignedDashboard = ({
   const lpBalance = parseFloat(lpWallet?.balance || "0").toLocaleString(undefined, { minimumFractionDigits: 2 });
   const lpAutopositioning = parseFloat(lpWallet?.autopositioning || "0").toLocaleString(undefined, { minimumFractionDigits: 2 });
   const lpPending = parseFloat(lpWallet?.pending || "0").toLocaleString(undefined, { minimumFractionDigits: 2 });
-  
+  console.log(user)
+
   const getRoi = (b) => {
     const val = parseFloat(b || 0);
     if (val >= 11000) return 0.6;
@@ -56,7 +57,8 @@ const RedesignedDashboard = ({
     delay: `${Math.random() * 5}s`,
     size: `${1 + Math.random() * 2}px`
   })), []);
-  const shortAddress = walletAccount
+  const hasWallet = walletAccount && walletAccount.trim().length > 0;
+  const shortAddress = hasWallet
     ? `${walletAccount.slice(0, 6)}...${walletAccount.slice(-4)}`
     : "";
 
@@ -84,9 +86,9 @@ const RedesignedDashboard = ({
       {/* Unified Top Header Actions */}
       <div className={styles.dashboardTopHeader}>
         {/* Vault Pass (Invitation Link) - Left */}
-        <div 
-          className={styles.vaultPassCard} 
-          onClick={handleCopyLink} 
+        <div
+          className={styles.vaultPassCard}
+          onClick={handleCopyLink}
           style={{ cursor: 'pointer' }}
           title="Click to copy invitation link"
         >
@@ -97,8 +99,8 @@ const RedesignedDashboard = ({
             <span className={styles.passUrl}>
               {copySuccess ? "LINK COPIED! SHARE WITH YOUR TEAM" : "CLICK TO COPY REFERRAL LINK"}
             </span>
-            <button 
-              className={styles.passCopyBtn} 
+            <button
+              className={styles.passCopyBtn}
               title="Copy Invitation Link"
             >
               {copySuccess ? <Activity size={12} color="#7FFF4C" /> : <Copy size={12} />}
@@ -130,17 +132,17 @@ const RedesignedDashboard = ({
           <button
             className={styles.connectBtn}
             onClick={onWalletConnect}
-            title={walletAccount ? "Wallet Connected" : "Connect Wallet"}
+            title={hasWallet ? "Wallet Connected" : "Connect Wallet"}
           >
             <Wallet size={14} />
-            {walletAccount ? shortAddress : "Connect Wallet"}
-            {walletAccount && (
+            {hasWallet ? shortAddress : "Connect Wallet"}
+            {hasWallet && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '6px' }}>
                 <span
                   onClick={(e) => {
                     e.stopPropagation();
                     navigator.clipboard.writeText(walletAccount);
-                  }} 
+                  }}
                   style={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer', color: '#888' }}
                   title="Copy Address"
                 >
@@ -150,10 +152,10 @@ const RedesignedDashboard = ({
                   onClick={(e) => {
                     e.stopPropagation();
                     if (onWalletDisconnect) onWalletDisconnect();
-                  }} 
-                  style={{ 
-                    display: 'inline-flex', 
-                    alignItems: 'center', 
+                  }}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
                     justifyContent: 'center',
                     cursor: 'pointer',
                     backgroundColor: 'rgba(255,100,100,0.15)',
@@ -183,22 +185,22 @@ const RedesignedDashboard = ({
       {/* Background Sparkles */}
       <div className={styles.sparklesContainer}>
         {mounted && sparkles.map((s) => (
-          <div 
-            key={s.id} 
-            className={styles.sparkle} 
-            style={{ 
-              top: s.top, 
-              left: s.left, 
+          <div
+            key={s.id}
+            className={styles.sparkle}
+            style={{
+              top: s.top,
+              left: s.left,
               width: s.size,
               height: s.size,
-              animationDuration: s.duration, 
-              animationDelay: s.delay 
+              animationDuration: s.duration,
+              animationDelay: s.delay
             }}
           ></div>
         ))}
       </div>
 
-{/* Actions moved to Header */}
+      {/* Actions moved to Header */}
 
       <div className={styles.absoluteTop}>
         {orbitCard1} {/* Primary Wallet */}
@@ -217,10 +219,10 @@ const RedesignedDashboard = ({
       </div>
       <div className={styles.staticFloatRight}>
         <div className={styles.orbitCardRightTop}>
-           {orbitCard4} {/* Boost Wallet & Analytics */}
+          {orbitCard4} {/* Boost Wallet & Analytics */}
         </div>
         <div className={styles.orbitCardRightBottom}>
-           {extraHubCard} {/* Community Growth */}
+          {extraHubCard} {/* Community Growth */}
         </div>
       </div>
 
@@ -272,8 +274,8 @@ const RedesignedDashboard = ({
 
             {/* Daily Earning Badge */}
             <div className={styles.hubRate}>
-               <TrendingUp size={14} />
-               <span>+{lpRoi}% DAILY</span>
+              <TrendingUp size={14} />
+              <span>+{lpRoi}% DAILY</span>
             </div>
 
             {/* LP Progress Arc */}
@@ -285,8 +287,8 @@ const RedesignedDashboard = ({
             </div>
 
             {/* Add Funds Action Button - Repositioned inside circle at bottom */}
-            <motion.button 
-              className={styles.addFundsHubBtn} 
+            <motion.button
+              className={styles.addFundsHubBtn}
               onClick={onOpenAddLPModal}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}

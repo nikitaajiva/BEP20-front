@@ -33,7 +33,7 @@
   box-shadow: 0 0 20px rgba(255,215,0,0.5);
 }
 
-.heroLeft {}
+
 
 .heroEyebrow {
   display: flex;
@@ -221,7 +221,7 @@
   background: rgba(244,63,94,0.1);
 }
 
-.cardBody {}
+
 
 .cardLabel {
   font-size: 10px;
@@ -613,7 +613,7 @@
   flex-shrink: 0;
 }
 
-.stripBody {}
+
 
 .stripLabel {
   font-size: 9px;
@@ -646,14 +646,35 @@
 @media (max-width: 1100px) {
   .bentoRow { grid-template-columns: 1fr; }
   .chartsRow { grid-template-columns: 1fr; }
-  .totalStrip { flex-wrap: wrap; }
+  .totalStrip { 
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
 }
 
 @media (max-width: 768px) {
-  .container { padding: 20px; }
-  .statsGrid { grid-template-columns: 1fr; }
+  .container { padding: 16px 20px; gap: 24px; }
+  .statsGrid { grid-template-columns: 1fr; gap: 12px; }
+  .totalStrip { grid-template-columns: 1fr; }
+  .title { font-size: 28px; }
+  .hero { flex-direction: column; gap: 20px; align-items: stretch; border-bottom-width: 1px; }
+  .heroRight { align-items: flex-start; border-top: 1px solid rgba(255, 215, 0, 0.05); padding-top: 16px; margin-top: 4px; }
+  .heroTime { font-size: 26px; }
+  .heroDate { text-align: left; }
+  
+  .statCard { padding: 20px; }
+  .cardValue { font-size: 24px; }
+  
+  .chartWrap { height: 220px; }
+  .bentoRow { gap: 12px; }
+  .chartsRow { gap: 12px; }
+}
+
+@media (max-width: 480px) {
+  .container { padding: 12px 16px; }
   .title { font-size: 24px; }
-  .hero { flex-direction: column; gap: 16px; }
-  .heroRight { align-items: flex-start; }
-  .totalStrip { flex-direction: column; }
+  .heroTime { font-size: 22px; }
+  .cardIcon { width: 36px; height: 36px; }
+  .statCard { border-radius: 16px; }
 }

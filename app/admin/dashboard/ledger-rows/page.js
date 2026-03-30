@@ -79,29 +79,37 @@ function LedgerRows() {
         setLoading(true);
         setError(null);
         try {
-            // --- DUMMY DATA FOR PREVIEW INSTED OF API DUMP ---
-            setTimeout(() => {
-                const resultData = Array.from({ length: 8 }).map((_, i) => ({
-                    ts: new Date(Date.now() - i * 4500000).toISOString(),
-                    userId: `dummy_usr_${i}`,
-                    userInfo: { username: `GenesisWalker${i}`, uhid: `U900${i}X${Math.floor(Math.random()*900)}` },
-                    eventType: eventTypes[i % eventTypes.length],
-                    amount: Math.random() * 500,
-                    walletFrom: i % 2===0 ? walletTypes[Math.floor(Math.random() * walletTypes.length)] : 'SYSTEM',
-                    walletTo: walletTypes[Math.floor(Math.random() * walletTypes.length)],
-                    ratePct: i % 3 === 0 ? (Math.random() * 5).toFixed(2) : 0,
-                    narrative: `Audit Trajectory Executed: Node verification completed. Cross-chain hash sequence verified and synchronized perfectly. Tracing path #${Math.floor(Math.random()*10000)}.`
-                }));
-                setRows(resultData);
-                setPagination({ ...pagination, currentPage: 1, totalPages: 1, totalRecords: 8 });
-                setLoading(false);
-            }, 500);
-            
+            const token = localStorage.getItem("token");
+            if (!token) throw new Error("Authentication required");
+
+            const queryParams = new URLSearchParams({
+                page,
+                limit: pagination.limit,
+                ...filters
+            });
+
+            const res = await fetch(`${API_BASE_URL}/api/support/ledger-rows?${queryParams}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            const resData = await res.json();
+
+            if (!res.ok || !resData.success) {
+                throw new Error(resData.message || "Failed to fetch ledger rows");
+            }
+
+            setRows(resData.data || []);
+            setPagination(resData.pagination || {
+                currentPage: page,
+                totalPages: 1,
+                totalRecords: resData.data?.length || 0,
+                limit: pagination.limit
+            });
         } catch (err) {
             setError(err.message);
+        } finally {
             setLoading(false);
         }
-    }, [filters, pagination.limit, sort.sortBy, sort.sortOrder, router]);
+    }, [filters, pagination.limit]);
 
     const handleFilterChange = (e) => setFilters({ ...filters, [e.target.name]: e.target.value });
 

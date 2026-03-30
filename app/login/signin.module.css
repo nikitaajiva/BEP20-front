@@ -219,17 +219,54 @@
 }
 
 .checkbox {
+  appearance: none;
+  -webkit-appearance: none;
   width: 18px;
   height: 18px;
-  accent-color: #ffd700;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1.5px solid rgba(255, 215, 0, 0.25);
+  border-radius: 5px;
   cursor: pointer;
+  position: relative;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  margin: 0;
+  outline: none;
+}
+
+.checkbox:checked {
+  background: rgba(255, 215, 0, 0.15);
+  border-color: #ffd700;
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.2);
+}
+
+.checkbox:checked::after {
+  content: "✔";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #ffd700;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.checkbox:hover {
+  border-color: rgba(255, 215, 0, 0.6);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .checkboxLabel {
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.5);
   cursor: pointer;
   user-select: none;
+  transition: all 0.2s ease;
+  letter-spacing: 0.3px;
+}
+
+.checkboxGroup:hover .checkboxLabel {
+  color: #ffffff;
 }
 
 .signInButton {
@@ -360,19 +397,106 @@
   z-index: 5;
 }
 
+@keyframes float {
+  0% { transform: translateY(0px) rotate(0deg); }
+  33% { transform: translateY(-15px) rotate(1deg); }
+  66% { transform: translateY(-5px) rotate(-1deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+.robotWrapper::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(255, 215, 0, 0.15),
+    transparent
+  );
+  transform: skewX(-25deg);
+  animation: lightSweep 4s infinite ease-in-out;
+  pointer-events: none;
+  z-index: 6;
+}
+
+@keyframes lightSweep {
+  0% { left: -100%; opacity: 0; }
+  20% { opacity: 1; }
+  50% { left: 150%; opacity: 0; }
+  100% { left: 150%; opacity: 0; }
+}
+
 .robotImage {
   width: 120%;
   height: auto;
-  filter: drop-shadow(0 0 50px rgba(255, 215, 0, 0.3));
-  animation: float 6s ease-in-out infinite;
+  filter: drop-shadow(0 0 60px rgba(255, 215, 0, 0.4));
+  animation: float 8s ease-in-out infinite, robotGlow 4s ease-in-out infinite;
   display: block;
   transform: translateX(-5%);
 }
 
-@keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-20px); }
-  100% { transform: translateY(0px); }
+@keyframes robotGlow {
+  0%, 100% { filter: drop-shadow(0 0 40px rgba(255, 215, 0, 0.3)) brightness(1); }
+  50% { filter: drop-shadow(0 0 80px rgba(255, 215, 0, 0.6)) brightness(1.2); }
+}
+
+/* Golden Light Rays Animation */
+.lightRaysContainer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.ray {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(from 180deg at 50% 50%,
+      transparent 0deg,
+      rgba(255, 215, 0, 0.12) 20deg,
+      transparent 40deg,
+      rgba(255, 215, 0, 0.10) 70deg,
+      transparent 110deg,
+      rgba(255, 215, 0, 0.15) 150deg,
+      transparent 190deg,
+      rgba(255, 215, 0, 0.10) 240deg,
+      transparent 280deg,
+      rgba(255, 215, 0, 0.12) 320deg,
+      transparent 360deg);
+  animation: rotateRay 40s linear infinite;
+}
+
+.ray:nth-child(2) {
+  animation: rotateRay 60s linear infinite reverse;
+  opacity: 0.6;
+  filter: blur(8px);
+}
+
+@keyframes rotateRay {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.ambientGlow {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100vh;
+  background: radial-gradient(circle at 50% 0%, rgba(255, 215, 0, 0.1) 0%, transparent 75%);
+  z-index: 2;
+  pointer-events: none;
 }
 
 .errorMessage {
@@ -407,60 +531,53 @@
 }
 
 .bgAnimation {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
+  width: 100vw;
+  height: 100vh;
   pointer-events: none;
-  z-index: 1;
+  z-index: 5;
+  overflow: hidden;
 }
 
 .particle {
   position: absolute;
-  background: radial-gradient(circle, #ffd700 0%, transparent 70%);
+  width: 1.5px;
+  height: 1.5px;
+  background: #ffd700;
   border-radius: 50%;
-  opacity: 0.3;
-  animation: floatParticle linear infinite;
+  animation-name: sparkleTwinkle;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+  opacity: 0;
 }
 
-@keyframes floatParticle {
-  0% {
-    transform: translateY(100vh) scale(0);
+@keyframes sparkleTwinkle {
+  0%, 100% {
     opacity: 0;
+    transform: scale(0.5);
   }
   50% {
-    opacity: 0.5;
-  }
-  100% {
-    transform: translateY(-20vh) scale(1.5);
-    opacity: 0;
+    opacity: 0.8;
+    transform: scale(1.5);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.9), 0 0 8px rgba(255, 255, 255, 0.8);
   }
 }
 
 .goldenStreak {
   position: absolute;
-  width: 2px;
+  width: 1.5px;
   height: 100px;
   background: linear-gradient(to bottom, transparent, #ffd700, transparent);
-  opacity: 0.2;
-  filter: blur(1px);
+  opacity: 0.25;
+  filter: blur(1.5px);
   animation: fallStreak linear infinite;
 }
 
 @keyframes fallStreak {
-  0% {
-    transform: translateY(-100px) rotate(45deg);
-    opacity: 0;
-  }
-  10% {
-    opacity: 0.5;
-  }
-  90% {
-    opacity: 0.5;
-  }
-  100% {
-    transform: translateY(110vh) rotate(45deg);
-    opacity: 0;
-  }
+  0% { transform: translateY(-100px) rotate(45deg); opacity: 0; }
+  10% { opacity: 0.4; }
+  90% { opacity: 0.4; }
+  100% { transform: translateY(110vh) rotate(45deg); opacity: 0; }
 }

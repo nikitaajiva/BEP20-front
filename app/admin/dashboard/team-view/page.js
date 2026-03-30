@@ -275,10 +275,6 @@ export default function TeamViewPage() {
                     <div className={styles.eyebrow}><span className={styles.eyebrowDot} /> BEPVault Admin</div>
                     <h1 className={styles.title}>System <span>Topology Trace</span></h1>
                 </div>
-                <div className={styles.statsBadge}>
-                    <Network size={14} className={styles.statsBadgeIcon} />
-                    <span className={styles.statsBadgeText}>Genesis Nodes: <strong>{users.length}</strong></span>
-                </div>
             </header>
 
             {/* ── TREE WRAPPER ── */}

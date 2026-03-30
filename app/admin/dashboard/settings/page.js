@@ -164,9 +164,7 @@ export default function WithdrawDepositTableForm() {
         )}
 
         <div className={styles.footer}>
-           <div className="flex-1 text-[11px] text-white/20 uppercase tracking-[2px] font-black">
-              <Zap size={10} className="inline mr-1" /> Registry Sync: Active
-           </div>
+           <div className="flex-1"></div>
            <button
             type="submit"
             disabled={isSaveDisabled}

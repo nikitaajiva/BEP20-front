@@ -37,11 +37,12 @@ const getCurrentUTCDate = () => {
 };
 
 const endpointMap = {
-  deposits: "USDT-deposits",
-  withdrawals: "USDT-withdrawals",
-  // autopositioning: "USDT-autopositioning",
-  lppositioning: "lp-positioning",
-  withdrawalerror: "USDT-withdrawalerror"
+  deposits: "api/support/usdt-deposits",
+  withdrawals: "api/support/usdt-withdrawals",
+  claimed: "api/support/usdt-claimed",
+  redeemed: "api/support/usdt-redeemed",
+  lppositioning: "api/support/lp-positioning",
+  withdrawalerror: "api/support/usdt-withdrawalerror"
 };
 
 /* ── Avatar Palette ── */
@@ -64,7 +65,7 @@ function USDTTransactions() {
   const [summary, setSummary] = useState({ totalRecords: 0, totalAmount: 0 });
   const [pagination, setPagination] = useState({
     currentPage: 1,
-    totalPages: 0,
+    totalPages: 1,
     totalEntries: 0,
     hasNextPage: false,
     hasPrevPage: false,
@@ -85,40 +86,44 @@ function USDTTransactions() {
     setLoading(true);
     setError(null);
     try {
-      setTimeout(() => {
-        const mockData = Array.from({ length: 6 }).map((_, i) => {
-          const statuses = depositStatuses;
-          return {
-            _id: `dummy_${Date.now()}_${i}`,
-            userId: { username: `CryptoUser${i + 1}`, uhid: `U100${i}X${Math.floor(Math.random() * 999)}` },
-            username: `CryptoUser${i + 1}`,
-            uhid: `U100${i}X${Math.floor(Math.random() * 999)}`,
-            ts: new Date(Date.now() - i * 3600000).toISOString(),
-            createdAt: new Date(Date.now() - i * 3600000).toISOString(),
-            amount: (Math.random() * 500 + 10).toFixed(6),
-            status: activeTab === 'deposits' ? statuses[i % statuses.length] : 'completed',
-            transactionId: `0x${Math.random().toString(16).substring(2, 18)}${Math.random().toString(16).substring(2, 18)}`,
-            refId: `REF-${Math.floor(Math.random() * 1000000)}`,
-            walletAddress: `0x${Math.random().toString(16).substring(2, 42)}`,
-            fromWallet: i % 2 === 0 ? `0x${Math.random().toString(16).substring(2, 42)}` : 'RESERVE',
-            toAddress: `0x${Math.random().toString(16).substring(2, 42)}`,
-            destinationAddress: `0x${Math.random().toString(16).substring(2, 42)}`,
-          };
-        });
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("Authentication required");
 
-        setSummary({
-          totalRecords: 6,
-          totalAmount: mockData.reduce((acc, curr) => acc + parseFloat(curr.amount), 0).toFixed(6)
-        });
-        setPagination({ ...pagination, currentPage: 1, totalPages: 1, totalEntries: 6 });
-        setTransactions(mockData);
-        setLoading(false);
-      }, 500);
+      const queryParams = new URLSearchParams({
+        page,
+        limit: pagination.limit,
+        ...filters,
+      });
+
+      const endpoint = endpointMap[activeTab] || endpointMap.deposits;
+      const res = await fetch(`${API_BASE_URL}${endpoint}?${queryParams}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const resData = await res.json();
+
+      if (!res.ok || !resData.success) {
+        throw new Error(resData.message || "Failed to fetch data");
+      }
+
+      setTransactions(resData.data || []);
+      setSummary({
+        totalRecords: resData.summary?.totalRecords || (resData.data?.length || 0),
+        totalAmount: resData.summary?.totalAmount || 0,
+      });
+      setPagination(resData.pagination || {
+        currentPage: page,
+        totalPages: 1,
+        totalEntries: resData.data?.length || 0,
+        hasNextPage: false,
+        hasPrevPage: false,
+        limit: pagination.limit
+      });
     } catch (err) {
       setError(err.message);
+    } finally {
       setLoading(false);
     }
-  }, [activeTab, filters, pagination.limit, router]);
+  }, [activeTab, filters, pagination.limit]);
 
   useEffect(() => {
     if (user && ["support", "admin"].includes(user.userType)) {

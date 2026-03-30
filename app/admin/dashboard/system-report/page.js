@@ -13,6 +13,7 @@ import {
   Users, ArrowUpRight, ArrowDownRight, RefreshCw,
 } from "lucide-react";
 import ExportUserReportButton from "@/components/ExportUserReportButton";
+import styles from "./system-report.module.css";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, ArcElement, Title, Tooltip, Legend, Filler);
 
@@ -39,18 +40,10 @@ const SCALES = {
 function MetricCard({ label, value, count, sub, icon: Icon, accentColor = "#ffd700", detailHref, onClick }) {
   return (
     <div
+      className={styles.metricCard}
       style={{
-        background: "rgba(10,10,10,0.65)",
         border: `1px solid ${accentColor}18`,
-        borderRadius: 18,
-        padding: "20px 22px",
-        flex: "1 1 200px",
-        minWidth: 185,
-        transition: "all 0.3s cubic-bezier(0.4,0,0.2,1)",
         cursor: detailHref || onClick ? "pointer" : "default",
-        position: "relative",
-        overflow: "hidden",
-        backdropFilter: "blur(16px)",
       }}
       onClick={onClick}
       onMouseEnter={(e) => {
@@ -64,11 +57,13 @@ function MetricCard({ label, value, count, sub, icon: Icon, accentColor = "#ffd7
         e.currentTarget.style.boxShadow = "none";
       }}
     >
-      {/* background glow */}
       <div style={{ position: "absolute", top: -30, right: -30, width: 80, height: 80, borderRadius: "50%", background: `${accentColor}08`, pointerEvents: "none" }} />
 
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
-        <div style={{ width: 38, height: 38, borderRadius: 11, display: "flex", alignItems: "center", justifyContent: "center", background: `${accentColor}12`, color: accentColor, flexShrink: 0 }}>
+      <div className={styles.cardHeader}>
+        <div 
+          className={styles.cardIconWrap}
+          style={{ background: `${accentColor}12`, color: accentColor }}
+        >
           {Icon ? <Icon size={17} /> : <BarChart2 size={17} />}
         </div>
         {detailHref && (
@@ -83,19 +78,16 @@ function MetricCard({ label, value, count, sub, icon: Icon, accentColor = "#ffd7
         )}
       </div>
 
-      <div style={{ fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: 2, color: "rgba(255,255,255,0.28)", marginBottom: 5 }}>
-        {label}
-      </div>
-      <div style={{ fontSize: 24, fontWeight: 900, color: "#fff", letterSpacing: "-0.5px", lineHeight: 1.1 }}>
+      <div className={styles.cardLabel}>{label}</div>
+      <div className={styles.cardValue}>
         {fmt(value)}
-        <span style={{ fontSize: 11, color: "rgba(255,255,255,0.2)", fontWeight: 500, marginLeft: 5 }}>USDT</span>
+        <span className={styles.cardUnit}>USDT</span>
       </div>
       {count != null && (
-        <div style={{
-          marginTop: 8, display: "inline-flex", alignItems: "center", gap: 5,
-          fontSize: 11, fontWeight: 700, color: accentColor, background: `${accentColor}10`,
-          border: `1px solid ${accentColor}20`, borderRadius: 20, padding: "3px 10px"
-        }}>
+        <div 
+          className={styles.cardBadge}
+          style={{ color: accentColor, background: `${accentColor}10`, border: `1px solid ${accentColor}20` }}
+        >
           <Users size={10} />
           {count} users
         </div>
@@ -339,7 +331,7 @@ export default function SystemReportPage() {
   ────────────────────────────────────────────────────────── */
 
   const renderWallet = () => (
-    <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
+    <div className={styles.contentWrap}>
       {/* Bar chart */}
       <ChartCard title="Wallet Balances Breakdown" badge="Lifetime Totals">
         <div style={{ height: 280 }}>
@@ -349,7 +341,7 @@ export default function SystemReportPage() {
 
       {/* Cards grid */}
       <SectionHeader sub="LIFETIME BALANCES ACROSS ALL USER WALLETS">Vault Repositories</SectionHeader>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 14 }}>
+      <div className={styles.reportGrid}>
         {[
           { label: "Net Deposits", value: totalPositiveLP, count: activeLPUsers, accentColor: "#10b981" },
           { label: "Total Withdrawals", value: totalNegativeLP, accentColor: "#f43f5e" },
@@ -370,7 +362,7 @@ export default function SystemReportPage() {
   );
 
   const renderOnChain = () => (
-    <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
+    <div className={styles.contentWrap}>
       <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
         <ChartCard title="Transactions Volume Breakdown" badge="All Time" flex="1 1 500px">
           <div style={{ height: 280 }}>
@@ -399,14 +391,13 @@ export default function SystemReportPage() {
       </div>
 
       <SectionHeader sub="AGGREGATED PROTOCOL VOLUME DATA">Asset Flow Summary</SectionHeader>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 14 }}>
+      <div className={styles.reportGrid}>
         {[
           { label: "Transaction Deposits", value: onChainDeposits - 1500000, sub: `Today: ${fmt(onChainDepositsToday?.total)} · ${onChainDepositsToday?.txCount} txns`, accentColor: "#10b981" },
           { label: "Transaction Withdrawals", value: onChainWithdrawals, sub: `Today: ${fmt(onChainWithdrawalsToday?.total)}`, accentColor: "#f43f5e" },
           { label: "Negative Withdrawals", value: onChainNegativeBalance?.extraWithdrawn, count: onChainNegativeBalance?.userCount, accentColor: "#fb7185" },
           { label: "Positive Deposits", value: onChainPositiveBalance?.extraDeposited, count: onChainPositiveBalance?.userCount, accentColor: "#34d399" },
           { label: "Active LP", value: totalPositiveLP - (autopositioningWallet?.total || 0), count: activeLPUsers, accentColor: "#ffd700" },
-          // { label: "Fixed Auto Positioning", value: autopositioningWallet?.total, count: autopositioningWallet?.userCount, accentColor: "#6366f1" },
         ].map((c) => (
           <MetricCard key={c.label} {...c} detailHref={DETAIL_MAP[c.label]} />
         ))}
@@ -471,7 +462,7 @@ export default function SystemReportPage() {
       </div>
 
       <SectionHeader sub="TOTAL PROTOCOL-WIDE REWARD ANALYTICS">Distribution Insights</SectionHeader>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 14 }}>
+      <div className={styles.reportGrid}>
         {[
           { label: "Daily Yield Allocation", value: distributedLpRewards, accentColor: "#ffd700" },
           { label: "Airdrop Pool Allocation", value: distributedAirdropRewards, accentColor: "#10b981" },
@@ -527,7 +518,7 @@ export default function SystemReportPage() {
           </div>
 
           <SectionHeader sub="MOST RECENT REWARD RUN • PER POOL EARNINGS">Yield Cycle Audit</SectionHeader>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 14 }}>
+          <div className={styles.reportGrid}>
             {[
               { label: "Growth Multiplier Bonus", value: dailyRewards.x1Rewards, accentColor: "#f43f5e" },
               { label: "Network X-Power", value: dailyRewards.xPowerRewards, accentColor: "#f97316" },
@@ -551,38 +542,26 @@ export default function SystemReportPage() {
   );
 
   return (
-    <div style={{ padding: "32px 36px", minHeight: "100vh", display: "flex", flexDirection: "column", gap: 28, fontFamily: "Inter, sans-serif" }}>
+    <div className={styles.container}>
 
       {/* ── HERO ── */}
-      <div style={{
-        display: "flex", justifyContent: "space-between", alignItems: "flex-end", paddingBottom: 24,
-        borderBottom: "1px solid rgba(255,215,0,0.08)", position: "relative"
-      }}>
-        <div style={{
-          position: "absolute", bottom: -1, left: 0, width: 70, height: 2,
-          background: "linear-gradient(90deg,#ffd700,transparent)", boxShadow: "0 0 20px rgba(255,215,0,0.5)"
-        }} />
+      <div className={styles.header}>
         <div>
-          <div style={{
-            display: "flex", alignItems: "center", gap: 8, fontSize: 10, fontWeight: 800, letterSpacing: 3,
-            textTransform: "uppercase", color: "rgba(255,215,0,0.45)", marginBottom: 8
-          }}>
-            <span style={{
-              width: 5, height: 5, borderRadius: "50%", background: "#10b981", boxShadow: "0 0 8px #10b981",
-              animation: "blink 2s ease-in-out infinite"
-            }} />
+          <div className={styles.eyebrow}>
+            <span className={styles.eyebrowDot} />
             BEPVault Admin
           </div>
-          <h1 style={{ fontSize: 30, fontWeight: 900, color: "#fff", margin: 0, letterSpacing: "-0.5px" }}>
-            System <span style={{ color: "#ffd700", textShadow: "0 0 30px rgba(255,215,0,0.3)" }}>Report</span>
+          <h1 className={styles.title}>
+            System <span>Report</span>
           </h1>
           <p style={{ fontSize: 13, color: "rgba(255,255,255,0.25)", margin: "6px 0 0", fontWeight: 500 }}>
             Full protocol analytics across all system wallets and reward pools
           </p>
         </div>
-        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+        <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", marginTop: 15 }}>
           <ExportUserReportButton />
           <button onClick={fetchReport}
+            className={styles.refreshBtn}
             style={{
               display: "flex", alignItems: "center", gap: 7, padding: "9px 18px", borderRadius: 12,
               border: "1px solid rgba(255,215,0,0.15)", background: "rgba(255,215,0,0.05)", color: "rgba(255,215,0,0.7)",
@@ -594,7 +573,7 @@ export default function SystemReportPage() {
       </div>
 
       {/* ── TAB NAV ── */}
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+      <div className={styles.tabNav}>
         {TABS.map((t) => (
           <Tab key={t.id} label={t.label} icon={t.icon} active={activeTab === t.id}
             onClick={() => { setActiveTab(t.id); router.push(t.id === "wallet" ? "/admin/dashboard/system-report" : `/admin/dashboard/system-report?tab=${t.id}`); }} />
@@ -602,10 +581,12 @@ export default function SystemReportPage() {
       </div>
 
       {/* ── TAB CONTENT ── */}
-      {activeTab === "wallet" && renderWallet()}
-      {activeTab === "onchain" && renderOnChain()}
-      {activeTab === "distribution" && renderDistribution()}
-      {activeTab === "daily" && renderDaily()}
+      <div className={styles.contentWrap}>
+        {activeTab === "wallet" && renderWallet()}
+        {activeTab === "onchain" && renderOnChain()}
+        {activeTab === "distribution" && renderDistribution()}
+        {activeTab === "daily" && renderDaily()}
+      </div>
 
       <style>{`
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }

@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
+import { useAuth } from "@/context/AuthContext";
 import {
   TrendingUp,
   TrendingDown,
@@ -46,21 +47,6 @@ ChartJS.register(
   Filler,
   ArcElement
 );
-
-/* ─── MOCK DATA ─────────────────────────────── */
-const DATA = {
-  todayDeposits:   "1,245.89",
-  totalDeposits:   "452,109.43",
-  todayWithdrawals:"890.12",
-  totalWithdrawals:"156,782.55",
-  todayRewards:    "423.50",
-  totalRewards:    "89,120.40",
-  activeLPCount:   "42",
-  totalUsersInLP:  "1,245",
-  newUsersToday:   "18",
-  netFlow:         "355.77",
-  ecosystemFee:    "12,480.22",
-};
 
 const WEEK = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const DEPOSITS_SERIES    = [450, 680, 520, 910, 780, 1200, 950];
@@ -151,11 +137,16 @@ function StatCard({ title, value, unit = "USDT", sub, icon: Icon, colorClass, ic
 }
 
 /* ─── DONUT CHART ─────────────────────────── */
-function ProtocolDonut() {
+function ProtocolDonut({ report }) {
   const data = {
     labels: ["Deposits", "Withdrawals", "Rewards", "Eco-Fee"],
     datasets: [{
-      data: [452109, 156782, 89120, 12480],
+      data: [
+        report?.totalPositiveLP || 0,
+        report?.totalNegativeLP || 0,
+        report?.totalCommunityRewards || 0,
+        report?.totalEcosystemFee || 0
+      ],
       backgroundColor: ["#ffd700", "#f43f5e", "#10b981", "#6366f1"],
       borderColor: "rgba(0,0,0,0)",
       borderWidth: 0,
@@ -182,18 +173,25 @@ function ProtocolDonut() {
       },
     },
   };
+  const totalVal = (
+    parseFloat(report?.totalPositiveLP || 0) +
+    parseFloat(report?.totalNegativeLP || 0) +
+    parseFloat(report?.totalCommunityRewards || 0) +
+    parseFloat(report?.totalEcosystemFee || 0)
+  );
+
   const LEGEND = [
-    { label: "Deposits",    color: "#ffd700", val: "452K" },
-    { label: "Withdrawals", color: "#f43f5e", val: "156K" },
-    { label: "Rewards",     color: "#10b981", val: "89K"  },
-    { label: "Eco-Fee",     color: "#6366f1", val: "12K"  },
+    { label: "Deposits",    color: "#ffd700", val: report?.totalPositiveLP ? (parseFloat(report.totalPositiveLP)/1000).toFixed(0) + 'K' : '0K' },
+    { label: "Withdrawals", color: "#f43f5e", val: report?.totalNegativeLP ? (parseFloat(report.totalNegativeLP)/1000).toFixed(0) + 'K' : '0K' },
+    { label: "Rewards",     color: "#10b981", val: report?.totalCommunityRewards ? (parseFloat(report.totalCommunityRewards)/1000).toFixed(0) + 'K' : '0K'  },
+    { label: "Eco-Fee",     color: "#6366f1", val: report?.totalEcosystemFee ? (parseFloat(report.totalEcosystemFee)/1000).toFixed(0) + 'K' : '0K'  },
   ];
   return (
     <div className={styles.donutWrap}>
       <div style={{ position:"relative", width: 180, height: 180 }}>
         <Doughnut data={data} options={opts} className={styles.donutSvg} />
         <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", pointerEvents:"none" }}>
-          <div style={{ fontSize: 22, fontWeight: 900, color: "#fff" }}>708K</div>
+          <div style={{ fontSize: 22, fontWeight: 900, color: "#fff" }}>{(totalVal/1000).toFixed(0)}K</div>
           <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: 2, color: "rgba(255,255,255,0.3)", textTransform: "uppercase", marginTop: 2 }}>Total USDT</div>
         </div>
       </div>
@@ -212,8 +210,52 @@ function ProtocolDonut() {
 
 /* ─── MAIN PAGE ──────────────────────────────── */
 export default function SupportDashboard() {
+  const { user, loading: authLoading } = useAuth();
   const [currentTime, setCurrentTime] = useState("");
   const [currentDate, setCurrentDate] = useState("");
+  const [report, setReport] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const fetchReport = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("Authentication required");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/support/system-report`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const resData = await res.json();
+      if (!res.ok || !resData.success) throw new Error(resData.message || "Failed to fetch report");
+      
+      setReport(resData.data || resData.report || resData);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!authLoading && user && ["support", "admin"].includes(user.userType)) {
+      fetchReport();
+    }
+  }, [authLoading, user]);
+
+  const DATA = {
+    todayDeposits:   report?.onChainDepositsToday?.total || "0.00",
+    totalDeposits:   report?.totalPositiveLP || "0.00",
+    todayWithdrawals:report?.onChainWithdrawalsToday?.total || "0.00",
+    totalWithdrawals:report?.totalNegativeLP || "0.00",
+    todayRewards:    report?.dailyRewards?.total || "0.00",
+    totalRewards:    report?.totalCommunityRewards || "0.00",
+    activeLPCount:   report?.activeLPUsers || "0",
+    totalUsersInLP:  report?.activeLPUsers || "0",
+    newUsersToday:   report?.newUsersToday || "0",
+    netFlow:         ((parseFloat(report?.onChainDepositsToday?.total || 0)) - (parseFloat(report?.onChainWithdrawalsToday?.total || 0))).toFixed(2),
+    ecosystemFee:    report?.totalEcosystemFee || "0.00",
+  };
 
   useEffect(() => {
     const tick = () => {
@@ -339,7 +381,7 @@ export default function SupportDashboard() {
             <div className={styles.stripBody}>
               <div className={styles.stripLabel}>{item.label}</div>
               <div className={styles.stripValue}>
-                {item.value}
+                {parseFloat(item.value || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}
                 <span className={styles.stripUnit}>USDT</span>
               </div>
             </div>
@@ -358,10 +400,11 @@ export default function SupportDashboard() {
       <div className={styles.statsGrid}>
         <StatCard
           title="Today Deposits"
-          value={DATA.todayDeposits}
+          value={parseFloat(DATA.todayDeposits || 0).toLocaleString()}
           sub="Snapshot at 00:00 UTC"
           icon={TrendingUp}
-          trend={12.5}
+          trend={report?.onChainDepositsToday?.txCount}
+          unit="TRX"
           iconBg="rgba(16,185,129,0.12)"
           iconColor="#10b981"
           colorClass={styles.accentGreen}
@@ -370,10 +413,11 @@ export default function SupportDashboard() {
         />
         <StatCard
           title="Today Withdrawals"
-          value={DATA.todayWithdrawals}
+          value={parseFloat(DATA.todayWithdrawals || 0).toLocaleString()}
           sub="Validated Outflow"
           icon={TrendingDown}
-          trend={-4.2}
+          trend={report?.onChainWithdrawalsToday?.txCount}
+          unit="TRX"
           iconBg="rgba(244,63,94,0.12)"
           iconColor="#f43f5e"
           colorClass={styles.accentRed}
@@ -382,10 +426,10 @@ export default function SupportDashboard() {
         />
         <StatCard
           title="Today Rewards"
-          value={DATA.todayRewards}
+          value={parseFloat(DATA.todayRewards || 0).toLocaleString()}
           sub="Distributed to users"
           icon={Award}
-          trend={7.1}
+          trend={report?.dailyRewards?.total > 0 ? 100 : 0}
           sparkData={[320, 380, 355, 410, 390, 423, 423]}
           sparkColor="#ffd700"
         />
@@ -395,7 +439,7 @@ export default function SupportDashboard() {
           value={DATA.newUsersToday}
           sub="System sync: 0.2ms"
           icon={Users}
-          trend={22}
+          trend={report?.newUsersToday}
           iconBg="rgba(99,102,241,0.12)"
           iconColor="#6366f1"
           colorClass={styles.accentBlue}
@@ -456,15 +500,15 @@ export default function SupportDashboard() {
           {/* Flow micro-grid */}
           <div className={styles.flowGrid}>
             <div className={styles.flowItem}>
-              <div className={styles.flowLabel}>In Flow</div>
-              <div className={styles.flowValue} style={{ color:"#10b981" }}>+1.2K</div>
+              <div className={styles.flowLabel}>In Flow Today</div>
+              <div className={styles.flowValue} style={{ color:"#10b981" }}>+{(parseFloat(DATA.todayDeposits)/1000).toFixed(1)}K</div>
               <div className={styles.flowBar}>
                 <div className={styles.flowFill} style={{ width: "72%", background: "#10b981" }} />
               </div>
             </div>
             <div className={styles.flowItem}>
-              <div className={styles.flowLabel}>Out Flow</div>
-              <div className={styles.flowValue} style={{ color:"#f43f5e" }}>-890</div>
+              <div className={styles.flowLabel}>Out Flow Today</div>
+              <div className={styles.flowValue} style={{ color:"#f43f5e" }}>-{(parseFloat(DATA.todayWithdrawals)/1000).toFixed(1)}K</div>
               <div className={styles.flowBar}>
                 <div className={styles.flowFill} style={{ width: "48%", background: "#f43f5e" }} />
               </div>
@@ -485,7 +529,7 @@ export default function SupportDashboard() {
             Lifetime
             <span className={styles.kpiUnit}>USDT</span>
           </div>
-          <ProtocolDonut />
+          <ProtocolDonut report={report} />
         </div>
       </div>
 

@@ -186,26 +186,19 @@ export default function DashboardPage() {
     // Always fetch ledger details if user exists
     fetchLedgerDetails();
 
+    // Fallback to database registered wallet if available
+    if (user?.wallet_address && !walletAccount) {
+      setWalletAccount(user.wallet_address);
+    }
+
     if (!isManualDisconnect) {
       const ethereum = getEthereum();
       if (ethereum) {
-        ethereum
-          .request({ method: "eth_accounts" })
-          .then((accounts) => {
-            if (accounts?.length && !isManualDisconnect) {
-              setWalletAccount(accounts[0]);
-              fetchNativeBalance(accounts[0]);
-            }
-          })
-          .catch(() => {
-            setWalletAccount("");
-          });
-
         const handleAccountsChanged = (accounts) => {
           if (isManualDisconnect) return;
-          const account = accounts?.[0] || "";
+          const account = accounts?.[0] || user?.wallet_address || "";
           setWalletAccount(account);
-          if (account) fetchNativeBalance(account);
+          if (account && account.startsWith("0x")) fetchNativeBalance(account);
         };
 
         const handleChainChanged = () => {
@@ -516,12 +509,12 @@ export default function DashboardPage() {
     <AuthGuard>
       <DashboardLayout
         walletAccount={walletAccount}
+        walletBalance={nativeBnbBalance}
         walletTransactionStatus={transactionStatus}
         walletDebugMessage={debugMessage}
         onWalletConnect={connectWallet}
         onWalletDisconnect={disconnectWallet}
         onOpenAmountModal={handleOpenAmountModal}
-        primaryVaultBalance={nativeBnbBalance}
         ledgerDetails={ledgerDetails}
         loadingLedger={loadingLedger}
         ledgerError={ledgerError}

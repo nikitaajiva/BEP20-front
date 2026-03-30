@@ -4,10 +4,12 @@ import AdminSidebar from '@/components/AdminSidebar';
 import styles from '@/components/RedesignedDashboard.module.css';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Users, PieChart, Activity, Zap, BarChart2 } from 'lucide-react';
+import { Home, Users, PieChart, Activity, Zap, BarChart2, Settings, LogOut } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 export default function AdminDashboardLayout({ children }) {
   const pathname = usePathname();
+  const { logout } = useAuth();
 
   const mobileNavLinks = [
     { name: "Home", href: "/admin/dashboard", icon: Home },
@@ -16,6 +18,8 @@ export default function AdminDashboardLayout({ children }) {
     { name: "Ledger", href: "/admin/dashboard/ledger-rows", icon: Activity },
     { name: "Audit", href: "/admin/dashboard/users-summary", icon: Zap },
     { name: "Report", href: "/admin/dashboard/system-report", icon: BarChart2 },
+    { name: "Safety", href: "/admin/dashboard/settings", icon: Settings },
+    { name: "Exit", href: "/logout", icon: LogOut, isLogout: true },
   ];
 
   return (
@@ -46,6 +50,20 @@ export default function AdminDashboardLayout({ children }) {
       {/* Mobile Bottom Navigation for Admin */}
       <div className={styles.mobileBottomNav}>
         {mobileNavLinks.map(link => {
+          if (link.isLogout) {
+             const Icon = link.icon;
+             return (
+               <button 
+                key={link.name}
+                onClick={logout}
+                className={styles.mobileNavItem}
+                style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}
+               >
+                 <Icon size={18} />
+                 <span>{link.name}</span>
+               </button>
+             );
+          }
           const isActive = pathname === link.href || (link.href !== "/admin/dashboard" && pathname.startsWith(link.href));
           const Icon = link.icon;
           return (
@@ -54,7 +72,7 @@ export default function AdminDashboardLayout({ children }) {
               href={link.href} 
               className={`${styles.mobileNavItem} ${isActive ? styles.mobileNavItemActive : ''}`}
             >
-              <Icon size={20} />
+              <Icon size={18} />
               <span>{link.name}</span>
             </Link>
           );

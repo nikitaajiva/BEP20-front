@@ -131,7 +131,7 @@ function UserSummaryCard({ row, addToCalc, openDetail }) {
 
           {/* SECTION 2: On-Chain Activity */}
           <div className={styles.bodySection}>
-            <div className={styles.bodySectionTitle}><Database size={10} /> On-Chain Activity</div>
+            <div className={styles.bodySectionTitle}><Database size={10} /> Transactions</div>
             <div className={styles.metricGrid}>
               <MetricPill
                 label="Xaman Deposits" value={row.xamanDeposits}
@@ -283,41 +283,29 @@ const UsersSummaryTerminal = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("Authentication required");
 
-      /* DUMMY DATA INJECTION - OVERRIDING API */
-      setTimeout(() => {
-        const mockData = Array.from({ length: 10 }).map((_, i) => ({
-          _id: `summ_${i}`,
-          userId: `usr_${i}`,
-          username: `QuantumNode${i + 1}`,
-          uhid: `U200${i}X${Math.floor(Math.random() * 900)}`,
-          email: `quantum${i}@bepvault.com`,
-          xaman: Math.random() * 500,
-          lp: Math.random() * 2000,
-          firstLpDeposit: new Date().toISOString(),
-          zeroRisk: Math.random() * 100,
-          fiveXLimitUsed: Math.random() * 300,
-          xamanDeposits: Math.random() * 1500,
-          chainDeposits: Math.random() * 5000,
-          chainWithdrawals: Math.random() * 1000,
-          autoPositioning: Math.random() * 200,
-          communityRewardsTotal: Math.random() * 800,
-          communityBoosterCredited: Math.random() * 400,
-          communityBoosterBonus: Math.random() * 50,
-          xBonusCredited: Math.random() * 150,
-          xBonus: Math.random() * 30,
-          claims: Math.random() * 250,
-          redeems: Math.random() * 100
-        }));
+      const queryParams = new URLSearchParams({
+        page: page + 1,
+        limit: rowsPerPage,
+        username: debouncedFilters.username,
+        uhid: debouncedFilters.uhid,
+        USDTAddress: debouncedFilters.USDTAddress,
+      });
 
-        setData(mockData);
-        setTotalRecords(52);
-        setError(null);
-        setLoading(false);
-      }, 500);
+      const res = await fetch(`${API_BASE_URL}/api/support/users-summary?${queryParams}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const resData = await res.json();
+      if (!res.ok || !resData.success) throw new Error(resData.message || "Failed to fetch summary");
 
+      setData(resData.data || []);
+      setTotalRecords(resData.pagination?.total ?? (resData.data?.length || 0));
+      setError(null);
     } catch (err) {
       setError(err.message);
+    } finally {
       setLoading(false);
     }
   };

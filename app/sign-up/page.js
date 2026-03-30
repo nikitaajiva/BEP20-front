@@ -23,9 +23,26 @@ function SignUpForm() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const [wasAutoDetected, setWasAutoDetected] = useState(false);
+  
+  // Animation state
+  const [particles, setParticles] = useState([]);
+
   const filteredCountries = COUNTRIES_DATA.filter((country) =>
     country.name.toLowerCase().includes(countrySearch.toLowerCase())
   );
+
+  useEffect(() => {
+    // Generate particles for background
+    const newParticles = Array.from({ length: 40 }).map((_, i) => ({
+      id: i,
+      left: `${Math.random() * 100}%`,
+      top: `${Math.random() * 100}%`,
+      size: Math.random() * 3 + 1,
+      duration: Math.random() * 3 + 2,
+      delay: Math.random() * 5
+    }));
+    setParticles(newParticles);
+  }, []);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -164,159 +181,189 @@ function SignUpForm() {
         <meta name="description" content="Create your BEPVault account" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div className={styles.signUpPage}>
-        <div className={styles.leftColumn}>
-          <div className={styles.logoContainer}>
-            <Link href="/" className="d-flex align-items-center gap-2 text-decoration-none">
-              <Image
-                src="/bepvault_logo.png"
-                alt="BEPVault Logo"
-                width={50}
-                height={50}
-                className={styles.logo}
-              />
-              <span style={{ color: "#ffd700", fontWeight: 800, fontSize: 24, letterSpacing: "1px" }}>BEPVault</span>
-            </Link>
-          </div>
-          <div className={styles.illustrationContainer}>
-            <Image
-              src="/assets/img/illustrations/auth-signup-character.png"
-              alt="Sign Up Illustration"
-              width={500}
-              height={500}
-              className={styles.mainIllustration}
-              priority
-            />
-            
-            {/* Branded Floating Elements */}
-            <div className={`${styles.floatingElement} ${styles.floatingAccountLimit}`}>
-              <svg width="100%" height="100%" viewBox="0 0 200 160" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect width="200" height="160" rx="20" fill="#0c0c0c" stroke="rgba(255,215,0,0.2)" strokeWidth="1" />
-                <text x="50%" y="30" dominantBaseline="middle" textAnchor="middle" fontFamily="Inter, sans-serif" fontSize="16" fontWeight="600" fill="#E0E0E0">Account Limit</text>
-                <circle cx="100" cy="90" r="35" stroke="rgba(255,215,0,0.1)" strokeWidth="8" fill="none" />
-                <path d="M100 55 A 35 35 0 0 1 124.7487 65.2512" stroke="#ffd700" strokeWidth="8" fill="none" strokeLinecap="round" />
-                <text x="100" y="90" dominantBaseline="middle" textAnchor="middle" fontFamily="Inter, sans-serif" fontSize="18" fontWeight="bold" fill="#ffd700">23%</text>
-                <text x="100" y="135" dominantBaseline="middle" textAnchor="middle" fontFamily="Inter, sans-serif" fontSize="10" fill="rgba(255,215,0,0.6)">USDT Usage</text>
-              </svg>
-            </div>
 
-            <Image
-              src="/assets/img/illustrations/floating-sphere.png"
-              alt="Floating Sphere"
-              width={160}
-              height={160}
-              className={`${styles.floatingElement} ${styles.floatingSphere}`}
-            />
-          </div>
+      <div className={styles.signUpPage}>
+        {/* Animated Background */}
+        <div className={styles.lightRaysContainer}>
+          <div className={styles.ray}></div>
+          <div className={styles.ray}></div>
+        </div>
+        <div className={styles.ambientGlow}></div>
+
+        <div className={styles.bgAnimation}>
+          {particles.map((p) => (
+            <div
+              key={p.id}
+              className={styles.particle}
+              style={{
+                left: p.left,
+                top: p.top,
+                width: `${p.size}px`,
+                height: `${p.size}px`,
+                animationDelay: `${p.delay}s`,
+                animationDuration: `${p.duration}s`
+              }}
+            ></div>
+          ))}
         </div>
 
-        <div className={styles.rightColumn}>
-          <div className={styles.formWrapper}>
-            <h1 className={styles.title}>Adventure starts here 🚀</h1>
-            <p className={styles.subtitle}>
-              Please sign-up to your account and start the liquidity.
-            </p>
-
-            {error && <p className={styles.errorMessage}>{error}</p>}
-            {message && <p className={styles.successMessage}>{message}</p>}
-
-            {!message && (
-              <form onSubmit={handleSubmit} className={styles.signUpForm}>
-                <div className={styles.inputGroup}>
-                  <label htmlFor="email" className={styles.label}>Your Personal Email</label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    className={styles.inputField}
-                    placeholder="johndoe@example.com"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
+        <div className={styles.externalBorder}>
+          <div className={styles.mainContainer}>
+            <div className={styles.formGlassCard}>
+              {/* Floating Logo Box */}
+              <div className={styles.logoBoxTop}>
+                <Link href="/">
+                  <Image
+                    src="/bepvault_logo.png"
+                    alt="Logo"
+                    width={45}
+                    height={45}
                   />
-                </div>
+                </Link>
+              </div>
 
-                <div className={styles.inputGroup}>
-                  <label htmlFor="sponsorId" className={styles.label}>Referred By</label>
-                  <input
-                    type="text"
-                    id="sponsorId"
-                    name="sponsorId"
-                    className={styles.inputField}
-                    placeholder="No sponsor specified"
-                    value={sponsorId || ""}
-                    disabled
-                  />
-                </div>
+              <div className={styles.cardHeader}>
+                <h1 className={styles.title}>Welcome to <span className={styles.vaultText}>BEPVault!</span></h1>
+                <p className={styles.subtitle}>Secure access to your administrative command center</p>
+              </div>
 
-                <div className={styles.inputGroup} ref={dropdownRef}>
-                  <label htmlFor="countrySearch" className={styles.label}>Select Country</label>
-                  <input
-                    type="text"
-                    id="countrySearch"
-                    className={styles.inputField}
-                    placeholder="Select Country"
-                    value={countrySearch}
-                    onChange={handleCountryInputChange}
-                    onFocus={handleCountryInputFocus}
-                    autoComplete="off"
-                    disabled={wasAutoDetected}
-                  />
-                  {isDropdownOpen && (
-                    <ul className={styles.countryDropdownList}>
-                      {filteredCountries.length > 0 ? (
-                        filteredCountries.map((country) => (
-                          <li
-                            key={country.code}
-                            onClick={() => handleCountrySelect(country)}
-                            className={styles.countryDropdownItem}
-                          >
-                            {country.flag} {country.name}
-                          </li>
-                        ))
-                      ) : (
-                        <div className={styles.countryDropdownNoResults}>No countries found</div>
-                      )}
-                    </ul>
-                  )}
-                </div> 
-                
-                <div className={styles.inputGroup}>
-                  <label htmlFor="whatsappContact" className={styles.label}>WhatsApp Contact</label>
-                  <div style={{ display: 'flex', gap: '10px' }}>
-                    <input
-                      type="text"
-                      className={styles.inputField}
-                      style={{ width: '80px' }}
-                      value={formData.countryCode}
-                      readOnly
-                    />
-                    <input
-                      type="tel"
-                      id="whatsappContact"
-                      name="whatsappContact"
-                      className={styles.inputField}
-                      placeholder="WhatsApp Number"
-                      value={formData.whatsappContact}
-                      onChange={handleChange}
+              <div className={styles.cardBody}>
+                {/* Left Side: Illustration */}
+                <div className={styles.illustrationContainer}>
+                  <div className={styles.robotWrapper}>
+                    <Image
+                      src="/assets/img/illustrations/bepvault-robot.png"
+                      alt="BEPVault Robot"
+                      width={450}
+                      height={450}
+                      className={styles.robotImage}
+                      priority
                     />
                   </div>
                 </div>
 
-                <button
-                  type="submit"
-                  className={styles.submitButton}
-                  disabled={loading || !sponsorId}
-                >
-                  {loading ? "Creating Account..." : "Sign Up"}
-                </button>
+                {/* Right Side: Form */}
+                <div className={styles.formSide}>
+                  {error && <div className={styles.errorMessage}>{error}</div>}
+                  {message && <div className={styles.successMessage}>{message}</div>}
 
-                <p className={styles.signInRedirect}>
-                  Already have an account?{" "}
-                  <Link href="/login" className={styles.signInLink}>Sign in instead</Link>
-                </p>
-              </form>
-            )}
+                  {!message && (
+                    <form onSubmit={handleSubmit} className={styles.signUpForm}>
+                      <div className={styles.inputGroup}>
+                        <label htmlFor="email" className={styles.label}>EMAIL ADDRESS</label>
+                        <input
+                          type="email"
+                          id="email"
+                          name="email"
+                          className={styles.inputField}
+                          placeholder="nikitaajiva@gmail.com"
+                          value={formData.email}
+                          onChange={handleChange}
+                          required
+                        />
+                      </div>
+
+                      <div className={styles.inputGroup}>
+                        <label htmlFor="sponsorId" className={styles.label}>REFERRED BY</label>
+                        <input
+                          type="text"
+                          id="sponsorId"
+                          name="sponsorId"
+                          className={styles.inputField}
+                          value={sponsorId || ""}
+                          placeholder="No referral code detected"
+                          disabled
+                        />
+                      </div>
+
+                      <div className={styles.inputGroup} ref={dropdownRef}>
+                        <label htmlFor="countrySearch" className={styles.label}>SELECT COUNTRY</label>
+                        <input
+                          type="text"
+                          id="countrySearch"
+                          className={styles.inputField}
+                          placeholder="Select Country"
+                          value={countrySearch}
+                          onChange={handleCountryInputChange}
+                          onFocus={handleCountryInputFocus}
+                          autoComplete="off"
+                          disabled={wasAutoDetected}
+                        />
+                        {isDropdownOpen && (
+                          <ul className={styles.countryDropdownList}>
+                            {filteredCountries.length > 0 ? (
+                              filteredCountries.map((country) => (
+                                <li
+                                  key={country.code}
+                                  onClick={() => handleCountrySelect(country)}
+                                  className={styles.countryDropdownItem}
+                                >
+                                  {country.flag} {country.name}
+                                </li>
+                              ))
+                            ) : (
+                              <div className={styles.countryDropdownNoResults}>No countries found</div>
+                            )}
+                          </ul>
+                        )}
+                      </div>
+
+                      <div className={styles.inputGroup}>
+                        <label htmlFor="whatsappContact" className={styles.label}>WHATSAPP CONTACT</label>
+                        <div style={{ display: 'flex', gap: '12px' }}>
+                          <input
+                            type="text"
+                            className={styles.inputField}
+                            style={{ width: '85px', textAlign: 'center' }}
+                            value={formData.countryCode}
+                            readOnly
+                            disabled
+                          />
+                          <input
+                            type="tel"
+                            id="whatsappContact"
+                            name="whatsappContact"
+                            className={styles.inputField}
+                            placeholder="WhatsApp Number"
+                            value={formData.whatsappContact}
+                            onChange={handleChange}
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <button
+                        type="submit"
+                        className={styles.submitButton}
+                        disabled={loading || !sponsorId}
+                      >
+                        {loading ? "CREATING ACCOUNT..." : "SIGN UP"}
+                      </button>
+
+                      <p className={styles.signInRedirect}>
+                        Already have an account?{" "}
+                        <Link href="/login" className={styles.signInLink}>Sign in now!</Link>
+                      </p>
+                    </form>
+                  )}
+                </div>
+              </div>
+
+              {/* Footer moved outside cardBody but inside formGlassCard */}
+              <div className={styles.loginFooter}>
+                <span>© 2024 BEPVault. All rights reserved. | </span>
+                <Link href="/terms" className={styles.footerLink}>Terms & Conditions</Link>
+                <span> | </span>
+                <Link href="/privacy" className={styles.footerLink}>Privacy Policy</Link>
+              </div>
+            </div>
+          </div>
+          
+          {/* Corner Star */}
+          <div className={styles.cornerStar}>
+             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="rgba(255,215,0,0.4)"/>
+             </svg>
           </div>
         </div>
       </div>

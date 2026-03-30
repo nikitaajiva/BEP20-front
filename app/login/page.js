@@ -109,11 +109,12 @@ export default function SignInPage() {
           ))}
         </div>
 
-        <div className={styles.mainContainer}>
-          {/* Glass Form Card */}
-          <div className={styles.formGlassCard}>
-            <div className={styles.logoContainer}>
-              <div className={styles.logoBox}>
+        <div className={styles.externalBorder}>
+          <div className={styles.mainContainer}>
+            {/* Glass Form Card */}
+            <div className={styles.formGlassCard}>
+              {/* Logo Box half-hanging outside */}
+              <div className={styles.logoBoxTop}>
                 <Image
                   src="/bepvault_logo.png"
                   alt="BEPVault Logo"
@@ -122,139 +123,158 @@ export default function SignInPage() {
                   className={styles.logo}
                 />
               </div>
-            </div>
 
-            <h2 className={styles.title}>
-              <span className={styles.welcomeText}>Welcome to </span>
-              <span className={styles.vaultText}>BEPVault!</span>
-            </h2>
-            <p className={styles.subtitle}>
-              Secure access to your administrative command center
-            </p>
-
-            {error && <div className={styles.errorMessage}>{error}</div>}
-
-            {activationMessage ? (
-              <div className={styles.activationMessageContainer}>
-                <h3 className={styles.activationTitle}>
-                  Account Activation Required
-                </h3>
-                <p>{activationMessage}</p>
-                <p>
-                  Please follow the instructions sent to your email to complete
-                  your registration.
+              <div className={styles.cardHeader}>
+                <h2 className={styles.title}>
+                  <span className={styles.welcomeText}>Welcome to </span>
+                  <span className={styles.vaultText}>BEPVault!</span>
+                </h2>
+                <p className={styles.subtitle}>
+                  Secure access to your administrative command center
                 </p>
               </div>
-            ) : (
-              <>
-                <form onSubmit={handleSubmit} className={styles.signInForm}>
-                  <div className={styles.inputGroup}>
-                    <label htmlFor="email" className={styles.label}>
-                      EMAIL | USERNAME | UHID
-                    </label>
-                    <input
-                      type="text"
-                      id="email"
-                      className={styles.inputField}
-                      placeholder="Mrperfect2025@icloud.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
+
+              <div className={styles.cardBody}>
+                {/* Left Side: Robot */}
+                <div className={styles.illustrationContainer}>
+                  <div className={styles.robotWrapper}>
+                    <Image
+                      src="/assets/img/illustrations/bepvault-robot.png"
+                      alt="BEPVault Robot"
+                      width={600}
+                      height={600}
+                      className={styles.robotImage}
+                      priority
                     />
                   </div>
+                </div>
 
-                  <div className={styles.inputGroup}>
-                    <label htmlFor="password" className={styles.label}>
-                      PASSWORD
-                    </label>
-                    <div className={styles.passwordWrapper}>
-                      <input
-                        type={showPassword ? "text" : "password"}
-                        id="password"
-                        className={styles.inputField}
-                        placeholder="············"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className={styles.eyeButton}
-                        tabIndex="-1"
-                      >
-                        <i
-                          className={`bi ${
-                            showPassword ? "bi-eye-slash" : "bi-eye"
-                          }`}
-                        ></i>
-                      </button>
+                {/* Right Side: Form */}
+                <div className={styles.formSide}>
+                  {error && <div className={styles.errorMessage}>{error}</div>}
+
+                  {activationMessage ? (
+                    <div className={styles.activationMessageContainer}>
+                      <h3 className={styles.activationTitle}>
+                        Account Activation Required
+                      </h3>
+                      <p>{activationMessage}</p>
                     </div>
-                  </div>
+                  ) : (
+                    <form onSubmit={handleSubmit} className={styles.signInForm}>
+                      <div className={styles.inputGroup}>
+                        <label htmlFor="email" className={styles.label}>
+                          EMAIL | USERNAME | UHID
+                        </label>
+                        <input
+                          type="text"
+                          id="email"
+                          className={styles.inputField}
+                          placeholder="nikitaajiva@gmail.com"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          required
+                        />
+                      </div>
 
-                  <div className={styles.checkboxGroup}>
-                    <input
-                      type="checkbox"
-                      id="remember-me"
-                      className={styles.checkbox}
-                    />
-                    <label
-                      htmlFor="remember-me"
-                      className={styles.checkboxLabel}
-                    >
-                      Remember Me
-                    </label>
-                  </div>
+                      <div className={styles.inputGroup}>
+                        <label htmlFor="password" className={styles.label}>
+                          PASSWORD
+                        </label>
+                        <div className={styles.passwordWrapper}>
+                          <input
+                            type={showPassword ? "text" : "password"}
+                            id="password"
+                            className={styles.inputField}
+                            placeholder="············"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className={styles.eyeButton}
+                            tabIndex="-1"
+                          >
+                            <i
+                              className={`bi ${
+                                showPassword ? "bi-eye-slash" : "bi-eye"
+                              }`}
+                            ></i>
+                          </button>
+                        </div>
+                      </div>
 
-                  <button
-                    type="submit"
-                    className={styles.signInButton}
-                    disabled={authLoading}
-                  >
-                    {authLoading ? "Signing In..." : "SIGN IN"}
-                  </button>
-                </form>
+                      <div className={styles.formActionsRow}>
+                        <div className={styles.checkboxGroup}>
+                          <input
+                            type="checkbox"
+                            id="remember-me"
+                            className={styles.checkbox}
+                          />
+                          <label
+                            htmlFor="remember-me"
+                            className={styles.checkboxLabel}
+                          >
+                            Remember Me
+                          </label>
+                        </div>
+                      </div>
 
-                <div className={styles.createAccountText}>
-                  New on our platform?{" "}
-                  <Link href="/sign-up" className={styles.createAccountLink}>
-                    Create an account
-                  </Link>
+                      <button
+                        type="submit"
+                        className={styles.signInButton}
+                        disabled={authLoading}
+                      >
+                        {authLoading ? "Signing In..." : "SIGN IN"}
+                      </button>
+
+                      <div className={styles.forgotPasswordContainer}>
+                        <Link href="/forgot-password" className={styles.forgotPasswordLink}>
+                          Forgot Password?
+                        </Link>
+                      </div>
+
+                      <div className={styles.dividerLine}></div>
+
+                      <div className={styles.createAccountText}>
+                        New on our platform?{" "}
+                        <Link href="/sign-up" className={styles.createAccountLink}>
+                          Create an account
+                        </Link>
+                      </div>
+
+                      <div className={styles.socialContainer}>
+                        <button type="button" className={styles.socialButton}>
+                          <i className="bi bi-facebook"></i>
+                        </button>
+                        <button type="button" className={styles.socialButton}>
+                          <i className="bi bi-twitter-x"></i>
+                        </button>
+                        <button type="button" className={styles.socialButton}>
+                          <i className="bi bi-google"></i>
+                        </button>
+                      </div>
+                    </form>
+                  )}
                 </div>
-
-                <div className={styles.socialContainer}>
-                  <button className={styles.socialButton}>
-                    <i className="bi bi-facebook"></i>
-                  </button>
-                  <button className={styles.socialButton}>
-                    <i className="bi bi-twitter-x"></i>
-                  </button>
-                  <button className={styles.socialButton}>
-                    <i className="bi bi-google"></i>
-                  </button>
-                </div>
-
-                <div className={styles.signUpNowContainer}>
-                  <Link href="/sign-up" className={styles.signUpNowButton}>
-                    SIGN UP NOW!
-                  </Link>
-                </div>
-              </>
-            )}
-          </div>
-
-          {/* Character Illustration */}
-          <div className={styles.illustrationContainer}>
-            <div className={styles.robotWrapper}>
-              <Image
-                src="/assets/img/illustrations/bepvault-robot.png"
-                alt="BEPVault Robot"
-                width={700}
-                height={700}
-                className={styles.robotImage}
-                priority
-              />
+              </div>
+              {/* Footer moved inside */}
+              <div className={styles.loginFooter}>
+                <span>© 2024 BEPVault. All rights reserved. | </span>
+                <Link href="/terms" className={styles.footerLink}>Terms & Conditions</Link>
+                <span> | </span>
+                <Link href="/privacy" className={styles.footerLink}>Privacy Policy</Link>
+              </div>
             </div>
+          </div>
+          
+          {/* Corner Star */}
+          <div className={styles.cornerStar}>
+             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="rgba(255,215,0,0.5)"/>
+             </svg>
           </div>
         </div>
       </div>

@@ -134,7 +134,7 @@ export default function SocialMediaAlert({ isOpen, onClose }) {
           <div className="relative z-10">
             <img
               src="/assets/img/logo.png"
-              alt="USDT Ocean Logo"
+              alt="BEPVault Logo"
               width={150}
               height={40}
               style={{ objectFit: "contain" }}

@@ -1294,19 +1294,21 @@
 
   /* Central Hub Area */
   .centralDashboard {
-    margin: 20px 0 !important;
+    margin: 10px 0 !important;
     width: 100% !important;
     min-height: auto !important;
-    padding: 60px 0 !important;
-    order: 3;
+    padding: 10px 0 !important;
+    order: 1; /* Keep it at the top or prioritized */
     display: flex;
     flex-direction: column;
     align-items: center;
+    position: relative;
   }
 
   .hubWrapper, .mainCircle {
     width: 280px;
     height: 280px;
+    margin: 0 auto;
   }
 
   .mainCircle {
@@ -1326,8 +1328,24 @@
     transform: translateX(-50%) translateZ(100px);
   }
 
-  .techRing, .orbitArea, .orbitPath, .lightRaysContainer, .sparklesContainer {
-    display: none !important; /* Hide resource-heavy/absolute elements on mobile */
+  /* Re-enable and scale rings for mobile */
+  .techRing, .orbitArea, .orbitPath {
+    display: flex !important;
+    opacity: 0.8 !important;
+  }
+
+  .ring1 {
+    width: 320px !important;
+    height: 320px !important;
+  }
+
+  .ring2 {
+    width: 360px !important;
+    height: 360px !important;
+  }
+
+  .lightRaysContainer, .sparklesContainer {
+    display: none !important; /* Keep background rays hidden for readability if needed, or enable if wanted */
   }
 
   /* Card Stacking Logic */

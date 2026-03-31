@@ -128,18 +128,6 @@ export default function Eventsa() {
                     day: "numeric",
                     year: "numeric",
                   })}
-                  {/* <span
-                    style={{
-                      backgroundColor: "#7e22ce",
-                      color: "white",
-                      padding: "2px 8px",
-                      borderRadius: "4px",
-                      fontSize: "12px",
-                      marginLeft: "8px",
-                    }}
-                  >
-                    {ev.event_type || "Conference"}
-                  </span> */}
                 </div>
 
                 <h2

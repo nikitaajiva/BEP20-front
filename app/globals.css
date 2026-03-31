@@ -17,9 +17,13 @@
   --text-secondary: #888888;
 }
 
-html,
+html {
+  overflow: hidden;
+}
+
 body {
   max-width: 100vw;
+  overflow-y: auto;
   overflow-x: hidden;
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 215, 0, 0.3) transparent;

@@ -6,7 +6,6 @@
   /* Sidebar layout */
   font-family: 'Inter', sans-serif;
   overflow: visible; /* Prevent double scrollbar */
-  overflow-x: hidden;
   position: relative;
 }
 

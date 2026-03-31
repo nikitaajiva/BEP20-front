@@ -163,31 +163,6 @@ export default function LedgerPageContent({ walletType }) {
               gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
             }}
           >
-            {/* <div>
-              <label htmlFor="eventType" className="form-label mb-2" style={{ color: '#b3baff', fontWeight: 500 }}>Event Type</label>
-              <select 
-                id="eventType"
-                name="eventType"
-                className="form-select" 
-                style={{ 
-                  background: '#232b4a',
-                  color: '#fff',
-                  border: '1px solid #2a3150',
-                  borderRadius: '12px',
-                  padding: '0.75rem 1rem',
-                  fontSize: '0.95rem'
-                }}
-                value={filters.eventType}
-                onChange={handleFilterChange}
-              >
-                <option value="all">All Event Types</option>
-                {LEDGER_EVENT_TYPES.map(type => (
-                  <option key={type} value={type}>
-                    {formatEventType(type)}
-                  </option>
-                ))}
-              </select>
-            </div> */}
 
             <div>
               <label

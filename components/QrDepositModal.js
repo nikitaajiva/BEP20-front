@@ -128,17 +128,57 @@ export default function QrDepositModal({
         <div style={{ marginTop: "18px" }}>
           {payload ? (
             <button
-              onClick={() => {
+              onClick={async () => {
                 try {
+                  const ethereum = typeof window !== "undefined" ? window.ethereum : null;
+
+                  // On Desktop with MetaMask extension installed
+                  if (!isMobile && ethereum) {
+                    const chainIdHex = `0x${(displayData?.chainId || 56).toString(16)}`;
+                    
+                    // Ensure we are connected and get address
+                    const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+                    const selectedAddress = accounts?.[0];
+                    if (!selectedAddress) throw new Error("No wallet connected.");
+
+                    // Try to switch network if needed
+                    try {
+                      await ethereum.request({
+                        method: 'wallet_switchEthereumChain',
+                        params: [{ chainId: chainIdHex }],
+                      });
+                    } catch (switchError) {
+                      // Logic to handle network switch if needed
+                    }
+
+                    const amountInWei = displayData?.amountWei || "0";
+                    const txParams = {
+                      from: selectedAddress,
+                      to: displayData?.depositAddress,
+                      value: displayData?.asset === "BNB" ? `0x${BigInt(amountInWei).toString(16)}` : "0x0",
+                    };
+
+                    // For USDT, we'd need contract interaction, but if it's BNB we can do simple value transfer
+                    if (displayData?.asset === "BNB") {
+                      await ethereum.request({
+                        method: 'eth_sendTransaction',
+                        params: [txParams],
+                      });
+                      return;
+                    }
+                  }
+
                   const primaryLink = isMobile && metamaskLink ? metamaskLink : payload;
                   window.location.href = primaryLink;
-                  if (metamaskLink && primaryLink !== metamaskLink) {
+
+                  // ONLY fallback to metamaskLink on Mobile to avoid desktop redirect to download page
+                  if (isMobile && metamaskLink && primaryLink !== metamaskLink) {
                     setTimeout(() => {
                       window.location.href = metamaskLink;
                     }, 400);
                   }
                 } catch (error) {
-                  // No-op: fallback handled by link below.
+                  console.error("Open Wallet Error:", error);
                 }
               }}
               style={{

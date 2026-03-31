@@ -146,6 +146,12 @@ export default function DashboardPage() {
       });
 
       const data = await response.json();
+      
+      // Handle 409 Conflict: user has a pending intent already
+      if (response.status === 409 && data.intent) {
+        return data.intent; 
+      }
+
       if (!response.ok || !data.success) {
         throw new Error(data.message || "Failed to create deposit intent.");
       }
@@ -274,29 +280,32 @@ export default function DashboardPage() {
   };
 
   const createPayload = async (amount) => {
-    setIsAmountModalOpen(false);
     const payload =
       typeof amount === "object" && amount !== null ? amount : { amount };
     const rawAmount = `${payload.amount ?? ""}`.trim();
     const asset = `${payload.asset || "BNB"}`.toUpperCase();
+
+    // Validation
     if (!rawAmount || !/^\d+(\.\d+)?$/.test(rawAmount)) {
-      console.warn("Invalid amount provided.");
-      setDebugMessage("Debug: Invalid amount for payload.");
+      setDebugMessage("Error: Invalid amount provided.");
       return;
     }
     if (/^0+(\.0+)?$/.test(rawAmount)) {
-      console.warn("Invalid amount provided.");
-      setDebugMessage("Debug: Invalid amount for payload.");
+      setDebugMessage("Error: Amount must be greater than zero.");
       return;
     }
+
+    setIsAmountModalOpen(false); // Only close after basic validation
     const ethereum = getEthereum();
     const isMobile =
       typeof navigator !== "undefined" &&
       /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    if (!ethereum || (asset === "BNB" && !isMobile)) {
+
+    if (!ethereum) {
       await startQrDeposit(rawAmount, asset);
       return;
     }
+
     let activeWallet = walletAccount;
     if (!activeWallet) {
       try {
@@ -319,8 +328,19 @@ export default function DashboardPage() {
     try {
       await switchToBsc();
       const intentData = await createDepositIntent(rawAmount, activeWallet, asset);
-      const depositAddress = intentData.deposit_address;
-      const referenceId = intentData.referenceId;
+      const depositAddress = intentData.deposit_address || (intentData.intent && intentData.intent.deposit_address);
+      const referenceId = intentData.referenceId || (intentData.intent && intentData.intent.referenceId);
+      
+      if (!depositAddress || !referenceId) {
+         // If it's a 409, the structure might be different
+         const finalData = intentData.intent || intentData;
+         if (finalData.referenceId) {
+            beginQrTracking(finalData, "Scan QR to complete your existing deposit.");
+            return;
+         }
+         throw new Error("Invalid response from server.");
+      }
+
       setTransactionStatus("Please confirm the transfer in MetaMask...");
 
       try {
@@ -342,12 +362,15 @@ export default function DashboardPage() {
         setTransactionStatus(
           transferError.message || "Wallet transfer not completed. Use QR to pay."
         );
-        beginQrTracking(intentData, "Wallet transfer cancelled. Scan QR to pay.");
+        const finalIntent = intentData.intent || intentData;
+        beginQrTracking(finalIntent, "Wallet transfer cancelled. Scan QR to pay.");
       }
     } catch (error) {
+      console.error("Deposit Intent Error:", error);
       setTransactionStatus(
         `Error: ${error.message || "An unknown error occurred."}`
       );
+      // Fallback: If it failed but it's an important error, maybe don't just leave a silent message
     }
   };
 
@@ -443,11 +466,13 @@ export default function DashboardPage() {
       setQrPayload(encodedPayload);
       setQrDisplayData({
         amount: data.amount,
+        amountWei: baseUnits.toString(),
         depositAddress: data.deposit_address,
         referenceId: data.referenceId,
         network: data.network || "BSC",
         tokenContract: asset === "USDT" ? checksumToken : "",
         decimals: intentDecimals,
+        chainId: intentChainId,
         fallbackUrl,
         asset,
       });

@@ -2,14 +2,13 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
-import { 
-  Search, 
-  Download, 
-  ArrowLeft, 
+import {
+  Search,
+  Download,
+  ArrowLeft,
   Filter,
   Globe,
   ShieldCheck,
-  TrendingDown,
   User,
   Users,
   Activity,
@@ -190,7 +189,7 @@ export default function EcosystemFeePage() {
       {/* Header Area */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2.5rem" }}>
         <div>
-          <button 
+          <button
             onClick={() => router.push("/admin/dashboard/system-report")}
             style={{ display: "flex", alignItems: "center", gap: "8px", background: "none", border: "none", color: "#ffd700", cursor: "pointer", fontSize: "0.85rem", marginBottom: "12px", fontWeight: "700", opacity: 0.8 }}
           >
@@ -201,7 +200,7 @@ export default function EcosystemFeePage() {
           </h1>
           <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.95rem", marginTop: "6px" }}>Administrative dashboard for tracking and auditing ecosystem-wide transaction fees.</p>
         </div>
-        
+
         <button
           onClick={handleExport}
           disabled={exporting}
@@ -256,47 +255,47 @@ export default function EcosystemFeePage() {
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1.2rem" }}>
-             <div style={{ position: "relative" }}>
-               <Search size={16} style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", color: "rgba(255,215,0,0.5)" }} />
-               <input
-                 type="text"
-                 placeholder="Search Entity/UHID"
-                 value={search}
-                 disabled={!!parent}
-                 onChange={(e) => setSearch(e.target.value)}
-                 style={{ ...inputStyle, width: "100%", paddingLeft: "42px" }}
-               />
-             </div>
-             <div style={{ position: "relative" }}>
-               <Users size={16} style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", color: "rgba(255,215,0,0.5)" }} />
-               <input
-                 type="text"
-                 placeholder="Search Parent/Team"
-                 value={parent}
-                 disabled={!!search}
-                 onChange={(e) => setParent(e.target.value)}
-                 style={{ ...inputStyle, width: "100%", paddingLeft: "42px" }}
-               />
-             </div>
-             <input
-               type="date"
-               value={fromDate}
-               onChange={(e) => { setFromDate(e.target.value); setDate(""); }}
-               style={{ ...inputStyle, width: "100%" }}
-             />
-             <input
-               type="date"
-               value={toDate}
-               onChange={(e) => { setToDate(e.target.value); setDate(""); }}
-               style={{ ...inputStyle, width: "100%" }}
-             />
-             <input
-               type="date"
-               value={date}
-               disabled={!!fromDate || !!toDate}
-               onChange={(e) => { setDate(e.target.value); setFromDate(""); setToDate(""); }}
-               style={{ ...inputStyle, width: "100%" }}
-             />
+            <div style={{ position: "relative" }}>
+              <Search size={16} style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", color: "rgba(255,215,0,0.5)" }} />
+              <input
+                type="text"
+                placeholder="Search Entity/UHID"
+                value={search}
+                disabled={!!parent}
+                onChange={(e) => setSearch(e.target.value)}
+                style={{ ...inputStyle, width: "100%", paddingLeft: "42px" }}
+              />
+            </div>
+            <div style={{ position: "relative" }}>
+              <Users size={16} style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", color: "rgba(255,215,0,0.5)" }} />
+              <input
+                type="text"
+                placeholder="Search Parent/Team"
+                value={parent}
+                disabled={!!search}
+                onChange={(e) => setParent(e.target.value)}
+                style={{ ...inputStyle, width: "100%", paddingLeft: "42px" }}
+              />
+            </div>
+            <input
+              type="date"
+              value={fromDate}
+              onChange={(e) => { setFromDate(e.target.value); setDate(""); }}
+              style={{ ...inputStyle, width: "100%" }}
+            />
+            <input
+              type="date"
+              value={toDate}
+              onChange={(e) => { setToDate(e.target.value); setDate(""); }}
+              style={{ ...inputStyle, width: "100%" }}
+            />
+            <input
+              type="date"
+              value={date}
+              disabled={!!fromDate || !!toDate}
+              onChange={(e) => { setDate(e.target.value); setFromDate(""); setToDate(""); }}
+              style={{ ...inputStyle, width: "100%" }}
+            />
           </div>
         </form>
       </div>
@@ -331,7 +330,7 @@ export default function EcosystemFeePage() {
                   </td>
                   <td style={{ padding: "1.2rem 1rem", borderTopRightRadius: "12px", borderBottomRightRadius: "12px" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                       <div style={{ padding: "4px 12px", borderRadius: "20px", background: "rgba(0, 217, 255, 0.1)", color: "#00d9ff", fontSize: "0.65rem", fontWeight: "900", textTransform: "uppercase" }}>SETTLED</div>
+                      <div style={{ padding: "4px 12px", borderRadius: "20px", background: "rgba(0, 217, 255, 0.1)", color: "#00d9ff", fontSize: "0.65rem", fontWeight: "900", textTransform: "uppercase" }}>SETTLED</div>
                     </div>
                   </td>
                 </tr>
@@ -347,16 +346,16 @@ export default function EcosystemFeePage() {
         {pagination.totalPages > 1 && (
           <div style={{ marginTop: "2rem", display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: "1.5rem" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-               <span style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.3)", fontWeight: "700" }}>DEPTH</span>
-               <select
-                 value={pagination.limit}
-                 onChange={(e) => setPagination(prev => ({ ...prev, limit: Number(e.target.value), currentPage: 1 }))}
-                 style={{ background: "#000", color: "#ffd700", border: "1px solid rgba(255,215,0,0.3)", borderRadius: "8px", padding: "4px 8px", fontSize: "0.8rem", outline: "none" }}
-               >
-                 {[10, 20, 50, 100, 200, 500].map(s => <option key={s} value={s}>{s}</option>)}
-               </select>
+              <span style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.3)", fontWeight: "700" }}>DEPTH</span>
+              <select
+                value={pagination.limit}
+                onChange={(e) => setPagination(prev => ({ ...prev, limit: Number(e.target.value), currentPage: 1 }))}
+                style={{ background: "#000", color: "#ffd700", border: "1px solid rgba(255,215,0,0.3)", borderRadius: "8px", padding: "4px 8px", fontSize: "0.8rem", outline: "none" }}
+              >
+                {[10, 20, 50, 100, 200, 500].map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
             </div>
-            
+
             <div style={{ display: "flex", gap: "8px" }}>
               <button disabled={!pagination.hasPrevPage} onClick={() => setPagination(p => ({ ...p, currentPage: p.currentPage - 1 }))} style={{ ...glassStyle, padding: "0.5rem 1rem", color: pagination.hasPrevPage ? "#ffd700" : "rgba(255,255,255,0.1)", cursor: "pointer", fontSize: "0.8rem", fontWeight: "800" }}>PREV</button>
               {getPageNumbers(pagination.currentPage, pagination.totalPages).map((p, i) => (

@@ -245,17 +245,6 @@ export default function SignInPage() {
                         </Link>
                       </div>
 
-                      <div className={styles.socialContainer}>
-                        <button type="button" className={styles.socialButton}>
-                          <i className="bi bi-facebook"></i>
-                        </button>
-                        <button type="button" className={styles.socialButton}>
-                          <i className="bi bi-twitter-x"></i>
-                        </button>
-                        <button type="button" className={styles.socialButton}>
-                          <i className="bi bi-google"></i>
-                        </button>
-                      </div>
                     </form>
                   )}
                 </div>

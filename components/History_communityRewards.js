@@ -71,10 +71,10 @@ export function RefIdDisplay({ refId }) {
 }
 
 export const getCommunityTotals = (wallet, totals = {}) => {
-  console.log(" getCommunityTotals called with:", { wallet, totals });
+  
 
   if (wallet !== "COMMUNITY_REWARDS") {
-    console.log(" Not COMMUNITY_REWARDS wallet. Returning default 0 values.");
+    
     return {
       totalDeposits: "0.000000",
       totalLPPoistioning: "0.000000",
@@ -88,7 +88,7 @@ export const getCommunityTotals = (wallet, totals = {}) => {
     totalRedeemed: totals.totalRedeemed || "0.000000",
   };
 
-  console.log(" COMMUNITY_REWARDS totals computed:", result);
+  
 
   return result;
 };
@@ -137,9 +137,9 @@ export default function HistoryTable({ filters, walletType = null }) {
             .replace(/\/+/g, "/")
             .replace(":/", "://");
 
-        console.log("📡 Fetching Ledger History:");
-        console.log("🔗 API URL:", apiUrl);
-        console.log("📤 Headers:", { Authorization: `Bearer ${token}` });
+        
+        
+        
 
         const response = await fetch(apiUrl, {
           method: "GET",
@@ -161,16 +161,16 @@ export default function HistoryTable({ filters, walletType = null }) {
         }
 
         const data = await response.json();
-        console.log("✅ Response data:", data);
+        
 
         if (data.success) {
           if (data?.totals) {
             setTotals(data.totals);
-            console.log("📊 Totals set:", data.totals);
+            
           }
 
           setEntries(data.entries || []);
-          console.log(`📈 Entries loaded: ${data.entries?.length || 0}`);
+          
 
           setPagination(
             data.pagination || {
@@ -182,7 +182,7 @@ export default function HistoryTable({ filters, walletType = null }) {
               limit: 250,
             }
           );
-          console.log("📦 Pagination set:", data.pagination);
+          
         } else {
           throw new Error(data.message || "Failed to fetch ledger history");
         }
@@ -198,7 +198,7 @@ export default function HistoryTable({ filters, walletType = null }) {
         }
       } finally {
         setLoading(false);
-        console.log("⏳ Loading finished");
+        
       }
     };
 

@@ -1,24 +1,13 @@
 "use client";
 import React, { useState, Suspense } from "react";
-import { 
-  Users, 
-  Calendar, 
-  Search as SearchIcon, 
-  Eye, 
-  ChevronDown, 
-  ChevronUp, 
-  X, 
-  Trophy, 
-  Database, 
-  Activity, 
-  CheckCircle2, 
-  XCircle, 
-  Info,
-  Clock,
-  ArrowRightCircle,
+import {
+  Users,
+  Calendar,
+  Search as SearchIcon,
+  Eye,
+  X,
+  XCircle,
   TrendingUp,
-  History,
-  ShieldCheck,
   Zap
 } from "lucide-react";
 import axios from "axios";
@@ -68,9 +57,9 @@ function CommunityRewardsReport() {
       setError(null);
       const token = localStorage.getItem("token");
       const params = { uhid: filters.identifier, date: filters.date };
-      const { data } = await axios.get(`${API_URL}/api/bonus/community/cascade/snapshot`, { 
-        params, 
-        headers: { Authorization: `Bearer ${token}` } 
+      const { data } = await axios.get(`${API_URL}/api/bonus/community/cascade/snapshot`, {
+        params,
+        headers: { Authorization: `Bearer ${token}` }
       });
       setSummary(normalizeResponse(data, filters.identifier));
     } catch (err) {
@@ -113,8 +102,8 @@ function CommunityRewardsReport() {
     } catch (err) {
       setModalError(
         err?.response?.data?.msg ||
-          err.message ||
-          "Failed to fetch team details"
+        err.message ||
+        "Failed to fetch team details"
       );
     } finally {
       setModalLoading(false);
@@ -143,8 +132,8 @@ function CommunityRewardsReport() {
     } catch (err) {
       setModalError(
         err?.response?.data?.msg ||
-          err.message ||
-          "Failed to fetch event details"
+        err.message ||
+        "Failed to fetch event details"
       );
     } finally {
       setModalLoading(false);
@@ -454,7 +443,7 @@ function CommunityRewardsReport() {
                 </td>
                 <td style={{ textAlign: 'right', fontWeight: 900 }}>{headerUser.selfLp ? `${headerUser.selfLp} USDT` : "—"}</td>
                 <td style={{ textAlign: 'right' }}>
-                   <div className="flex flex-col items-end">
+                  <div className="flex flex-col items-end">
                     <span style={{ fontWeight: 800, color: '#00ff88' }}>{headerUser.teamLp5Sum || "0.00"} USDT</span>
                     <span style={{ fontSize: '10px', color: '#888' }}>Top-5 Cohort</span>
                   </div>
@@ -463,16 +452,16 @@ function CommunityRewardsReport() {
                   <div className="flex flex-col items-end">
                     <div className="flex items-center gap-2">
                       <span style={{ fontWeight: 900, fontSize: '16px' }}>{toNum(summary?.depositor?.totalCascadeAmount).toFixed(2)}</span>
-                       <Eye className={styles.viewIcon} size={14} onClick={() => setShowHistoryModal(true)} />
+                      <Eye className={styles.viewIcon} size={14} onClick={() => setShowHistoryModal(true)} />
                     </div>
                     <span style={{ fontSize: '10px', color: '#888' }}>Total Rewards</span>
                   </div>
                 </td>
                 <td style={{ textAlign: 'right' }}>
-                   <div className="flex flex-col items-end">
+                  <div className="flex flex-col items-end">
                     <div className="flex items-center gap-2">
-                       <span style={{ fontWeight: 900 }}>{headerUser?.activeDirectsCount ?? summary?.depositor?.activeDirectsCount ?? "0"}</span>
-                       <TrendingUp className={styles.viewIcon} size={14} onClick={() => setShowSnapshotsModal(true)} />
+                      <span style={{ fontWeight: 900 }}>{headerUser?.activeDirectsCount ?? summary?.depositor?.activeDirectsCount ?? "0"}</span>
+                      <TrendingUp className={styles.viewIcon} size={14} onClick={() => setShowSnapshotsModal(true)} />
                     </div>
                     <span style={{ fontSize: '10px', color: '#888' }}>Direct Units</span>
                   </div>
@@ -491,24 +480,24 @@ function CommunityRewardsReport() {
               <h3 className={styles.modalTitle}>Level <span>Cascade Snapshots</span></h3>
               <button onClick={() => setShowSnapshotsModal(false)} className={styles.closeBtn}><X /></button>
             </header>
-            
+
             <div className="grid grid-cols-4 gap-4 mb-6">
-               <div className="p-3 bg-white/5 border border-white/5 rounded-xl">
-                 <span style={{ fontSize: '10px', color: '#888', textTransform: 'uppercase' }}>Depositor</span>
-                 <div className="font-black text-gold-400">{summary.depositor.username}</div>
-               </div>
-               <div className="p-3 bg-white/5 border border-white/5 rounded-xl">
-                 <span style={{ fontSize: '10px', color: '#888', textTransform: 'uppercase' }}>Self LP</span>
-                 <div className="font-black text-gold-400">{summary.depositor.selfLp ?? "0"}</div>
-               </div>
-               <div className="p-3 bg-white/5 border border-white/5 rounded-xl">
-                 <span style={{ fontSize: '10px', color: '#888', textTransform: 'uppercase' }}>Team LP 5Sum</span>
-                 <div className="font-black text-green-400">{summary.depositor.teamLp5Sum ?? "0"}</div>
-               </div>
-               <div className="p-3 bg-white/5 border border-white/5 rounded-xl">
-                 <span style={{ fontSize: '10px', color: '#888', textTransform: 'uppercase' }}>Active Directs</span>
-                 <div className="font-black text-blue-400">{summary.depositor.activeDirectsCount ?? "0"}</div>
-               </div>
+              <div className="p-3 bg-white/5 border border-white/5 rounded-xl">
+                <span style={{ fontSize: '10px', color: '#888', textTransform: 'uppercase' }}>Depositor</span>
+                <div className="font-black text-gold-400">{summary.depositor.username}</div>
+              </div>
+              <div className="p-3 bg-white/5 border border-white/5 rounded-xl">
+                <span style={{ fontSize: '10px', color: '#888', textTransform: 'uppercase' }}>Self LP</span>
+                <div className="font-black text-gold-400">{summary.depositor.selfLp ?? "0"}</div>
+              </div>
+              <div className="p-3 bg-white/5 border border-white/5 rounded-xl">
+                <span style={{ fontSize: '10px', color: '#888', textTransform: 'uppercase' }}>Team LP 5Sum</span>
+                <div className="font-black text-green-400">{summary.depositor.teamLp5Sum ?? "0"}</div>
+              </div>
+              <div className="p-3 bg-white/5 border border-white/5 rounded-xl">
+                <span style={{ fontSize: '10px', color: '#888', textTransform: 'uppercase' }}>Active Directs</span>
+                <div className="font-black text-blue-400">{summary.depositor.activeDirectsCount ?? "0"}</div>
+              </div>
             </div>
 
             {/* Depositor header (optional) */}
@@ -569,9 +558,9 @@ function CommunityRewardsReport() {
                   s.teamLp ??
                   (Array.isArray(s.ActiveDirects)
                     ? s.ActiveDirects.reduce(
-                        (acc, d) => acc + Number(d?.selfLp || 0),
-                        0
-                      )
+                      (acc, d) => acc + Number(d?.selfLp || 0),
+                      0
+                    )
                     : 0);
 
                 return (
@@ -610,8 +599,8 @@ function CommunityRewardsReport() {
                         {s.teamLpSum == null
                           ? "—"
                           : Number(s.teamLpSum).toLocaleString(undefined, {
-                              maximumFractionDigits: 6,
-                            })}
+                            maximumFractionDigits: 6,
+                          })}
                       </div>
                       <div
                         style={{
@@ -1328,7 +1317,7 @@ function CommunityRewardsReport() {
                             textAlign: "right",
                             color:
                               parseFloat(summary.conditions?.selfLP) >=
-                              tierReq.minSelfLP
+                                tierReq.minSelfLP
                                 ? "#4caf50"
                                 : "#ff4d4d",
                           }}
@@ -1384,35 +1373,35 @@ function CommunityRewardsReport() {
               <button onClick={() => setShowHistoryModal(false)} className={styles.closeBtn}><X /></button>
             </header>
             <div className={styles.modalBody}>
-               <table className={styles.subTable}>
-                  <thead>
-                     <tr>
-                        <th>Temporal Trace</th>
-                        <th>Origin Target</th>
-                        <th style={{ textAlign: 'right' }}>Yield Source</th>
-                        <th style={{ textAlign: 'right' }}>Yield Target</th>
-                        <th style={{ textAlign: 'center' }}>Depth</th>
-                        <th style={{ textAlign: 'right' }}>Rate Vector</th>
-                     </tr>
-                  </thead>
-                  <tbody>
-                     {summary?.depositor?.cascadeRewards.map((r, i) => (
-                        <tr key={i}>
-                           <td>
-                              <div className="flex flex-col">
-                                 <span style={{ fontSize: '11px', color: '#fff' }}>{new Date(r.ts).toLocaleDateString()}</span>
-                                 <span style={{ fontSize: '9px', opacity: 0.5 }}>{new Date(r.ts).toLocaleTimeString()}</span>
-                              </div>
-                           </td>
-                           <td><span className="font-bold">{r.targetUhid}</span></td>
-                           <td style={{ textAlign: 'right' }}>{toNum(r.triggeringAmount).toFixed(2)}</td>
-                           <td style={{ textAlign: 'right', color: '#ffd700', fontWeight: 900 }}>{toNum(r.amount).toFixed(4)}</td>
-                           <td style={{ textAlign: 'center' }}><span className={styles.badge}>L{r.depth}</span></td>
-                           <td style={{ textAlign: 'right', color: '#00ff88', fontWeight: 800 }}>{(toNum(r.rate) * 100).toFixed(0)}%</td>
-                        </tr>
-                     ))}
-                  </tbody>
-               </table>
+              <table className={styles.subTable}>
+                <thead>
+                  <tr>
+                    <th>Temporal Trace</th>
+                    <th>Origin Target</th>
+                    <th style={{ textAlign: 'right' }}>Yield Source</th>
+                    <th style={{ textAlign: 'right' }}>Yield Target</th>
+                    <th style={{ textAlign: 'center' }}>Depth</th>
+                    <th style={{ textAlign: 'right' }}>Rate Vector</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {summary?.depositor?.cascadeRewards.map((r, i) => (
+                    <tr key={i}>
+                      <td>
+                        <div className="flex flex-col">
+                          <span style={{ fontSize: '11px', color: '#fff' }}>{new Date(r.ts).toLocaleDateString()}</span>
+                          <span style={{ fontSize: '9px', opacity: 0.5 }}>{new Date(r.ts).toLocaleTimeString()}</span>
+                        </div>
+                      </td>
+                      <td><span className="font-bold">{r.targetUhid}</span></td>
+                      <td style={{ textAlign: 'right' }}>{toNum(r.triggeringAmount).toFixed(2)}</td>
+                      <td style={{ textAlign: 'right', color: '#ffd700', fontWeight: 900 }}>{toNum(r.amount).toFixed(4)}</td>
+                      <td style={{ textAlign: 'center' }}><span className={styles.badge}>L{r.depth}</span></td>
+                      <td style={{ textAlign: 'right', color: '#00ff88', fontWeight: 800 }}>{(toNum(r.rate) * 100).toFixed(0)}%</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -1424,7 +1413,7 @@ function CommunityRewardsReport() {
 export default function CommunityRewardsReportPage() {
   return (
     <Suspense fallback={<div className="text-center p-20 text-gold-500 animate-pulse">Establishing Cascade Connection...</div>}>
-       <CommunityRewardsReport />
+      <CommunityRewardsReport />
     </Suspense>
   );
 }

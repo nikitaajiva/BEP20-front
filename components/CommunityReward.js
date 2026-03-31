@@ -158,7 +158,7 @@ export default function CommunityReward() {
         if (!token) throw new Error("Authentication token not found.");
 
         const finalUrl = `${API_URL}/api/rewards/cascade`;
-        console.log("Fetching Cascade Rewards URL:", finalUrl);
+        
 
         const response = await fetch(finalUrl, {
           method: "GET",

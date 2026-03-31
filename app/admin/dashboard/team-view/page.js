@@ -143,14 +143,14 @@ export default function TeamViewPage() {
         }
         
         const safeChildren = Array.isArray(rawList) ? rawList : [];
-        console.log(`[Topology] Updating Node ${uhid} with ${safeChildren.length} children`, safeChildren);
+        
 
         setUsers(prevUsers => {
             const updateUserRecursively = (userList) => {
                 const list = Array.isArray(userList) ? userList : [];
                 return list.map(u => {
                     if (String(u.uhid) === String(uhid)) {
-                        console.log(`[Topology] Match found for ${uhid}. Injecting children.`);
+                        
                         return { ...u, children: safeChildren.map(c => ({ ...c, open: false })), open: true };
                     }
                     if (Array.isArray(u.children) && u.children.length > 0) {

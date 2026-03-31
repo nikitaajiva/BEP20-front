@@ -30,7 +30,7 @@ export default function CommunityRewardsCard({
     const {  API_URL } = useAuth();
       const disableRewardWalletButtons = xRank ? true : false;
   // const [isAutoPositioningActive, setIsAutoPositioningActive] = useState(false);
-  console.log(isAutoPositioningActive, "isAutoPositioningActive");
+  
   const [redeemEligible, setRedeemEligible] = useState(false);
 const [redeemEligibilityLoading, setRedeemEligibilityLoading] = useState(true);
 
@@ -121,11 +121,11 @@ const cutoffDate = new Date("2025-06-28T00:00:00Z");
     // toNumber(ledgerDetails?.daily_rewards?.AUTOPOSITION);
 
   // Console log everything
-  console.log("sumLimits:", sumLimits.toFixed(2), "USDT");
-  console.log("CommunityWallet:", CommunityWallet.toFixed(2), "USDT");
-  console.log("totalLimitUsed:", totalLimitUsed.toFixed(2), "USDT");
-  console.log("RewardsWalletRedeem:", RewardsWalletRedeem.toFixed(2), "USDT");
-  console.log("Auto Positioning Calculation:", autoPositioningValue.toFixed(2), "USDT");
+  
+  
+  
+  
+  
 
   const comm_rewards =
     toNumber(ledgerDetails?.daily_rewards?.XBONUS) +

@@ -136,8 +136,8 @@ export default function Communitybooster() {
           responseData.data.rewards,
         );
 
-        console.log("Grouped:", grouped);
-        console.log("Sums:", sums);
+        
+        
 
         //  setAllRewards(grouped);   // detailed arrays for popup
         setRecords(sums);

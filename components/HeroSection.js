@@ -91,7 +91,7 @@ const HeroSection = () => {
         if (response.ok) {
           const config = await response.json();
           setCountdownConfig(config);
-          console.log("Airdrop promotion config loaded:", config);
+          
         } else {
           console.error("Failed to fetch airdrop config");
         }

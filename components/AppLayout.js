@@ -25,7 +25,14 @@ const AppLayout = ({ children }) => {
 
   navLinks.push({ href: "https://t.me/BEPVaultSupportBot", label: "Help", icon: "ri-customer-service-2-fill" });
 
-  const isAuthPage = pathname.startsWith("/login") || pathname.startsWith("/login") || pathname.startsWith("/sign-up") || pathname.startsWith("/forgot-password") || pathname === "/" || pathname.startsWith("/admin");
+  const isAuthPage =
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/sign-up") ||
+    pathname.startsWith("/forgot-password") ||
+    pathname.startsWith("/auth/set-password") ||
+    pathname.startsWith("/reset-password") ||
+    pathname === "/" ||
+    pathname.startsWith("/admin");
 
   if (isAuthPage) {
     return <>{children}</>;

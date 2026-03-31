@@ -134,7 +134,7 @@ export default function HistoryTable({ filters, walletType = null }) {
         const data = await response.json();
 
         if (data.success) {
-          console.log();
+          
           if (data?.totals) {
             setTotalLPPoistioning(data.totals.totalLpositioning);
             setTotalDeposits(data.totals.totalDeposits);

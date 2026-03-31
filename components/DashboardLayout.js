@@ -325,7 +325,7 @@ const LedgerInfoCard = ({
 
   const currentIndex = getCurrentIndexFromLabels(usageLabels);
 
-  console.log("Today:", new Date(), "CurrentIndex:", currentIndex, usageLabels);
+
   // 📈 Chart Data
 
   const chartData = {
@@ -640,7 +640,7 @@ export default function DashboardLayout({
   refreshLedgerDetails,
 }) {
 
-  const { user, logout, loading: authLoading, API_URL, updateUser } = useAuth();
+  const { user, logout, loading: authLoading, API_URL, setUser } = useAuth();
   const [isAutoPositioningActive, setIsAutoPositioningActive] = useState(false);
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
   const [transferModalError, setTransferModalError] = useState(null);
@@ -716,10 +716,12 @@ export default function DashboardLayout({
           }
           */
 
-    checkWithdrawalsDisabled();
+    // Unnecessary redundant calls removed
+    // checkWithdrawalsDisabled();
     setIsAutoPositioningActive(user?.autopositioning);
   }, [user, API_URL]);
 
+  /* Unnecessary initial call for airdrop config
   useEffect(() => {
     const fetchAirdropConfig = async () => {
       try {
@@ -735,7 +737,7 @@ export default function DashboardLayout({
         if (response.ok) {
           const config = await response.json();
           setAirdropConfig(config);
-          console.log("Airdrop promotion config loaded:", config);
+          
         } else {
           console.error("Failed to fetch airdrop config");
         }
@@ -746,6 +748,9 @@ export default function DashboardLayout({
 
     fetchAirdropConfig();
   }, [API_URL]);
+  */
+
+  /* Crashing API call - endpoint /ledger/social-visibility is missing in backend
   useEffect(() => {
     const fetchSocialAlertVisibility = async () => {
       try {
@@ -789,6 +794,7 @@ export default function DashboardLayout({
 
     fetchSocialAlertVisibility();
   }, [API_URL]);
+  */
 
 
 
@@ -815,23 +821,20 @@ export default function DashboardLayout({
               throw new Error(data.message || "Failed to save wallet address.");
             }
 
-            if (updateUser) {
-              updateUser({ ...user, wallet_address: walletAccount });
+            if (setUser) {
+              setUser({ ...user, wallet_address: walletAccount });
             }
           } catch (error) {
-            console.error("Error saving wallet address:", error);
-            alert(`Error: ${error.message}`);
+            console.error("Error saving wallet address:", error.message);
           }
         } else if (user.wallet_address !== walletAccount) {
-          alert(
-            "The connected wallet address does not match the registered address for this account. Please connect the correct wallet or contact support."
-          );
+          console.warn("Wallet mismatch: Connected wallet doesn't match registered address.");
         }
       }
     };
 
     handleWalletConnection();
-  }, [walletAccount, user, authLoading, API_URL, updateUser]);
+  }, [walletAccount, user, authLoading, API_URL, setUser]);
 
   const openTransferModal = () => {
     setTransferModalError(null); // Clear previous errors
@@ -853,7 +856,7 @@ export default function DashboardLayout({
 
       const specificPath = "/swift-transfers/transfer"; // Path relative to API_URL
       const finalUrl = `${API_URL}${specificPath}`;
-      console.log("Constructed Swift Transfer URL:", finalUrl);
+
 
       const response = await fetch(finalUrl, {
         method: "POST",
@@ -976,7 +979,7 @@ export default function DashboardLayout({
 
       const specificPath = "/ledger/transfer-rewards-to-usdt";
       const finalUrl = `${API_URL}${specificPath}`;
-      console.log("Constructed Redeem Rewards (to USDT) URL:", finalUrl);
+
 
       const response = await fetch(finalUrl, {
         method: "POST",
@@ -1013,7 +1016,7 @@ export default function DashboardLayout({
 
   const handleAutoPosition = async () => {
     // Implement auto position logic here
-    console.log("Auto position clicked");
+
   };
 
   const handleAddLP = async (transferAmount) => {
@@ -1025,7 +1028,7 @@ export default function DashboardLayout({
 
       const specificPath = "/ledger/add-lp";
       const finalUrl = `${API_URL}${specificPath}`;
-      console.log("Constructed Add LP URL:", finalUrl);
+
 
       const response = await fetch(finalUrl, {
         method: "POST",
@@ -1069,7 +1072,7 @@ export default function DashboardLayout({
 
       const specificPath = "/withdrawals/usdt";
       const finalUrl = `${API_URL}${specificPath}`;
-      console.log("Constructed Claim Community Rewards URL:", finalUrl);
+
 
       const response = await fetch(finalUrl, {
         method: "POST",
@@ -1273,13 +1276,13 @@ export default function DashboardLayout({
   }
 
   // Log the user object to inspect its structure
-  console.log("[DashboardLayout] User object received from AuthContext:", user);
+
 
   const disableButtons = !walletAccount || walletAccount === "";
 
-  console.log("[DashboardLayout] Ledger Details:", ledgerDetails);
-  console.log("[DashboardLayout] Loading Ledger:", loadingLedger);
-  console.log("[DashboardLayout] Ledger Error:", ledgerError);
+
+
+
 
   // Calculate props for ZeroRiskClaimModal safely
   const primaryVaultBalanceForModal = parseFloat(walletBalance || "0");

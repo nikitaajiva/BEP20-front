@@ -28,7 +28,7 @@ export default function USDTWithdrawals() {
         // Construct the API URL carefully
         const apiUrl = `${API_URL}/withdrawals/history`.replace(/\/+/g, '/').replace(':/', '://');
         
-        console.log('Fetching withdrawals from:', apiUrl);
+        
         
         const response = await fetch(apiUrl, {
           method: 'GET',
@@ -49,7 +49,7 @@ export default function USDTWithdrawals() {
         }
         
         const data = await response.json();
-        console.log('Withdrawals data:', data);
+        
         
         if (data.success) {
           setWithdrawals(data.withdrawals || []);

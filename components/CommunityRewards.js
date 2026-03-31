@@ -30,7 +30,7 @@ export default function CommunityRewards() {
           .replace(/\/+/g, "/")
           .replace(":/", "://");
 
-        console.log("Fetching ledger entries from:", apiUrl);
+        
 
         const response = await fetch(apiUrl, {
           method: "GET",
@@ -53,7 +53,7 @@ export default function CommunityRewards() {
         }
 
         const data = await response.json();
-        console.log("Ledger entries data:", data);
+        
 
         if (data.success) {
           setLedgerEntries(data.entries || []);

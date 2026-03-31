@@ -57,7 +57,7 @@ const SwiftHistory = () => {
         finalUrl = `/api${endpointPath.startsWith('/') ? endpointPath : '/'.concat(endpointPath)}`;
       }
       
-      console.log("[SwiftHistory] Constructed fetch URL:", finalUrl);
+      
 
       const response = await fetch(finalUrl, {
         headers: {
@@ -65,7 +65,7 @@ const SwiftHistory = () => {
         },
       });
       const data = await response.json();
-      console.log("Swift transfer history data:", data);
+      
       if (response.ok && data.success) {
         setTransfers(data.data || []);
       } else {

@@ -382,7 +382,7 @@ const LedgerInfoCard = ({
 
     return -1;
   }
-  console.log("Today:", new Date(), "CurrentIndex:", currentIndex, usageLabels);
+  
   // 📈 Chart Data
 
   const chartData = {
@@ -790,7 +790,7 @@ export default function DashboardLayout({
         if (response.ok) {
           const config = await response.json();
           setAirdropConfig(config);
-          console.log("Airdrop promotion config loaded:", config);
+          
         } else {
           console.error("Failed to fetch airdrop config");
         }
@@ -852,7 +852,7 @@ export default function DashboardLayout({
       if (xummAccount && user && !authLoading) {
         // Use 'xrpAddress' to match the user model and backend logic.
         if (!user.xrpAddress) {
-          console.log("User has no saved wallet. Saving new wallet address...");
+          
           try {
             const token = localStorage.getItem("token");
             if (!token) throw new Error("No auth token");
@@ -874,7 +874,7 @@ export default function DashboardLayout({
               throw new Error(data.message || "Failed to save wallet address.");
             }
 
-            console.log("Wallet address saved successfully:", data);
+            
 
             if (updateUser) {
               updateUser({ ...user, xrpAddress: xummAccount });
@@ -922,7 +922,7 @@ export default function DashboardLayout({
 
       const specificPath = "/swift-transfers/transfer"; // Path relative to API_URL
       const finalUrl = `${API_URL}${specificPath}`;
-      console.log("Constructed Swift Transfer URL:", finalUrl);
+      
 
       const response = await fetch(finalUrl, {
         method: "POST",
@@ -1046,7 +1046,7 @@ export default function DashboardLayout({
       // Calls the Next.js API route: pages/api/ledger/transfer-rewards-to-xaman.js
       const specificPath = "/ledger/transfer-rewards-to-xaman";
       const finalUrl = `${API_URL}${specificPath}`;
-      console.log("Constructed Redeem Rewards (to Xaman) URL:", finalUrl);
+      
 
       const response = await fetch(finalUrl, {
         method: "POST",
@@ -1083,7 +1083,7 @@ export default function DashboardLayout({
 
   const handleAutoPosition = async () => {
     // Implement auto position logic here
-    console.log("Auto position clicked");
+    
   };
 
   const handleAddLP = async (transferAmount) => {
@@ -1095,7 +1095,7 @@ export default function DashboardLayout({
 
       const specificPath = "/ledger/add-lp";
       const finalUrl = `${API_URL}${specificPath}`;
-      console.log("Constructed Add LP URL:", finalUrl);
+      
 
       const response = await fetch(finalUrl, {
         method: "POST",
@@ -1144,7 +1144,7 @@ export default function DashboardLayout({
 
       const specificPath = "/withdrawals/xrp"; // The main withdrawal endpoint
       const finalUrl = `${API_URL}${specificPath}`;
-      console.log("Constructed Claim Community Rewards URL:", finalUrl);
+      
 
       const response = await fetch(finalUrl, {
         method: "POST",
@@ -1334,7 +1334,7 @@ export default function DashboardLayout({
       };
 
       setData(dynamicData);
-      console.log(dynamicData, "sssssssssssss");
+      
     } catch (error) {
       console.error("Error fetching XRP data:", error);
     }
@@ -1348,9 +1348,9 @@ export default function DashboardLayout({
       user
     );
 
-    console.log("[DashboardLayout] Ledger Details:", ledgerDetails);
-    console.log("[DashboardLayout] Loading Ledger:", loadingLedger);
-    console.log("[DashboardLayout] Ledger Error:", ledgerError);
+    
+    
+    
   }, [user, ledgerDetails, loadingLedger, ledgerError]);
 
   // DEBUGGING LOGS for ZeroRiskClaimModal props
@@ -1407,13 +1407,13 @@ export default function DashboardLayout({
   }
 
   // Log the user object to inspect its structure
-  console.log("[DashboardLayout] User object received from AuthContext:", user);
+  
 
   const disableButtons = !xummAccount || xummAccount === "";
 
-  console.log("[DashboardLayout] Ledger Details:", ledgerDetails);
-  console.log("[DashboardLayout] Loading Ledger:", loadingLedger);
-  console.log("[DashboardLayout] Ledger Error:", ledgerError);
+  
+  
+  
 
   // Calculate props for ZeroRiskClaimModal safely
   const xamanBalanceForModal = parseFloat(
@@ -1455,7 +1455,7 @@ export default function DashboardLayout({
   const targetDateOnlyUTC = "2025-06-27";
   const show = currentDateOnlyUTC > targetDateOnlyUTC;
 
-  console.log("Should SHOW? :", show, currentDateOnlyUTC, targetDateOnlyUTC);
+  
 
   const handleClick = (e) => {
     const target = e.target;

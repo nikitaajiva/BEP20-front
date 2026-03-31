@@ -132,7 +132,7 @@ export default function OnChainTable({ filters }) {
         const data = await response.json();
 
         if (data.success) {
-          console.log();
+          
           setEntries(data.data || []);
           setTotalDeposits(data.totalDeposits || "");
           setTotalWithdrawals(data.totalWithdrawals || "");

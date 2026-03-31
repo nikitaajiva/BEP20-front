@@ -50,15 +50,15 @@ export default function DashboardPage() {
     }
 
     try {
-      console.log(`[DashboardPage] Fetching ledger from: ${API_URL}/ledger`);
+
       const response = await fetch(`${API_URL}/ledger`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
       const data = await response.json();
-      console.log("[DashboardPage] Ledger Response:", data);
-      
+
+
       if (response.ok && data.success) {
         setLedgerDetails(data.data);
         if (data?.data?.bnbWallet?.balance) {
@@ -190,8 +190,8 @@ export default function DashboardPage() {
     // Always fetch ledger details if user exists
     fetchLedgerDetails();
 
-    // Fallback to database registered wallet if available
-    if (user?.wallet_address && !walletAccount) {
+    // Fallback to database registered wallet if available (unless manually disconnected)
+    if (user?.wallet_address && !walletAccount && !isManualDisconnect) {
       setWalletAccount(user.wallet_address);
     }
 
@@ -250,21 +250,21 @@ export default function DashboardPage() {
 
   const connectWallet = async () => {
     if (walletAccount) return; // Already connected
-    
+
     setTransactionStatus("Connecting MetaMask...");
     try {
-      console.log("[connectWallet] Requesting accounts...");
+
       const accounts = await requestAccounts();
-      
+
       if (accounts?.length) {
-        console.log("[connectWallet] Accounts received, switching network...");
+
         await switchToBsc();
-        
+
         setIsManualDisconnect(false);
         setWalletAccount(accounts[0]);
         fetchNativeBalance(accounts[0]);
         setTransactionStatus("Wallet connected.");
-        console.log("[connectWallet] Successfully connected:", accounts[0]);
+
       }
     } catch (err) {
       console.error("[connectWallet] Connection failed error details:", err);
@@ -278,29 +278,32 @@ export default function DashboardPage() {
   };
 
   const createPayload = async (amount) => {
-    setIsAmountModalOpen(false);
     const payload =
       typeof amount === "object" && amount !== null ? amount : { amount };
     const rawAmount = `${payload.amount ?? ""}`.trim();
     const asset = `${payload.asset || "BNB"}`.toUpperCase();
+
+    // Validation
     if (!rawAmount || !/^\d+(\.\d+)?$/.test(rawAmount)) {
-      alert("Invalid amount provided.");
-      setDebugMessage("Debug: Invalid amount for payload.");
+      setDebugMessage("Error: Invalid amount provided.");
       return;
     }
     if (/^0+(\.0+)?$/.test(rawAmount)) {
-      alert("Invalid amount provided.");
-      setDebugMessage("Debug: Invalid amount for payload.");
+      setDebugMessage("Error: Amount must be greater than zero.");
       return;
     }
+
+    setIsAmountModalOpen(false); // Only close after basic validation
     const ethereum = getEthereum();
     const isMobile =
       typeof navigator !== "undefined" &&
       /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    if (!ethereum || (asset === "BNB" && !isMobile)) {
+
+    if (!ethereum) {
       await startQrDeposit(rawAmount, asset);
       return;
     }
+
     let activeWallet = walletAccount;
     if (!activeWallet) {
       try {
@@ -323,35 +326,49 @@ export default function DashboardPage() {
     try {
       await switchToBsc();
       const intentData = await createDepositIntent(rawAmount, activeWallet, asset);
-      const depositAddress = intentData.deposit_address;
-      const referenceId = intentData.referenceId;
+      const depositAddress = intentData.deposit_address || (intentData.intent && intentData.intent.deposit_address);
+      const referenceId = intentData.referenceId || (intentData.intent && intentData.intent.referenceId);
+      
+      if (!depositAddress || !referenceId) {
+         // If it's a 409, the structure might be different
+         const finalData = intentData.intent || intentData;
+         if (finalData.referenceId) {
+            beginQrTracking(finalData, "Scan QR to complete your existing deposit.");
+            return;
+         }
+         throw new Error("Invalid response from server.");
+      }
+
       setTransactionStatus("Please confirm the transfer in MetaMask...");
 
       try {
         const txHash =
           asset === "BNB"
             ? await sendBnbTransfer({
-                from: activeWallet,
-                to: depositAddress,
-                amount: rawAmount,
-              })
+              from: activeWallet,
+              to: depositAddress,
+              amount: rawAmount,
+            })
             : await sendUsdtTransfer({
-                from: activeWallet,
-                to: depositAddress,
-                amount: rawAmount,
-              });
+              from: activeWallet,
+              to: depositAddress,
+              amount: rawAmount,
+            });
 
         await handleBackendVerification(txHash, referenceId, asset);
       } catch (transferError) {
         setTransactionStatus(
           transferError.message || "Wallet transfer not completed. Use QR to pay."
         );
-        beginQrTracking(intentData, "Wallet transfer cancelled. Scan QR to pay.");
+        const finalIntent = intentData.intent || intentData;
+        beginQrTracking(finalIntent, "Wallet transfer cancelled. Scan QR to pay.");
       }
     } catch (error) {
+      console.error("Deposit Intent Error:", error);
       setTransactionStatus(
         `Error: ${error.message || "An unknown error occurred."}`
       );
+      // Fallback: If it failed but it's an important error, maybe don't just leave a silent message
     }
   };
 
@@ -510,6 +527,7 @@ export default function DashboardPage() {
         network: data.network || "BSC",
         tokenContract: asset === "USDT" ? checksumToken : "",
         decimals: intentDecimals,
+        chainId: intentChainId,
         fallbackUrl,
         asset,
       });

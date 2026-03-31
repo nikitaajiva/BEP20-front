@@ -142,7 +142,7 @@ export default function HistoryTable({ filters, walletType }) {
         const data = await response.json();
 
         if (data.success) {
-          console.log(data, "================reports=================");
+          
           setEntries(data.data || []);
           setPagination(
             data.pagination || {

@@ -89,7 +89,7 @@ export default function TeamReferralsPage(
 ) {
   const { user, loading: authLoading, API_URL, logout } = useAuth();
   const [Data, setData] = useState();
-  console.log(user, "user user user");
+  
 
   const getTodayUTC = () => {
     const now = new Date();
@@ -123,7 +123,7 @@ export default function TeamReferralsPage(
       };
 
       setData(dynamicData);
-      console.log(dynamicData, "sssssssssssss");
+      
     } catch (error) {
       console.error("Error fetching USDT data:", error);
     }
@@ -254,7 +254,7 @@ export default function TeamReferralsPage(
 
 
   useEffect(() => {
-    console.log("useaffect running");
+    
     if (authLoading) {
       return; // Wait for auth to complete.
     }
@@ -356,7 +356,7 @@ export default function TeamReferralsPage(
     parseFloat(selfLp) + parseFloat(Community_USDT_Balance)
   ).toFixed(4);
 
-  console.log(Community_USDT_Balancetotal, "Community_USDT_Balancetotal");
+  
   const totalPages = Math.ceil(displayedReferrals.length / ITEMS_PER_PAGE);
   const paginatedReferrals = displayedReferrals.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,

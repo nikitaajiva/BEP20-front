@@ -1245,8 +1245,8 @@ export default function DashboardLayout({
       ledgerDetails.zeroRisk?.balance
     );
     console.log(
-      "[DashboardLayout] ledgerDetails.usdtWallet?.balance:",
-      ledgerDetails.usdtWallet?.balance
+      "[DashboardLayout] ledgerDetails.bnbWallet?.balance:",
+      ledgerDetails.bnbWallet?.balance
     );
     console.log(
       "[DashboardLayout] ledgerDetails.lpWallet?.balance:",
@@ -1471,7 +1471,7 @@ export default function DashboardLayout({
             }
             layout="horizontal"
             showPlusBtn={false}
-            balance={walletAccount ? walletBalance : parseFloat(ledgerDetails?.usdtWallet?.balance || "0").toLocaleString(undefined, { minimumFractionDigits: 2 })}
+            balance={walletAccount ? walletBalance : parseFloat(ledgerDetails?.bnbWallet?.balance || "0").toLocaleString(undefined, { minimumFractionDigits: 2 })}
             currency={walletAccount ? "BNB" : "USDT"}
             onDeposit={walletAccount ? onOpenAmountModal : onWalletConnect}
             depositLabel={walletAccount ? "Deposit" : "Connect"}
@@ -1579,7 +1579,7 @@ export default function DashboardLayout({
         isOpen={isAddLPModalOpen}
         onClose={() => setIsAddLPModalOpen(false)}
         onSubmit={handleAddLP}
-        primaryVaultBalance={parseFloat(ledgerDetails?.usdtWallet?.balance || "0.0")}
+        primaryVaultBalance={parseFloat(ledgerDetails?.bnbWallet?.balance || "0.0")}
         swiftBalance={parseFloat(ledgerDetails?.swiftWallet?.balance || "0.0")}
         isFirstLP={parseFloat(ledgerDetails?.swiftWallet?.limit || "0.0") === 0}
         isLoading={addLPLoading}

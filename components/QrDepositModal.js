@@ -10,8 +10,11 @@ export default function QrDepositModal({
   status,
   timeLeft,
   onRetry,
+  onSubmitTxHash,
+  txHashStatus,
 }) {
   const [qrDataUrl, setQrDataUrl] = useState("");
+  const [txHash, setTxHash] = useState("");
   const isMobile =
     typeof navigator !== "undefined" &&
     /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
@@ -24,9 +27,11 @@ export default function QrDepositModal({
     let isMounted = true;
     if (!payload) {
       setQrDataUrl("");
+      setTxHash("");
       return;
     }
 
+    setTxHash("");
     QRCode.toDataURL(payload, { width: 220, margin: 1 })
       .then((url) => {
         if (isMounted) setQrDataUrl(url);
@@ -120,6 +125,46 @@ export default function QrDepositModal({
           <div style={labelStyle}>Network</div>
           <div style={valueStyle}>{displayData?.network}</div>
         </div>
+
+        {onSubmitTxHash ? (
+          <div style={{ marginTop: "16px", textAlign: "left" }}>
+            <div style={labelStyle}>Have a tx hash?</div>
+            <input
+              value={txHash}
+              onChange={(e) => setTxHash(e.target.value.trim())}
+              placeholder="0x..."
+              style={{
+                width: "100%",
+                padding: "8px 10px",
+                borderRadius: "6px",
+                border: "1px solid rgba(255, 215, 0, 0.25)",
+                background: "rgba(255,255,255,0.08)",
+                color: "#f4f4f4",
+                marginBottom: "8px",
+              }}
+            />
+            <button
+              onClick={() => {
+                if (txHash) onSubmitTxHash(txHash);
+              }}
+              style={{
+                padding: "8px 12px",
+                borderRadius: "6px",
+                border: "none",
+                background: "linear-gradient(135deg, #ffd700, #ff9f1a)",
+                color: "#0a0a0a",
+                fontWeight: "bold",
+              }}
+            >
+              Submit Tx Hash
+            </button>
+            {txHashStatus ? (
+              <div style={{ marginTop: "8px", color: "#ffd766", fontSize: "0.85rem" }}>
+                {txHashStatus}
+              </div>
+            ) : null}
+          </div>
+        ) : null}
 
         <div style={{ marginTop: "14px", color: "#ffd766" }}>
           Time left: {Math.max(0, timeLeft)}s

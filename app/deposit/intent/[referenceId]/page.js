@@ -12,6 +12,8 @@ export default function DepositIntentPage() {
   const [intent, setIntent] = useState(null);
   const [status, setStatus] = useState("Loading deposit intent...");
   const [error, setError] = useState("");
+  const [txHashInput, setTxHashInput] = useState("");
+  const [txHashStatus, setTxHashStatus] = useState("");
 
   const fetchIntent = useCallback(async () => {
     if (!referenceId) return;
@@ -95,6 +97,38 @@ export default function DepositIntentPage() {
     }
   };
 
+  const handleSubmitTxHash = async () => {
+    if (!intent || !txHashInput) return;
+    setTxHashStatus("Submitting tx hash...");
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setTxHashStatus("Authentication required.");
+        return;
+      }
+      const backendResponse = await fetch(`${API_URL}/deposits/bnb`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          tx_hash: txHashInput,
+          referenceId,
+        }),
+      });
+      const backendData = await backendResponse.json();
+      if (backendResponse.ok && backendData.success) {
+        setTxHashStatus(backendData.message || "Tx hash accepted.");
+        setStatus(backendData.message || "Deposit recorded.");
+        return;
+      }
+      setTxHashStatus(backendData.message || "Failed to submit tx hash.");
+    } catch (err) {
+      setTxHashStatus(err.message || "Failed to submit tx hash.");
+    }
+  };
+
   const expired = intent?.expiresAt ? new Date(intent.expiresAt) < new Date() : false;
 
   return (
@@ -137,6 +171,46 @@ export default function DepositIntentPage() {
               </div>
               <div style={{ fontSize: "0.85rem", color: "#c7c7c7" }}>Reference ID</div>
               <div style={{ wordBreak: "break-all" }}>{referenceId}</div>
+            </div>
+          ) : null}
+
+          {intent ? (
+            <div style={{ marginBottom: "20px" }}>
+              <div style={{ fontSize: "0.85rem", color: "#c7c7c7" }}>
+                Submit Tx Hash (external wallet)
+              </div>
+              <input
+                value={txHashInput}
+                onChange={(e) => setTxHashInput(e.target.value.trim())}
+                placeholder="0x..."
+                style={{
+                  width: "100%",
+                  padding: "8px 10px",
+                  borderRadius: "6px",
+                  border: "1px solid rgba(255, 215, 0, 0.25)",
+                  background: "rgba(255,255,255,0.08)",
+                  color: "#f4f4f4",
+                  marginBottom: "8px",
+                }}
+              />
+              <button
+                onClick={handleSubmitTxHash}
+                style={{
+                  padding: "10px 14px",
+                  borderRadius: "6px",
+                  border: "none",
+                  background: "linear-gradient(135deg, #ffd700, #ff9f1a)",
+                  color: "#0a0a0a",
+                  fontWeight: "bold",
+                }}
+              >
+                Submit Tx Hash
+              </button>
+              {txHashStatus ? (
+                <div style={{ marginTop: "8px", color: "#ffd766" }}>
+                  {txHashStatus}
+                </div>
+              ) : null}
             </div>
           ) : null}
 

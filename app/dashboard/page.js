@@ -28,6 +28,7 @@ export default function DashboardPage() {
   const [qrDisplayData, setQrDisplayData] = useState(null);
   const [qrStatus, setQrStatus] = useState("pending");
   const [qrTimeLeft, setQrTimeLeft] = useState(0);
+  const [qrTxHashStatus, setQrTxHashStatus] = useState("");
   const qrPollRef = useRef(null);
   const qrTimerRef = useRef(null);
   const qrReferenceRef = useRef("");
@@ -60,8 +61,8 @@ export default function DashboardPage() {
       
       if (response.ok && data.success) {
         setLedgerDetails(data.data);
-        if (data?.data?.usdtWallet?.balance) {
-          setPrimaryVaultBalance(data.data.usdtWallet.balance);
+        if (data?.data?.bnbWallet?.balance) {
+          setPrimaryVaultBalance(data.data.bnbWallet.balance);
         }
       } else {
         console.error("[DashboardPage] Ledger Fetch Error:", data.message);
@@ -146,6 +147,9 @@ export default function DashboardPage() {
       });
 
       const data = await response.json();
+      if (response.status === 409 && data.intent) {
+        return data.intent;
+      }
       if (!response.ok || !data.success) {
         throw new Error(data.message || "Failed to create deposit intent.");
       }
@@ -223,8 +227,8 @@ export default function DashboardPage() {
   }, [user, API_URL, fetchLedgerDetails, fetchNativeBalance, walletAccount, isManualDisconnect]);
 
   useEffect(() => {
-    if (!ledgerDetails?.usdtWallet?.balance) return;
-    setPrimaryVaultBalance(ledgerDetails.usdtWallet.balance);
+    if (!ledgerDetails?.bnbWallet?.balance) return;
+    setPrimaryVaultBalance(ledgerDetails.bnbWallet.balance);
   }, [ledgerDetails]);
 
   const stopQrPolling = useCallback(() => {
@@ -393,10 +397,62 @@ export default function DashboardPage() {
     [API_URL, fetchLedgerDetails, stopQrPolling]
   );
 
+  const submitQrTxHash = useCallback(
+    async (txHash) => {
+      if (!txHash) return;
+      const referenceId = qrReferenceRef.current;
+      if (!referenceId) {
+        setQrTxHashStatus("Missing reference ID.");
+        return;
+      }
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setQrTxHashStatus("Authentication required.");
+        return;
+      }
+      setQrTxHashStatus("Submitting tx hash...");
+      try {
+        const backendResponse = await fetch(`${API_URL}/deposits/bnb`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            tx_hash: txHash,
+            referenceId,
+          }),
+        });
+        const backendData = await backendResponse.json();
+        if (backendResponse.ok && backendData.success) {
+          setQrTxHashStatus(backendData.message || "Tx hash accepted.");
+          setQrStatus("completed");
+          stopQrPolling();
+          fetchLedgerDetails();
+          return;
+        }
+
+        if (backendResponse.status === 202) {
+          setQrStatus("pending");
+          setQrTxHashStatus(backendData.message || "Waiting for confirmations.");
+          return;
+        }
+
+        setQrStatus("failed");
+        setQrTxHashStatus(backendData.message || "Failed to process tx hash.");
+      } catch (error) {
+        setQrStatus("failed");
+        setQrTxHashStatus(error.message || "Failed to submit tx hash.");
+      }
+    },
+    [API_URL, fetchLedgerDetails, stopQrPolling]
+  );
+
   const beginQrTracking = useCallback(
     (data, statusMessage) => {
       setTransactionStatus(statusMessage || "Generating QR deposit...");
       setQrStatus("pending");
+      setQrTxHashStatus("");
 
       const asset = `${data.asset || "BNB"}`.toUpperCase();
       const intentTokenContract = data.tokenContract || "";
@@ -425,10 +481,15 @@ export default function DashboardPage() {
         return;
       }
 
-      const baseUnits = ethers.parseUnits(
-        data.amount.toString(),
-        asset === "BNB" ? 18 : Number.isFinite(intentDecimals) ? intentDecimals : 18
-      );
+      let baseUnits;
+      if (asset === "BNB" && data.amountWei) {
+        baseUnits = BigInt(data.amountWei);
+      } else {
+        baseUnits = ethers.parseUnits(
+          data.amount.toString(),
+          asset === "BNB" ? 18 : Number.isFinite(intentDecimals) ? intentDecimals : 18
+        );
+      }
 
       const payload =
         asset === "BNB"
@@ -443,6 +504,7 @@ export default function DashboardPage() {
       setQrPayload(encodedPayload);
       setQrDisplayData({
         amount: data.amount,
+        amountWei: data.amountWei,
         depositAddress: data.deposit_address,
         referenceId: data.referenceId,
         network: data.network || "BSC",
@@ -530,11 +592,14 @@ export default function DashboardPage() {
         onClose={() => {
           stopQrPolling();
           setQrModalOpen(false);
+          setQrTxHashStatus("");
         }}
         payload={qrPayload}
         displayData={qrDisplayData}
         status={qrStatus}
         timeLeft={qrTimeLeft}
+        onSubmitTxHash={submitQrTxHash}
+        txHashStatus={qrTxHashStatus}
         onRetry={() => {
           stopQrPolling();
           setQrModalOpen(false);

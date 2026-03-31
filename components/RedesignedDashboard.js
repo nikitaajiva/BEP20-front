@@ -38,7 +38,7 @@ const RedesignedDashboard = ({
   };
   const lpRoi = getRoi(lpWallet?.balance);
 
-  const internalVaultBalance = parseFloat(ledgerDetails?.usdtWallet?.balance || "0").toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const internalVaultBalance = parseFloat(ledgerDetails?.bnbWallet?.balance || "0").toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const primaryVaultBalance = internalVaultBalance;
 
   const zeroRiskBalance = parseFloat(ledgerDetails?.zeroRisk?.balance || "0").toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });

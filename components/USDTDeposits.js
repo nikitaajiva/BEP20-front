@@ -88,7 +88,7 @@ export default function USDTDeposits() {
       <div className="container-xxl py-4">
         <div className="card p-4">
           <div className="d-flex justify-content-between align-items-center mb-4">
-            <h4 className="fw-bold mb-0" style={{ fontSize: '1.25rem' }}>USDT Deposits</h4>
+            <h4 className="fw-bold mb-0" style={{ fontSize: '1.25rem' }}>BNB Deposits</h4>
           </div>
 
           {error && (
@@ -110,7 +110,7 @@ export default function USDTDeposits() {
                   <tr>
                     <th>Date</th>
                     <th>Transaction ID</th>
-                    <th>Amount (USDT)</th>
+                    <th>Amount (BNB)</th>
                     <th>Status</th>
                     <th>Wallet Address</th>
                   </tr>
@@ -121,7 +121,7 @@ export default function USDTDeposits() {
                       <td>{new Date(deposit.timestamp).toLocaleString()}</td>
                       <td className="highlight">{deposit.tx_hash}</td>
                       <td className="positive-amount">
-                        {parseFloat(deposit.amount).toFixed(6)} USDT
+                        {parseFloat(deposit.amount).toFixed(6)} BNB
                       </td>
                       <td>
                         <span className={`status-${deposit.status.toLowerCase()}`}>

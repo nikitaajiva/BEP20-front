@@ -123,9 +123,9 @@ export default function CommunityBoosterReportPage() {
     };
 
     console.group("[RewardsSummary] Request");
-    console.log("→ URL", `${API_URL}/api/bonus/community/rewards/summary`);
-    console.log("→ Params", params);
-    console.log("→ Has token?", Boolean(token));
+    
+    
+    
     console.time("⏱ fetch");
     try {
       setLoading(true);
@@ -138,16 +138,16 @@ export default function CommunityBoosterReportPage() {
 
       console.timeEnd("⏱ fetch");
       console.groupCollapsed("[RewardsSummary] Response");
-      console.log("← HTTP", status);
-      console.log("← Keys", Object.keys(data));
+      
+      
 
       // Shape 1: Booster-style (user/volumes/conditions/qualifiedTiers/credited[/cascade])
       if (data.user && data.volumes && data.conditions) {
-        console.log("Detected: Booster-style summary");
+        
 
-        console.log("user", data.user);
-        console.log("volumes", data.volumes);
-        console.log("conditions", data.conditions);
+        
+        
+        
 
         if (Array.isArray(data.qualifiedTiers)) {
           console.table(
@@ -161,7 +161,7 @@ export default function CommunityBoosterReportPage() {
 
         if (data.credited) {
           const creditedTotalNum = toNum(data.credited.total);
-          console.log("credited.total (num)", creditedTotalNum);
+          
           if (
             Array.isArray(data.credited.events) &&
             data.credited.events.length
@@ -178,13 +178,13 @@ export default function CommunityBoosterReportPage() {
               }))
             );
           } else {
-            console.log("credited.events: []");
+            
           }
         }
 
         if (data.cascade) {
-          console.log("cascade.levelUnlocked", data.cascade.levelUnlocked);
-          console.log("cascade.pct", toNum(data.cascade.pct));
+          
+          
           if (Array.isArray(data.cascade.ActiveDirects)) {
             console.table(
               data.cascade.ActiveDirects.slice(0, 10).map((d) => ({
@@ -200,7 +200,7 @@ export default function CommunityBoosterReportPage() {
 
       // Shape 2: Cascade-only (when ?view=cascade)
       if (data.uhid && Array.isArray(data.ActiveDirects)) {
-        console.log("Detected: Cascade-only object");
+        
         console.log(
           "levelUnlocked",
           data.levelUnlocked,

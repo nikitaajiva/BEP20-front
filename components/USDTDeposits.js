@@ -28,7 +28,7 @@ export default function USDTDeposits() {
         // Construct the API URL carefully
         const apiUrl = `${API_URL}/deposits/history`.replace(/\/+/g, '/').replace(':/', '://');
         
-        console.log('Fetching deposits from:', apiUrl);
+        
         
         const response = await fetch(apiUrl, {
           method: 'GET',
@@ -49,7 +49,7 @@ export default function USDTDeposits() {
         }
         
         const data = await response.json();
-        console.log('Deposits data:', data);
+        
         
         if (data.success) {
           setDeposits(data.deposits || []);

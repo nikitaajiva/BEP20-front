@@ -87,23 +87,23 @@ export default function HistoryTable({ filters, walletType }) {
   useEffect(() => {
     const fetchLedgerHistory = async () => {
       if (!user) {
-        console.log("No user found. Skipping fetch.");
+        
         return;
       }
 
-      console.log("Starting fetchLedgerHistory...");
+      
       setLoading(true);
 
       try {
         const token = localStorage.getItem("token");
-        console.log("Retrieved token:", token);
+        
 
         if (!token) {
           throw new Error("No authentication token found");
         }
 
-        console.log("Current filters:", filters);
-        console.log("Current pagination:", pagination);
+        
+        
 
         const queryParams = new URLSearchParams({
           page: pagination.currentPage.toString(),
@@ -118,7 +118,7 @@ export default function HistoryTable({ filters, walletType }) {
             .replace(/\/+/g, "/")
             .replace(":/", "://");
 
-        console.log("Final API URL:", apiUrl);
+        
 
         const response = await fetch(apiUrl, {
           method: "GET",
@@ -128,7 +128,7 @@ export default function HistoryTable({ filters, walletType }) {
           },
         });
 
-        console.log("Response status:", response.status);
+        
 
         if (!response.ok) {
           if (response.status === 401) {
@@ -144,10 +144,10 @@ export default function HistoryTable({ filters, walletType }) {
         }
 
         const data = await response.json();
-        console.log("Fetched data:", data);
+        
 
         if (data.success) {
-          console.log("Ledger entries fetched:", data.entries);
+          
           setEntries(data.entries || []);
           setPagination(
             data.pagination || {
@@ -175,7 +175,7 @@ export default function HistoryTable({ filters, walletType }) {
           }, 2000);
         }
       } finally {
-        console.log("Fetch ledger history process complete.");
+        
         setLoading(false);
       }
     };

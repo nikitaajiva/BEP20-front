@@ -26,7 +26,7 @@ const RedesignedDashboard = ({
   const lpBalance = parseFloat(lpWallet?.balance || "0").toLocaleString(undefined, { minimumFractionDigits: 2 });
   const lpAutopositioning = parseFloat(lpWallet?.autopositioning || "0").toLocaleString(undefined, { minimumFractionDigits: 2 });
   const lpPending = parseFloat(lpWallet?.pending || "0").toLocaleString(undefined, { minimumFractionDigits: 2 });
-  console.log(user)
+
 
   const getRoi = (b) => {
     const val = parseFloat(b || 0);
@@ -38,7 +38,7 @@ const RedesignedDashboard = ({
   };
   const lpRoi = getRoi(lpWallet?.balance);
 
-  const internalVaultBalance = parseFloat(ledgerDetails?.usdtWallet?.balance || "0").toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const internalVaultBalance = parseFloat(ledgerDetails?.bnbWallet?.balance || "0").toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const primaryVaultBalance = internalVaultBalance;
 
   const zeroRiskBalance = parseFloat(ledgerDetails?.zeroRisk?.balance || "0").toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });

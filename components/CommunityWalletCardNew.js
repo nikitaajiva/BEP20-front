@@ -59,10 +59,10 @@ export default function CommunityWalletCard({
   const RewardsWalletRedeem = (totalLimitUsed || 0) - (totalRewards || 0);
 
   // Console log everything
-  console.log("sumLimits:", sumLimits.toFixed(2), "USDT");
-  console.log("CommunityWallet:", CommunityWallet.toFixed(2), "USDT");
-  console.log("totalLimitUsed:", totalLimitUsed.toFixed(2), "USDT");
-  console.log("RewardsWalletRedeem:", RewardsWalletRedeem.toFixed(2), "USDT");
+  
+  
+  
+  
 
   const buttonStyle = {
     background: "rgba(79, 140, 255, 0.1)",

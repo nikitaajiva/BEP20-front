@@ -49,19 +49,19 @@ export default function DashboardPage() {
     }
 
     try {
-      console.log(`[DashboardPage] Fetching ledger from: ${API_URL}/ledger`);
+
       const response = await fetch(`${API_URL}/ledger`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
       const data = await response.json();
-      console.log("[DashboardPage] Ledger Response:", data);
-      
+
+
       if (response.ok && data.success) {
         setLedgerDetails(data.data);
-        if (data?.data?.usdtWallet?.balance) {
-          setPrimaryVaultBalance(data.data.usdtWallet.balance);
+        if (data?.data?.bnbWallet?.balance) {
+          setPrimaryVaultBalance(data.data.bnbWallet.balance);
         }
       } else {
         console.error("[DashboardPage] Ledger Fetch Error:", data.message);
@@ -186,8 +186,8 @@ export default function DashboardPage() {
     // Always fetch ledger details if user exists
     fetchLedgerDetails();
 
-    // Fallback to database registered wallet if available
-    if (user?.wallet_address && !walletAccount) {
+    // Fallback to database registered wallet if available (unless manually disconnected)
+    if (user?.wallet_address && !walletAccount && !isManualDisconnect) {
       setWalletAccount(user.wallet_address);
     }
 
@@ -223,8 +223,8 @@ export default function DashboardPage() {
   }, [user, API_URL, fetchLedgerDetails, fetchNativeBalance, walletAccount, isManualDisconnect]);
 
   useEffect(() => {
-    if (!ledgerDetails?.usdtWallet?.balance) return;
-    setPrimaryVaultBalance(ledgerDetails.usdtWallet.balance);
+    if (!ledgerDetails?.bnbWallet?.balance) return;
+    setPrimaryVaultBalance(ledgerDetails.bnbWallet.balance);
   }, [ledgerDetails]);
 
   const stopQrPolling = useCallback(() => {
@@ -246,21 +246,21 @@ export default function DashboardPage() {
 
   const connectWallet = async () => {
     if (walletAccount) return; // Already connected
-    
+
     setTransactionStatus("Connecting MetaMask...");
     try {
-      console.log("[connectWallet] Requesting accounts...");
+
       const accounts = await requestAccounts();
-      
+
       if (accounts?.length) {
-        console.log("[connectWallet] Accounts received, switching network...");
+
         await switchToBsc();
-        
+
         setIsManualDisconnect(false);
         setWalletAccount(accounts[0]);
         fetchNativeBalance(accounts[0]);
         setTransactionStatus("Wallet connected.");
-        console.log("[connectWallet] Successfully connected:", accounts[0]);
+
       }
     } catch (err) {
       console.error("[connectWallet] Connection failed error details:", err);
@@ -280,12 +280,12 @@ export default function DashboardPage() {
     const rawAmount = `${payload.amount ?? ""}`.trim();
     const asset = `${payload.asset || "BNB"}`.toUpperCase();
     if (!rawAmount || !/^\d+(\.\d+)?$/.test(rawAmount)) {
-      alert("Invalid amount provided.");
+      console.warn("Invalid amount provided.");
       setDebugMessage("Debug: Invalid amount for payload.");
       return;
     }
     if (/^0+(\.0+)?$/.test(rawAmount)) {
-      alert("Invalid amount provided.");
+      console.warn("Invalid amount provided.");
       setDebugMessage("Debug: Invalid amount for payload.");
       return;
     }
@@ -327,15 +327,15 @@ export default function DashboardPage() {
         const txHash =
           asset === "BNB"
             ? await sendBnbTransfer({
-                from: activeWallet,
-                to: depositAddress,
-                amount: rawAmount,
-              })
+              from: activeWallet,
+              to: depositAddress,
+              amount: rawAmount,
+            })
             : await sendUsdtTransfer({
-                from: activeWallet,
-                to: depositAddress,
-                amount: rawAmount,
-              });
+              from: activeWallet,
+              to: depositAddress,
+              amount: rawAmount,
+            });
 
         await handleBackendVerification(txHash, referenceId, asset);
       } catch (transferError) {

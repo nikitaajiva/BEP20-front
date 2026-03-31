@@ -50,7 +50,7 @@ function VerifyOtpForm() {
       }
 
       // OTP Verified successfully
-      console.log('OTP Verified:', data.message);
+      
       // No need to set user or token here, just redirect to set password
       router.push(`/auth/set-password?userId=${userId}`);
     } catch (err) {

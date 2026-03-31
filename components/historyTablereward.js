@@ -163,9 +163,9 @@ export default function HistoryTableReward({ filters, walletType = null }) {
     { label: "Balance", key: "closingBalance" },
   ];
 
-  // console.log("=== Grouped Rewards Table ===", groupedArray);
+  // 
   entries.forEach((row) => {
-    console.log(`${row}`);
+    
   });
 
   if (loading) {

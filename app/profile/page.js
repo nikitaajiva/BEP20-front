@@ -13,7 +13,7 @@ export default function ProfilePage() {
     countryCode: "",
     whatsappContact: "",
   });
-  console.log(formData, "formDataformDataformDataformDataformData");
+  
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -51,8 +51,8 @@ export default function ProfilePage() {
       setInitialFormData(baseData);
 
       // Log old values (from DB)
-      console.log("📦 Old Country (DB):", baseData.country);
-      console.log("📦 Old Country Code (DB):", baseData.countryCode);
+      
+      
 
       fetch("https://ipapi.co/json/")
         .then((res) => res.json())
@@ -61,8 +61,8 @@ export default function ProfilePage() {
           const ipCode = data.country_calling_code || "";
 
           // Log new values (from IP)
-          console.log("🌍 New Country (IP):", ipCountry);
-          console.log("🌍 New Country Code (IP):", ipCode);
+          
+          
 
           setFormData((prev) => {
             let updated = {

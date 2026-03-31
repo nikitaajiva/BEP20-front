@@ -11,13 +11,13 @@ function getAirdropBonusPercentage(config, serverTime) {
     ? new Date(serverTime).getTime()
     : new Date().getTime();
 
-  console.log("--- Airdrop Bonus Debug ---");
+  
   console.log(
     "Current Time (ms):",
     currentTime,
     `(${new Date(currentTime).toISOString()})`
   );
-  console.log("Start Timestamp from config:", startTimestamp);
+  
 
   if (startTimestamp.toString().length <= 10) {
     console.warn(
@@ -32,21 +32,21 @@ function getAirdropBonusPercentage(config, serverTime) {
     console.log(
       "Result: Promotion has not started yet (Current Time < Start Time)."
     );
-    console.log("Should Display: No");
-    console.log("--------------------------");
+    
+    
     return 0;
   }
 
   const hoursSinceStart = (currentTime - startTimestamp) / (1000 * 60 * 60);
-  console.log("Hours Since Start:", hoursSinceStart.toFixed(2));
+  
 
   let cumulativeHours = 0;
   for (const step of steps) {
     cumulativeHours += step.durationHours;
     if (hoursSinceStart < cumulativeHours) {
-      console.log(`Result: In a valid step. Percentage: ${step.percentage}`);
-      console.log("Should Display: Yes");
-      console.log("--------------------------");
+      
+      
+      
       return step.percentage;
     }
   }
@@ -54,8 +54,8 @@ function getAirdropBonusPercentage(config, serverTime) {
   console.log(
     "Result: Promotion period has ended (Hours since start exceeds all steps)."
   );
-  console.log("Should Display: No");
-  console.log("--------------------------");
+  
+  
   return 0; // Promotion period has ended
 }
 

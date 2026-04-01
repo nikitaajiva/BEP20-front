@@ -6,6 +6,7 @@ export default function QrDepositModal({
   isOpen,
   onClose,
   payload,
+  walletPayload,
   displayData,
   status,
   timeLeft,
@@ -18,9 +19,10 @@ export default function QrDepositModal({
   const isMobile =
     typeof navigator !== "undefined" &&
     /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const openWalletPayload = walletPayload || payload;
   const metamaskLink =
-    payload && payload.startsWith("ethereum:")
-      ? `https://metamask.app.link/send/${payload.replace("ethereum:", "")}`
+    openWalletPayload && openWalletPayload.startsWith("ethereum:")
+      ? `https://metamask.app.link/send/${openWalletPayload.replace("ethereum:", "")}`
       : "";
 
   useEffect(() => {
@@ -110,7 +112,7 @@ export default function QrDepositModal({
         <div style={{ marginTop: "18px", textAlign: "left" }}>
           <div style={labelStyle}>Amount</div>
           <div style={valueStyle}>
-            {displayData?.amount} {displayData?.asset || "USDT"}
+            {displayData?.amount} {displayData?.asset || "BNB"}
           </div>
           {displayData?.asset !== "BNB" && (
             <>
@@ -205,15 +207,18 @@ export default function QrDepositModal({
 
                     // For USDT, we'd need contract interaction, but if it's BNB we can do simple value transfer
                     if (displayData?.asset === "BNB") {
-                      await ethereum.request({
+                      const txHash = await ethereum.request({
                         method: 'eth_sendTransaction',
                         params: [txParams],
                       });
+                      if (txHash && onSubmitTxHash) {
+                        onSubmitTxHash(txHash);
+                      }
                       return;
                     }
                   }
 
-                  const primaryLink = isMobile && metamaskLink ? metamaskLink : payload;
+                  const primaryLink = isMobile && metamaskLink ? metamaskLink : openWalletPayload;
                   window.location.href = primaryLink;
 
                   // ONLY fallback to metamaskLink on Mobile to avoid desktop redirect to download page

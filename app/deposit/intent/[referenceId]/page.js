@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import AuthGuard from "@/components/auth/AuthGuard";
 import { useAuth } from "@/context/AuthContext";
@@ -14,6 +14,14 @@ export default function DepositIntentPage() {
   const [error, setError] = useState("");
   const [txHashInput, setTxHashInput] = useState("");
   const [txHashStatus, setTxHashStatus] = useState("");
+  const pollRef = useRef(null);
+
+  const stopPolling = useCallback(() => {
+    if (pollRef.current) {
+      clearInterval(pollRef.current);
+      pollRef.current = null;
+    }
+  }, []);
 
   const fetchIntent = useCallback(async () => {
     if (!referenceId) return;
@@ -37,15 +45,76 @@ export default function DepositIntentPage() {
       }
       setIntent(data.intent);
       setStatus("Ready to send deposit.");
+      if (data.intent?.tx_hash) {
+        setStatus("Awaiting confirmations...");
+        startPolling();
+      }
     } catch (err) {
       setError(err.message || "Failed to load deposit intent.");
       setStatus("Unable to load deposit intent.");
     }
   }, [API_URL, referenceId]);
 
+  const verifyIntent = useCallback(async () => {
+    if (!referenceId) return;
+    const token = localStorage.getItem("token");
+    if (!token) return;
+    try {
+      const response = await fetch(
+        `${API_URL}/deposits/verify?referenceId=${encodeURIComponent(referenceId)}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const data = await response.json();
+      if (data.success && data.status === "completed") {
+        setStatus(
+          data.intentAmount
+            ? `Deposit confirmed for ${data.intentAmount} ${data.asset || "BNB"}.`
+            : data.message || "Deposit confirmed."
+        );
+        stopPolling();
+        return true;
+      }
+      if (data.status === "expired") {
+        setStatus("Deposit intent expired.");
+        stopPolling();
+        return true;
+      }
+      if (data.status === "failed") {
+        setStatus(data.message || "Deposit verification failed.");
+        stopPolling();
+        return true;
+      }
+      if (data.status === "pending_confirmations" || data.status === "pending") {
+        setStatus(data.message || "Waiting for confirmations...");
+      }
+    } catch (err) {
+      setStatus(err.message || "Failed to verify deposit.");
+    }
+    return false;
+  }, [API_URL, referenceId, stopPolling]);
+
+  const startPolling = useCallback(() => {
+    if (pollRef.current) return;
+    const pollOnce = async () => {
+      await verifyIntent();
+    };
+    pollOnce();
+    pollRef.current = setInterval(pollOnce, 10000);
+  }, [verifyIntent]);
+
   useEffect(() => {
     fetchIntent();
   }, [fetchIntent]);
+
+  useEffect(() => {
+    return () => {
+      stopPolling();
+    };
+  }, [stopPolling]);
 
   const handlePay = async () => {
     if (!intent) return;
@@ -87,10 +156,21 @@ export default function DepositIntentPage() {
         }),
       });
       const backendData = await backendResponse.json();
-      if (!backendResponse.ok || !backendData.success) {
-        throw new Error(backendData.message || "Failed to record deposit.");
+      if (backendResponse.ok && backendData.success) {
+        setStatus(
+          backendData.intentAmount
+            ? `Deposit confirmed for ${backendData.intentAmount} ${backendData.asset || "BNB"}.`
+            : backendData.message || "Deposit recorded."
+        );
+        stopPolling();
+        return;
       }
-      setStatus(backendData.message || "Deposit recorded.");
+      if (backendResponse.status === 202) {
+        setStatus(backendData.message || "Waiting for confirmations...");
+        startPolling();
+        return;
+      }
+      throw new Error(backendData.message || "Failed to record deposit.");
     } catch (err) {
       setError(err.message || "Payment failed.");
       setStatus("Payment failed.");
@@ -120,7 +200,18 @@ export default function DepositIntentPage() {
       const backendData = await backendResponse.json();
       if (backendResponse.ok && backendData.success) {
         setTxHashStatus(backendData.message || "Tx hash accepted.");
-        setStatus(backendData.message || "Deposit recorded.");
+        setStatus(
+          backendData.intentAmount
+            ? `Deposit confirmed for ${backendData.intentAmount} ${backendData.asset || "BNB"}.`
+            : backendData.message || "Deposit recorded."
+        );
+        stopPolling();
+        return;
+      }
+      if (backendResponse.status === 202) {
+        setTxHashStatus(backendData.message || "Waiting for confirmations.");
+        setStatus(backendData.message || "Waiting for confirmations...");
+        startPolling();
         return;
       }
       setTxHashStatus(backendData.message || "Failed to submit tx hash.");

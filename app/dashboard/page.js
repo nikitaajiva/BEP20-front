@@ -10,14 +10,13 @@ import {
   getEthereum,
   requestAccounts,
   switchToBsc,
-  sendUsdtTransfer,
-  sendBnbTransfer,
 } from "@/utils/bscWallet";
 
 export default function DashboardPage() {
   const { user, API_URL } = useAuth();
   const usdtDecimals = Number(process.env.NEXT_PUBLIC_USDT_DECIMALS || "18");
   const bscChainId = 56;
+  const PENDING_DEPOSIT_KEY = "bep_pending_deposit";
   const [walletAccount, setWalletAccount] = useState("");
   const [primaryVaultBalance, setPrimaryVaultBalance] = useState("0");
   const [isAmountModalOpen, setIsAmountModalOpen] = useState(false);
@@ -25,6 +24,7 @@ export default function DashboardPage() {
   const [debugMessage, setDebugMessage] = useState("");
   const [qrModalOpen, setQrModalOpen] = useState(false);
   const [qrPayload, setQrPayload] = useState("");
+  const [qrWalletPayload, setQrWalletPayload] = useState("");
   const [qrDisplayData, setQrDisplayData] = useState(null);
   const [qrStatus, setQrStatus] = useState("pending");
   const [qrTimeLeft, setQrTimeLeft] = useState(0);
@@ -32,7 +32,13 @@ export default function DashboardPage() {
   const qrPollRef = useRef(null);
   const qrTimerRef = useRef(null);
   const qrReferenceRef = useRef("");
+  const qrTxHashRef = useRef("");
+  const depositPollRef = useRef(null);
+  const pendingDepositRef = useRef(null);
+  const depositSuccessRef = useRef(false);
   const [isManualDisconnect, setIsManualDisconnect] = useState(false);
+  const [, setPendingDeposit] = useState(null);
+  const [successModalTrigger, setSuccessModalTrigger] = useState(null);
 
   const [ledgerDetails, setLedgerDetails] = useState(null);
   const [loadingLedger, setLoadingLedger] = useState(true);
@@ -77,52 +83,131 @@ export default function DashboardPage() {
     }
   }, [user, API_URL]);
 
-  const handleBackendVerification = useCallback(
-    async (txHash, referenceId, asset) => {
-      setTransactionStatus(
-        `Transaction sent! TX Hash: ${txHash}. Verifying with backend...`
-      );
+  const savePendingDeposit = useCallback((intent, updates = {}) => {
+    if (!intent) return null;
+    const next = { ...intent, ...updates };
+    depositSuccessRef.current = false;
+    pendingDepositRef.current = next;
+    setPendingDeposit(next);
+    if (typeof window !== "undefined") {
+      localStorage.setItem(PENDING_DEPOSIT_KEY, JSON.stringify(next));
+    }
+    return next;
+  }, []);
+
+  const clearPendingDeposit = useCallback(() => {
+    pendingDepositRef.current = null;
+    setPendingDeposit(null);
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(PENDING_DEPOSIT_KEY);
+    }
+  }, []);
+
+  const stopDepositPolling = useCallback(() => {
+    if (depositPollRef.current) {
+      clearInterval(depositPollRef.current);
+      depositPollRef.current = null;
+    }
+  }, []);
+
+  const stopQrPolling = useCallback(() => {
+    if (qrPollRef.current) {
+      clearInterval(qrPollRef.current);
+      qrPollRef.current = null;
+    }
+    if (qrTimerRef.current) {
+      clearInterval(qrTimerRef.current);
+      qrTimerRef.current = null;
+    }
+  }, []);
+
+  const handleDepositSuccess = useCallback(
+    (payload = {}) => {
+      if (depositSuccessRef.current) return;
+      depositSuccessRef.current = true;
+      const confirmedAmount = payload.intentAmount;
+      const asset = (payload.asset || "BNB").toUpperCase();
+      const txHash = payload.txHash || payload.tx_hash || "";
+      const message = confirmedAmount
+        ? `Your ${asset} deposit of ${confirmedAmount} ${asset} has been confirmed.`
+        : "Your deposit has been confirmed.";
+
+      setSuccessModalTrigger({
+        id: `${Date.now()}-${Math.random()}`,
+        title: "Deposit Successful",
+        message,
+        transactionHash: txHash || null,
+      });
+      setTransactionStatus(payload.message || "Deposit confirmed.");
+      setQrStatus("completed");
+      setQrTxHashStatus("");
+      setQrModalOpen(false);
+      setQrPayload("");
+      setQrWalletPayload("");
+      setQrDisplayData(null);
+      stopQrPolling();
+      stopDepositPolling();
+      clearPendingDeposit();
+      fetchLedgerDetails();
+    },
+    [clearPendingDeposit, fetchLedgerDetails, stopDepositPolling, stopQrPolling]
+  );
+
+  const fetchDepositVerification = useCallback(
+    async (referenceId) => {
+      if (!referenceId) return null;
       const token = localStorage.getItem("token");
       if (!token) {
-        setTransactionStatus(
-          "Authentication error: No token found. Please re-login."
-        );
-        return;
+        setTransactionStatus("Authentication required. Please re-login.");
+        return null;
       }
-
       try {
-        const endpoint =
-          asset && asset.toUpperCase() === "BNB" ? "bnb" : "usdt";
-        const backendResponse = await fetch(`${API_URL}/deposits/${endpoint}`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            tx_hash: txHash,
-            referenceId,
-          }),
-        });
-        const backendData = await backendResponse.json();
-
-        if (backendData.success) {
-          setTransactionStatus(
-            `${backendData.message || "Deposit successfully recorded!"}`
-          );
-          fetchLedgerDetails();
-        } else {
-          setTransactionStatus(
-            `Backend error: ${backendData.message || "Failed to record deposit."}`
-          );
-        }
-      } catch (apiError) {
-        setTransactionStatus(
-          `API Error: Failed to communicate with backend. ${apiError.message}`
+        const response = await fetch(
+          `${API_URL}/deposits/verify?referenceId=${encodeURIComponent(referenceId)}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        setTransactionStatus(error.message || "Failed to verify deposit.");
+        return null;
       }
     },
-    [API_URL, fetchLedgerDetails]
+    [API_URL]
+  );
+
+  const startDepositPolling = useCallback(
+    (referenceId) => {
+      const current = pendingDepositRef.current;
+      if (!referenceId || depositPollRef.current || !current?.tx_hash) return;
+      const pollOnce = async () => {
+        const currentIntent = pendingDepositRef.current;
+        if (!currentIntent?.tx_hash) return;
+        const data = await fetchDepositVerification(referenceId);
+        if (!data) return;
+        if (data.success && data.status === "completed") {
+          handleDepositSuccess(data);
+          return;
+        }
+        if (data.status === "expired" || data.status === "failed") {
+          setTransactionStatus(data.message || "Deposit verification failed.");
+          stopDepositPolling();
+          clearPendingDeposit();
+          return;
+        }
+        if (data.status === "pending_confirmations" || data.status === "pending") {
+          setTransactionStatus(data.message || "Waiting for confirmations...");
+        }
+      };
+
+      pollOnce();
+      depositPollRef.current = setInterval(pollOnce, 10000);
+    },
+    [clearPendingDeposit, fetchDepositVerification, handleDepositSuccess, stopDepositPolling]
   );
 
   const createDepositIntent = useCallback(
@@ -184,6 +269,9 @@ export default function DashboardPage() {
       setLedgerDetails(null);
       setLoadingLedger(true);
       setLedgerError("");
+      stopQrPolling();
+      stopDepositPolling();
+      clearPendingDeposit();
       return;
     }
 
@@ -224,29 +312,29 @@ export default function DashboardPage() {
         };
       }
     }
-  }, [user, API_URL, fetchLedgerDetails, fetchNativeBalance, walletAccount, isManualDisconnect]);
+  }, [
+    user,
+    API_URL,
+    clearPendingDeposit,
+    fetchLedgerDetails,
+    fetchNativeBalance,
+    isManualDisconnect,
+    stopDepositPolling,
+    stopQrPolling,
+    walletAccount,
+  ]);
 
   useEffect(() => {
     if (!ledgerDetails?.bnbWallet?.balance) return;
     setPrimaryVaultBalance(ledgerDetails.bnbWallet.balance);
   }, [ledgerDetails]);
 
-  const stopQrPolling = useCallback(() => {
-    if (qrPollRef.current) {
-      clearInterval(qrPollRef.current);
-      qrPollRef.current = null;
-    }
-    if (qrTimerRef.current) {
-      clearInterval(qrTimerRef.current);
-      qrTimerRef.current = null;
-    }
-  }, []);
-
   useEffect(() => {
     return () => {
       stopQrPolling();
+      stopDepositPolling();
     };
-  }, [stopQrPolling]);
+  }, [stopDepositPolling, stopQrPolling]);
 
   const connectWallet = async () => {
     if (walletAccount) return; // Already connected
@@ -295,123 +383,100 @@ export default function DashboardPage() {
 
     setIsAmountModalOpen(false); // Only close after basic validation
     const ethereum = getEthereum();
-    const isMobile =
-      typeof navigator !== "undefined" &&
-      /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-
     if (!ethereum) {
       await startQrDeposit(rawAmount, asset);
       return;
     }
 
-    let activeWallet = walletAccount;
-    if (!activeWallet) {
-      try {
-        await switchToBsc();
-        const accounts = await requestAccounts();
-        activeWallet = accounts?.[0] || "";
-        setWalletAccount(activeWallet);
-      } catch (err) {
-        setTransactionStatus(
-          err.message || "Wallet connection was cancelled. Use QR deposit instead."
-        );
-        await startQrDeposit(rawAmount, asset);
-        return;
-      }
-    }
+    const activeWallet = walletAccount || user?.wallet_address || "";
 
-    setTransactionStatus(`Preparing transfer for ${rawAmount} ${asset}...`);
+    setTransactionStatus(`Preparing deposit for ${rawAmount} ${asset}...`);
     setDebugMessage("");
 
     try {
-      await switchToBsc();
       const intentData = await createDepositIntent(rawAmount, activeWallet, asset);
-      const depositAddress = intentData.deposit_address || (intentData.intent && intentData.intent.deposit_address);
-      const referenceId = intentData.referenceId || (intentData.intent && intentData.intent.referenceId);
+      const finalIntent = intentData.intent || intentData;
+      const depositAddress = finalIntent.deposit_address;
+      const referenceId = finalIntent.referenceId;
       
       if (!depositAddress || !referenceId) {
-         // If it's a 409, the structure might be different
-         const finalData = intentData.intent || intentData;
-         if (finalData.referenceId) {
-            beginQrTracking(finalData, "Scan QR to complete your existing deposit.");
+         if (finalIntent.referenceId) {
+            beginQrTracking(finalIntent, "Scan QR to complete your existing deposit.");
             return;
          }
          throw new Error("Invalid response from server.");
       }
 
-      setTransactionStatus("Please confirm the transfer in MetaMask...");
+      const existingSource =
+        pendingDepositRef.current?.referenceId === referenceId
+          ? pendingDepositRef.current?.source
+          : null;
+      savePendingDeposit(
+        {
+          referenceId: finalIntent.referenceId,
+          deposit_address: finalIntent.deposit_address,
+          amount: finalIntent.amount,
+          amountWei: finalIntent.amountWei,
+          expiresAt: finalIntent.expiresAt,
+          network: finalIntent.network,
+          decimals: finalIntent.decimals,
+          chainId: finalIntent.chainId,
+          asset: finalIntent.asset || asset,
+          tx_hash: finalIntent.tx_hash || "",
+          source: existingSource || "qr",
+        }
+      );
 
-      try {
-        const txHash =
-          asset === "BNB"
-            ? await sendBnbTransfer({
-              from: activeWallet,
-              to: depositAddress,
-              amount: rawAmount,
-            })
-            : await sendUsdtTransfer({
-              from: activeWallet,
-              to: depositAddress,
-              amount: rawAmount,
-            });
-
-        await handleBackendVerification(txHash, referenceId, asset);
-      } catch (transferError) {
-        setTransactionStatus(
-          transferError.message || "Wallet transfer not completed. Use QR to pay."
-        );
-        const finalIntent = intentData.intent || intentData;
-        beginQrTracking(finalIntent, "Wallet transfer cancelled. Scan QR to pay.");
-      }
+      beginQrTracking(finalIntent, "Scan QR or open your wallet to pay.");
     } catch (error) {
       console.error("Deposit Intent Error:", error);
       setTransactionStatus(
         `Error: ${error.message || "An unknown error occurred."}`
       );
-      // Fallback: If it failed but it's an important error, maybe don't just leave a silent message
     }
   };
 
   const verifyQrDeposit = useCallback(
     async (referenceId) => {
       if (!referenceId) return;
-      const token = localStorage.getItem("token");
-      if (!token) return;
+      if (!qrTxHashRef.current) {
+        setQrStatus("pending");
+        setQrTxHashStatus("Awaiting tx hash...");
+        return;
+      }
 
-      try {
-        const response = await fetch(
-          `${API_URL}/deposits/verify?referenceId=${encodeURIComponent(referenceId)}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+      const data = await fetchDepositVerification(referenceId);
+      if (!data) return;
+      if (data.success && data.status === "completed") {
+        handleDepositSuccess(data);
+        return;
+      }
 
-        const data = await response.json();
-        if (data.success && data.status === "completed") {
-          setQrStatus("completed");
-          stopQrPolling();
-          fetchLedgerDetails();
-          return;
-        }
+      if (data.status === "expired") {
+        setQrStatus("expired");
+        stopQrPolling();
+        clearPendingDeposit();
+        return;
+      }
 
-        if (data.status === "expired") {
-          setQrStatus("expired");
-          stopQrPolling();
-          return;
-        }
-
-        if (data.status === "failed") {
-          setQrStatus("failed");
-          stopQrPolling();
-        }
-      } catch (error) {
+      if (data.status === "failed") {
         setQrStatus("failed");
         stopQrPolling();
+        clearPendingDeposit();
+        return;
+      }
+
+      if (data.status === "pending_confirmations" || data.status === "pending") {
+        setQrStatus("pending");
+        setQrTxHashStatus(data.message || "Waiting for confirmations...");
       }
     },
-    [API_URL, fetchLedgerDetails, stopQrPolling]
+    [
+      clearPendingDeposit,
+      fetchDepositVerification,
+      handleDepositSuccess,
+      stopQrPolling,
+    ]
   );
 
   const submitQrTxHash = useCallback(
@@ -428,6 +493,9 @@ export default function DashboardPage() {
         return;
       }
       setQrTxHashStatus("Submitting tx hash...");
+      qrTxHashRef.current = txHash;
+      const existing = pendingDepositRef.current || { referenceId, asset: "BNB" };
+      savePendingDeposit(existing, { tx_hash: txHash });
       try {
         const backendResponse = await fetch(`${API_URL}/deposits/bnb`, {
           method: "POST",
@@ -442,27 +510,39 @@ export default function DashboardPage() {
         });
         const backendData = await backendResponse.json();
         if (backendResponse.ok && backendData.success) {
-          setQrTxHashStatus(backendData.message || "Tx hash accepted.");
-          setQrStatus("completed");
-          stopQrPolling();
-          fetchLedgerDetails();
+          handleDepositSuccess(backendData);
           return;
         }
 
         if (backendResponse.status === 202) {
           setQrStatus("pending");
           setQrTxHashStatus(backendData.message || "Waiting for confirmations.");
+          startDepositPolling(referenceId);
           return;
         }
 
         setQrStatus("failed");
         setQrTxHashStatus(backendData.message || "Failed to process tx hash.");
+        stopQrPolling();
+        stopDepositPolling();
+        clearPendingDeposit();
       } catch (error) {
         setQrStatus("failed");
         setQrTxHashStatus(error.message || "Failed to submit tx hash.");
+        stopQrPolling();
+        stopDepositPolling();
+        clearPendingDeposit();
       }
     },
-    [API_URL, fetchLedgerDetails, stopQrPolling]
+    [
+      API_URL,
+      clearPendingDeposit,
+      handleDepositSuccess,
+      savePendingDeposit,
+      startDepositPolling,
+      stopDepositPolling,
+      stopQrPolling,
+    ]
   );
 
   const beginQrTracking = useCallback(
@@ -472,7 +552,7 @@ export default function DashboardPage() {
       setQrTxHashStatus("");
 
       const asset = `${data.asset || "BNB"}`.toUpperCase();
-      const intentTokenContract = data.tokenContract || "";
+      const intentTokenContract = data.tokenContract || data.token_contract || "";
       const intentDecimals =
         Number.isFinite(Number(data.decimals)) ? Number(data.decimals) : usdtDecimals;
       const intentChainId =
@@ -508,17 +588,24 @@ export default function DashboardPage() {
         );
       }
 
-      const payload =
+      const tokenOrNative = asset === "BNB" ? checksumDeposit : checksumToken;
+      const qrPayload =
         asset === "BNB"
           ? `ethereum:${checksumDeposit}@${chainId}?value=${baseUnits.toString()}`
-          : `ethereum:${checksumToken}@${chainId}/transfer?address=${checksumDeposit}&uint256=${baseUnits.toString()}`;
+          : `ethereum:${tokenOrNative}@${chainId}/transfer?address=${checksumDeposit}&uint256=${baseUnits.toString()}`;
+      const walletPayload =
+        asset === "BNB"
+          ? `ethereum:${checksumDeposit}@${chainId}?value=${baseUnits.toString()}`
+          : qrPayload;
       const fallbackUrl =
         typeof window !== "undefined"
           ? `${window.location.origin}/deposit/intent/${data.referenceId}`
           : "";
-      const encodedPayload = encodeURI(payload);
+      const encodedQrPayload = encodeURI(qrPayload);
+      const encodedWalletPayload = encodeURI(walletPayload);
 
-      setQrPayload(encodedPayload);
+      setQrPayload(encodedQrPayload);
+      setQrWalletPayload(encodedWalletPayload);
       setQrDisplayData({
         amount: data.amount,
         amountWei: data.amountWei,
@@ -530,10 +617,26 @@ export default function DashboardPage() {
         chainId: intentChainId,
         fallbackUrl,
         asset,
+        txHash: data.tx_hash || "",
       });
       setQrStatus("pending");
       setQrModalOpen(true);
       qrReferenceRef.current = data.referenceId;
+      qrTxHashRef.current = data.tx_hash || "";
+      setQrTxHashStatus(data.tx_hash ? "Tx hash received. Waiting for confirmations..." : "");
+      savePendingDeposit({
+        referenceId: data.referenceId,
+        deposit_address: data.deposit_address,
+        amount: data.amount,
+        amountWei: data.amountWei,
+        expiresAt: data.expiresAt,
+        network: data.network,
+        decimals: intentDecimals,
+        chainId: intentChainId,
+        asset,
+        tx_hash: data.tx_hash || "",
+        source: "qr",
+      });
 
       const expiresAt = new Date(data.expiresAt).getTime();
       const updateTimer = () => {
@@ -545,9 +648,6 @@ export default function DashboardPage() {
         if (secondsLeft <= 0) {
           setQrStatus("expired");
           stopQrPolling();
-          if (qrReferenceRef.current) {
-            verifyQrDeposit(qrReferenceRef.current);
-          }
         }
       };
 
@@ -559,7 +659,7 @@ export default function DashboardPage() {
         await verifyQrDeposit(data.referenceId);
       }, 10000);
     },
-    [stopQrPolling, verifyQrDeposit]
+    [savePendingDeposit, stopQrPolling, usdtDecimals, bscChainId, verifyQrDeposit]
   );
 
   const startQrDeposit = useCallback(
@@ -577,6 +677,93 @@ export default function DashboardPage() {
     },
     [createDepositIntent, beginQrTracking]
   );
+
+  useEffect(() => {
+    if (!user || typeof window === "undefined") return;
+    if (pendingDepositRef.current) return;
+    const raw = localStorage.getItem(PENDING_DEPOSIT_KEY);
+    if (!raw) return;
+    let saved;
+    try {
+      saved = JSON.parse(raw);
+    } catch {
+      return;
+    }
+    if (!saved?.referenceId) return;
+    pendingDepositRef.current = saved;
+    setPendingDeposit(saved);
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    const resume = async () => {
+      try {
+        const response = await fetch(
+          `${API_URL}/deposits/intent/${encodeURIComponent(saved.referenceId)}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const data = await response.json();
+        if (!response.ok || !data.success) return;
+        const intent = data.intent;
+        if (intent.status === "completed") {
+          handleDepositSuccess({
+            success: true,
+            status: "completed",
+            message: "Deposit completed.",
+            intentAmount: intent.amount,
+            asset: intent.asset,
+            txHash: intent.tx_hash,
+            referenceId: intent.referenceId,
+          });
+          return;
+        }
+        if (intent.status === "expired" || intent.status === "failed") {
+          setTransactionStatus(
+            intent.status === "expired"
+              ? "Deposit intent expired."
+              : "Deposit verification failed."
+          );
+          clearPendingDeposit();
+          return;
+        }
+
+        const merged = {
+          ...saved,
+          ...intent,
+          referenceId: intent.referenceId,
+          tx_hash: intent.tx_hash || saved.tx_hash || "",
+          source: saved.source || "wallet",
+        };
+        savePendingDeposit(merged);
+        if (merged.source === "qr") {
+          beginQrTracking(intent, "Resuming QR deposit...");
+          return;
+        }
+        if (merged.tx_hash) {
+          setTransactionStatus("Resuming deposit verification...");
+          startDepositPolling(merged.referenceId);
+        } else {
+          setTransactionStatus("Awaiting tx hash to resume verification.");
+        }
+      } catch (error) {
+        console.error("Failed to resume pending deposit:", error);
+      }
+    };
+
+    resume();
+  }, [
+    API_URL,
+    PENDING_DEPOSIT_KEY,
+    beginQrTracking,
+    clearPendingDeposit,
+    handleDepositSuccess,
+    savePendingDeposit,
+    startDepositPolling,
+    user,
+  ]);
 
   const disconnectWallet = () => {
     setIsManualDisconnect(true);
@@ -599,6 +786,7 @@ export default function DashboardPage() {
         loadingLedger={loadingLedger}
         ledgerError={ledgerError}
         refreshLedgerDetails={fetchLedgerDetails}
+        successModalTrigger={successModalTrigger}
       ></DashboardLayout>
       <AmountEntryModal
         isOpen={isAmountModalOpen}
@@ -613,6 +801,7 @@ export default function DashboardPage() {
           setQrTxHashStatus("");
         }}
         payload={qrPayload}
+        walletPayload={qrWalletPayload}
         displayData={qrDisplayData}
         status={qrStatus}
         timeLeft={qrTimeLeft}

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import WalletCard from "./WalletCard";
 import SystemWalletCard from "./SystemWalletCard";
 import InvitationLinkCard from "./InvitationLinkCard";
@@ -638,6 +638,7 @@ export default function DashboardLayout({
   loadingLedger,
   ledgerError,
   refreshLedgerDetails,
+  successModalTrigger,
 }) {
 
   const { user, logout, loading: authLoading, API_URL, setUser } = useAuth();
@@ -672,12 +673,21 @@ export default function DashboardLayout({
     message: "",
     transactionHash: null,
   });
+  const lastSuccessModalIdRef = useRef(null);
 
   // State for the new claim community rewards modal (if we add one later)
   const [isClaimRewardsModalOpen, setIsClaimRewardsModalOpen] = useState(false);
   const [claimActionLoading, setClaimActionLoading] = useState(false);
   const [claimActionError, setClaimActionError] = useState(null);
   const [socialAlertLoading, setSocialAlertLoading] = useState(true);
+  const formatPrimaryBalance = (value) => {
+    const numeric = Number(value);
+    if (Number.isNaN(numeric)) return "0.000000";
+    return numeric.toLocaleString(undefined, {
+      minimumFractionDigits: 6,
+      maximumFractionDigits: 12,
+    });
+  };
 
   // -------------------------------------------------------------
   // Track whether withdrawals are currently disabled for the user
@@ -720,6 +730,18 @@ export default function DashboardLayout({
     // checkWithdrawalsDisabled();
     setIsAutoPositioningActive(user?.autopositioning);
   }, [user, API_URL]);
+
+  useEffect(() => {
+    if (!successModalTrigger?.id) return;
+    if (lastSuccessModalIdRef.current === successModalTrigger.id) return;
+    lastSuccessModalIdRef.current = successModalTrigger.id;
+    setSuccessModalContent({
+      title: successModalTrigger.title || "Transaction Success",
+      message: successModalTrigger.message,
+      transactionHash: successModalTrigger.transactionHash || null,
+    });
+    setIsSuccessModalOpen(true);
+  }, [successModalTrigger]);
 
   /* Unnecessary initial call for airdrop config
   useEffect(() => {
@@ -1285,7 +1307,9 @@ export default function DashboardLayout({
 
 
   // Calculate props for ZeroRiskClaimModal safely
-  const primaryVaultBalanceForModal = parseFloat(walletBalance || "0");
+  const primaryVaultBalanceForModal = parseFloat(
+    ledgerDetails?.bnbWallet?.balance || "0.0"
+  );
 
   const lpBalanceForModal = parseFloat(
     ledgerDetails?.lpWallet?.balance || "0.0"
@@ -1474,8 +1498,8 @@ export default function DashboardLayout({
             }
             layout="horizontal"
             showPlusBtn={false}
-            balance={walletAccount ? walletBalance : parseFloat(ledgerDetails?.bnbWallet?.balance || "0").toLocaleString(undefined, { minimumFractionDigits: 2 })}
-            currency={walletAccount ? "BNB" : "USDT"}
+            balance={formatPrimaryBalance(ledgerDetails?.bnbWallet?.balance || "0")}
+            currency="BNB"
             onDeposit={walletAccount ? onOpenAmountModal : onWalletConnect}
             depositLabel={walletAccount ? "Deposit" : "Connect"}
             onViewHistory={() => window.location.href = "/dashboard/ledger"}

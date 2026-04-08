@@ -182,11 +182,8 @@ export default function DashboardPage() {
 
   const startDepositPolling = useCallback(
     (referenceId) => {
-      const current = pendingDepositRef.current;
-      if (!referenceId || depositPollRef.current || !current?.tx_hash) return;
+      if (!referenceId || depositPollRef.current) return;
       const pollOnce = async () => {
-        const currentIntent = pendingDepositRef.current;
-        if (!currentIntent?.tx_hash) return;
         const data = await fetchDepositVerification(referenceId);
         if (!data) return;
         if (data.success && data.status === "completed") {
@@ -439,12 +436,6 @@ export default function DashboardPage() {
   const verifyQrDeposit = useCallback(
     async (referenceId) => {
       if (!referenceId) return;
-      if (!qrTxHashRef.current) {
-        setQrStatus("pending");
-        setQrTxHashStatus("Awaiting tx hash...");
-        return;
-      }
-
       const data = await fetchDepositVerification(referenceId);
       if (!data) return;
       if (data.success && data.status === "completed") {
@@ -623,7 +614,11 @@ export default function DashboardPage() {
       setQrModalOpen(true);
       qrReferenceRef.current = data.referenceId;
       qrTxHashRef.current = data.tx_hash || "";
-      setQrTxHashStatus(data.tx_hash ? "Tx hash received. Waiting for confirmations..." : "");
+      setQrTxHashStatus(
+        data.tx_hash
+          ? "Tx hash received. Waiting for confirmations..."
+          : "Waiting for on-chain transfer..."
+      );
       savePendingDeposit({
         referenceId: data.referenceId,
         deposit_address: data.deposit_address,
@@ -742,12 +737,8 @@ export default function DashboardPage() {
           beginQrTracking(intent, "Resuming QR deposit...");
           return;
         }
-        if (merged.tx_hash) {
-          setTransactionStatus("Resuming deposit verification...");
-          startDepositPolling(merged.referenceId);
-        } else {
-          setTransactionStatus("Awaiting tx hash to resume verification.");
-        }
+        setTransactionStatus("Resuming deposit verification...");
+        startDepositPolling(merged.referenceId);
       } catch (error) {
         console.error("Failed to resume pending deposit:", error);
       }

@@ -26,12 +26,14 @@ function getProvider() {
   return new ethers.BrowserProvider(ethereum);
 }
 
-async function assertBscMainnet() {
+async function assertBscChain() {
   const ethereum = getEthereum();
   if (!ethereum) throw new Error("MetaMask is not available.");
   const chainId = await ethereum.request({ method: "eth_chainId" });
-  if (chainId !== MAINNET_CHAIN_ID) {
-    throw new Error("Please switch to BSC mainnet (chainId 0x38).");
+  if (chainId !== DEFAULT_CHAIN_ID) {
+    throw new Error(
+      `Please switch to the configured BSC network (chainId ${DEFAULT_CHAIN_ID}).`
+    );
   }
 }
 
@@ -46,9 +48,6 @@ async function requestAccounts() {
 }
 
 async function switchToBsc(chainId = DEFAULT_CHAIN_ID) {
-  if (chainId !== MAINNET_CHAIN_ID) {
-    throw new Error("Only BSC mainnet (chainId 0x38) is supported.");
-  }
   const ethereum = getEthereum();
   if (!ethereum) throw new Error("MetaMask is not available.");
   const currentChainId = await ethereum.request({ method: "eth_chainId" });
@@ -88,7 +87,7 @@ async function readTokenDecimals() {
   if (!USDT_CONTRACT_ADDRESS) {
     throw new Error("USDT contract address is not configured.");
   }
-  await assertBscMainnet();
+  await assertBscChain();
   const provider = getProvider();
   const usdt = new ethers.Contract(USDT_CONTRACT_ADDRESS, ERC20_ABI, provider);
   return Number(await usdt.decimals());
@@ -98,7 +97,7 @@ async function readUsdtBalance(address) {
   if (!USDT_CONTRACT_ADDRESS) {
     throw new Error("USDT contract address is not configured.");
   }
-  await assertBscMainnet();
+  await assertBscChain();
   const provider = getProvider();
   const usdt = new ethers.Contract(USDT_CONTRACT_ADDRESS, ERC20_ABI, provider);
   const [decimals, balance] = await Promise.all([
@@ -118,7 +117,7 @@ async function sendUsdtTransfer({ from, to, amount }) {
   if (!ethers.isAddress(to)) {
     throw new Error("Invalid destination address.");
   }
-  await assertBscMainnet();
+  await assertBscChain();
   const provider = getProvider();
   const signer = await provider.getSigner();
   const signerAddress = await signer.getAddress();
@@ -139,7 +138,7 @@ async function sendBnbTransfer({ from, to, amount }) {
   if (!ethers.isAddress(to)) {
     throw new Error("Invalid destination address.");
   }
-  await assertBscMainnet();
+  await assertBscChain();
   const provider = getProvider();
   const signer = await provider.getSigner();
   const signerAddress = await signer.getAddress();

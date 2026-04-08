@@ -44,11 +44,23 @@ export default function DepositIntentPage() {
         throw new Error(data.message || "Failed to fetch deposit intent.");
       }
       setIntent(data.intent);
-      setStatus("Ready to send deposit.");
-      if (data.intent?.tx_hash) {
-        setStatus("Awaiting confirmations...");
-        startPolling();
+      if (data.intent?.status === "completed") {
+        setStatus("Deposit confirmed.");
+        stopPolling();
+        return;
       }
+      if (data.intent?.status === "expired") {
+        setStatus("Deposit intent expired.");
+        stopPolling();
+        return;
+      }
+      if (data.intent?.status === "failed") {
+        setStatus("Deposit verification failed.");
+        stopPolling();
+        return;
+      }
+      setStatus("Ready to send deposit.");
+      startPolling();
     } catch (err) {
       setError(err.message || "Failed to load deposit intent.");
       setStatus("Unable to load deposit intent.");

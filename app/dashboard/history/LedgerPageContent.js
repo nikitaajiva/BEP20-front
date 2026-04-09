@@ -5,6 +5,10 @@ import { useSearchParams } from 'next/navigation';
 import LedgerHistoryTable from '@/components/LedgerHistoryTable';
 import { LEDGER_EVENT_TYPES } from '@/constants/ledgerEventTypes';
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL
+  ? `${process.env.NEXT_PUBLIC_API_URL}/api`
+  : null;
+
 // Helper function to format event type strings for display
 const formatEventType = (type) => {
   if (!type) return 'All Events';
@@ -19,6 +23,7 @@ export default function LedgerPageContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [eventTypes, setEventTypes] = useState([]);
+  const eventTypeOptions = eventTypes.length ? eventTypes : LEDGER_EVENT_TYPES;
 
   const [filters, setFilters] = useState({
     eventType: searchParams.get('type') || 'all',
@@ -30,13 +35,17 @@ export default function LedgerPageContent() {
   useEffect(() => {
     const fetchEventTypes = async () => {
       if (!token) return;
+      if (!API_BASE) {
+        setEventTypes(LEDGER_EVENT_TYPES);
+        return;
+      }
       try {
-        const response = await fetch('/api/ledger/history/event-types', {
+        const response = await fetch(`${API_BASE}/ledger/history/event-types`, {
           headers: { Authorization: `Bearer ${token}` },
         } );
         
         if (!response.ok) {
-          throw new Error('Failed to fetch event types');
+          throw new Error(`Failed to fetch event types (${response.status})`);
         }
 
         const data = await response.json();
@@ -46,7 +55,7 @@ export default function LedgerPageContent() {
         }
       } catch (err) {
         console.error("Failed to fetch event types:", err);
-        // Do not block the UI for this, can default to manual entry or show a small error
+        setEventTypes(LEDGER_EVENT_TYPES);
       }
     };
     fetchEventTypes();
@@ -131,7 +140,7 @@ export default function LedgerPageContent() {
                 onChange={handleFilterChange}
               >
                 <option value="all">All Event Types</option>
-                {LEDGER_EVENT_TYPES.map(type => (
+                {eventTypeOptions.map(type => (
                   <option key={type} value={type}>
                     {formatEventType(type)}
                   </option>

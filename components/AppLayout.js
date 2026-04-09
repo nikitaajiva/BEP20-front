@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import styles from "./RedesignedDashboard.module.css";
 import { LogOut } from "lucide-react";
 import Link from "next/link";
@@ -11,6 +11,18 @@ const AppLayout = ({ children }) => {
   const { user, logout } = useAuth();
   const pathname = usePathname();
   const username = user?.username || user?.email?.split("@")[0] || "User";
+  const [ambientDots, setAmbientDots] = useState([]);
+  const ambientCount = 15;
+
+  useEffect(() => {
+    const dots = Array.from({ length: ambientCount }, () => ({
+      top: `${Math.random() * 100}%`,
+      left: `${Math.random() * 100}%`,
+      opacity: Math.random() * 0.1,
+      duration: `${Math.random() * 5 + 3}s`,
+    }));
+    setAmbientDots(dots);
+  }, []);
 
   const navLinks = [
     { href: "/dashboard", label: "Dashboard", icon: "ri-dashboard-3-fill" },
@@ -133,16 +145,16 @@ const AppLayout = ({ children }) => {
 
       {/* Global Background Ambience */}
       <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: -1 }}>
-        {[...Array(15)].map((_, i) => (
+        {ambientDots.map((dot, i) => (
           <div key={i} style={{
             position: "absolute",
             width: 2, height: 2,
             backgroundColor: "#ffd700",
             borderRadius: "50%",
-            top: `${Math.random() * 100}%`,
-            left: `${Math.random() * 100}%`,
-            opacity: Math.random() * 0.1,
-            animation: `pulse ${Math.random() * 5 + 3}s infinite`
+            top: dot.top,
+            left: dot.left,
+            opacity: dot.opacity,
+            animation: `pulse ${dot.duration} infinite`
           }}></div>
         ))}
       </div>

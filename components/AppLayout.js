@@ -12,6 +12,7 @@ const AppLayout = ({ children }) => {
   const pathname = usePathname();
   const username = user?.username || user?.email?.split("@")[0] || "User";
   const [ambientDots, setAmbientDots] = useState([]);
+  const [mounted, setMounted] = useState(false);
   const ambientCount = 15;
 
   useEffect(() => {
@@ -22,6 +23,7 @@ const AppLayout = ({ children }) => {
       duration: `${Math.random() * 5 + 3}s`,
     }));
     setAmbientDots(dots);
+    setMounted(true);
   }, []);
 
   const navLinks = [
@@ -144,20 +146,22 @@ const AppLayout = ({ children }) => {
       </nav>
 
       {/* Global Background Ambience */}
-      <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: -1 }}>
-        {ambientDots.map((dot, i) => (
-          <div key={i} style={{
-            position: "absolute",
-            width: 2, height: 2,
-            backgroundColor: "#ffd700",
-            borderRadius: "50%",
-            top: dot.top,
-            left: dot.left,
-            opacity: dot.opacity,
-            animation: `pulse ${dot.duration} infinite`
-          }}></div>
-        ))}
-      </div>
+      {mounted && (
+        <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: -1 }}>
+          {ambientDots.map((dot, i) => (
+            <div key={i} style={{
+              position: "absolute",
+              width: 2, height: 2,
+              backgroundColor: "#ffd700",
+              borderRadius: "50%",
+              top: dot.top,
+              left: dot.left,
+              opacity: dot.opacity,
+              animation: `pulse ${dot.duration} infinite`
+            }}></div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

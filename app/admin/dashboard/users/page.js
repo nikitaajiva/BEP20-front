@@ -269,12 +269,7 @@ export default function UsersPage() {
   const totalCount    = pagination?.totalUsers ?? users.length;
 
   /* ── Filtered users ── */
-  const displayedUsers = useMemo(() => {
-    if (statusFilter === "all")      return users;
-    if (statusFilter === "active")   return users.filter(u => !u.status || u.status === "active" || u.status === "verified");
-    if (statusFilter === "inactive") return users.filter(u => u.status && u.status !== "active" && u.status !== "verified");
-    return users;
-  }, [users, statusFilter]);
+  const displayedUsers = users;
 
   /* ── Impersonate ── */
   const handleView = async (usr) => {

@@ -29,6 +29,10 @@ export default function LedgerHistoryTable({ filters }) {
   };
 
   useEffect(() => {
+    setPagination((prev) => ({ ...prev, currentPage: 1 }));
+  }, [filters]);
+
+  useEffect(() => {
     const fetchLedgerHistory = async () => {
       if (!user) return;
       setLoading(true);

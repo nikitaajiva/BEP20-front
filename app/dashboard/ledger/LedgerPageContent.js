@@ -135,7 +135,7 @@ export default function LedgerPageContent() {
               onChange={handleFilterChange}
             >
               <option value="all">Comprehensive View</option>
-              {LEDGER_EVENT_TYPES.map((type) => (
+              {eventTypes.map((type) => (
                 <option key={type} value={type}>
                   {formatEventType(type)}
                 </option>

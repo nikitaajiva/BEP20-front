@@ -38,6 +38,11 @@ const AppLayout = ({ children }) => {
     return <>{children}</>;
   }
 
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
   return (
     <div className={styles.dashboardContainer} style={{ display: 'flex' }}>
       {/* Background Motion Rays */}
@@ -132,20 +137,22 @@ const AppLayout = ({ children }) => {
       </nav>
 
       {/* Global Background Ambience */}
-      <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: -1 }}>
-        {[...Array(15)].map((_, i) => (
-          <div key={i} style={{
-            position: "absolute",
-            width: 2, height: 2,
-            backgroundColor: "#ffd700",
-            borderRadius: "50%",
-            top: `${Math.random() * 100}%`,
-            left: `${Math.random() * 100}%`,
-            opacity: Math.random() * 0.1,
-            animation: `pulse ${Math.random() * 5 + 3}s infinite`
-          }}></div>
-        ))}
-      </div>
+      {mounted && (
+        <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: -1 }}>
+          {[...Array(15)].map((_, i) => (
+            <div key={i} style={{
+              position: "absolute",
+              width: 2, height: 2,
+              backgroundColor: "#ffd700",
+              borderRadius: "50%",
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+              opacity: Math.random() * 0.1,
+              animation: `pulse ${Math.random() * 5 + 3}s infinite`
+            }}></div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

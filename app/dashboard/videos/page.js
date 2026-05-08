@@ -1,4 +1,6 @@
 "use client";
+
+export const dynamic = "force-dynamic";
 import { useEffect, useState } from "react";
 import { ArrowLeft } from "lucide-react";
 export default function TutorialsPage() {

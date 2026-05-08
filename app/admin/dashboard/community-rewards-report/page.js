@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { useState } from "react";
 import { FaEye, FaChevronDown, FaChevronUp } from "react-icons/fa";
 import axios from "axios";

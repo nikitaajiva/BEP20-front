@@ -91,7 +91,7 @@ export default function SupportSidebar() {
                 const isSubActive = pathname === "/support/dashboard/system-report" &&
                   (sub.href.includes("?tab=")
                     ? (typeof window !== "undefined" && window.location.href.includes(sub.href.split("?")[1]))
-                    : !window.location.search);
+                    : (typeof window !== "undefined" && !window.location.search));
 
                 return (
                   <li key={sub.name}>

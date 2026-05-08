@@ -1,4 +1,6 @@
 "use client";
+
+export const dynamic = "force-dynamic";
 import React, { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
@@ -298,33 +300,36 @@ export default function PositiveLPPage() {
                </div>
              </div>
 
-             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-               <label style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.4)", fontWeight: "800", letterSpacing: "1px" }}>START DATE</label>
-               <input
-                 type="date"
-                 value={fromDate}
-                 onChange={(e) => {
-                   setFromDate(e.target.value);
-                   setPagination((prev) => ({ ...prev, currentPage: 1 }));
-                   setDate("");
-                 }}
-                 style={{ ...inputStyle, width: "100%" }}
-               />
-             </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                <label style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.4)", fontWeight: "800", letterSpacing: "1px" }}>START DATE</label>
+                <input
+                  type="date"
+                  value={fromDate}
+                  max={new Date().toISOString().split("T")[0]}
+                  onChange={(e) => {
+                    setFromDate(e.target.value);
+                    setPagination((prev) => ({ ...prev, currentPage: 1 }));
+                    setDate("");
+                  }}
+                  style={{ ...inputStyle, width: "100%" }}
+                />
+              </div>
 
-             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-               <label style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.4)", fontWeight: "800", letterSpacing: "1px" }}>END DATE</label>
-               <input
-                 type="date"
-                 value={toDate}
-                 onChange={(e) => {
-                   setToDate(e.target.value);
-                   setPagination((prev) => ({ ...prev, currentPage: 1 }));
-                   setDate("");
-                 }}
-                 style={{ ...inputStyle, width: "100%" }}
-               />
-             </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                <label style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.4)", fontWeight: "800", letterSpacing: "1px" }}>END DATE</label>
+                <input
+                  type="date"
+                  value={toDate}
+                  min={fromDate}
+                  max={new Date().toISOString().split("T")[0]}
+                  onChange={(e) => {
+                    setToDate(e.target.value);
+                    setPagination((prev) => ({ ...prev, currentPage: 1 }));
+                    setDate("");
+                  }}
+                  style={{ ...inputStyle, width: "100%" }}
+                />
+              </div>
           </div>
         </form>
       </div>
@@ -477,3 +482,4 @@ export default function PositiveLPPage() {
     </div>
   );
 }
+

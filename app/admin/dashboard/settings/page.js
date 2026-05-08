@@ -1,4 +1,7 @@
 "use client";
+
+export const dynamic = "force-dynamic";
+
 import React, { useEffect, useRef, useState } from "react";
 import styles from "./settings.module.css";
 import { Settings, Save, Percent, ShieldAlert, Zap, ArrowUpCircle, ArrowDownCircle } from "lucide-react";

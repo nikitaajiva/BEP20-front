@@ -1,5 +1,5 @@
-import USDTSwiftWallet from '../../components/USDTSwiftWallet';
+import SwiftHistory from '@/components/SwiftHistory';
 
 export default function USDTSwiftWalletPage() {
-  return <USDTSwiftWallet />;
+  return <SwiftHistory />;
 } 

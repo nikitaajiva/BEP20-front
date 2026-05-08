@@ -1,4 +1,6 @@
 "use client";
+export const dynamic = "force-dynamic";
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
@@ -73,11 +75,11 @@ const RecursiveNode = ({ user, level, onToggle, open, onFetch, router }) => {
                 <div className={styles.metricsStrip}>
                     <div className={styles.metricBadge}>
                         <span className={styles.metricLabel}>Self LP</span>
-                        <span className={`${styles.metricVal} ${styles.valGold}`}>{user.selfLp?.toFixed(2) || '0.00'}</span>
+                        <span className={`${styles.metricVal} ${styles.valGold}`}>{Number(user.selfLp || 0).toFixed(2)}</span>
                     </div>
                     <div className={styles.metricBadge}>
                         <span className={styles.metricLabel}>Team LP</span>
-                        <span className={`${styles.metricVal} ${styles.valBlue}`}>{user.teamLp?.toFixed(2) || '0.00'}</span>
+                        <span className={`${styles.metricVal} ${styles.valBlue}`}>{Number(user.teamLp || 0).toFixed(2)}</span>
                     </div>
                     <div className={styles.metricBadge}>
                         <span className={styles.metricLabel}>Max Depth</span>

@@ -1,4 +1,7 @@
 "use client";
+
+export const dynamic = "force-dynamic";
+
 import React, { useState, Suspense } from "react";
 import {
   Users,
@@ -27,6 +30,13 @@ function CommunityRewardsReport() {
   const [expandedLevels, setExpandedLevels] = useState({});
   const [showSnapshotsModal, setShowSnapshotsModal] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [showCommunityRewardsHistoryModal, setShowCommunityRewardsHistoryModal] = useState(false);
+  const [showTeamLPModal, setShowTeamLPModal] = useState(false);
+  const [showEventsModal, setShowEventsModal] = useState(false);
+  const [showQualificationModal, setShowQualificationModal] = useState(false);
+  const [modalLoading, setModalLoading] = useState(false);
+  const [modalError, setModalError] = useState(null);
+  const [modalData, setModalData] = useState(null);
 
   const toggleRow = (key) => setExpandedLevels((prev) => ({ ...prev, [key]: !prev[key] }));
 

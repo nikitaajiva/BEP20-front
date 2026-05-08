@@ -1,4 +1,7 @@
 "use client";
+
+export const dynamic = "force-dynamic";
+
 import React, { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
@@ -18,7 +21,8 @@ import {
 } from "chart.js";
 import { Doughnut, Bar } from "react-chartjs-2";
 
-ChartJS.register(ArcElement, CategoryScale, LinearScale, BarElement, Tooltip, Legend, Filler);
+// ChartJS registration moved to useEffect to prevent SSR errors
+
 
 const API_BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}`;
 
@@ -257,6 +261,7 @@ export default function UsersPage() {
   const isImpersonating = () => typeof window !== "undefined" && !!localStorage.getItem("impersonated_user");
 
   useEffect(() => {
+    ChartJS.register(ArcElement, CategoryScale, LinearScale, BarElement, Tooltip, Legend, Filler);
     if (!authLoading) {
       if (!user) { router.push("/login"); return; }
       if (!["support","admin"].includes(user.userType) && !isImpersonating()) router.push("/login");

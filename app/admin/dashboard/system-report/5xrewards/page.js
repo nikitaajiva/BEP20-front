@@ -1,4 +1,6 @@
 "use client";
+
+export const dynamic = "force-dynamic";
 import React, { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
@@ -281,18 +283,22 @@ export default function FiveXRewardsReport() {
              <input
                type="date"
                value={fromDate}
+               max={new Date().toISOString().split("T")[0]}
                onChange={(e) => { setFromDate(e.target.value); setDate(""); }}
                style={{ ...inputStyle, width: "100%" }}
              />
              <input
                type="date"
                value={toDate}
+               min={fromDate}
+               max={new Date().toISOString().split("T")[0]}
                onChange={(e) => { setToDate(e.target.value); setDate(""); }}
                style={{ ...inputStyle, width: "100%" }}
              />
              <input
                type="date"
                value={date}
+               max={new Date().toISOString().split("T")[0]}
                disabled={!!fromDate || !!toDate}
                onChange={(e) => { setDate(e.target.value); setFromDate(""); setToDate(""); }}
                style={{ ...inputStyle, width: "100%" }}
@@ -377,3 +383,4 @@ export default function FiveXRewardsReport() {
     </div>
   );
 }
+

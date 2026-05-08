@@ -1,4 +1,6 @@
 "use client";
+
+export const dynamic = "force-dynamic";
 import React, { Suspense } from 'react';
 import AuthGuard from '@/components/auth/AuthGuard';
 import DashboardNavbar from '@/components/DashboardNavbar';

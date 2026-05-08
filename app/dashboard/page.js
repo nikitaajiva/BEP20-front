@@ -1,4 +1,6 @@
 "use client";
+
+export const dynamic = "force-dynamic";
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { ethers } from "ethers";
 import AuthGuard from "@/components/auth/AuthGuard";

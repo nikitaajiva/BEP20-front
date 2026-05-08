@@ -1,4 +1,7 @@
 "use client";
+
+export const dynamic = "force-dynamic";
+
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -274,7 +277,7 @@ function LedgerRows() {
                                     <div className={styles.trailMetrics}>
                                         <div className={styles.tMetric}>
                                             <span className={styles.tMetricLabel}>Volume Transacted</span>
-                                            <span className={styles.tMetricVal}>{row.amount?.toFixed(2) || '0.00'} <span>USDT</span></span>
+                                            <span className={styles.tMetricVal}>{Number(row.amount || 0).toFixed(2)} <span>USDT</span></span>
                                         </div>
                                         
                                         <div className={styles.tMetric}>

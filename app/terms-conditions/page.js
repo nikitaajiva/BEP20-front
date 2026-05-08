@@ -1,4 +1,6 @@
 "use client";
+export const dynamic = "force-dynamic";
+
 import LandingNavbar from "../../components/landing/LandingNavbar";
 import LandingFooter from "../../components/landing/LandingFooter";
 

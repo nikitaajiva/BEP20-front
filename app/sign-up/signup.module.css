@@ -168,6 +168,44 @@
   color: rgba(255, 255, 255, 0.3) !important;
 }
 
+.countryInputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.dropdownChevron {
+  position: absolute;
+  right: 1.25rem;
+  color: #ffd700;
+  pointer-events: none;
+  font-size: 1.2rem;
+  transition: transform 0.3s ease;
+}
+
+.dropdownChevronOpen {
+  transform: rotate(180deg);
+}
+
+.countryCodeBox {
+  width: 85px;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #ffd700 !important;
+  border: 1px solid rgba(255, 215, 0, 0.3) !important;
+  background: rgba(255, 215, 0, 0.05) !important;
+}
+
+.countryCodeBox:hover {
+  border-color: #ffd700 !important;
+  background: rgba(255, 215, 0, 0.1) !important;
+}
+
 /* Aggressive Autofill Reset */
 .inputField:-webkit-autofill,
 .inputField:-webkit-autofill:hover, 
@@ -203,11 +241,21 @@
   transition: all 0.2s ease;
   color: #fff;
   font-size: 0.9rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .countryDropdownItem:hover {
   background: rgba(255, 215, 0, 0.1);
   color: #ffd700;
+}
+
+.countryDialCode {
+  color: #ffd700;
+  font-weight: 700;
+  font-size: 0.8rem;
+  opacity: 0.7;
 }
 
 .countryDropdownNoResults {

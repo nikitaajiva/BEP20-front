@@ -25,7 +25,7 @@ function SignUpForm() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const [wasAutoDetected, setWasAutoDetected] = useState(false);
-  
+
   // Animation state
   const [particles, setParticles] = useState([]);
 
@@ -73,7 +73,7 @@ function SignUpForm() {
     if (
       formData.selectedCountry &&
       countrySearch ===
-        `${formData.selectedCountry.flag} ${formData.selectedCountry.name}`
+      `${formData.selectedCountry.flag} ${formData.selectedCountry.name}`
     ) {
       setCountrySearch("");
     }
@@ -127,7 +127,7 @@ function SignUpForm() {
       email: formData.email,
       username: derivedUsername,
       country: formData.selectedCountry.code,
-      countryCode: formData.countryCode, 
+      countryCode: formData.countryCode,
       whatsappContact: formData.whatsappContact,
       sponsorId: sponsorId,
     };
@@ -258,7 +258,7 @@ function SignUpForm() {
                           id="email"
                           name="email"
                           className={styles.inputField}
-                          placeholder="nikitaajiva@gmail.com"
+                          placeholder="Enter Your Email Address"
                           value={formData.email}
                           onChange={handleChange}
                           required
@@ -280,17 +280,19 @@ function SignUpForm() {
 
                       <div className={styles.inputGroup} ref={dropdownRef}>
                         <label htmlFor="countrySearch" className={styles.label}>SELECT COUNTRY</label>
-                        <input
-                          type="text"
-                          id="countrySearch"
-                          className={styles.inputField}
-                          placeholder="Select Country"
-                          value={countrySearch}
-                          onChange={handleCountryInputChange}
-                          onFocus={handleCountryInputFocus}
-                          autoComplete="off"
-                          disabled={wasAutoDetected}
-                        />
+                        <div className={styles.countryInputWrapper}>
+                          <input
+                            type="text"
+                            id="countrySearch"
+                            className={styles.inputField}
+                            placeholder="Select Country"
+                            value={countrySearch}
+                            onChange={handleCountryInputChange}
+                            onFocus={handleCountryInputFocus}
+                            autoComplete="off"
+                          />
+                          <i className={`bi bi-chevron-down ${styles.dropdownChevron} ${isDropdownOpen ? styles.dropdownChevronOpen : ""}`}></i>
+                        </div>
                         {isDropdownOpen && (
                           <ul className={styles.countryDropdownList}>
                             {filteredCountries.length > 0 ? (
@@ -300,7 +302,8 @@ function SignUpForm() {
                                   onClick={() => handleCountrySelect(country)}
                                   className={styles.countryDropdownItem}
                                 >
-                                  {country.flag} {country.name}
+                                  <span>{country.flag} {country.name}</span>
+                                  <span className={styles.countryDialCode}>{country.dial_code}</span>
                                 </li>
                               ))
                             ) : (
@@ -313,14 +316,12 @@ function SignUpForm() {
                       <div className={styles.inputGroup}>
                         <label htmlFor="whatsappContact" className={styles.label}>WHATSAPP CONTACT</label>
                         <div style={{ display: 'flex', gap: '12px' }}>
-                          <input
-                            type="text"
-                            className={styles.inputField}
-                            style={{ width: '85px', textAlign: 'center' }}
-                            value={formData.countryCode}
-                            readOnly
-                            disabled
-                          />
+                          <div 
+                            className={`${styles.inputField} ${styles.countryCodeBox}`}
+                            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                          >
+                            {formData.countryCode || "--"}
+                          </div>
                           <input
                             type="tel"
                             id="whatsappContact"
@@ -353,19 +354,19 @@ function SignUpForm() {
 
               {/* Footer moved outside cardBody but inside formGlassCard */}
               <div className={styles.loginFooter}>
-                <span>© 2024 BEPVault. All rights reserved. | </span>
+                <span>© 2026 BEPVault. All rights reserved. | </span>
                 <Link href="/terms" className={styles.footerLink}>Terms & Conditions</Link>
                 <span> | </span>
                 <Link href="/privacy" className={styles.footerLink}>Privacy Policy</Link>
               </div>
             </div>
           </div>
-          
+
           {/* Corner Star */}
           <div className={styles.cornerStar}>
-             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="rgba(255,215,0,0.4)"/>
-             </svg>
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="rgba(255,215,0,0.4)" />
+            </svg>
           </div>
         </div>
       </div>

@@ -1,5 +1,5 @@
 "use client";
-import React from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import AdminSidebar from '@/components/AdminSidebar';
 import styles from '@/components/RedesignedDashboard.module.css';
 import Link from 'next/link';
@@ -10,6 +10,20 @@ import { useAuth } from '@/context/AuthContext';
 export default function AdminDashboardLayout({ children }) {
   const pathname = usePathname();
   const { logout } = useAuth();
+  const [mounted, setMounted] = useState(false);
+
+  // Pre-compute stable star positions so Math.random() only runs once on client
+  const stars = useMemo(() => (
+    [...Array(10)].map((_, i) => ({
+      id: i,
+      top: `${(i * 17 + 7) % 100}%`,   // deterministic pseudo-random spread
+      left: `${(i * 31 + 13) % 100}%`,
+      opacity: 0.04 + (i % 5) * 0.01,
+      duration: `${3 + (i % 5)}s`,
+    }))
+  ), []);
+
+  useEffect(() => { setMounted(true); }, []);
 
   const mobileNavLinks = [
     { name: "Home", href: "/admin/dashboard", icon: Home },
@@ -79,20 +93,20 @@ export default function AdminDashboardLayout({ children }) {
         })}
       </div>
 
-      {/* Background Star Ambience - Rendered on Client only to avoid hydration mismatch */}
-      {typeof window !== "undefined" && (
+      {/* Background Star Ambience - mounted only after hydration to avoid SSR mismatch */}
+      {mounted && (
         <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: -1 }}>
-          {[...Array(10)].map((_, i) => (
-            <div key={i} style={{ 
-              position: "absolute", 
-              width: "2px", height: "2px", 
-              backgroundColor: "#ffd700", 
+          {stars.map((s) => (
+            <div key={s.id} style={{
+              position: "absolute",
+              width: "2px", height: "2px",
+              backgroundColor: "#ffd700",
               borderRadius: "50%",
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              opacity: Math.random() * 0.1,
-              animation: `pulse ${Math.random() * 5 + 3}s infinite`
-            }}></div>
+              top: s.top,
+              left: s.left,
+              opacity: s.opacity,
+              animation: `pulse ${s.duration} infinite`
+            }} />
           ))}
         </div>
       )}

@@ -66,7 +66,7 @@ const RedesignedDashboard = ({
   const [copySuccess, setCopySuccess] = React.useState(false);
 
   const referralLink = (mounted && user?.username)
-    ? `${window.location.protocol}//${window.location.host}/sign-up?sponsorId=${user.username}`
+    ? `${window.location.origin}/sign-up?sponsorId=${user.username}`
     : "";
 
   React.useEffect(() => {
@@ -77,6 +77,15 @@ const RedesignedDashboard = ({
     if (!referralLink) return;
     navigator.clipboard.writeText(referralLink).then(() => {
       setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    });
+  };
+
+  const handleCopyCode = (e) => {
+    e.stopPropagation();
+    if (!user?.username) return;
+    navigator.clipboard.writeText(user.username).then(() => {
+      setCopySuccess("code");
       setTimeout(() => setCopySuccess(false), 2000);
     });
   };
@@ -94,10 +103,17 @@ const RedesignedDashboard = ({
         >
           <div className={styles.passHeader}>
             <span className={styles.passLabel}>INVITE FRIENDS & EARN REWARDS</span>
+            <div className={styles.inviteCodeBadge} onClick={handleCopyCode} title="Click to copy invite code">
+              CODE: {user?.username || "---"}
+            </div>
           </div>
           <div className={styles.passLinkWrapper}>
             <span className={styles.passUrl}>
-              {copySuccess ? "LINK COPIED! SHARE WITH YOUR TEAM" : "CLICK TO COPY REFERRAL LINK"}
+              {copySuccess === "code" 
+                ? "CODE COPIED!" 
+                : copySuccess 
+                  ? "LINK COPIED! SHARE WITH TEAM" 
+                  : "TAP TO COPY REFERRAL LINK"}
             </span>
             <button
               className={styles.passCopyBtn}

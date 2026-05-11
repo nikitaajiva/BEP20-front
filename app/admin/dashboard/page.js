@@ -218,31 +218,36 @@ export default function SupportDashboard() {
   const [currentDate, setCurrentDate] = useState("");
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState(null);
   const [error, setError] = useState(null);
 
-  const fetchReport = async () => {
-    setLoading(true);
+  const fetchReport = async (force = false) => {
+    if (force) setRefreshing(true);
+    else setLoading(true);
     setError(null);
     try {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("Authentication required");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/support/system-report`, {
+      const url = `${process.env.NEXT_PUBLIC_API_URL}/api/support/system-report${force ? "?refresh=1" : ""}`;
+      const res = await fetch(url, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const resData = await res.json();
       if (!res.ok || !resData.success) throw new Error(resData.message || "Failed to fetch report");
-      
       setReport(resData.data || resData.report || resData);
+      setLastUpdated(new Date());
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
   useEffect(() => {
     if (!authLoading && user && ["support", "admin"].includes(user.userType)) {
-      fetchReport();
+      fetchReport(false);
     }
   }, [authLoading, user]);
 
@@ -365,6 +370,34 @@ export default function SupportDashboard() {
           </div>
           <div className={styles.heroTime}>{currentTime}</div>
           <div className={styles.heroDate}>{currentDate}</div>
+          {lastUpdated && (
+            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", marginTop: 4, letterSpacing: 0.5 }}>
+              Updated: {lastUpdated.toLocaleTimeString()}
+            </div>
+          )}
+          <button
+            onClick={() => fetchReport(true)}
+            disabled={refreshing || loading}
+            style={{
+              marginTop: 8,
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "6px 14px",
+              background: refreshing ? "rgba(255,215,0,0.05)" : "rgba(255,215,0,0.1)",
+              border: "1px solid rgba(255,215,0,0.2)",
+              borderRadius: 8,
+              color: "#ffd700",
+              fontSize: 11,
+              fontWeight: 700,
+              cursor: refreshing ? "not-allowed" : "pointer",
+              letterSpacing: 0.5,
+              transition: "all 0.2s",
+            }}
+          >
+            <RefreshCw size={11} style={{ animation: refreshing ? "spin 1s linear infinite" : "none" }} />
+            {refreshing ? "Refreshing…" : "Refresh"}
+          </button>
         </div>
       </header>
 

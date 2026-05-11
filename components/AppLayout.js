@@ -25,16 +25,27 @@ const AppLayout = ({ children }) => {
 
   navLinks.push({ href: "https://t.me/BEPVaultSupportBot", label: "Help", icon: "ri-customer-service-2-fill" });
 
+  // Pages that never show the sidebar (auth + public marketing/legal pages)
   const isAuthPage =
+    pathname === "/" ||
     pathname.startsWith("/login") ||
     pathname.startsWith("/sign-up") ||
+    pathname.startsWith("/sign-in") ||
+    pathname.startsWith("/sign-ins") ||
     pathname.startsWith("/forgot-password") ||
-    pathname.startsWith("/auth/set-password") ||
     pathname.startsWith("/reset-password") ||
-    pathname === "/" ||
-    pathname.startsWith("/admin");
+    pathname.startsWith("/auth") ||
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/terms") ||
+    pathname.startsWith("/terms-conditions") ||
+    pathname.startsWith("/privacy") ||
+    pathname.startsWith("/privacy-policy") ||
+    pathname.startsWith("/disclaimer") ||
+    pathname.startsWith("/docs") ||
+    pathname.startsWith("/calculator");
 
-  if (isAuthPage) {
+  // Also hide sidebar when user is not authenticated (logged out)
+  if (isAuthPage || !user) {
     return <>{children}</>;
   }
 
@@ -136,7 +147,7 @@ const AppLayout = ({ children }) => {
         })}
       </nav>
 
-      {/* Global Background Ambience */}
+      {/* Global Background Ambience - stable positions to avoid hydration mismatch */}
       {mounted && (
         <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: -1 }}>
           {[...Array(15)].map((_, i) => (
@@ -145,11 +156,11 @@ const AppLayout = ({ children }) => {
               width: 2, height: 2,
               backgroundColor: "#ffd700",
               borderRadius: "50%",
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              opacity: Math.random() * 0.1,
-              animation: `pulse ${Math.random() * 5 + 3}s infinite`
-            }}></div>
+              top: `${(i * 19 + 11) % 100}%`,
+              left: `${(i * 37 + 7) % 100}%`,
+              opacity: 0.03 + (i % 4) * 0.01,
+              animation: `pulse ${3 + (i % 5)}s infinite`
+            }} />
           ))}
         </div>
       )}

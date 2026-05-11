@@ -48,7 +48,7 @@ export default function SignInPage() {
       duration: `${(3 + Math.random() * 6).toFixed(1)}s`,
       delay: `${(Math.random() * 10).toFixed(1)}s`,
     }));
-    
+
     const newStreaks = Array.from({ length: 8 }, (_, i) => ({
       id: i,
       left: `${Math.random() * 100}%`,
@@ -172,7 +172,7 @@ export default function SignInPage() {
                           type="text"
                           id="email"
                           className={styles.inputField}
-                          placeholder="nikitaajiva@gmail.com"
+                          placeholder="Enter Email, Username or UHID"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           required
@@ -188,7 +188,7 @@ export default function SignInPage() {
                             type={showPassword ? "text" : "password"}
                             id="password"
                             className={styles.inputField}
-                            placeholder="············"
+                            placeholder="Enter Password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
@@ -200,9 +200,8 @@ export default function SignInPage() {
                             tabIndex="-1"
                           >
                             <i
-                              className={`bi ${
-                                showPassword ? "bi-eye-slash" : "bi-eye"
-                              }`}
+                              className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"
+                                }`}
                             ></i>
                           </button>
                         </div>
@@ -253,19 +252,19 @@ export default function SignInPage() {
               </div>
               {/* Footer moved inside */}
               <div className={styles.loginFooter}>
-                <span>© 2024 BEPVault. All rights reserved. | </span>
+                <span>© 2026 BEPVault. All rights reserved. | </span>
                 <Link href="/terms" className={styles.footerLink}>Terms & Conditions</Link>
                 <span> | </span>
                 <Link href="/privacy" className={styles.footerLink}>Privacy Policy</Link>
               </div>
             </div>
           </div>
-          
+
           {/* Corner Star */}
           <div className={styles.cornerStar}>
-             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="rgba(255,215,0,0.5)"/>
-             </svg>
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="rgba(255,215,0,0.5)" />
+            </svg>
           </div>
         </div>
       </div>

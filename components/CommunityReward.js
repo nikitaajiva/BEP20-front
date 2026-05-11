@@ -204,7 +204,7 @@ export default function CommunityReward() {
 
         <div className="USDT-comm-rew-card">
           <div className="cr-list">
-            {cascadeUnlockRules.map((row, index) => {
+            {cascadeUnlockRules.slice(0, 9).map((row, index) => {
               const isLp3 = row.selfLpOrTeamLp3;
               const isLp5 = row.selfLpOrTeamLp5;
               const selfLp = isLp3?.selfLp ?? isLp5?.selfLp ?? "-";
@@ -224,7 +224,7 @@ export default function CommunityReward() {
                         ) : (
                           <FaLock size={10} className={`cr-lock cr-value-${accent}`} />
                         )}
-                        <span className="cr-tier">LEVEL {row.level}</span>
+                        <span className="cr-tier">P {row.level}</span>
                       </div>
                       <div className="cr-pct-badge">
                         <Activity size={10} />
@@ -282,7 +282,7 @@ export default function CommunityReward() {
 
         <div className="cr-total">
           Total Reward Multiplier:{" "}
-          <strong>{cascadeUnlockRules.reduce((s, r) => s + r.pct, 0)}%</strong>
+          <strong>{cascadeUnlockRules.slice(0, 9).reduce((s, r) => s + r.pct, 0)}%</strong>
         </div>
 
         <CommunityRewardsPopup

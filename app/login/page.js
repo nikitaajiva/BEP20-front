@@ -166,13 +166,13 @@ export default function SignInPage() {
                     <form onSubmit={handleSubmit} className={styles.signInForm}>
                       <div className={styles.inputGroup}>
                         <label htmlFor="email" className={styles.label}>
-                          EMAIL | USERNAME | UHID
+                          USERNAME | UHID
                         </label>
                         <input
                           type="text"
                           id="email"
                           className={styles.inputField}
-                          placeholder="Enter Email, Username or UHID"
+                          placeholder="Enter Username or UHID"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           required

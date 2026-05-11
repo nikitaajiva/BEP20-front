@@ -246,7 +246,7 @@ export default function SupportDashboard() {
   };
 
   useEffect(() => {
-    if (!authLoading && user && ["support", "admin"].includes(user.userType)) {
+    if (!authLoading && user && ["support", "admin", "superadmin"].includes(user.userType)) {
       fetchReport(false);
     }
   }, [authLoading, user]);

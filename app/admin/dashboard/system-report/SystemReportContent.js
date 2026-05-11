@@ -190,7 +190,7 @@ export default function SystemReportContent() {
 
   useEffect(() => {
     if (!authLoading && user) {
-      if (!["support", "admin"].includes(user.userType) && user.username !== "superadmin") { router.push("/login"); return; }
+      if (!["support", "admin", "superadmin"].includes(user.userType)) { router.push("/login"); return; }
       fetchReport();
     }
   }, [authLoading, user]);

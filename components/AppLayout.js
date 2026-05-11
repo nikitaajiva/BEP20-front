@@ -19,7 +19,7 @@ const AppLayout = ({ children }) => {
     { href: "/dashboard/ledger", label: "Ledger History", icon: "ri-file-list-3-fill" },
   ];
 
-  if (user?.username === "superadmin") {
+  if (user?.userType === "superadmin") {
     navLinks.push({ href: "/admin/dashboard", label: "Super Admin Dashboard", icon: "ri-admin-fill" });
   }
 

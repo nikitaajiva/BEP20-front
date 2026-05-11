@@ -42,7 +42,7 @@ export default function TotalUsdtPage() {
 
   useEffect(() => {
     if (!authLoading) {
-      if (!user || !["support", "admin"].includes(user.userType)) {
+      if (!user || !["support", "admin", "superadmin"].includes(user.userType)) {
         router.push("/login");
       }
     }
@@ -94,7 +94,7 @@ export default function TotalUsdtPage() {
   };
 
   useEffect(() => {
-    if (user && ["support", "admin"].includes(user.userType)) {
+    if (user && ["support", "admin", "superadmin"].includes(user.userType)) {
       fetchBalances(pagination.currentPage, pagination.limit);
     }
   }, [user, pagination.currentPage, pagination.limit]);

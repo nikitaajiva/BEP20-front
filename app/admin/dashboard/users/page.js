@@ -264,7 +264,7 @@ export default function UsersPage() {
     ChartJS.register(ArcElement, CategoryScale, LinearScale, BarElement, Tooltip, Legend, Filler);
     if (!authLoading) {
       if (!user) { router.push("/login"); return; }
-      if (!["support","admin"].includes(user.userType) && !isImpersonating()) router.push("/login");
+      if (!["support", "admin", "superadmin"].includes(user.userType) && !isImpersonating()) router.push("/login");
     }
   }, [user, authLoading, router]);
 
@@ -343,7 +343,7 @@ export default function UsersPage() {
   };
 
   useEffect(() => {
-    if (user && ["support", "admin"].includes(user.userType)) fetchUsers(1);
+    if (user && ["support", "admin", "superadmin"].includes(user.userType)) fetchUsers(1);
   }, [user, statusFilter]);
 
   const handleUpdateUser   = (u) => setUsers(prev => prev.map(p => p._id === u._id ? u : p));

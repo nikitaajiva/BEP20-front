@@ -151,8 +151,8 @@ function LedgerRows() {
         document.body.appendChild(link); link.click(); document.body.removeChild(link);
     };
 
-    useEffect(() => { if (user && ['support', 'admin'].includes(user.userType)) fetchRows(); }, [user, sort, fetchRows]);
-    useEffect(() => { if (!authLoading && (!user || !['support', 'admin'].includes(user.userType))) router.push('/login'); }, [user, authLoading, router]);
+    useEffect(() => { if (user && ['support', 'admin', 'superadmin'].includes(user.userType)) fetchRows(); }, [user, sort, fetchRows]);
+    useEffect(() => { if (!authLoading && (!user || !['support', 'admin', 'superadmin'].includes(user.userType))) router.push('/login'); }, [user, authLoading, router]);
 
     if (authLoading) return (
       <div style={{ display:'flex', alignItems:'center', justifyContent:'center', minHeight:'60vh', flexDirection:'column', gap:12 }}>

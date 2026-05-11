@@ -129,13 +129,13 @@ function USDTTransactions() {
   }, [activeTab, filters, pagination.limit]);
 
   useEffect(() => {
-    if (user && ["support", "admin"].includes(user.userType)) {
+    if (user && ["support", "admin", "superadmin"].includes(user.userType)) {
       fetchTransactions(1);
     }
   }, [user, activeTab, fetchTransactions]);
 
   useEffect(() => {
-    if (!authLoading && (!user || !["support", "admin"].includes(user.userType))) {
+    if (!authLoading && (!user || !["support", "admin", "superadmin"].includes(user.userType))) {
       router.push("/login");
     }
   }, [user, authLoading, router]);

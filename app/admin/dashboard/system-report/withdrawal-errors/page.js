@@ -54,7 +54,7 @@ export default function WithdrawalErrorsPage() {
   useEffect(() => {
     if (!authLoading) {
       if (!user) router.push("/login");
-      else if (!["support", "admin"].includes(user.userType))
+      else if (!["support", "admin", "superadmin"].includes(user.userType))
         router.push("/login");
     }
   }, [user, authLoading, router]);
@@ -93,7 +93,7 @@ export default function WithdrawalErrorsPage() {
   };
 
   useEffect(() => {
-    if (user && ["support", "admin"].includes(user.userType)) {
+    if (user && ["support", "admin", "superadmin"].includes(user.userType)) {
       fetchWithdrawalErrors(pagination.currentPage, pagination.limit);
     }
   }, [user, pagination.currentPage, pagination.limit]);

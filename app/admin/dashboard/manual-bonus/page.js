@@ -75,7 +75,7 @@ export default function ManualBonusPage() {
         return <div style={{ textAlign: 'center', color: '#b3baff', padding: '2rem' }}>Loading authentication...</div>;
     }
 
-    if (!user || !['support', 'admin'].includes(user.userType)) {
+    if (!user || !['support', 'admin', 'superadmin'].includes(user.userType)) {
         router.push('/login');
         return <div style={{ textAlign: 'center', color: '#ff4d4d', padding: '2rem' }}>Unauthorized. Redirecting...</div>;
     }

@@ -234,7 +234,7 @@ export default function TeamViewPage() {
 
     // Initial Load
     useEffect(() => {
-        if (authUser && ['support', 'admin'].includes(authUser.userType)) {
+        if (authUser && ['support', 'admin', 'superadmin'].includes(authUser.userType)) {
             fetchRootNodes();
         }
     }, [authUser]);
@@ -243,7 +243,7 @@ export default function TeamViewPage() {
     useEffect(() => {
         if (!authLoading && !authUser) {
             router.push('/login');
-        } else if (authUser && !['support', 'admin'].includes(authUser.userType)) {
+        } else if (authUser && !['support', 'admin', 'superadmin'].includes(authUser.userType)) {
             router.push('/dashboard');
         }
     }, [authUser, authLoading, router]);

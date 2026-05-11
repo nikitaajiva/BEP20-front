@@ -49,7 +49,7 @@ export default function PositiveLPPage() {
   useEffect(() => {
     if (!authLoading) {
       if (!user) router.push("/login");
-      else if (!["support", "admin"].includes(user.userType)) router.push("/login");
+      else if (!["support", "admin", "superadmin"].includes(user.userType)) router.push("/login");
     }
   }, [user, authLoading, router]);
 
@@ -94,7 +94,7 @@ export default function PositiveLPPage() {
   };
 
   useEffect(() => {
-    if (user && ["support", "admin"].includes(user.userType)) {
+    if (user && ["support", "admin", "superadmin"].includes(user.userType)) {
       fetchPositiveLP(pagination.currentPage, pagination.limit);
     }
   }, [user, pagination.currentPage, pagination.limit, date, fromDate, toDate, parent]);

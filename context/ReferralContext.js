@@ -1,6 +1,7 @@
 "use client";
 import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import { useAuth } from './AuthContext'; // Assuming AuthContext is in the same directory or adjust path
+import safeStorage from "../utils/safeStorage";
 
 const ReferralContext = createContext(null);
 
@@ -24,7 +25,7 @@ export const ReferralProvider = ({ children }) => {
       setPaginationInfo(initialPaginationState);
       return;
     }
-    const token = localStorage.getItem('token');
+    const token = safeStorage.getItem('token');
     if (!token) return;
 
     setLoading(true);
@@ -68,7 +69,7 @@ export const ReferralProvider = ({ children }) => {
       setPaginationInfo(initialPaginationState);
       return;
     }
-    const token = localStorage.getItem('token');
+    const token = safeStorage.getItem('token');
     if (!token) return;
 
     setLoading(true);

@@ -10,6 +10,12 @@ import { useAuth } from "@/context/AuthContext";
 const AppLayout = ({ children }) => {
   const { user, logout } = useAuth();
   const pathname = usePathname();
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const username = user?.username || user?.email?.split("@")[0] || "User";
 
   const navLinks = [
@@ -48,11 +54,6 @@ const AppLayout = ({ children }) => {
   if (isAuthPage || !user) {
     return <>{children}</>;
   }
-
-  const [mounted, setMounted] = React.useState(false);
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
 
   return (
     <div className={styles.dashboardContainer} style={{ display: 'flex' }}>

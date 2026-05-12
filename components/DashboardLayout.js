@@ -1,5 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import safeStorage from "../utils/safeStorage";
 import WalletCard from "./WalletCard";
 import SystemWalletCard from "./SystemWalletCard";
 import InvitationLinkCard from "./InvitationLinkCard";
@@ -627,21 +629,34 @@ const LedgerInfoCard = ({
 
 export default function DashboardLayout({
   children,
-  walletAccount,
-  walletTransactionStatus,
-  walletDebugMessage,
+  user: userProp,
+  loading: loadingProp,
+  phantomStatus,
+  phantomLoading,
+  phantomErrorCode,
+  onConnectPhantom,
   onWalletConnect,
   onWalletDisconnect,
   onOpenAmountModal,
-  walletBalance = "0",
+  onLogout,
+  activeTab,
+  setActiveTab,
   ledgerDetails,
   loadingLedger,
   ledgerError,
   refreshLedgerDetails,
+  walletAccount,
   successModalTrigger,
+  shortAddress,
 }) {
+  const { user: authUser, logout: authLogout, loading: authLoading, API_URL, setUser } = useAuth();
+  const router = useRouter();
 
-  const { user, logout, loading: authLoading, API_URL, setUser } = useAuth();
+  // Use props if available, fallback to auth context
+  const user = userProp || authUser;
+  const loading = loadingProp || authLoading;
+  const logout = onLogout || authLogout;
+
   const [isAutoPositioningActive, setIsAutoPositioningActive] = useState(false);
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
   const [transferModalError, setTransferModalError] = useState(null);
@@ -652,6 +667,26 @@ export default function DashboardLayout({
     useState(false);
   const [zeroRiskClaimLoading, setZeroRiskClaimLoading] = useState(false);
   const [zeroRiskClaimError, setZeroRiskClaimError] = useState(null);
+
+  if (loading) {
+    return <GlobalLoader />;
+  }
+
+  if (!user) {
+    return (
+      <div
+        style={{
+          textAlign: "center",
+          padding: "2rem",
+          color: "white",
+          background: "#101935",
+          height: "100vh",
+        }}
+      >
+        User data not available. You might need to log in.
+      </div>
+    );
+  }
   const [communityRewardsLoading, setCommunityRewardsLoading] = useState(false);
   const [communityRewardsError, setCommunityRewardsError] = useState(null);
   const [showLoader, setShowLoader] = useState(false);
@@ -694,7 +729,7 @@ export default function DashboardLayout({
   // -------------------------------------------------------------
   const [withdrawalsDisabled, setWithdrawalsDisabled] = useState(() => {
     try {
-      return JSON.parse(localStorage.getItem("disableWithdrawal") || "false");
+      return JSON.parse(safeStorage.getItem("disableWithdrawal") || "false");
     } catch {
       return false;
     }
@@ -705,14 +740,14 @@ export default function DashboardLayout({
     const checkWithdrawalsDisabled = async () => {
       if (!user) return;
       try {
-        const token = localStorage.getItem("token");
+        const token = safeStorage.getItem("token");
         if (!token) return;
         const response = await fetch(`${API_URL}/withdrawals/disabled`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await response.json();
         if (data && typeof data.disableWithdrawal !== "undefined") {
-          localStorage.setItem("disableWithdrawal", data.disableWithdrawal);
+          safeStorage.setItem("disableWithdrawal", data.disableWithdrawal);
           setWithdrawalsDisabled(data.disableWithdrawal);
         }
       } catch (e) {
@@ -720,7 +755,7 @@ export default function DashboardLayout({
       }
     };
     /* 
-          const acknowledged = localStorage.getItem("bepvault_upgrade_ack");
+          const acknowledged = safeStorage.getItem("bepvault_upgrade_ack");
           if (!acknowledged) {
             setIsSocialAlertOpen(true);
           }
@@ -747,7 +782,7 @@ export default function DashboardLayout({
   useEffect(() => {
     const fetchAirdropConfig = async () => {
       try {
-        const token = localStorage.getItem("token");
+        const token = safeStorage.getItem("token");
         if (!token) return;
 
         const response = await fetch(`${API_URL}/promotions/airdrop-config`, {
@@ -777,12 +812,12 @@ export default function DashboardLayout({
     const fetchSocialAlertVisibility = async () => {
       try {
         // Already acknowledged → skip API
-        if (localStorage.getItem("bepvault_upgrade_ack") === "true") {
+        if (safeStorage.getItem("bepvault_upgrade_ack") === "true") {
           setSocialAlertLoading(false);
           return;
         }
 
-        const token = localStorage.getItem("token");
+        const token = safeStorage.getItem("token");
         if (!token) {
           setSocialAlertLoading(false);
           return;
@@ -825,7 +860,7 @@ export default function DashboardLayout({
       if (walletAccount && user && !authLoading) {
         if (!user.wallet_address) {
           try {
-            const token = localStorage.getItem("token");
+            const token = safeStorage.getItem("token");
             if (!token) throw new Error("No auth token");
 
             const response = await fetch(`${API_URL}/users/wallet-address`, {
@@ -873,7 +908,7 @@ export default function DashboardLayout({
     setTransferModalError(null);
     setTransferModalSuccess(false);
     try {
-      const token = localStorage.getItem("token");
+      const token = safeStorage.getItem("token");
       if (!token) throw new Error("Authentication token not found.");
 
       const specificPath = "/swift-transfers/transfer"; // Path relative to API_URL
@@ -907,7 +942,7 @@ export default function DashboardLayout({
     setZeroRiskClaimError(null);
 
     try {
-      const token = localStorage.getItem("token");
+      const token = safeStorage.getItem("token");
       if (!token) throw new Error("Authentication token not found.");
 
       const specificPath = "/withdrawals/usdt";
@@ -930,7 +965,7 @@ export default function DashboardLayout({
 
       // ✅ Store disableWithdrawal flag if available
       if (typeof data.disableWithdrawal !== "undefined") {
-        localStorage.setItem("disableWithdrawal", data.disableWithdrawal);
+        safeStorage.setItem("disableWithdrawal", data.disableWithdrawal);
         setWithdrawalsDisabled(data.disableWithdrawal);
       }
 
@@ -967,7 +1002,7 @@ export default function DashboardLayout({
       setZeroRiskClaimError(error.message || "An unexpected error occurred.");
 
       if (typeof error.disableWithdrawal !== "undefined") {
-        localStorage.setItem("disableWithdrawal", error.disableWithdrawal);
+        safeStorage.setItem("disableWithdrawal", error.disableWithdrawal);
         setWithdrawalsDisabled(error.disableWithdrawal);
       }
     } finally {
@@ -994,7 +1029,7 @@ export default function DashboardLayout({
     }
 
     try {
-      const token = localStorage.getItem("token");
+      const token = safeStorage.getItem("token");
       if (!token) {
         throw new Error("Authentication token not found. Please log in again.");
       }
@@ -1045,7 +1080,7 @@ export default function DashboardLayout({
     setAddLPLoading(true);
     setAddLPError(null);
     try {
-      const token = localStorage.getItem("token");
+      const token = safeStorage.getItem("token");
       if (!token) throw new Error("Authentication token not found.");
 
       const specificPath = "/ledger/add-lp";
@@ -1089,7 +1124,7 @@ export default function DashboardLayout({
     setClaimActionLoading(true);
     setClaimActionError(null);
     try {
-      const token = localStorage.getItem("token");
+      const token = safeStorage.getItem("token");
       if (!token) throw new Error("Authentication token not found.");
 
       const specificPath = "/withdrawals/usdt";
@@ -1111,7 +1146,7 @@ export default function DashboardLayout({
       const data = await response.json();
       if (!response.ok) {
         if (typeof data.disableWithdrawal !== "undefined") {
-          localStorage.setItem("disableWithdrawal", data.disableWithdrawal);
+          safeStorage.setItem("disableWithdrawal", data.disableWithdrawal);
           setWithdrawalsDisabled(data.disableWithdrawal);
         }
         throw new Error(data.message || "Failed to claim community rewards.");
@@ -1139,7 +1174,7 @@ export default function DashboardLayout({
     setCommunityRewardsClaimLoading(true);
     setCommunityRewardsClaimError(null);
     try {
-      const token = localStorage.getItem("token");
+      const token = safeStorage.getItem("token");
       if (!token) throw new Error("Authentication token not found.");
 
       const specificPath = "/withdrawals/usdt";
@@ -1198,7 +1233,7 @@ export default function DashboardLayout({
         error.message || "An unexpected error occurred."
       );
       if (typeof error.disableWithdrawal !== "undefined") {
-        localStorage.setItem("disableWithdrawal", error.disableWithdrawal);
+        safeStorage.setItem("disableWithdrawal", error.disableWithdrawal);
         setWithdrawalsDisabled(error.disableWithdrawal);
       }
       return null;
@@ -1209,7 +1244,7 @@ export default function DashboardLayout({
 
   const onAutoPosition = async (deactivate = false) => {
     try {
-      const token = localStorage.getItem("token");
+      const token = safeStorage.getItem("token");
       if (!token) throw new Error("Authentication token not found.");
 
       const finalUrl = `${API_URL}/ledger/autopositioning${deactivate ? "?deactivate=true" : ""
@@ -1251,99 +1286,12 @@ export default function DashboardLayout({
     }
   };
 
-  useEffect(() => {
-    // This useEffect is primarily for logging and can be removed or adjusted
-    console.log(
-      "[DashboardLayout] User object received from AuthContext:",
-      user
-    );
-  }, [user]);
-
-  // DEBUGGING LOGS for ZeroRiskClaimModal props
-  console.log(
-    "[DashboardLayout] Rendering cycle. ledgerDetails available: ",
-    !!ledgerDetails
-  );
-  if (ledgerDetails) {
-    console.log(
-      "[DashboardLayout] ledgerDetails.zeroRisk?.balance from props:",
-      ledgerDetails.zeroRisk?.balance
-    );
-    console.log(
-      "[DashboardLayout] ledgerDetails.bnbWallet?.balance:",
-      ledgerDetails.bnbWallet?.balance
-    );
-    console.log(
-      "[DashboardLayout] ledgerDetails.lpWallet?.balance:",
-      ledgerDetails.lpWallet?.balance
-    );
-  }
-
-
-
-  if (!user) {
-    return (
-      <div
-        style={{
-          textAlign: "center",
-          padding: "2rem",
-          color: "white",
-          background: "#101935",
-          height: "100vh",
-        }}
-      >
-        User data not available. You might need to log in.
-      </div>
-    );
-  }
-
-  // Log the user object to inspect its structure
-
-
-  const disableButtons = !walletAccount || walletAccount === "";
-
-
-
-
-
-  // Calculate props for ZeroRiskClaimModal safely
-  const primaryVaultBalanceForModal = parseFloat(
-    ledgerDetails?.bnbWallet?.balance || "0.0"
-  );
-
-  const lpBalanceForModal = parseFloat(
-    ledgerDetails?.lpWallet?.balance || "0.0"
-  );
-  // For the modal's maxAmount, we should use the dynamically calculated balance from ledgerDetails
-  const maxAmountForModal = parseFloat(
-    ledgerDetails?.zeroRisk?.balance || "0.0"
-  );
-
-  const zeroRiskDisplayBalance = Math.max(
-    0,
-    parseFloat(ledgerDetails?.zeroRisk?.balance || "0.0")
-  );
-  console.log(
-    "[DashboardLayout] Calculated zeroRiskDisplayBalance:",
-    zeroRiskDisplayBalance
-  );
-  console.log(
-    "[DashboardLayout] Calculated walletBalanceForModal:",
-    primaryVaultBalanceForModal
-  );
-  console.log(
-    "[DashboardLayout] Calculated lpBalanceForModal:",
-    lpBalanceForModal
-  );
-  console.log(
-    "[DashboardLayout] Calculated maxAmountForModal for modal:",
-    maxAmountForModal
-  );
+  // Cleaned up dangling logic that was previously outside the component.
 
 
 
   const handleClosePopup = () => {
-    localStorage.setItem("bepvault_upgrade_ack", "true");
+    safeStorage.setItem("bepvault_upgrade_ack", "true");
     setIsSocialAlertOpen(false);
   };
 
@@ -1352,6 +1300,11 @@ export default function DashboardLayout({
     Number(ledgerDetails?.lpWallet?.autopositioning || 0);
 
   const displayBalance = Math.max(rawBalance, 0);
+
+  const zeroRiskDisplayBalance = Number(ledgerDetails?.zeroRisk?.balance || 0);
+  const primaryVaultBalanceForModal = Number(ledgerDetails?.bnbWallet?.balance || 0);
+  const lpBalanceForModal = Number(ledgerDetails?.lpWallet?.balance || 0);
+  const maxAmountForModal = activeTab === "zeroRisk" ? zeroRiskDisplayBalance : primaryVaultBalanceForModal;
 
   // Boost Wallet Chart Data
   const bFirstLpTs = user?.firstLpDepositTs || new Date().toISOString();
@@ -1483,6 +1436,11 @@ export default function DashboardLayout({
         walletAccount={walletAccount}
         onWalletConnect={onWalletConnect}
         onWalletDisconnect={onWalletDisconnect}
+        onConnectPhantom={onConnectPhantom}
+        phantomStatus={phantomStatus}
+        phantomLoading={phantomLoading}
+        phantomErrorCode={phantomErrorCode}
+        shortAddress={shortAddress}
         onOpenZeroRiskModal={() => setShowZeroRiskWarningModal(true)}
         onOpenAddLPModal={() => setIsAddLPModalOpen(true)}
         onRedeem={() => setIsCommunityRewardsModalOpen(true)}
@@ -1500,7 +1458,13 @@ export default function DashboardLayout({
             showPlusBtn={false}
             balance={formatPrimaryBalance(ledgerDetails?.bnbWallet?.balance || "0")}
             currency="BNB"
-            onDeposit={walletAccount ? onOpenAmountModal : onWalletConnect}
+            onDeposit={() => {
+              if (walletAccount) {
+                onOpenAmountModal?.();
+              } else {
+                onWalletConnect?.();
+              }
+            }}
             depositLabel={walletAccount ? "Deposit" : "Connect"}
             onViewHistory={() => window.location.href = "/dashboard/ledger"}
           />

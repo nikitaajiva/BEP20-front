@@ -163,10 +163,10 @@ export const ActionableWalletCard = ({
         </div>
 
         <div className={styles.horizontalRight}>
-          <button className={styles.glassBtnPrimary} onClick={onDeposit}>
+          <button type="button" className={styles.glassBtnPrimary} onClick={onDeposit}>
             + {finalDepositLabel}
           </button>
-          <button className={styles.glassBtnSecondary} onClick={onViewHistory}>
+          <button type="button" className={styles.glassBtnSecondary} onClick={onViewHistory}>
             <History size={15} />
             View History
           </button>
@@ -220,8 +220,8 @@ export const ActionableWalletCard = ({
       )}
 
       <div className={styles.actionButtons}>
-        <button className={styles.primaryBtn} onClick={onDeposit}>+ {finalDepositLabel}</button>
-        <button className={styles.secondaryBtn} onClick={onViewHistory}>
+        <button type="button" className={styles.primaryBtn} onClick={onDeposit}>+ {finalDepositLabel}</button>
+        <button type="button" className={styles.secondaryBtn} onClick={onViewHistory}>
           <History size={18} />
           View History
         </button>

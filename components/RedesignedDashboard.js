@@ -23,6 +23,11 @@ const RedesignedDashboard = ({
   orbitCard4,
   bottomCards,
   extraHubCard,
+  onConnectPhantom,
+  phantomStatus,
+  phantomLoading,
+  phantomErrorCode,
+  shortAddress: shortAddressProp,
   children
 }) => {
   const lpWallet = ledgerDetails?.lpWallet || {};
@@ -116,10 +121,10 @@ const RedesignedDashboard = ({
           </div>
           <div className={styles.passLinkWrapper}>
             <span className={styles.passUrl}>
-              {copySuccess === "code" 
-                ? "CODE COPIED!" 
-                : copySuccess 
-                  ? "LINK COPIED! SHARE WITH TEAM" 
+              {copySuccess === "code"
+                ? "CODE COPIED!"
+                : copySuccess
+                  ? "LINK COPIED! SHARE WITH TEAM"
                   : "TAP TO COPY REFERRAL LINK"}
             </span>
             <button
@@ -154,46 +159,34 @@ const RedesignedDashboard = ({
             Redeem
           </button>
           <button
+            type="button"
             className={styles.connectBtn}
-            onClick={onWalletConnect}
-            title={hasWallet ? "Wallet Connected" : "Connect Wallet"}
+            disabled={phantomLoading || Boolean(user?.phantomWalletAddress)}
+            onClick={user?.phantomWalletAddress || phantomLoading ? undefined : onConnectPhantom}
+            title={user?.phantomWalletAddress ? "Phantom Connected" : "Connect Wallet"}
           >
             <Wallet size={14} />
-            {hasWallet ? shortAddress : "Connect Wallet"}
-            {hasWallet && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '6px' }}>
-                <span
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigator.clipboard.writeText(walletAccount);
-                  }}
-                  style={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer', color: '#888' }}
-                  title="Copy Address"
-                >
-                  <Copy size={12} />
-                </span>
-                <span
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (onWalletDisconnect) onWalletDisconnect();
-                  }}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    backgroundColor: 'rgba(255,100,100,0.15)',
-                    color: '#ff6666',
-                    padding: '3px',
-                    borderRadius: '4px'
-                  }}
-                  title="Disconnect Wallet"
-                >
-                  <Activity size={12} style={{ transform: 'rotate(90deg)' }} />
-                </span>
-              </div>
-            )}
+            {user?.phantomWalletAddress
+              ? `SOL: ${user.phantomWalletAddress.slice(0, 4)}...${user.phantomWalletAddress.slice(-4)}`
+              : phantomLoading
+                ? "Connecting..."
+                : "Connect Wallet"}
           </button>
+
+          {phantomStatus && !user?.phantomWalletAddress && (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', marginTop: '8px' }}>
+              <span style={{ fontSize: '10px', color: phantomErrorCode ? "#ff6666" : "#7FFF4C", textAlign: 'center', maxWidth: '200px' }}>
+                {phantomStatus}
+              </span>
+              {phantomErrorCode && (
+                <span style={{ fontSize: '9px', color: '#ffaaaa', textAlign: 'center', maxWidth: '200px', lineHeight: '1.2' }}>
+                  Open Phantom, unlock or set up your wallet, then try again.
+                  <br />
+                  If Phantom keeps failing, check "Connected Apps" in Phantom settings and remove localhost.
+                </span>
+              )}
+            </div>
+          )}
         </div>
       </div>
 

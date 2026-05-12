@@ -1,6 +1,9 @@
 "use client";
 import React, { createContext, useState, useContext, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import bs58 from "bs58";
+
+import safeStorage from "../utils/safeStorage";
 
 const AuthContext = createContext();
 
@@ -18,7 +21,7 @@ export const AuthProvider = ({ children }) => {
 
   const fetchUser = async () => {
     setLoading(true);
-    const localToken = localStorage.getItem("token");
+    const localToken = safeStorage.getItem("token");
 
     if (localToken) {
       try {
@@ -78,7 +81,7 @@ export const AuthProvider = ({ children }) => {
         throw new Error(data.message || "Login failed");
       }
 
-      localStorage.setItem("token", data.token);
+      safeStorage.setItem("token", data.token);
       setToken(data.token); // ✅ Set in context
       setUser(data.user);
       window.location.href = "/dashboard";
@@ -132,7 +135,7 @@ export const AuthProvider = ({ children }) => {
         throw new Error(data.message || "Failed to set password.");
       }
 
-      localStorage.setItem("token", data.token);
+      safeStorage.setItem("token", data.token);
       setToken(data.token); // ✅ update token in context
       setUser(data.user);
       router.push("/dashboard");
@@ -201,7 +204,7 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem("token");
+      const token = safeStorage.getItem("token");
       if (token) {
         await fetch(`${API_URL}/auth/logout`, {
           method: "POST",
@@ -214,7 +217,7 @@ export const AuthProvider = ({ children }) => {
     } catch (err) {
       console.error("Logout API error:", err);
     } finally {
-      localStorage.removeItem("token");
+      safeStorage.removeItem("token");
       setToken(null); // ✅ Clear from context
       setUser(null);
       setError(null);
@@ -224,6 +227,177 @@ export const AuthProvider = ({ children }) => {
       router.push("/login");
     }
   };
+const getPhantomProvider = () => {
+  if (typeof window === "undefined") return null;
+  const provider = window.phantom?.solana || window.solana;
+  if (provider?.isPhantom) return provider;
+  return null;
+};
+
+const getPhantomUserMessage = (code) => {
+  switch (code) {
+    case "PHANTOM_NOT_INSTALLED":
+      return "Phantom wallet is not installed. Please install Phantom to continue.";
+    case "AUTH_REQUIRED":
+      return "Please login to your account before connecting Phantom wallet.";
+    case "PHANTOM_NOT_READY":
+      return "Please set up your Phantom wallet first. Create or import a wallet in the Phantom extension, then try again.";
+    case "PHANTOM_LOCKED":
+      return "Please unlock your Phantom wallet, then try again.";
+    case "PHANTOM_CANCELLED":
+      return "Wallet connection was cancelled.";
+    case "PHANTOM_SIGN_CANCELLED":
+      return "Wallet signature was cancelled.";
+    case "PHANTOM_SIGN_FAILED":
+      return "Failed to sign the wallet verification message. Please try again.";
+    case "PHANTOM_CONNECT_FAILED":
+      return "Unable to connect Phantom wallet. Please open Phantom, make sure your wallet is ready, then try again.";
+    default:
+      return code || "Failed to connect Phantom wallet.";
+  }
+};
+
+  const connectPhantomWallet = async () => {
+    // Note: Global setLoading(true) is omitted here to prevent dashboard UI hangs.
+    // Dashboard components manage their own local walletLoading state for connection.
+    setError(null);
+
+    try {
+      const provider = getPhantomProvider();
+
+      if (!provider) {
+        throw new Error("PHANTOM_NOT_INSTALLED");
+      }
+
+      const localToken = safeStorage.getItem("token");
+      if (!localToken) {
+        throw new Error("AUTH_REQUIRED");
+      }
+
+      let walletAddress = "";
+
+      // Requirement 7: Support already-connected Phantom or existing publicKey
+      if (provider.isConnected && provider.publicKey) {
+        walletAddress = provider.publicKey.toString();
+        console.log("Using already connected Phantom wallet:", walletAddress);
+      } else if (provider.publicKey) {
+        walletAddress = provider.publicKey.toString();
+        console.log("Using Phantom publicKey without reconnect:", walletAddress);
+      } else {
+        console.log("Before provider.connect");
+        
+        // Use request({ method: "connect" }) if available, fallback to connect()
+        const connectionCall = provider.request 
+          ? provider.request({ method: "connect" }) 
+          : provider.connect({ onlyIfTrusted: false });
+
+        const connection = await Promise.race([
+          connectionCall,
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("PHANTOM_CONNECT_TIMEOUT")), 20000)
+          ),
+        ]);
+
+        if (!connection?.publicKey) {
+          throw new Error("PHANTOM_NOT_READY");
+        }
+
+        walletAddress = connection.publicKey.toString();
+        console.log("Connected Phantom wallet:", walletAddress);
+      }
+
+      // Requirement 8: After walletAddress is available, always continue to backend challenge
+      if (!walletAddress) {
+        throw new Error("PHANTOM_NOT_READY");
+      }
+      
+      console.log("Phantom walletAddress resolved:", walletAddress);
+      console.log("Calling challenge API");
+
+      const challengeRes = await fetch(`${API_URL}/auth/phantom/challenge`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localToken}`,
+        },
+        body: JSON.stringify({ walletAddress }),
+      });
+
+      const challengeData = await challengeRes.json();
+      console.log("Challenge response:", challengeData);
+
+      if (!challengeRes.ok || !challengeData.success) {
+        throw new Error(challengeData.message || "Failed to create wallet verification challenge.");
+      }
+
+      console.log("Calling signMessage");
+      let signedMessage;
+
+      try {
+        const encodedMessage = new TextEncoder().encode(challengeData.message);
+        signedMessage = await provider.signMessage(encodedMessage, "utf8");
+      } catch (signError) {
+        console.error("Phantom sign message error:", signError);
+        const rawMessage = String(signError?.message || signError || "").toLowerCase();
+
+        if (
+          signError?.code === 4001 ||
+          rawMessage.includes("rejected") ||
+          rawMessage.includes("cancel")
+        ) {
+          throw new Error("PHANTOM_SIGN_CANCELLED");
+        }
+
+        throw new Error("PHANTOM_SIGN_FAILED");
+      }
+
+      const bs58Module = bs58.default || bs58;
+      const signature = bs58Module.encode(signedMessage.signature);
+
+      console.log("Calling verify API");
+      const verifyRes = await fetch(`${API_URL}/auth/phantom/connect`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localToken}`,
+        },
+        body: JSON.stringify({
+          walletAddress,
+          signature,
+          message: challengeData.message,
+        }),
+      });
+
+      const verifyData = await verifyRes.json();
+      console.log("Verify response:", verifyData);
+
+      if (!verifyRes.ok || !verifyData.success) {
+        throw new Error(verifyData.message || "Failed to verify Phantom wallet.");
+      }
+
+      await fetchUser();
+
+      return {
+        success: true,
+        walletAddress,
+        message: "Phantom wallet connected successfully.",
+      };
+    } catch (err) {
+      console.error("connectPhantomWallet caught error:", err);
+      const code = err?.message || "PHANTOM_CONNECT_FAILED";
+      const userMessage = getPhantomUserMessage(code);
+      setError(userMessage);
+
+      return {
+        success: false,
+        code,
+        error: userMessage,
+      };
+    } finally {
+      // Global loading remains false.
+    }
+  };
+
 
   return (
     <AuthContext.Provider

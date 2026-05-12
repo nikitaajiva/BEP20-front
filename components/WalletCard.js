@@ -11,7 +11,7 @@ export default function WalletCard({ user, onTransferClick }) {
   };
 
   const imageCellStyle = {
-    background: "#1a2035",
+    background: "rgba(255, 102, 0, 0.05)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -26,7 +26,13 @@ export default function WalletCard({ user, onTransferClick }) {
     // Restored h-100 to card for uniform height with other cards in the row
     <div
       className="card h-100"
-      style={{ background: "#181f3a", padding: "0", overflow: "hidden" }}
+      style={{
+        background: "rgba(10, 10, 10, 0.4)",
+        backdropFilter: "blur(12px)",
+        border: "1px solid rgba(255, 102, 0, 0.15)",
+        padding: "0",
+        overflow: "hidden",
+      }}
     >
       {/* Restored h-100 to inner row */}
       <div className="row g-0 h-100">
@@ -49,12 +55,12 @@ export default function WalletCard({ user, onTransferClick }) {
               <div
                 className="badge lh-xs"
                 style={{
-                  backgroundColor: "#22c55e",
-                  color: "#fff",
+                  backgroundColor: "#ffbf00",
+                  color: "#000",
                   borderRadius: "9999px",
                   padding: "0.2rem 0.6rem",
                   fontSize: "0.7rem",
-                  fontWeight: 600,
+                  fontWeight: 800,
                   marginTop: "0.125rem",
                 }}
               >
@@ -88,9 +94,9 @@ export default function WalletCard({ user, onTransferClick }) {
                 onClick={onTransferClick}
                 className="btn w-100 mb-2"
                 style={{
-                  background: "rgba(79, 140, 255, 0.1)",
-                  color: "#4f8cff",
-                  border: "1px solid rgba(79, 140, 255, 0.2)",
+                  background: "rgba(255, 102, 0, 0.1)",
+                  color: "#ff6600",
+                  border: "1px solid rgba(255, 102, 0, 0.2)",
                   borderRadius: "12px",
                   justifyContent: "center",
                   padding: "0.75rem",
@@ -103,9 +109,9 @@ export default function WalletCard({ user, onTransferClick }) {
                 href="/dashboard/ledger?type=zero-risk"
                 className="btn w-100"
                 style={{
-                  background: "rgba(79, 140, 255, 0.1)",
-                  color: "#4f8cff",
-                  border: "1px solid rgba(79, 140, 255, 0.2)",
+                  background: "rgba(255, 102, 0, 0.1)",
+                  color: "#ff6600",
+                  border: "1px solid rgba(255, 102, 0, 0.2)",
                   borderRadius: "12px",
                   justifyContent: "center",
                   padding: "0.75rem",

@@ -66,11 +66,11 @@ const XBonusBanner = () => {
   };
 
   const rawXBonusLevels = [
-    { level: "X", display: "N1", self: "1,000", community: "15,000 USDT", color: "#6C5CE7" },
-    { level: "X1", display: "N2", self: "1,500", community: "30,000 USDT", color: "#00d6c4" },
-    { level: "X2", display: "N3", self: "3,000", community: "120,000 USDT", color: "#d34be6" },
-    { level: "X3", display: "N4", self: "6,000", community: "300,000 USDT", color: "#00d19b" },
-    { level: "X4", display: "N5", self: "12,000", community: "900,000 USDT", color: "#f1802f" },
+    { level: "X", display: "N1", self: "1,000", community: "15,000 USDT", color: "#ff6600" }, // Fire Orange
+    { level: "X1", display: "N2", self: "1,500", community: "30,000 USDT", color: "#ff4500" }, // Orange Red
+    { level: "X2", display: "N3", self: "3,000", community: "120,000 USDT", color: "#ff8c00" }, // Dark Orange
+    { level: "X3", display: "N4", self: "6,000", community: "300,000 USDT", color: "#e25822" }, // Flame
+    { level: "X4", display: "N5", self: "12,000", community: "900,000 USDT", color: "#ffd700" }, // Gold
   ];
 
   const fetchReferrals = useCallback(

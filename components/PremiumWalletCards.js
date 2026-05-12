@@ -1,7 +1,8 @@
 "use client";
 import React from "react";
 import styles from "./PremiumWalletCards.module.css";
-import { ArrowRight, Plus, Gift, Rocket, Shield, MousePointer2, Users, History, TrendingUp, Wallet, Eye } from "lucide-react";
+import { ArrowRight, Plus, Gift, Rocket, Shield, MousePointer2, Users, History, TrendingUp, Wallet, Eye, Zap } from "lucide-react";
+import { FaHorse } from "react-icons/fa";
 import { Chart } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -298,6 +299,94 @@ export const BoostWalletCard = ({
         <button className={styles.premiumActionBtn} onClick={onViewHistory}>
            <span>VIEW HISTORY</span>
            <ArrowRight size={14} />
+        </button>
+      </div>
+    </div>
+  );
+};
+export const HorseNFTCard = ({
+  title = "Horse NFT",
+  packageType = "bronze",
+  balance,
+  roiProgress = 45,
+  dailyYield = "0.00",
+  estPayout = "0.00",
+  nextPayout = "0.00",
+  timeLeft = "14h 22m",
+  onViewHistory
+}) => {
+  const nftImages = {
+    bronze: "🥉",
+    silver: "🥈",
+    gold: "🥇",
+  };
+
+  const packageNames = {
+    bronze: "Bronze Tier",
+    silver: "Silver Tier",
+    gold: "Gold Tier",
+  };
+
+  return (
+    <div className={styles.nftCardWrapper}>
+      <div className={styles.nftHeader}>
+        <div className={styles.headerLeft}>
+          <div className={styles.nftIconBox}>
+             <FaHorse size={20} color="#ffd700" />
+          </div>
+          <div className={styles.titleSection}>
+            <h3>{title}</h3>
+            <p>{packageNames[packageType] || "No Active Package"}</p>
+          </div>
+        </div>
+        
+        {/* Compact Tier Image - Top Right */}
+        <div className={styles.nftImageSmall}>
+           <span>{nftImages[packageType] || "🐎"}</span>
+           <div className={styles.nftGlowSmall}></div>
+        </div>
+      </div>
+
+      <div className={styles.nftMainBalanceLarge}>
+         {balance} <span>USDT</span>
+      </div>
+
+      <div className={styles.roiProgressSection}>
+        <div className={styles.roiLabelRow}>
+           <span>Annual ROI Target</span>
+           <span>{roiProgress}%</span>
+        </div>
+        <div className={styles.roiProgressBar}>
+           <div className={styles.roiProgressFill} style={{ width: `${roiProgress}%` }}></div>
+        </div>
+      </div>
+
+      <div className={styles.nftStatsGrid}>
+        <div className={styles.nftStatItem}>
+           <span className={styles.nftStatLabel}>Daily Yield</span>
+           <span className={styles.nftStatValue} style={{ color: "#00ff00" }}>{dailyYield} USDT</span>
+        </div>
+        <div className={styles.nftStatItem}>
+           <span className={styles.nftStatLabel}>Est. Payout</span>
+           <span className={styles.nftStatValue}>{estPayout} USDT</span>
+        </div>
+        <div className={styles.nftStatItem} style={{ border: 'none' }}>
+           <div className={styles.nftStatLabelGroup}>
+             <span className={styles.nftStatLabel}>Next Payout</span>
+             <span className={styles.nftTimeLeft}>{timeLeft} LEFT</span>
+           </div>
+           <span className={styles.nftStatValue}>{nextPayout} USDT</span>
+        </div>
+      </div>
+
+      <div className={styles.nftActionButtonsSimple}>
+        <button className={styles.nftHistoryBtnFull} onClick={onViewHistory}>
+          <History size={16} />
+          <span>VIEW ASSET HISTORY</span>
+        </button>
+        <button className={styles.nftShowMoreBtn} onClick={() => window.location.href = "/dashboard/nft-packages"}>
+          <Plus size={14} />
+          <span>SHOW MORE</span>
         </button>
       </div>
     </div>

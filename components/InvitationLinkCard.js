@@ -10,7 +10,7 @@ export default function InvitationLinkCard({ user }) {
 
   // Construct the referral link using user.username
   const referralLink = user?.username
-    ? `https://app.bepvault.io/sign-up?sponsorId=${user.username}`
+    ? `https://app.tokinghoofborn.io/sign-up?sponsorId=${user.username}`
     : "";
 
   const handleCopy = () => {
@@ -29,7 +29,8 @@ export default function InvitationLinkCard({ user }) {
   };
 
   const cardBaseStyle = {
-    background: "#181f3a",
+    background: "rgba(10, 10, 10, 0.4)",
+    backdropFilter: "blur(12px)",
     color: "#e5e7eb",
     textAlign: "center",
     display: "flex",
@@ -37,6 +38,7 @@ export default function InvitationLinkCard({ user }) {
     justifyContent: "space-between",
     overflow: "hidden",
     borderRadius: "22px",
+    border: "1px solid rgba(255, 102, 0, 0.15)",
     boxShadow: "0 12px 40px -12px rgba(0,0,0,0.35)",
   };
 
@@ -56,22 +58,22 @@ export default function InvitationLinkCard({ user }) {
 
   const socials = [
     {
-      href: "https://youtube.com/@BEPVaultChannel",
+      href: "https://youtube.com/@TokingHoofborn",
       icon: <FaYoutube style={{ width: "30px", height: "30px" }} />,
       color: "#FF0000",
     },
     {
-      href: "https://t.me/BEPVaultOfficial",
+      href: "https://t.me/TokingHoofbornOfficial",
       icon: <FaTelegram style={{ width: "30px", height: "30px" }} />,
-      color: "#29A9EA",
+      color: "#ff6600",
     },
 
     {
-      href: "https://instagram.com/BEPVault",
+      href: "https://instagram.com/TokingHoofborn",
       icon: <FaInstagram style={{ width: "30px", height: "30px" }} />,
       color: "#C13584",
     },
-    { href: "https://x.com/BEPVault", icon: <FaXTwitter />, color: "#000000" },
+    { href: "https://x.com/TokingHoofborn", icon: <FaXTwitter />, color: "#000000" },
   ];
   return (
     <div className="card h-100" style={cardBaseStyle}>
@@ -91,11 +93,11 @@ export default function InvitationLinkCard({ user }) {
             <div className="d-flex flex-column align-items-center mb-2">
               <i
                 className="ri-link-m"
-                style={{ color: "#7f6aff", fontSize: 26, marginBottom: 4 }}
+                style={{ color: "#ff6600", fontSize: 26, marginBottom: 4 }}
               ></i>
               <span
                 style={{
-                  color: "#7f6aff",
+                  color: "#ff6600",
                   fontWeight: 700,
                   fontSize: "1rem",
                   letterSpacing: "0.01em",
@@ -129,7 +131,7 @@ export default function InvitationLinkCard({ user }) {
             {copySuccess && (
               <div
                 style={{
-                  color: "#7FFF4C",
+                  color: "#ff8c00",
                   fontSize: "0.85rem",
                   fontWeight: 500,
                   marginTop: "0.5rem",
@@ -150,7 +152,7 @@ export default function InvitationLinkCard({ user }) {
                 marginTop: "1rem",
               }}
             >
-              <h6 style={{ color: "#b3baff", fontWeight: 500 }}>Follow Us</h6>
+              <h6 style={{ color: "#ff8c00", fontWeight: 500 }}>Follow Us</h6>
             </div>
             <div className="social-icons-container">
               {/* <a

@@ -109,7 +109,7 @@ const formatNum = (n) =>
   n === undefined || n === null ? "-" : Number(n).toLocaleString();
 
 const accentForLevel = (level) => {
-  const accents = ["green", "purple", "teal", "orange", "blue"];
+  const accents = ["orange", "red", "amber", "fire", "gold"];
   return accents[(level - 1) % accents.length];
 };
 function parseNarrative(narrative) {

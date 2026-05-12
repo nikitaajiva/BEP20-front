@@ -16,9 +16,11 @@ const TeamStatsCard = ({ user }) => {
     <div
       className="card h-100"
       style={{
-        background: "#181f3a",
+        background: "rgba(10, 10, 10, 0.4)",
+        backdropFilter: "blur(12px)",
         borderRadius: "22px",
-        boxShadow: "0 8px 32px 0 rgba(16,25,53,0.18)",
+        border: "1px solid rgba(255, 102, 0, 0.15)",
+        boxShadow: "0 8px 32px 0 rgba(0,0,0,0.18)",
       }}
     >
       <div className="card-body TeamStatistics">
@@ -27,17 +29,17 @@ const TeamStatsCard = ({ user }) => {
             <h5 className="mb-0" style={{ color: "#fff" }}>
               Team Statistics
             </h5>
-            <small style={{ color: "#b3baff" }}>Your community growth</small>
+            <small style={{ color: "#888" }}>Your community growth</small>
           </div>
           <div
             className="card-icon rounded-circle d-flex align-items-center justify-content-center"
             style={{
-              background: "rgba(79, 140, 255, 0.1)",
+              background: "rgba(255, 102, 0, 0.1)",
               width: "45px",
               height: "45px",
             }}
           >
-            <FaUsers color="#4f8cff" size={24} />
+            <FaUsers color="#ff6600" size={24} />
           </div>
         </div>
         <div className="mt-4">
@@ -45,13 +47,13 @@ const TeamStatsCard = ({ user }) => {
           <div className="d-flex align-items-center justify-content-between mb-3">
             <div className="d-flex align-items-center">
               <div className="me-3">
-                <FaCrown color="#b3baff" size={20} />
+                <FaCrown color="#ff8c00" size={20} />
               </div>
               <div>
                 <h6 className="mb-0" style={{ color: "#fff" }}>
                   Current Rank
                 </h6>
-                <small style={{ color: "#b3baff" }}>
+                <small style={{ color: "#888" }}>
                   Your Growth Milestone
                 </small>
               </div>
@@ -64,36 +66,36 @@ const TeamStatsCard = ({ user }) => {
           <div className="d-flex align-items-center justify-content-between mb-3">
             <div className="d-flex align-items-center">
               <div className="me-3">
-                <FaUserPlus color="#b3baff" size={20} />
+                <FaUserPlus color="#ff8c00" size={20} />
               </div>
               <div>
                 <h6 className="mb-0" style={{ color: "#fff" }}>
                   Direct Referrals
                 </h6>
-                <small style={{ color: "#b3baff" }}>
+                <small style={{ color: "#888" }}>
                   Users you personally sponsored
                 </small>
               </div>
             </div>
-            <h4 className="mb-0" style={{ color: "#4f8cff" }}>
+            <h4 className="mb-0" style={{ color: "#ff6600" }}>
               {directReferrals}
             </h4>
           </div>
           <div className="d-flex align-items-center justify-content-between mb-3">
             <div className="d-flex align-items-center">
               <div className="me-3">
-                <FaUsers color="#b3baff" size={20} />
+                <FaUsers color="#ff8c00" size={20} />
               </div>
               <div>
                 <h6 className="mb-0" style={{ color: "#fff" }}>
                   Community Size
                 </h6>
-                <small style={{ color: "#b3baff" }}>
+                <small style={{ color: "#888" }}>
                   Total users in your team
                 </small>
               </div>
             </div>
-            <h4 className="mb-0" style={{ color: "#4f8cff" }}>
+            <h4 className="mb-0" style={{ color: "#ff6600" }}>
               {communitySize}
             </h4>
           </div>
@@ -101,7 +103,7 @@ const TeamStatsCard = ({ user }) => {
             <div className="d-flex align-items-center justify-content-between mb-2 gap-2 TeamStatistics">
               <div className="d-flex align-items-center ">
                 <div className="me-3">
-                  <FaUsers color="#b3baff" size={20} />
+                  <FaUsers color="#ff8c00" size={20} />
                 </div>
                 <div>
                   <h6 className="mb-0 " style={{ color: "#fff" }}>
@@ -109,8 +111,8 @@ const TeamStatsCard = ({ user }) => {
                   </h6>
                 </div>
               </div>
-              <div className="" style={{ color: "#4f8cff", textAlign: "end" }}>
-                <h4 className="mb-0" style={{ color: "#4f8cff" }}>
+              <div className="" style={{ color: "#ff6600", textAlign: "end" }}>
+                <h4 className="mb-0" style={{ color: "#ff6600" }}>
                   {Community_USDT_Balance}
                 </h4>
               </div>

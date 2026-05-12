@@ -12,7 +12,8 @@ export default function SystemWalletCard({
 }) {
   const cardBaseStyle = {
     overflow: "hidden",
-    background: "#181f3a",
+    background: "rgba(10, 10, 10, 0.4)",
+    backdropFilter: "blur(12px)",
     color: "#e5e7eb",
     display: "flex",
     flexDirection: "column",
@@ -20,13 +21,13 @@ export default function SystemWalletCard({
     alignItems: "center",
     textAlign: "center",
     borderRadius: "22px",
-    boxShadow: "0 8px 32px 0 rgba(79, 140, 255, 0.1)",
-    border: "1px solid rgba(79, 140, 255, 0.15)",
+    boxShadow: "0 8px 32px 0 rgba(255, 102, 0, 0.1)",
+    border: "1px solid rgba(255, 102, 0, 0.15)",
     position: "relative",
   };
 
   const buttonStyle = {
-    background: "linear-gradient(90deg, #4f8cff 0%, #3b76ff 100%)",
+    background: "linear-gradient(90deg, #ff6600 0%, #ff8c00 100%)",
     color: "#ffffff",
     border: "none",
     borderRadius: "12px",
@@ -78,13 +79,13 @@ return (
                      onClick={isDisabledAlt ? undefined : onOpenModal} // disable click
                       className="btn btn-icon"
                       style={{
-                        background: "rgba(127, 255, 76, 0.1)",
-                        border: "1px solid rgba(127, 255, 76, 0.2)",
+                        background: "rgba(255, 102, 0, 0.1)",
+                        border: "1px solid rgba(255, 102, 0, 0.2)",
                         width: "45px",
                         height: "45px",
                         cursor: "pointer",
                         transition: "all 0.3s ease",
-                        color: "rgb(127, 255, 76)",
+                        color: "#ff6600",
                         padding: "0.25rem",
                         alignSelf: "flex-start",
                       }}
@@ -96,7 +97,7 @@ return (
                         height="20"
                         viewBox="0 0 24 24"
                         fill="none"
-                        stroke="rgb(127, 255, 76)"
+                        stroke="#ff6600"
                         strokeWidth="2"
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -209,16 +210,14 @@ return (
               href={isDisabledAlt ? "#" : "/dashboard/history/usdt"}
               className="btn w-100"
               style={{
-                background: "rgba(127, 255, 76, 0.1)",
-                color: "#7FFF4C",
-                border: "1px solid rgba(127, 255, 76, 0.2)",
+                background: "rgba(255, 102, 0, 0.1)",
+                color: "#ff8c00",
+                border: "1px solid rgba(255, 102, 0, 0.2)",
                 borderRadius: "12px",
                 padding: "0.75rem",
                 justifyContent: "center",
                 pointerEvents: isDisabledAlt ? "none" : "auto",
                 transition: "all 0.3s ease",
-                // cursor: "not-allowed",
-                // pointerEvents: "none",
               }}
             >
               View History
@@ -230,9 +229,9 @@ return (
               onClick={onWalletConnect}
               className="btn"
               style={{
-                background: "rgba(127, 255, 76, 0.1)",
-                border: "1px solid rgba(127, 255, 76, 0.2)",
-                color: "rgb(127, 255, 76)",
+                background: "rgba(255, 102, 0, 0.1)",
+                border: "1px solid rgba(255, 102, 0, 0.2)",
+                color: "#ff6600",
                 height: "45px",
                 cursor: "pointer",
                 transition: "all 0.3s ease",

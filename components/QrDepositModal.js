@@ -64,14 +64,14 @@ export default function QrDepositModal({
 
   const modalContentStyle = {
     background:
-      "radial-gradient(120% 120% at 20% 0%, rgba(255, 215, 0, 0.14) 0%, rgba(10, 10, 10, 0.95) 60%)",
+      "radial-gradient(120% 120% at 20% 0%, rgba(255, 102, 0, 0.14) 0%, rgba(10, 10, 10, 0.95) 60%)",
     color: "#f4f4f4",
     padding: "28px",
     borderRadius: "14px",
     minWidth: "320px",
     maxWidth: "520px",
     boxShadow:
-      "0 16px 40px rgba(0,0,0,0.55), 0 0 0 1px rgba(255, 215, 0, 0.18) inset",
+      "0 16px 40px rgba(0,0,0,0.55), 0 0 0 1px rgba(255, 102, 0, 0.18) inset",
     textAlign: "center",
   };
 
@@ -100,7 +100,7 @@ export default function QrDepositModal({
     <div style={modalStyle} onClick={onClose}>
       <div style={modalContentStyle} onClick={(e) => e.stopPropagation()}>
         <h4 style={{ marginBottom: "12px", color: "#fff" }}>Scan to Deposit</h4>
-        <p style={{ marginBottom: "16px", color: "#ffd766" }}>{statusText}</p>
+        <p style={{ marginBottom: "16px", color: "#ffb800" }}>{statusText}</p>
         {qrDataUrl ? (
           <img src={qrDataUrl} alt="Deposit QR" style={{ borderRadius: "10px" }} />
         ) : (
@@ -139,7 +139,7 @@ export default function QrDepositModal({
                 width: "100%",
                 padding: "8px 10px",
                 borderRadius: "6px",
-                border: "1px solid rgba(255, 215, 0, 0.25)",
+                border: "1px solid rgba(255, 102, 0, 0.25)",
                 background: "rgba(255,255,255,0.08)",
                 color: "#f4f4f4",
                 marginBottom: "8px",
@@ -153,7 +153,7 @@ export default function QrDepositModal({
                 padding: "8px 12px",
                 borderRadius: "6px",
                 border: "none",
-                background: "linear-gradient(135deg, #ffd700, #ff9f1a)",
+                background: "linear-gradient(135deg, #ff6600, #ff8c00)",
                 color: "#0a0a0a",
                 fontWeight: "bold",
               }}
@@ -161,14 +161,14 @@ export default function QrDepositModal({
               Submit Tx Hash
             </button>
             {txHashStatus ? (
-              <div style={{ marginTop: "8px", color: "#ffd766", fontSize: "0.85rem" }}>
+              <div style={{ marginTop: "8px", color: "#ffb800", fontSize: "0.85rem" }}>
                 {txHashStatus}
               </div>
             ) : null}
           </div>
         ) : null}
 
-        <div style={{ marginTop: "14px", color: "#ffd766" }}>
+        <div style={{ marginTop: "14px", color: "#ffb800" }}>
           Time left: {Math.max(0, timeLeft)}s
         </div>
 
@@ -235,9 +235,9 @@ export default function QrDepositModal({
                 padding: "10px 16px",
                 marginRight: "10px",
                 borderRadius: "6px",
-                border: "1px solid rgba(255, 215, 0, 0.25)",
+                border: "1px solid rgba(255, 102, 0, 0.25)",
                 background: "rgba(255,255,255,0.08)",
-                color: "#ffd766",
+                color: "#ffb800",
                 fontWeight: "bold",
               }}
             >
@@ -252,7 +252,7 @@ export default function QrDepositModal({
                 marginRight: "10px",
                 borderRadius: "6px",
                 border: "none",
-                background: "linear-gradient(135deg, #ffd700, #ff9f1a)",
+                background: "linear-gradient(135deg, #ff6600, #ff8c00)",
                 color: "#0a0a0a",
                 fontWeight: "bold",
               }}
@@ -265,9 +265,9 @@ export default function QrDepositModal({
             style={{
               padding: "10px 16px",
               borderRadius: "6px",
-              border: "1px solid rgba(255, 215, 0, 0.25)",
+              border: "1px solid rgba(255, 102, 0, 0.25)",
               background: "rgba(255,255,255,0.08)",
-              color: "#ffd766",
+              color: "#ffb800",
               fontWeight: "bold",
             }}
           >

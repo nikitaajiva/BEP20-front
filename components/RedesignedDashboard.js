@@ -3,7 +3,10 @@ import React from "react";
 import styles from "./RedesignedDashboard.module.css";
 import { motion } from "framer-motion";
 import { Wallet, Droplets, TrendingUp, Activity, Plus, History, Shield, Eye, Gift, Copy } from "lucide-react";
+import { FaHorse } from "react-icons/fa";
 import Link from "next/link";
+import StakingModal from "./StakingModal";
+import NFTModal from "./NFTModal";
 
 const RedesignedDashboard = ({
   user,
@@ -89,6 +92,10 @@ const RedesignedDashboard = ({
       setTimeout(() => setCopySuccess(false), 2000);
     });
   };
+
+  const [showInvestMenu, setShowInvestMenu] = React.useState(false);
+  const [isStakingModalOpen, setIsStakingModalOpen] = React.useState(false);
+  const [isNftModalOpen, setIsNftModalOpen] = React.useState(false);
 
   return (
     <div className={styles.hubContentWrapper}>
@@ -245,6 +252,49 @@ const RedesignedDashboard = ({
 
       {/* Central Hub */}
       <div className={styles.centralDashboard}>
+        {/* Animated Fire Horse Background */}
+        <div style={{
+          position: 'absolute', top: '50%', left: '50%',
+          transform: 'translate(-50%, -60%)',
+          width: 420, height: 340, pointerEvents: 'none',
+          opacity: 0.08, zIndex: 2,
+          animation: 'horseFloat 6s ease-in-out infinite',
+          color: '#ff6600',
+          filter: 'drop-shadow(0 0 30px #ff6600)',
+        }}>
+          <svg viewBox="0 0 200 160" style={{ width: '100%', height: '100%', fill: 'currentColor' }}>
+            {/* Body */}
+            <ellipse cx="100" cy="95" rx="48" ry="30"/>
+            {/* Neck */}
+            <path d="M130,80 C136,63 140,50 132,38 C125,28 113,27 109,33 C105,40 109,55 112,65 C116,72 124,76 130,80Z"/>
+            {/* Head */}
+            <path d="M122,44 C120,36 116,27 110,23 C104,18 98,19 95,24 C92,29 94,37 97,43 C101,49 109,50 115,47Z"/>
+            {/* Ear */}
+            <path d="M107,21 C105,15 102,12 104,10 C106,8 110,11 109,16Z"/>
+            {/* Eye */}
+            <circle cx="105" cy="32" r="2.5"/>
+            {/* Nostril */}
+            <ellipse cx="96" cy="40" rx="2" ry="1.5"/>
+            {/* Front Legs */}
+            <rect x="93" y="118" width="11" height="36" rx="5"/>
+            <rect x="110" y="116" width="11" height="38" rx="5"/>
+            {/* Back Legs */}
+            <rect x="72" y="118" width="11" height="36" rx="5"/>
+            <rect x="55" y="116" width="11" height="38" rx="5"/>
+            {/* Tail */}
+            <path d="M55,92 C44,98 33,110 30,122 C28,130 34,136 41,133 C46,116 52,104 55,92Z"/>
+            {/* Mane streaks */}
+            <path d="M112,65 C120,57 125,45 122,34 C128,40 131,52 128,64 C124,72 117,74 112,72Z" style={{ opacity: 0.6 }}/>
+          </svg>
+        </div>
+        <style>{`
+          @keyframes horseFloat {
+            0%, 100% { transform: translate(-50%, -60%) translateY(0px) scaleX(1); }
+            25% { transform: translate(-50%, -60%) translateY(-12px) scaleX(1.01); }
+            50% { transform: translate(-50%, -60%) translateY(-5px) scaleX(0.99); }
+            75% { transform: translate(-50%, -60%) translateY(-15px) scaleX(1.01); }
+          }
+        `}</style>
         {/* Orbital Motion Background Nodes */}
         <div className={styles.orbitArea}>
           <div className={styles.orbitDot + " " + styles.largeDot}></div>
@@ -253,69 +303,140 @@ const RedesignedDashboard = ({
 
         <div className={styles.orbitPath + " " + styles.orbitPath1}></div>
         <div className={styles.orbitPath + " " + styles.orbitPath2}></div>
+        <div className={styles.orbitPath + " " + styles.orbitPath3}></div>
 
-        {/* Core Hub */}
-        <div className={styles.hubWrapper}>
-          <div className={styles.techRing + " " + styles.ring1}></div>
-          <div className={styles.techRing + " " + styles.ring2}></div>
-
-          <div className={styles.mainCircle}>
-            {/* LP Icon + Title moved outside for better visibility */}
-            <div className={styles.hubLabelOuter}>
-              <Droplets size={13} />
-              LIQUIDITY POOL
-              <Link href="/dashboard/history/lp" className={styles.historyEyeBtn} title="View LP History">
-                <Eye size={15} />
-              </Link>
-            </div>
-
-            {/* LP Balance - Main number */}
-            <div className={styles.hubAmount}>{lpBalance}</div>
-            <div className={styles.hubCurrency}>USDT</div>
-
-            {/* LP Stats Grid */}
-            <div className={styles.lpStatsGrid}>
-              <div className={styles.lpStatItem}>
-                <TrendingUp size={10} className={styles.lpStatIcon} />
-                <span className={styles.lpStatLabel}>AutoPos</span>
-                <span className={styles.lpStatValue}>{lpAutopositioning}</span>
+        {/* Focused Single Core Engine Wrapper */}
+        <div className={styles.dualCoreWrapper} style={{ gap: 0 }}>
+          
+          {/* CENTER CORE: STAKING ENGINE */}
+          <div className={`${styles.hubWrapper} ${styles.stakingCore}`}>
+            <div className={styles.techRing + " " + styles.ringStaking}></div>
+            <div className={`${styles.mainCircle} ${styles.stakingCircle}`}>
+              <div className={styles.hubLabelOuter} style={{ color: "#00f2ff", borderColor: "rgba(0,242,255,0.3)" }}>
+                <Activity size={13} />
+                STAKING ENGINE
               </div>
-              <div className={styles.lpStatDivider}></div>
-              <div className={styles.lpStatItem}>
-                <Activity size={10} className={styles.lpStatIcon} />
-                <span className={styles.lpStatLabel}>Pending</span>
-                <span className={styles.lpStatValue}>{lpPending}</span>
-              </div>
+              
+              {user?.stakingPlan?.days ? (
+                <div className={styles.stakingHubCore}>
+                  {/* Primary Balance Header */}
+                  <div className={styles.primaryBalanceWrap}>
+                    <div className={styles.hubAmount} style={{ color: "#00f2ff", fontSize: 38, marginBottom: -5 }}>
+                      {parseFloat(user.stakingPlan.amount).toLocaleString()}
+                    </div>
+                    <div className={styles.hubCurrency} style={{ letterSpacing: 4 }}>TOKING</div>
+                  </div>
+                  
+                  <div className={styles.hubSeparator}></div>
+
+                  {/* Growth Analytics Grid */}
+                  <div className={styles.stakingStatsDetail}>
+                    <div className={styles.statDetailItem}>
+                      <span className={styles.statDetailLabel}>EST. REWARDS</span>
+                      <span className={styles.statDetailValue} style={{ color: "#00f2ff" }}>+{(user.stakingPlan.amount * 0.28).toFixed(2)}</span>
+                    </div>
+                    <div className={styles.statDetailItem}>
+                      <span className={styles.statDetailLabel}>UNLOCKS ON</span>
+                      <span className={styles.statDetailValue}>
+                        {new Date(new Date(user.stakingPlan.startDate).getTime() + user.stakingPlan.days * 86400000).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Progressive Lock Bar */}
+                  <div className={styles.stakingProgressBox}>
+                    <div className={styles.miniChart}>
+                      <div className={styles.miniChartFill} style={{ width: '35%' }}></div>
+                    </div>
+                    <div className={styles.stakingDaysRemaining}>
+                      {user.stakingPlan.days} DAY LOCK ENGINE
+                    </div>
+                  </div>
+
+                  {/* Market Insights Footer */}
+                  <div className={styles.marketStatsRow}>
+                    <div className={styles.marketStat}>
+                      <span className={styles.marketLabel}>TODAY</span>
+                      <span className={styles.marketValue} style={{ color: "#00f2ff" }}>+{(user.stakingPlan.amount * 0.28 / 365).toFixed(4)}</span>
+                    </div>
+                    <div className={styles.marketStat}>
+                      <span className={styles.marketLabel}>TOKEN VALUE</span>
+                      <span className={styles.marketValue} style={{ color: "#00ff00" }}>
+                        $0.124 <TrendingUp size={10} style={{ marginBottom: -2 }} />
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className={styles.noStakeWrapper}>
+                  <div className={styles.hubAmount} style={{ fontSize: 24, color: "#444" }}>INACTIVE</div>
+                  <div className={styles.inactiveNote}>ENGINE READY</div>
+                </div>
+              )}
             </div>
 
-            {/* Daily Earning Badge */}
-            <div className={styles.hubRate}>
-              <TrendingUp size={14} />
-              <span>+{lpRoi}% DAILY</span>
+            {/* NEW INVEST NOW SECTION */}
+            <div className={styles.investNowContainer}>
+              <motion.button 
+                className={styles.mainInvestBtn}
+                onClick={() => setShowInvestMenu(!showInvestMenu)}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                {showInvestMenu ? "CLOSE MENU" : "INVEST NOW"}
+              </motion.button>
+
+              {showInvestMenu && (
+                <motion.div 
+                  className={styles.investSubMenu}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
+                  <div 
+                    onClick={() => setIsStakingModalOpen(true)} 
+                    className={styles.subMenuBtn}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <TrendingUp size={16} />
+                    <span>TOKEN STAKING</span>
+                    {user?.stakingPlan?.days && <span className={styles.miniUpgrade}>UPGRADE</span>}
+                  </div>
+                  <div 
+                    onClick={() => setIsNftModalOpen(true)} 
+                    className={styles.subMenuBtn + " " + styles.subMenuBtnNft}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <FaHorse size={16} />
+                    <span>HORSE NFT</span>
+                    {user?.nftPackage && <span className={styles.miniUpgrade}>UPGRADE</span>}
+                  </div>
+                </motion.div>
+              )}
             </div>
-
-            {/* LP Progress Arc */}
-            <div className={styles.lpProgressBar}>
-              <div
-                className={styles.lpProgressFill}
-                style={{ width: `${lpPercent}%` }}
-              ></div>
-            </div>
-
-            {/* Add Funds Action Button - Repositioned inside circle at bottom */}
-            <motion.button
-              className={styles.addFundsHubBtn}
-              onClick={onOpenAddLPModal}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Plus size={14} strokeWidth={3} />
-              Add Liquid
-            </motion.button>
-
-
           </div>
+
         </div>
+      </div>
+
+      <StakingModal 
+        isOpen={isStakingModalOpen} 
+        onClose={() => setIsStakingModalOpen(false)} 
+      />
+      <NFTModal 
+        isOpen={isNftModalOpen} 
+        onClose={() => setIsNftModalOpen(false)} 
+      />
+
+      {/* NFT Tier Footer Info */}
+      <div className={styles.nftStatusBar}>
+        <div className={styles.nftStatusItem}>
+          <Shield size={16} color="#ffd700" />
+          <span className={styles.nftStatusLabel}>ACTIVE NFT TIER:</span>
+          <span className={styles.nftStatusValue}>
+            {user?.stakingPlan?.days ? "GOLD ELITE" : "BRONZE BASIC"}
+          </span>
+        </div>
+        <div className={styles.statusGlowLine}></div>
       </div>
       {children}
     </div>

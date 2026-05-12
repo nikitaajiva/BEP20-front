@@ -69,7 +69,7 @@ const cutoffDate = new Date("2025-06-28T00:00:00Z");
     background: "#000000",
     color: "#ffffff",
     borderRadius: "24px",
-    border: "1px solid rgba(255, 215, 0, 0.15)",
+    border: "1px solid rgba(255, 102, 0, 0.2)",
     boxShadow: "0 10px 40px rgba(0,0,0,0.8)",
     padding: "1.5rem",
   };
@@ -130,7 +130,7 @@ const cutoffDate = new Date("2025-06-28T00:00:00Z");
             value={lpLimitUsed}
             max={lpWalletData.balance * 2}
             unit=" USDT"
-            color="#00F0FF" // Teal/Cyan for Airdrop
+            color="#ff6600" // Fire Orange for LP
           />
 
           {firstLpDate && firstLpDate < cutoffDate ? (
@@ -139,7 +139,7 @@ const cutoffDate = new Date("2025-06-28T00:00:00Z");
             value={airdropLimitUsed}
             max={airdropLimitCap}
             unit=" USDT"
-            color="#00F0FF"
+            color="#ff4500" // Orange Red for Airdrop
           />
         ) : null}
 
@@ -148,7 +148,7 @@ const cutoffDate = new Date("2025-06-28T00:00:00Z");
             value={boostLimitUsed}
             max={boostBalance}
             unit=" USDT"
-            color="#FFD700" // Gold for Boost
+            color="#ff8c00" // Dark Orange for Boost
           />
 
           <ProgressBar
@@ -156,7 +156,7 @@ const cutoffDate = new Date("2025-06-28T00:00:00Z");
             value={fiveXLimitUsed}
             max={fiveXLimitMax}
             unit=" USDT"
-            color="#7FFF4C" // Green for FiveX
+            color="#ffbf00" // Amber for FiveX
           />
         </div>
         <div></div>

@@ -14,7 +14,8 @@ const AppLayout = ({ children }) => {
 
   const navLinks = [
     { href: "/dashboard", label: "Dashboard", icon: "ri-dashboard-3-fill" },
-
+    { href: "/dashboard/staking", label: "Token Staking", icon: "ri-fire-fill" },
+    { href: "/dashboard/nft-packages", label: "Horse NFT Packages", icon: "ri-nft-fill" },
     { href: "/team-referrals", label: "Community", icon: "ri-group-2-fill" },
     { href: "/dashboard/ledger", label: "Ledger History", icon: "ri-file-list-3-fill" },
   ];
@@ -23,7 +24,7 @@ const AppLayout = ({ children }) => {
     navLinks.push({ href: "/admin/dashboard", label: "Super Admin Dashboard", icon: "ri-admin-fill" });
   }
 
-  navLinks.push({ href: "https://t.me/BEPVaultSupportBot", label: "Help", icon: "ri-customer-service-2-fill" });
+  navLinks.push({ href: "https://t.me/TokingHoofbornSupportBot", label: "Help", icon: "ri-customer-service-2-fill" });
 
   // Pages that never show the sidebar (auth + public marketing/legal pages)
   const isAuthPage =
@@ -75,7 +76,7 @@ const AppLayout = ({ children }) => {
             />
           </div>
           <div className="d-flex flex-column">
-            <span style={{ color: "#ffd700", fontWeight: 800, fontSize: 18, lineHeight: 1 }}>BEPVault</span>
+            <span style={{ color: "#ff6600", fontWeight: 800, fontSize: 18, lineHeight: 1 }}>TokingHoofborn</span>
           </div>
         </Link>
 
@@ -101,13 +102,13 @@ const AppLayout = ({ children }) => {
 
         <div className={styles.sidebarFooter}>
           {/* User Profile Summary in Sidebar */}
-          <div className="d-flex align-items-center gap-3 p-2 mb-3" style={{ background: "rgba(255,215,0,0.05)", borderRadius: "12px", border: "1px solid rgba(255,215,0,0.1)" }}>
-            <div style={{ width: 35, height: 35, backgroundColor: "#ffd700", borderRadius: "50%", display: "flex", justifyContent: "center", alignItems: "center" }}>
-              <span style={{ color: "#000", fontWeight: 800, fontSize: 16 }}>{username[1] ? username[0].toUpperCase() : 'U'}</span>
+          <div className="d-flex align-items-center gap-3 p-2 mb-3" style={{ background: "rgba(255, 102, 0, 0.05)", borderRadius: "12px", border: "1px solid rgba(255, 102, 0, 0.15)" }}>
+            <div style={{ width: 35, height: 35, backgroundColor: "#ff6600", borderRadius: "50%", display: "flex", justifyContent: "center", alignItems: "center" }}>
+              <span style={{ color: "#fff", fontWeight: 800, fontSize: 16 }}>{username[0] ? username[0].toUpperCase() : 'U'}</span>
             </div>
             <div className="d-flex flex-column overflow-hidden">
               <span style={{ color: "#fff", fontWeight: 700, fontSize: 14, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{username}</span>
-              <span style={{ color: "#ffd700", fontSize: 10 }}>Pro Member</span>
+              <span style={{ color: "#ff6600", fontSize: 10 }}>🐴 NFT Member</span>
             </div>
           </div>
 
@@ -154,7 +155,7 @@ const AppLayout = ({ children }) => {
             <div key={i} style={{
               position: "absolute",
               width: 2, height: 2,
-              backgroundColor: "#ffd700",
+              backgroundColor: "#ff6600",
               borderRadius: "50%",
               top: `${(i * 19 + 11) % 100}%`,
               left: `${(i * 37 + 7) % 100}%`,

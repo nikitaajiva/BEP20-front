@@ -170,6 +170,34 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const updateMe = async (updatedData) => {
+    setLoading(true);
+    try {
+      const localToken = localStorage.getItem("token");
+      const res = await fetch(`${API_URL}/auth/me`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${localToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedData),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || "Update failed");
+      }
+      setUser(data.user);
+      return { success: true };
+    } catch (err) {
+      console.error("Update user error:", err);
+      setError(err.message);
+      return { success: false, error: err.message };
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const logout = async () => {
     setLoading(true);
     try {
@@ -218,6 +246,7 @@ export const AuthProvider = ({ children }) => {
         setActivationMessage,
         forgotPassword,
         forgotPasswordMessage,
+        updateMe,
       }}
     >
       {children}

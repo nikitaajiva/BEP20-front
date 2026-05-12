@@ -28,8 +28,10 @@ export default function LPWalletCard({
     <div
       className="card h-100"
       style={{
-        background: "#181f3a",
+        background: "rgba(10, 10, 10, 0.4)",
+        backdropFilter: "blur(12px)",
         borderRadius: "22px",
+        border: "1px solid rgba(255, 102, 0, 0.15)",
         boxShadow: "0 8px 16px rgba(0,0,0,0.25)",
       }}
     >
@@ -40,7 +42,7 @@ export default function LPWalletCard({
               <h5 className="mb-0" style={{ color: "#fff" }}>
                 LP
               </h5>
-              <small style={{ color: "#b3baff" }}>Your Balance</small>
+              <small style={{ color: "#888" }}>Your Balance</small>
             </div>
             <div className="d-flex align-items-center">
               {onAddLP ? (
@@ -50,8 +52,8 @@ export default function LPWalletCard({
                     onClick={onAddLP}
                     className="card-icon rounded-circle d-flex align-items-center justify-content-center"
                     style={{
-                      background: "rgba(127, 255, 76, 0.1)",
-                      border: "1px solid rgba(127, 255, 76, 0.2)",
+                      background: "rgba(255, 102, 0, 0.1)",
+                      border: "1px solid rgba(255, 102, 0, 0.2)",
                       width: "45px",
                       height: "45px",
                       cursor: "pointer",
@@ -68,7 +70,7 @@ export default function LPWalletCard({
                       height="24"
                       viewBox="0 0 24 24"
                       fill="none"
-                      stroke="#7FFF4C"
+                      stroke="#ff6600"
                       strokeWidth="2"
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -92,7 +94,7 @@ export default function LPWalletCard({
                     height="24"
                     viewBox="0 0 24 24"
                     fill="none"
-                    stroke="#7FFF4C"
+                    stroke="#ff6600"
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -104,22 +106,22 @@ export default function LPWalletCard({
             </div>
           </div>
           <div className="mt-4">
-            <h3 className="card-title mb-2" style={{ color: "#7FFF4C" }}>
+            <h3 className="card-title mb-2" style={{ color: "#ff8c00" }}>
               {Math.max(0, parseFloat(balance)).toFixed(6)} USDT
             </h3>
           
-              <small style={{ color: "#FFD700" }}>
+              <small style={{ color: "#ff6600" }}>
                 Autopositioning: {parseFloat(autopositioning).toFixed(6)} USDT
               </small>
         
             {parseFloat(pending) > 0 && (
-              <small style={{ color: "#FFD700" }}>
+              <small style={{ color: "#ff6600" }}>
                 Pending: {parseFloat(pending).toFixed(6)} USDT
               </small>
             )}
             {showEarningInfo && roiPercentage > 0 && (
               <div>
-                <small style={{ color: "#7FFF4C" }}>
+                <small style={{ color: "#ff8c00" }}>
                   Earning {roiPercentage}% daily
                 </small>
               </div>
@@ -132,15 +134,13 @@ export default function LPWalletCard({
               href="/dashboard/history/lp"
               className="btn w-100"
               style={{
-                background: "rgba(127, 255, 76, 0.1)",
-                color: "#7FFF4C",
-                border: "1px solid rgba(127, 255, 76, 0.2)",
+                background: "rgba(255, 102, 0, 0.1)",
+                color: "#ff8c00",
+                border: "1px solid rgba(255, 102, 0, 0.2)",
                 borderRadius: "12px",
                 padding: "0.75rem",
                 justifyContent: "center",
                 transition: "all 0.3s ease",
-                // cursor: "not-allowed",
-                // pointerEvents: "none",
               }}
             >
               View History

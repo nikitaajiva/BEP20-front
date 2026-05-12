@@ -21,7 +21,7 @@ import SuccessModal from "./SuccessModal";
 import DashboardSidebar from "./DashboardSidebar";
 import RedesignedDashboard from "./RedesignedDashboard";
 import GlobalLoader from "../components/LoaderComponent";
-import { RewardsWalletCard, ActionableWalletCard, BoostWalletCard } from "./PremiumWalletCards";
+import { RewardsWalletCard, ActionableWalletCard, BoostWalletCard, HorseNFTCard } from "./PremiumWalletCards";
 import CommunityRewardsCardnew from "./CommunityReward";
 import Communitybooster from "../components/Communitybooster";
 import X_PowerCard from "../components/XPowercard";
@@ -41,6 +41,7 @@ import XCard from "../components/xCard";
 import { Line, Bar } from "react-chartjs-2";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import CommunityRewardsClaimModal from "./CommunityRewardsClaimModal";
+import InvestmentSections from "./InvestmentSections";
 
 // Icon Components (defined from your .jsx files)
 const Wallet1Icon = (props) => (
@@ -1506,15 +1507,13 @@ export default function DashboardLayout({
           />
         }
         orbitCard2={
-          <ActionableWalletCard
-            title="Stable Pool"
-            type="zero-risk"
+          <HorseNFTCard
+            packageType={user?.nftPackage || "bronze"}
             balance={parseFloat(ledgerDetails?.zeroRisk?.balance || "0.0").toLocaleString(undefined, { minimumFractionDigits: 2 })}
-            limit={parseFloat(ledgerDetails?.zeroRisk?.limit || "0.0").toLocaleString(undefined, { minimumFractionDigits: 2 })}
-            earningRate={getRoiPercentage(ledgerDetails?.zeroRisk?.balance) + "% Daily"}
-            showPlusBtn={false}
-            depositLabel="Withdraw"
-            onDeposit={() => setShowZeroRiskWarningModal(true)}
+            dailyYield={(parseFloat(ledgerDetails?.zeroRisk?.balance || "0") * 0.005).toFixed(4)}
+            estPayout={(parseFloat(ledgerDetails?.zeroRisk?.balance || "0") * 0.35).toFixed(2)}
+            nextPayout={(parseFloat(ledgerDetails?.zeroRisk?.balance || "0") * 0.005).toFixed(2)}
+            onWithdraw={() => setShowZeroRiskWarningModal(true)}
             onViewHistory={() => window.location.href = "/dashboard/history/zero-risk"}
           />
         }
@@ -1562,6 +1561,8 @@ export default function DashboardLayout({
                 <CommunityRewardsCardnew />
               </div>
             </div>
+            {/* Investment Sections — Token Staking & Horse NFT Packages */}
+            <InvestmentSections />
           </div>
         }
       >

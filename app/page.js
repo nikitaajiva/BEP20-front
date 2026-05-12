@@ -9,7 +9,7 @@ import AffiliateProgram from "../components/landing/AffiliateProgram";
 import FAQSection from "../components/landing/FAQSection";
 import LandingFooter from "../components/landing/LandingFooter";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 // ── Particle Canvas Background ──────────────────────────────────────────────
 const ParticleBackground = () => {
@@ -28,7 +28,6 @@ const ParticleBackground = () => {
     resize();
     window.addEventListener("resize", resize);
 
-    // Particles
     const particles = Array.from({ length: 80 }, () => ({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
@@ -48,20 +47,18 @@ const ParticleBackground = () => {
         if (p.y < 0) p.y = canvas.height;
         if (p.y > canvas.height) p.y = 0;
 
-        // Draw particle
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255, 215, 0, ${p.opacity})`;
+        ctx.fillStyle = `rgba(255, 184, 0, ${p.opacity})`;
         ctx.fill();
 
-        // Draw connections
         particles.forEach(p2 => {
           const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
           if (dist < 120) {
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = `rgba(255, 215, 0, ${0.04 * (1 - dist / 120)})`;
+            ctx.strokeStyle = `rgba(255, 184, 0, ${0.04 * (1 - dist / 120)})`;
             ctx.lineWidth = 0.5;
             ctx.stroke();
           }
@@ -74,80 +71,63 @@ const ParticleBackground = () => {
   }, []);
 
   return (
-    <canvas ref={canvasRef} style={{
-      position: "fixed", top: 0, left: 0, width: "100%", height: "100%",
-      pointerEvents: "none", zIndex: 0, opacity: 0.7,
-    }} />
+    <canvas ref={canvasRef} className="fixed top-0 left-0 w-full h-full pointer-events-none z-0 opacity-70" />
   );
 };
 
 // ── Scrolling Ticker Bar ────────────────────────────────────────────────────
 const TickerBar = () => {
   const items = [
-    "BNB / USDT  $312.40  ▲ +2.4%",
-    "BEPVault LP  0.6% Daily",
-    "BSC Gas Fee  < $0.01",
-    "Active Members  50,000+",
-    "Total Paid Out  $12M+",
-    "Smart Contract  Audited ✓",
-    "Uptime  99.9%",
+    "Live Race: Kentucky Derby  Odds 4/1  ▲ HOT",
+    "Track Rewards  Daily Payouts",
+    "Global Cup  $50,000 Prize Pool",
+    "Active Racers  10,000+",
+    "Total Prizes Paid  $5M+",
+    "Certified Security  Audited ✓",
+    "Race Uptime  100%",
     "Settlement  Instant ⚡",
   ];
   const repeated = [...items, ...items];
 
   return (
-    <div style={{
-      background: "rgba(255,215,0,0.06)", borderBottom: "1px solid rgba(255,215,0,0.15)",
-      padding: "0.55rem 0", overflow: "hidden", position: "relative", zIndex: 100,
-      marginTop: "0px",
-    }}>
-      <div style={{ display: "flex", animation: "tickerScroll 35s linear infinite", width: "max-content" }}>
+    <div className="bg-primary/6 border-b border-primary/15 py-2.5 overflow-hidden relative z-100 mt-0">
+      <div className="flex animate-tickerScroll w-max">
         {repeated.map((item, i) => (
-          <span key={i} style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.82rem", fontWeight: 600, whiteSpace: "nowrap", padding: "0 2.5rem" }}>
-            <span style={{ color: "#ffd700", marginRight: "0.5rem" }}>◆</span>
+          <span key={i} className="text-white/70 text-[0.82rem] font-semibold whitespace-nowrap px-10">
+            <span className="text-primary mr-2">◆</span>
             {item}
           </span>
         ))}
       </div>
-      <style jsx global>{`
-        @keyframes tickerScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-      `}</style>
     </div>
   );
 };
 
 // ── Section Divider ─────────────────────────────────────────────────────────
 const Divider = () => (
-  <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "0 24px" }}>
-    <div style={{ height: "1px", background: "linear-gradient(90deg, transparent, rgba(255,215,0,0.15), transparent)" }} />
+  <div className="max-w-[1280px] mx-auto px-6">
+    <div className="h-px bg-gradient-to-r from-transparent via-primary/15 to-transparent" />
   </div>
 );
 
 // ── Main Landing Page ───────────────────────────────────────────────────────
 export default function LandingPage() {
   return (
-    <div style={{ background: "#030303", color: "#fff", fontFamily: "'Inter', sans-serif", position: "relative", overflowX: "hidden" }}>
+    <div className="bg-[#030303] text-white font-inter relative overflow-x-hidden">
       {/* Canvas Particle BG */}
       <ParticleBackground />
 
-      {/* Background gradients — static deep color blobs */}
-      <div style={{ position: "fixed", top: 0, left: 0, right: 0, height: "100vh", background: "radial-gradient(ellipse at 70% 10%, rgba(255,140,0,0.06) 0%, transparent 50%), radial-gradient(ellipse at 20% 80%, rgba(255,215,0,0.05) 0%, transparent 55%)", pointerEvents: "none", zIndex: 0 }} />
+      {/* Background gradients */}
+      <div className="fixed inset-0 h-screen bg-[radial-gradient(ellipse_at_70%_10%,rgba(255,140,0,0.06)_0%,transparent_50%),radial-gradient(ellipse_at_20%_80%,rgba(255,184,0,0.05)_0%,transparent_55%)] pointer-events-none z-0" />
 
-      {/* Navbar */}
+      {/* Navbar (which includes the TopTicker) */}
       <LandingNavbar />
 
-      {/* Ticker Bar positioned right below navbar */}
-      <div style={{ paddingTop: "75px", position: "relative", zIndex: 10 }}>
-        <TickerBar />
-      </div>
-
-      <main style={{ position: "relative", zIndex: 10 }}>
-        {/* HERO - Hero component should have its own internal animations */}
+      <main className="relative z-10 pt-20">
         <HeroSection />
 
         <Divider />
 
-        {/* ABOUT */}
         <motion.div
            initial={{ opacity: 0, y: 50 }}
            whileInView={{ opacity: 1, y: 0 }}
@@ -159,7 +139,6 @@ export default function LandingPage() {
 
         <Divider />
 
-        {/* FEATURES */}
         <motion.div
            initial={{ opacity: 0, y: 50 }}
            whileInView={{ opacity: 1, y: 0 }}
@@ -171,7 +150,6 @@ export default function LandingPage() {
 
         <Divider />
 
-        {/* HOW IT WORKS */}
         <motion.div
            initial={{ opacity: 0, scale: 0.95 }}
            whileInView={{ opacity: 1, scale: 1 }}
@@ -183,7 +161,6 @@ export default function LandingPage() {
 
         <Divider />
 
-        {/* AFFILIATE */}
         <motion.div
            initial={{ opacity: 0, x: -50 }}
            whileInView={{ opacity: 1, x: 0 }}
@@ -195,7 +172,6 @@ export default function LandingPage() {
 
         <Divider />
 
-        {/* FAQ */}
         <motion.div
            initial={{ opacity: 0, y: 50 }}
            whileInView={{ opacity: 1, y: 0 }}
@@ -207,81 +183,277 @@ export default function LandingPage() {
 
         {/* Final CTA Banner */}
         <motion.section 
-          style={{ padding: "100px 0", textAlign: "center", position: "relative", overflow: "hidden" }}
+          className="final-cta-section"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 1 }}
         >
-          <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, rgba(255,215,0,0.08) 0%, transparent 65%)", pointerEvents: "none" }} />
-          <div className="container" style={{ position: "relative", zIndex: 2 }}>
+          <div className="final-cta-bg-glow" />
+          
+          <div className="final-cta-container">
             <motion.div 
-               style={{
-                display: "inline-flex", alignItems: "center", gap: "8px",
-                background: "rgba(0,230,118,0.1)", border: "1px solid rgba(0,230,118,0.3)",
-                borderRadius: "30px", padding: "6px 16px", marginBottom: "1.5rem",
-              }}
-              initial={{ scale: 0.8 }}
-              whileInView={{ scale: 1 }}
-              transition={{ type: "spring", stiffness: 200 }}
+              className="cta-command-center"
+              initial={{ y: 60, opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
             >
-              <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#00e676", display: "inline-block", animation: "livePulse 1s infinite" }} />
-              <span style={{ color: "#00e676", fontWeight: 700, fontSize: "0.82rem" }}>Platform Accepting New Members</span>
-            </motion.div>
-            <motion.h2 
-              style={{ fontSize: "clamp(2.5rem,5vw,4rem)", fontWeight: 900, color: "#fff", lineHeight: 1.1, marginBottom: "1.2rem" }}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.6 }}
-            >
-              Start Your <span style={{ background: "linear-gradient(135deg,#ffd700,#ff8c00)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>BNB Journey</span><br />Today
-            </motion.h2>
-            <motion.p 
-              style={{ color: "rgba(255,255,255,0.6)", fontSize: "1.15rem", maxWidth: "540px", margin: "0 auto 2.5rem", lineHeight: 1.65 }}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              transition={{ delay: 0.4, duration: 0.6 }}
-            >
-              Join 50,000+ members already earning daily BNB returns with BEPVault. It's free to join and takes less than 2 minutes.
-            </motion.p>
-            <motion.div 
-              style={{ display: "flex", gap: "1.2rem", justifyContent: "center", flexWrap: "wrap" }}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6, duration: 0.6 }}
-            >
-              <Link href="https://linktr.ee/BEPVaultOfficial" target="_blank" style={{ textDecoration: "none" }}>
-                <motion.button 
-                  style={{
-                    background: "transparent", color: "#fff",
-                    border: "1px solid rgba(255,255,255,0.2)", padding: "1.1rem 3rem",
-                    borderRadius: "8px", fontWeight: 700, fontSize: "1.1rem",
-                    cursor: "pointer", transition: "all 0.3s",
-                  }}
-                  whileHover={{ scale: 1.05, borderColor: "#ffd700", color: "#ffd700", boxShadow: "0 0 20px rgba(255,215,0,0.2)" }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  Join Community
-                </motion.button>
-              </Link>
+              <div className="command-center-inner">
+                {/* Header Decoration */}
+                <div className="command-header-line" />
+                
+                <div className="cta-content-top">
+                  <div className="cta-badge-wrapper">
+                    <span className="pulse-dot" />
+                    <span className="badge-text">ELITE CIRCUIT ACCESS OPEN</span>
+                  </div>
+                  
+                  <h2 className="cta-hero-title">
+                    Start Your <span className="gold-text">Racing Legacy</span> Today
+                  </h2>
+                  
+                  <p className="cta-hero-desc">
+                    Join 10,000+ elite racers winning daily on the global circuit. <br />
+                    Experience the next generation of digital horse racing.
+                  </p>
+                  
+                  <div className="cta-hero-actions">
+                    <Link href="/sign-up" className="no-underline">
+                      <button className="btn-primary-fire">GET STARTED NOW</button>
+                    </Link>
+                    <Link href="https://linktr.ee/BEPVaultOfficial" target="_blank" className="no-underline">
+                      <button className="btn-glass-secondary">JOIN COMMUNITY</button>
+                    </Link>
+                  </div>
+                </div>
+
+                {/* Bottom Trust Bar */}
+                <div className="cta-trust-bar">
+                  {[
+                    { icon: "ri-user-add-line", label: "ACTIVE RACERS", val: "10,240+" },
+                    { icon: "ri-refund-2-line", label: "TOTAL PAYOUTS", val: "SECURE" },
+                    { icon: "ri-shield-check-line", label: "SYSTEM STATUS", val: "LIVE" }
+                  ].map((s, i) => (
+                    <div key={i} className="trust-item">
+                      <i className={s.icon} />
+                      <div className="trust-info">
+                        <span className="trust-val">{s.val}</span>
+                        <span className="trust-lbl">{s.label}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </motion.div>
           </div>
+
+          <style jsx>{`
+            .final-cta-section {
+              position: relative;
+              padding: 140px 0;
+              background: #030303;
+              overflow: hidden;
+            }
+            .final-cta-bg-glow {
+              position: absolute;
+              inset: 0;
+              background: radial-gradient(circle at center, rgba(255, 184, 0, 0.08) 0%, transparent 70%);
+              pointer-events: none;
+            }
+            .final-cta-container {
+              max-width: 1320px;
+              margin: 0 auto;
+              padding: 0 24px;
+              position: relative;
+              z-index: 10;
+            }
+
+            /* ── Command Center Card ── */
+            .cta-command-center {
+              background: rgba(255, 255, 255, 0.02);
+              backdrop-filter: blur(40px);
+              border: 1px solid rgba(255, 255, 255, 0.05);
+              border-radius: 48px;
+              overflow: hidden;
+              position: relative;
+              box-shadow: 0 50px 100px rgba(0,0,0,0.6);
+            }
+            .command-center-inner {
+              padding: 80px 40px 60px;
+              text-align: center;
+              position: relative;
+            }
+            .command-header-line {
+              position: absolute;
+              top: 0;
+              left: 50%;
+              transform: translateX(-50%);
+              width: 200px;
+              height: 4px;
+              background: linear-gradient(90deg, transparent, #FFB800, transparent);
+              border-radius: 0 0 10px 10px;
+            }
+
+            /* ── Content ── */
+            .cta-badge-wrapper {
+              display: inline-flex;
+              align-items: center;
+              gap: 10px;
+              background: rgba(0, 230, 118, 0.1);
+              border: 1px solid rgba(0, 230, 118, 0.2);
+              padding: 8px 20px;
+              border-radius: 100px;
+              margin-bottom: 40px;
+            }
+            .pulse-dot {
+              width: 8px;
+              height: 8px;
+              background: #00e676;
+              border-radius: 50%;
+              box-shadow: 0 0 10px #00e676;
+              animation: blink 1.5s infinite;
+            }
+            .badge-text {
+              font-size: 10px;
+              font-weight: 900;
+              color: #00e676;
+              letter-spacing: 2.5px;
+            }
+            .cta-hero-title {
+              font-size: clamp(2.5rem, 6vw, 4.5rem);
+              font-weight: 900;
+              color: #fff;
+              line-height: 1.1;
+              margin-bottom: 24px;
+              letter-spacing: -2.5px;
+            }
+            .gold-text {
+              background: linear-gradient(90deg, #FFB800, #FF6200);
+              -webkit-background-clip: text;
+              -webkit-text-fill-color: transparent;
+            }
+            .cta-hero-desc {
+              font-size: 1.2rem;
+              color: rgba(255, 255, 255, 0.4);
+              line-height: 1.7;
+              margin-bottom: 56px;
+              max-width: 600px;
+              margin-left: auto;
+              margin-right: auto;
+            }
+
+            /* ── Buttons ── */
+            .cta-hero-actions {
+              display: flex;
+              justify-content: center;
+              gap: 20px;
+              flex-wrap: wrap;
+              margin-bottom: 80px;
+            }
+            .btn-primary-fire {
+              background: linear-gradient(135deg, #FFB800, #FF6200);
+              color: #000;
+              border: none;
+              padding: 22px 56px;
+              border-radius: 20px;
+              font-size: 16px;
+              font-weight: 900;
+              letter-spacing: 1px;
+              cursor: pointer;
+              transition: all 0.3s;
+              box-shadow: 0 15px 40px rgba(255, 184, 0, 0.3);
+            }
+            .btn-primary-fire:hover {
+              transform: translateY(-5px);
+              box-shadow: 0 20px 50px rgba(255, 184, 0, 0.5);
+            }
+            .btn-glass-secondary {
+              background: rgba(255, 255, 255, 0.03);
+              color: #fff;
+              border: 1px solid rgba(255, 255, 255, 0.1);
+              padding: 22px 56px;
+              border-radius: 20px;
+              font-size: 16px;
+              font-weight: 900;
+              letter-spacing: 1px;
+              cursor: pointer;
+              transition: all 0.3s;
+            }
+            .btn-glass-secondary:hover {
+              background: rgba(255, 255, 255, 0.08);
+              border-color: rgba(255, 255, 255, 0.2);
+              transform: translateY(-5px);
+            }
+            /* ── Trust Bar ── */
+            .cta-trust-bar {
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              gap: 0;
+              padding-top: 56px;
+              border-top: 1px solid rgba(255, 255, 255, 0.05);
+              margin-top: 20px;
+            }
+            .trust-item {
+              display: flex;
+              align-items: center;
+              gap: 16px;
+              padding: 0 40px;
+              position: relative;
+              transition: all 0.3s ease;
+            }
+            .trust-item:not(:last-child)::after {
+              content: '';
+              position: absolute;
+              right: 0;
+              top: 50%;
+              transform: translateY(-50%);
+              width: 1px;
+              height: 30px;
+              background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.1), transparent);
+            }
+            .trust-item:hover {
+              transform: translateY(-2px);
+            }
+            .trust-item:hover i {
+              color: #FF6200;
+              filter: drop-shadow(0 0 8px rgba(255, 98, 0, 0.4));
+            }
+            .trust-item i {
+              font-size: 28px;
+              color: #FFB800;
+              transition: all 0.3s ease;
+            }
+            .trust-info {
+              text-align: left;
+              display: flex;
+              flex-direction: column;
+              justify-content: center;
+            }
+            .trust-val {
+              display: block;
+              font-size: 18px;
+              font-weight: 900;
+              color: #fff;
+              line-height: 1;
+              margin-bottom: 4px;
+              letter-spacing: 0.5px;
+            }
+            .trust-lbl {
+              font-size: 9px;
+              font-weight: 800;
+              color: rgba(255, 255, 255, 0.3);
+              letter-spacing: 2px;
+              text-transform: uppercase;
+            }
+
+            @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+          `}</style>
         </motion.section>
       </main>
 
       <LandingFooter />
-
-      <style jsx global>{`
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: #030303 !important; color: #fff; font-family: 'Inter', sans-serif; }
-        .container { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #000; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,215,0,0.3); border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(255,215,0,0.6); }
-        @keyframes livePulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-        html { scroll-behavior: smooth; }
-      `}</style>
     </div>
   );
 }
+

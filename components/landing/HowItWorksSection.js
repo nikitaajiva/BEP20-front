@@ -1,129 +1,370 @@
-"use client";
-import React, { useRef, useEffect, useState } from "react";
+﻿"use client";
+import React from "react";
+import { motion } from "framer-motion";
 import Link from "next/link";
 
-// ── Animated Step Connector SVG ──────────────────────────────────────────────
-const StepConnector = () => (
-  <svg width="60" height="2" style={{ margin: "0 0.5rem", opacity: 0.3, flexShrink: 0 }}>
-    <line x1="0" y1="1" x2="60" y2="1" stroke="#ffd700" strokeWidth="1.5" strokeDasharray="6,4" >
-      <animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite" />
-    </line>
-  </svg>
+// ── Step Card Component ──────────────────────────────────────────────────
+const StepCard = ({ num, icon, title, desc, delay }) => (
+  <motion.div 
+    initial={{ opacity: 0, y: 30 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    transition={{ delay, duration: 0.8 }}
+    viewport={{ once: true }}
+    className="process-step-card"
+  >
+    <div className="process-card-inner">
+      <div className="process-num-box">
+        <span className="process-num">{num}</span>
+      </div>
+      <div className="process-icon-box">
+        <i className={icon} />
+      </div>
+      <h3 className="process-title">{title}</h3>
+      <p className="process-desc">{desc}</p>
+      <div className="process-card-border" />
+    </div>
+  </motion.div>
 );
-
-// ── Step Card ────────────────────────────────────────────────────────────────
-const StepCard = ({ num, icon, title, desc, delay = 0 }) => {
-  const [vis, setVis] = useState(false);
-  const ref = useRef(null);
-  useEffect(() => {
-    const obs = new IntersectionObserver(([e]) => { if(e.isIntersecting) { setTimeout(() => setVis(true), delay); obs.disconnect(); } }, { threshold: 0.2 });
-    if (ref.current) obs.observe(ref.current);
-    return () => obs.disconnect();
-  }, [delay]);
-
-  return (
-    <div ref={ref} style={{
-      flex: "1 1 220px", minWidth: "200px",
-      background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,215,0,0.1)",
-      borderRadius: "20px", padding: "2.2rem 1.8rem", textAlign: "center",
-      opacity: vis ? 1 : 0, transform: vis ? "translateY(0)" : "translateY(40px)",
-      transition: "all 0.7s ease",
-      position: "relative", overflow: "hidden",
-    }}>
-      {/* Step number background */}
-      <div style={{ position:"absolute", top:-20, right:-10, fontSize:"6rem", fontWeight:900, color:"rgba(255,215,0,0.04)", lineHeight:1, userSelect:"none" }}>{num}</div>
-      {/* Icon circle */}
-      <div style={{ width:70, height:70, borderRadius:"50%", background:"linear-gradient(135deg,rgba(255,215,0,0.15),rgba(255,140,0,0.15))", border:"1px solid rgba(255,215,0,0.3)", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 1.4rem", boxShadow:"0 0 20px rgba(255,215,0,0.15)" }}>
-        <i className={icon} style={{ fontSize:"1.9rem", color:"#ffd700" }} />
-      </div>
-      <div style={{ background:"linear-gradient(135deg,#ffd700,#ff8c00)", width:32, height:32, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 1.2rem", fontWeight:900, color:"#000", fontSize:"0.9rem" }}>{num}</div>
-      <h3 style={{ color:"#fff", fontSize:"1.15rem", fontWeight:800, marginBottom:"0.7rem" }}>{title}</h3>
-      <p style={{ color:"rgba(255,255,255,0.55)", fontSize:"0.92rem", lineHeight:1.6, margin:0 }}>{desc}</p>
-      {/* Bottom glow */}
-      <div style={{ position:"absolute", bottom:0, left:"50%", transform:"translateX(-50%)", width:"60%", height:"1px", background:"linear-gradient(90deg,transparent,rgba(255,215,0,0.4),transparent)" }} />
-    </div>
-  );
-};
-
-// ── Animated Flow Chart ──────────────────────────────────────────────────────
-const FlowChart = () => {
-  const [active, setActive] = useState(0);
-  const steps = ["Deposit BNB", "Pool Allocation", "Liquidity Position", "Yield Generation", "Daily Payout"];
-  
-  useEffect(() => {
-    const id = setInterval(() => setActive(a => (a + 1) % steps.length), 1800);
-    return () => clearInterval(id);
-  }, []);
-
-  return (
-    <div style={{ background:"rgba(255,255,255,0.02)", border:"1px solid rgba(255,215,0,0.1)", borderRadius:"20px", padding:"2rem", marginTop:"4rem" }}>
-      <div style={{ textAlign:"center", color:"rgba(255,255,255,0.5)", fontSize:"0.82rem", textTransform:"uppercase", letterSpacing:"2px", marginBottom:"1.5rem" }}>Live BNB Flow Simulation</div>
-      <div style={{ display:"flex", alignItems:"center", justifyContent:"center", flexWrap:"wrap", gap:"0.5rem" }}>
-        {steps.map((s, i) => (
-          <React.Fragment key={s}>
-            <div style={{
-              padding:"0.6rem 1.2rem", borderRadius:"20px", fontSize:"0.82rem", fontWeight:700, transition:"all 0.5s",
-              background: i === active ? "linear-gradient(135deg,#ffd700,#ff8c00)" : "rgba(255,215,0,0.06)",
-              color: i === active ? "#000" : "rgba(255,255,255,0.5)",
-              transform: i === active ? "scale(1.1)" : "scale(1)",
-              boxShadow: i === active ? "0 4px 20px rgba(255,215,0,0.4)" : "none",
-              border: i === active ? "none" : "1px solid rgba(255,215,0,0.1)",
-            }}>
-              {s}
-            </div>
-            {i < steps.length - 1 && <StepConnector />}
-          </React.Fragment>
-        ))}
-      </div>
-    </div>
-  );
-};
 
 const HowItWorksSection = () => {
   const steps = [
-    { num:1, icon:"ri-user-add-line", title:"Create Your Account", desc:"Sign up in under 60 seconds. Your secure BEPVault dashboard is ready immediately, complete with real-time portfolio tracking." },
-    { num:2, icon:"ri-send-plane-2-line", title:"Deposit BEP20 BNB", desc:"Send BEP20 BNB from your wallet. Your deposit is instantly verified on-chain and allocated to active liquidity pools." },
-    { num:3, icon:"ri-water-flash-line", title:"Provide Liquidity", desc:"Your BNB powers high-volume DEX pools across the Binance Smart Chain, stabilizing markets and earning pool fees." },
-    { num:4, icon:"ri-coins-line", title:"Earn Daily Rewards", desc:"Watch BNB rewards compound daily at up to 0.6%. Claim, reinvest, or withdraw — the choice is always yours, always instant." },
+    { num: "01", icon: "ri-user-add-line", title: "Join the Track", desc: "Create your secure member profile in under 60 seconds and gain immediate access to the elite dashboard." },
+    { num: "02", icon: "ri-flag-2-line", title: "Choose Your Race", desc: "Select from professional-grade races happening 24/7 across the globe, verified for transparency." },
+    { num: "03", icon: "ri-water-flash-line", title: "Participate in Pools", desc: "Fuel high-volume racing pools with your participation, ensuring market depth and professional odds." },
+    { num: "04", icon: "ri-coins-line", title: "Collect Daily Winnings", desc: "Watch your rewards grow in real-time. Experience the freedom of instant settlements and payouts." },
   ];
 
   return (
-    <section id="how-it-works" style={{ padding: "100px 0", background: "rgba(255,215,0,0.015)", position: "relative" }}>
-      <div style={{ position:"absolute", bottom:"10%", left:"-5%", width:"400px", height:"400px", background:"radial-gradient(circle,rgba(255,215,0,0.05) 0%,transparent 70%)", filter:"blur(60px)", pointerEvents:"none" }} />
-
-      <div className="container">
-        <div style={{ textAlign:"center", marginBottom:"5rem" }}>
-          <span style={{ background:"rgba(255,215,0,0.1)", color:"#ffd700", border:"1px solid rgba(255,215,0,0.25)", borderRadius:"30px", padding:"6px 18px", fontSize:"0.82rem", fontWeight:700, textTransform:"uppercase", letterSpacing:"1.5px" }}>How It Works</span>
-          <h2 style={{ fontSize:"clamp(2.2rem,4vw,3.2rem)", fontWeight:900, color:"#fff", marginTop:"1rem", lineHeight:1.2 }}>
-            Up and Earning in <span style={{ color:"#ffd700" }}>4 Simple Steps</span>
-          </h2>
-          <p style={{ color:"rgba(255,255,255,0.55)", fontSize:"1.1rem", maxWidth:"560px", margin:"1rem auto 0", lineHeight:1.65 }}>
-            Getting started with BEPVault is designed to be effortless, even for DeFi beginners.
-          </p>
+    <section id="how-it-works" className="process-section">
+      <div className="process-container">
+        
+        {/* Header */}
+        <div className="process-header">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center"
+          >
+            <span className="process-badge">THE WORKFLOW</span>
+            <h2 className="process-main-title">
+              Up and Earning in <br />
+              <span className="gold-text">4 Simple Steps</span>
+            </h2>
+          </motion.div>
         </div>
 
-        <div style={{ display:"flex", gap:"1.5rem", flexWrap:"wrap" }}>
-          {steps.map((s, i) => <StepCard key={s.num} {...s} delay={i * 150} />)}
+        {/* Steps Grid with Connection Line */}
+        <div className="process-grid-wrapper">
+          <div className="process-connection-line" />
+          <div className="process-steps-grid">
+            {steps.map((step, i) => (
+              <StepCard key={step.num} {...step} delay={i * 0.15} />
+            ))}
+          </div>
         </div>
 
-        <FlowChart />
+        {/* Live Status Tracker (Simulation) */}
+        <div className="process-simulation">
+          <div className="simulation-glass">
+            <div className="simulation-header">
+              <span className="pulse-icon" />
+              <span className="simulation-label">LIVE TRACK SIMULATION</span>
+            </div>
+            
+            <div className="simulation-flow">
+              {["Setup", "Selection", "Entry", "Race", "Payout"].map((label, i) => (
+                <div key={label} className="simulation-step-group">
+                  <div className={`simulation-node ${i === 4 ? "active" : i < 4 ? "completed" : ""}`}>
+                    <span className="node-dot" />
+                    <span className="node-label">{label}</span>
+                  </div>
+                  {i < 4 && (
+                    <div className={`simulation-line ${i < 4 ? "completed" : ""}`} />
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
 
-        <div style={{ textAlign:"center", marginTop:"4rem" }}>
-          <Link href="/sign-up" style={{ textDecoration:"none" }}>
-            <button style={{
-              background:"linear-gradient(135deg,#ffd700,#ff8c00)", color:"#000",
-              border:"none", padding:"1.1rem 3rem", borderRadius:"8px",
-              fontWeight:900, fontSize:"1.1rem", cursor:"pointer",
-              boxShadow:"0 8px 30px rgba(255,215,0,0.35)", transition:"all 0.3s",
-            }}
-            onMouseOver={e => { e.currentTarget.style.transform="translateY(-3px)"; e.currentTarget.style.boxShadow="0 14px 40px rgba(255,215,0,0.55)"; }}
-            onMouseOut={e => { e.currentTarget.style.transform="translateY(0)"; e.currentTarget.style.boxShadow="0 8px 30px rgba(255,215,0,0.35)"; }}>
-              Start Your BNB Journey →
-            </button>
+        {/* Final Action */}
+        <div className="process-cta">
+          <Link href="/sign-up" className="no-underline">
+            <motion.button 
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="process-cta-btn"
+            >
+              <span>START YOUR JOURNEY</span>
+              <i className="ri-arrow-right-line" />
+            </motion.button>
           </Link>
         </div>
+
       </div>
+
+      <style jsx global>{`
+        .process-section {
+          position: relative;
+          padding: 120px 0;
+          background: #030303;
+          overflow: hidden;
+        }
+
+        .process-container {
+          max-width: 1320px;
+          margin: 0 auto;
+          padding: 0 24px;
+          position: relative;
+          z-index: 10;
+        }
+
+        /* ── Header ── */
+        .process-header {
+          margin-bottom: 80px;
+        }
+        .process-badge {
+          display: inline-block;
+          font-size: 11px;
+          font-weight: 900;
+          color: #FFB800;
+          letter-spacing: 5px;
+          margin-bottom: 24px;
+        }
+        .process-main-title {
+          font-size: clamp(2.5rem, 5vw, 4.5rem);
+          font-weight: 900;
+          color: #fff;
+          line-height: 1.1;
+          margin: 0;
+          letter-spacing: -2px;
+        }
+
+        /* ── Steps Grid ── */
+        .process-grid-wrapper {
+          position: relative;
+          margin-bottom: 100px;
+        }
+        .process-connection-line {
+          position: absolute;
+          top: 45px;
+          left: 50px;
+          right: 50px;
+          height: 1px;
+          background: linear-gradient(90deg, transparent, rgba(255, 184, 0, 0.2), transparent);
+          display: none;
+        }
+        @media (min-width: 1024px) {
+          .process-connection-line { display: block; }
+        }
+
+        .process-steps-grid {
+          display: grid;
+          grid-template-columns: repeat(1, 1fr);
+          gap: 32px;
+        }
+        @media (min-width: 640px) {
+          .process-steps-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (min-width: 1024px) {
+          .process-steps-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+
+        .process-step-card {
+          position: relative;
+        }
+        .process-card-inner {
+          position: relative;
+          height: 100%;
+          background: rgba(255, 255, 255, 0.02);
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          border-radius: 40px;
+          padding: 50px 30px 40px;
+          transition: all 0.4s ease;
+          text-align: center;
+        }
+        .process-step-card:hover .process-card-inner {
+          background: rgba(255, 184, 0, 0.03);
+          border-color: rgba(255, 184, 0, 0.3);
+          transform: translateY(-10px);
+        }
+
+        .process-num-box {
+          position: absolute;
+          top: -20px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 44px;
+          height: 44px;
+          background: #000;
+          border: 1px solid rgba(255, 184, 0, 0.4);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 5;
+        }
+        .process-num {
+          font-size: 14px;
+          font-weight: 900;
+          color: #FFB800;
+        }
+
+        .process-icon-box {
+          width: 70px;
+          height: 70px;
+          background: rgba(255, 255, 255, 0.03);
+          border-radius: 24px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin: 0 auto 30px;
+          transition: all 0.4s ease;
+        }
+        .process-step-card:hover .process-icon-box {
+          background: #FFB800;
+          color: #000;
+          transform: scale(1.1);
+        }
+        .process-icon-box i {
+          font-size: 30px;
+          color: #FFB800;
+        }
+        .process-step-card:hover .process-icon-box i { color: #000; }
+
+        .process-title {
+          font-size: 1.5rem;
+          font-weight: 900;
+          color: #fff;
+          margin: 0 0 16px 0;
+          letter-spacing: -0.5px;
+        }
+        .process-desc {
+          font-size: 14px;
+          color: rgba(255, 255, 255, 0.5);
+          line-height: 1.7;
+          margin: 0;
+        }
+
+        /* ── Simulation ── */
+        .process-simulation {
+          max-width: 900px;
+          margin: 0 auto 100px;
+        }
+        .simulation-glass {
+          background: rgba(10, 10, 10, 0.5);
+          backdrop-filter: blur(20px);
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          border-radius: 32px;
+          padding: 40px;
+          text-align: center;
+        }
+        .simulation-header {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 12px;
+          margin-bottom: 40px;
+        }
+        .pulse-icon {
+          width: 8px;
+          height: 8px;
+          background: #00e676;
+          border-radius: 50%;
+          box-shadow: 0 0 10px #00e676;
+          animation: blink 1.5s infinite;
+        }
+        .simulation-label {
+          font-size: 10px;
+          font-weight: 900;
+          letter-spacing: 3px;
+          color: rgba(255, 255, 255, 0.3);
+        }
+
+        .simulation-flow {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: 0;
+          flex-wrap: wrap;
+        }
+        .simulation-step-group {
+          display: flex;
+          align-items: center;
+        }
+        .simulation-node {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 12px;
+          width: 100px;
+        }
+        .node-dot {
+          width: 12px;
+          height: 12px;
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 50%;
+          border: 2px solid transparent;
+          transition: all 0.5s ease;
+        }
+        .node-label {
+          font-size: 11px;
+          font-weight: 800;
+          color: rgba(255, 255, 255, 0.2);
+          text-transform: uppercase;
+          transition: all 0.5s ease;
+        }
+
+        .simulation-node.completed .node-dot { background: #FFB800; box-shadow: 0 0 15px rgba(255, 184, 0, 0.4); }
+        .simulation-node.completed .node-label { color: #FFB800; }
+        .simulation-node.active .node-dot { 
+          background: #00e676; 
+          box-shadow: 0 0 20px #00e676;
+          transform: scale(1.3);
+        }
+        .simulation-node.active .node-label { color: #00e676; font-weight: 900; }
+
+        .simulation-line {
+          width: 60px;
+          height: 2px;
+          background: rgba(255, 255, 255, 0.05);
+          position: relative;
+          top: -12px;
+        }
+        .simulation-line.completed { background: #FFB800; opacity: 0.3; }
+
+        /* ── CTA ── */
+        .process-cta {
+          text-align: center;
+        }
+        .process-cta-btn {
+          background: linear-gradient(135deg, #FFB800, #FF6200) !important;
+          color: #000 !important;
+          border: none !important;
+          padding: 20px 50px;
+          border-radius: 20px;
+          font-size: 16px;
+          font-weight: 900;
+          text-transform: uppercase;
+          letter-spacing: 2px;
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          gap: 15px;
+          box-shadow: 0 15px 40px rgba(255, 184, 0, 0.3);
+        }
+
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+        @media (max-width: 768px) {
+          .simulation-line { display: none; }
+          .simulation-step-group { margin-bottom: 20px; }
+        }
+      `}</style>
     </section>
   );
 };
+
 export default HowItWorksSection;
+

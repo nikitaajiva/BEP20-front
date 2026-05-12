@@ -1,6 +1,6 @@
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
 import "bootstrap/dist/css/bootstrap.min.css";
+import "./globals.css";
 import { AuthProvider } from "../context/AuthContext";
 import { ReferralProvider } from "../context/ReferralContext";
 import GA_TagManager from "./GAOnRoutes"; // <-- add this import
@@ -30,28 +30,24 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link
           href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css"
           rel="stylesheet"
         />
         <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Dela+Gothic+One&family=Lilita+One&family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=IBM+Plex+Sans:ital,wght@0,100..700;1,100..700&family=Montserrat:wght@700;800;900&family=Archivo+Black&family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Edu+AU+VIC+WA+NT+Arrows:wght@400..700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Noto+Sans+Math&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=REM:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&family=Saira+Stencil+One&family=Poppins:wght@400;700;800&display=swap"
           rel="stylesheet"
         />
         <link
           rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
-        ></link>
+        />
         <script
           src="https://static.elfsight.com/platform/platform.js"
           async
         ></script>
-        <link
-          href="https://fonts.googleapis.com/css2?family=Saira+Stencil+One&family=Poppins:wght@400;700;800&display=swap"
-          rel="stylesheet"
-        ></link>
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <Suspense fallback={null}>

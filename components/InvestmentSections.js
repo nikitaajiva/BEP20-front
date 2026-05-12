@@ -14,10 +14,10 @@ const FireParticle = ({ style }) => (
 );
 
 const stakingTiers = [
-  { days: 30, min: "5%", max: "10%", label: "30-Day Lock", color: "#ff8c00", badge: "Starter" },
-  { days: 90, min: "11%", max: "18%", label: "90-Day Lock", color: "#ff6600", badge: "Growth" },
-  { days: 180, min: "19%", max: "22%", label: "180-Day Lock", color: "#ff4500", badge: "Advanced" },
-  { days: 365, min: "23%", max: "28%", label: "365-Day Lock", color: "#e63200", badge: "Premium" },
+  { days: 30, min: "5%", max: "10%", label: "30-Day Lock", color: "#FFD700", badge: "Starter" },
+  { days: 90, min: "11%", max: "18%", label: "90-Day Lock", color: "#FFB800", badge: "Growth" },
+  { days: 180, min: "19%", max: "22%", label: "180-Day Lock", color: "#FFA500", badge: "Advanced" },
+  { days: 365, min: "23%", max: "28%", label: "365-Day Lock", color: "#FF6200", badge: "Premium" },
 ];
 
 const nftPackages = [
@@ -72,10 +72,10 @@ const nftPackages = [
       "Invitation to Tokinghoofborn Events",
       "VIP Access to Conferences where Tokinghoofborn is participating",
     ],
-    gradient: "linear-gradient(135deg, #ffd700 0%, #ff8c00 100%)",
-    glow: "rgba(255,215,0,0.4)",
+    gradient: "linear-gradient(135deg, #FFB800 0%, #FF6200 100%)",
+    glow: "rgba(255, 184, 0, 0.4)",
     icon: "🥇",
-    tierColor: "#ffd700",
+    tierColor: "#FFB800",
   },
 ];
 
@@ -111,7 +111,7 @@ export default function InvestmentSections() {
               {/* Tail */}
               <path d="M58,90 C48,95 38,105 35,115 C33,122 38,128 45,125 C50,110 55,100 58,90Z" fill="currentColor"/>
               {/* Mane */}
-              <path d="M110,62 C118,55 122,45 120,35 C125,40 128,50 126,60 C122,68 116,70 110,68Z" fill="rgba(255,140,0,0.7)"/>
+              <path d="M110,62 C118,55 122,45 120,35 C125,40 128,50 126,60 C122,68 116,70 110,68Z" fill="rgba(255,184,0,0.7)"/>
             </g>
           </svg>
           {/* Fire particles around horse */}

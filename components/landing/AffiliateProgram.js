@@ -1,164 +1,442 @@
 "use client";
-import React, { useState, useRef, useEffect } from "react";
+import React from "react";
+import { motion } from "framer-motion";
 
-// ── Animated Reward Tier Card ───────────────────────────────────────────────
-const TierCard = ({ level, label, bonus, icon, color, delay = 0 }) => {
-  const [vis, setVis] = useState(false);
-  const ref = useRef(null);
-  useEffect(() => {
-    const obs = new IntersectionObserver(([e]) => {
-      if (e.isIntersecting) { setTimeout(() => setVis(true), delay); obs.disconnect(); }
-    }, { threshold: 0.2 });
-    if (ref.current) obs.observe(ref.current);
-    return () => obs.disconnect();
-  }, [delay]);
-
-  return (
-    <div ref={ref} style={{
-      background: "rgba(255,255,255,0.02)",
-      border: `1px solid ${vis ? color + "40" : "rgba(255,255,255,0.06)"}`,
-      borderRadius: "18px", padding: "1.8rem 1.5rem", textAlign: "center",
-      opacity: vis ? 1 : 0, transform: vis ? "translateY(0)" : "translateY(30px)",
-      transition: "all 0.6s ease", position: "relative", overflow: "hidden",
-    }}>
-      {/* Background level number */}
-      <div style={{ position:"absolute", top:-10, right:5, fontSize:"5rem", fontWeight:900, color:"rgba(255,215,0,0.04)", lineHeight:1, userSelect:"none" }}>{level}</div>
-      {/* Icon */}
-      <div style={{ width:60, height:60, borderRadius:"50%", background:`${color}18`, border:`1px solid ${color}40`, display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 1.2rem" }}>
-        <i className={icon} style={{ fontSize:"1.8rem", color }} />
+// ── Tier Node Component ──────────────────────────────────────────────────
+const TierNode = ({ level, label, bonus, icon, delay }) => (
+  <motion.div 
+    initial={{ opacity: 0, y: 30 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    transition={{ delay, duration: 0.8, ease: "easeOut" }}
+    viewport={{ once: true }}
+    className="affiliate-tier-card"
+  >
+    <div className="tier-card-inner">
+      <div className="tier-level-indicator">TIER 0{level}</div>
+      <div className="tier-icon-wrapper">
+        <div className="tier-icon-glow" />
+        <i className={icon} />
       </div>
-      <div style={{ fontSize:"0.75rem", fontWeight:700, textTransform:"uppercase", letterSpacing:"1.5px", color:"rgba(255,255,255,0.4)", marginBottom:"0.4rem" }}>Level {level}</div>
-      <h4 style={{ color:"#fff", fontWeight:800, fontSize:"1.1rem", marginBottom:"0.8rem" }}>{label}</h4>
-      <div style={{ fontSize:"1.8rem", fontWeight:900, color, lineHeight:1 }}>{bonus}</div>
-      <div style={{ color:"rgba(255,255,255,0.4)", fontSize:"0.8rem", marginTop:"4px" }}>BNB Bonus</div>
-      {/* Glow line */}
-      <div style={{ position:"absolute", bottom:0, left:"50%", transform:"translateX(-50%)", width:"50%", height:"2px", background:`linear-gradient(90deg,transparent,${color},transparent)` }} />
+      <div className="tier-content">
+        <h4 className="tier-title">{label}</h4>
+        <div className="tier-bonus-wrap">
+          <span className="tier-bonus gold-text-shimmer">{bonus}</span>
+          <span className="tier-bonus-label">COMMISSION</span>
+        </div>
+      </div>
+      <div className="tier-card-flare" />
     </div>
-  );
-};
-
-// ── Animated Earnings Chart ─────────────────────────────────────────────────
-const EarningsChart = () => {
-  const [heights, setHeights] = useState([40,55,70,60,85,75,95,80,100,90]);
-  useEffect(() => {
-    const id = setInterval(() => {
-      setHeights(hs => hs.map(h => Math.max(20, Math.min(100, h + (Math.random()-0.45)*20))));
-    }, 1800);
-    return () => clearInterval(id);
-  }, []);
-
-  const days = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun","Mon","Tue","Wed"];
-  return (
-    <div style={{ paddingTop:"1rem" }}>
-      <div style={{ display:"flex", alignItems:"flex-end", gap:"8px", height:"120px", justifyContent:"center" }}>
-        {heights.map((h, i) => (
-          <div key={i} style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:"4px" }}>
-            <div style={{
-              width:"100%", height:`${h}%`, maxWidth:"32px",
-              background:`linear-gradient(180deg, #ffd700 0%, rgba(255,140,0,0.4) 100%)`,
-              borderRadius:"4px 4px 0 0",
-              transition:"height 1s cubic-bezier(0.4,0,0.2,1)",
-              boxShadow:`0 -4px 12px rgba(255,215,0,${h/200})`,
-            }} />
-          </div>
-        ))}
-      </div>
-      <div style={{ display:"flex", gap:"8px", justifyContent:"center", marginTop:"8px" }}>
-        {days.map((d, i) => (
-          <div key={i} style={{ flex:1, textAlign:"center", color:"rgba(255,255,255,0.3)", fontSize:"0.65rem", maxWidth:"32px" }}>{d}</div>
-        ))}
-      </div>
-    </div>
-  );
-};
-
-// ── Benefit Pill ─────────────────────────────────────────────────────────────
-const BenefitPill = ({ icon, text }) => (
-  <div style={{ display:"flex", alignItems:"center", gap:"10px", background:"rgba(255,215,0,0.06)", border:"1px solid rgba(255,215,0,0.15)", borderRadius:"50px", padding:"0.6rem 1.2rem" }}>
-    <i className={icon} style={{ color:"#ffd700", fontSize:"1.1rem" }} />
-    <span style={{ color:"rgba(255,255,255,0.8)", fontSize:"0.88rem", fontWeight:600 }}>{text}</span>
-  </div>
+  </motion.div>
 );
 
 const AffiliateProgram = () => {
   const tiers = [
-    { level:1, label:"Direct Referral", bonus:"5%", icon:"ri-user-star-line", color:"#ffd700", delay:0 },
-    { level:2, label:"Team Bonus", bonus:"3%", icon:"ri-team-line", color:"#ff8c00", delay:100 },
-    { level:3, label:"Growth Bonus", bonus:"2%", icon:"ri-seedling-line", color:"#00e676", delay:200 },
-    { level:4, label:"Leadership", bonus:"1%", icon:"ri-award-line", color:"#4fc3f7", delay:300 },
-    { level:5, label:"Elite Pool", bonus:"0.5%", icon:"ri-vip-crown-fill", color:"#e040fb", delay:400 },
+    { level: 1, label: "Direct", bonus: "5%", icon: "ri-user-star-line" },
+    { level: 2, label: "Team", bonus: "3%", icon: "ri-team-line" },
+    { level: 3, label: "Growth", bonus: "2%", icon: "ri-seedling-line" },
+    { level: 4, label: "Leaders", bonus: "1%", icon: "ri-award-line" },
+    { level: 5, label: "Master", bonus: "0.5%", icon: "ri-vip-crown-fill" },
   ];
 
   return (
-    <section id="affiliate" style={{ padding:"100px 0", position:"relative" }}>
-      <div style={{ position:"absolute", top:"20%", right:"-5%", width:"500px", height:"500px", background:"radial-gradient(circle,rgba(255,215,0,0.04) 0%,transparent 60%)", filter:"blur(80px)", pointerEvents:"none" }} />
-
-      <div className="container">
+    <section id="affiliate" className="affiliate-section">
+      <div className="affiliate-container">
+        
         {/* Header */}
-        <div style={{ textAlign:"center", marginBottom:"5rem" }}>
-          <span style={{ background:"rgba(255,215,0,0.1)", color:"#ffd700", border:"1px solid rgba(255,215,0,0.25)", borderRadius:"30px", padding:"6px 18px", fontSize:"0.82rem", fontWeight:700, textTransform:"uppercase", letterSpacing:"1.5px" }}>Community Program</span>
-          <h2 style={{ fontSize:"clamp(2.2rem,4vw,3.2rem)", fontWeight:900, color:"#fff", marginTop:"1rem", lineHeight:1.2 }}>
-            Earn More by Growing <span style={{ color:"#ffd700" }}>Your Network</span>
-          </h2>
-          <p style={{ color:"rgba(255,255,255,0.55)", fontSize:"1.1rem", maxWidth:"600px", margin:"1rem auto 0", lineHeight:1.65 }}>
-            Join a global community of BNB earners. Every referral you bring into BEPVault earns you cascading BNB bonuses across 5 reward levels — automatically.
-          </p>
-        </div>
-
-        {/* Tier Cards */}
-        <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(170px,1fr))", gap:"1.2rem", marginBottom:"5rem" }}>
-          {tiers.map(t => <TierCard key={t.level} {...t} />)}
-        </div>
-
-        {/* Why Join — 2 col */}
-        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"3rem", alignItems:"center", background:"rgba(255,255,255,0.02)", border:"1px solid rgba(255,215,0,0.1)", borderRadius:"24px", padding:"3rem" }} className="affiliate-grid">
-          {/* Left */}
-          <div>
-            <h3 style={{ color:"#fff", fontWeight:800, fontSize:"1.7rem", marginBottom:"1rem" }}>Why Join the<br /><span style={{ color:"#ffd700" }}>BEPVault Community?</span></h3>
-            <p style={{ color:"rgba(255,255,255,0.6)", lineHeight:1.75, marginBottom:"2rem" }}>
-              There's no cap on how much you can earn. The bigger your network, the bigger your daily BNB flow. Our transparent smart contract settles every bonus automatically — no middlemen, no delays.
+        <div className="affiliate-header">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center"
+          >
+            <span className="affiliate-badge">GROWTH ECOSYSTEM</span>
+            <h2 className="affiliate-main-title">
+              Expand Your <span className="gold-text">Racing Stable</span>
+            </h2>
+            <p className="affiliate-description">
+              Build a powerful network and earn cascading rewards across 5 elite tiers. Total transparency, automated payouts, and unlimited potential.
             </p>
-            <div style={{ display:"flex", flexWrap:"wrap", gap:"0.8rem" }}>
-              <BenefitPill icon="ri-infinite-line" text="No earning limits" />
-              <BenefitPill icon="ri-shield-check-line" text="Smart contract secured" />
-              <BenefitPill icon="ri-time-line" text="Instant payouts" />
-              <BenefitPill icon="ri-bar-chart-grouped-line" text="5-level deep rewards" />
-              <BenefitPill icon="ri-global-line" text="Global community" />
-              <BenefitPill icon="ri-book-open-line" text="Training & support" />
-            </div>
-          </div>
+          </motion.div>
+        </div>
 
-          {/* Right — Animated Earnings Bar Chart */}
-          <div>
-            <div style={{ display:"flex", justifyContent:"space-between", marginBottom:"1rem", alignItems:"center" }}>
-              <div style={{ color:"rgba(255,255,255,0.6)", fontSize:"0.85rem", fontWeight:600 }}>Daily BNB Earnings Simulation</div>
-              <div style={{ color:"#00e676", fontSize:"0.8rem", fontWeight:700, display:"flex", alignItems:"center", gap:"6px" }}>
-                <span style={{ width:7, height:7, borderRadius:"50%", background:"#00e676", display:"inline-block", animation:"livePulse 1s infinite" }} />
-                Live
-              </div>
-            </div>
-            <EarningsChart />
-            {/* Bottom Stats */}
-            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:"0.8rem", marginTop:"1.5rem" }}>
-              {[
-                { val:"0.6%", label:"Daily Yield", col:"#ffd700" },
-                { val:"5 Tiers", label:"Bonus Levels", col:"#ff8c00" },
-                { val:"∞", label:"No Cap", col:"#00e676" },
-              ].map(s => (
-                <div key={s.label} style={{ textAlign:"center", padding:"0.9rem", background:"rgba(255,255,255,0.03)", borderRadius:"12px", border:"1px solid rgba(255,255,255,0.06)" }}>
-                  <div style={{ color:s.col, fontWeight:900, fontSize:"1.3rem" }}>{s.val}</div>
-                  <div style={{ color:"rgba(255,255,255,0.4)", fontSize:"0.72rem", marginTop:"3px" }}>{s.label}</div>
+        {/* Tiers Row */}
+        <div className="affiliate-tiers-grid">
+          {tiers.map((t, i) => (
+            <TierNode key={t.level} {...t} delay={i * 0.1} />
+          ))}
+        </div>
+
+        {/* Detailed Insights Box */}
+        <div className="affiliate-insights">
+          <div className="insights-glass">
+            <div className="insights-grid">
+              
+              {/* Left Content */}
+              <div className="insights-text">
+                <h3 className="insights-title">Why Lead a <br /><span className="gold-text">Racing Stable?</span></h3>
+                <div className="insights-features">
+                  {[
+                    { icon: "ri-infinite-line", title: "Unlimited Earning", desc: "No caps on your performance rewards." },
+                    { icon: "ri-shield-check-line", title: "Secure Payouts", desc: "Automated, instant settlement protocols." },
+                    { icon: "ri-bar-chart-grouped-line", title: "5-Tier Depth", desc: "Deep rewards from your entire community." },
+                  ].map((f, i) => (
+                    <div key={i} className="insight-feature-item">
+                      <div className="feature-icon"><i className={f.icon} /></div>
+                      <div className="feature-info">
+                        <h5>{f.title}</h5>
+                        <p>{f.desc}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </div>
+
+              {/* Right Performance Chart */}
+              <div className="insights-visual">
+                <div className="performance-card">
+                  <div className="perf-header">
+                    <span className="perf-label">STABLE GROWTH ANALYSIS</span>
+                    <span className="perf-status"><span className="pulse-dot" /> LIVE</span>
+                  </div>
+                  
+                  <div className="perf-chart">
+                    {[40, 65, 45, 85, 55, 75, 100].map((h, i) => (
+                      <motion.div 
+                        key={i}
+                        initial={{ height: 0 }}
+                        whileInView={{ height: `${h}%` }}
+                        transition={{ duration: 1, delay: i * 0.1 }}
+                        className="chart-bar"
+                      />
+                    ))}
+                  </div>
+
+                  <div className="perf-stats">
+                    <div className="perf-stat-item">
+                      <span className="val gold-text">0.6%</span>
+                      <span className="lbl">AVG YIELD</span>
+                    </div>
+                    <div className="perf-stat-item">
+                      <span className="val">5 LEVELS</span>
+                      <span className="lbl">TIERS</span>
+                    </div>
+                    <div className="perf-stat-item">
+                      <span className="val green-text">NONE</span>
+                      <span className="lbl">MAX CAP</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
         </div>
+
       </div>
 
       <style jsx global>{`
-        @media (max-width: 900px) { .affiliate-grid { grid-template-columns: 1fr !important; } }
+        .affiliate-section {
+          position: relative;
+          padding: 120px 0;
+          background: #030303;
+          overflow: hidden;
+        }
+
+        .affiliate-container {
+          max-width: 1320px;
+          margin: 0 auto;
+          padding: 0 24px;
+          position: relative;
+          z-index: 10;
+        }
+
+        /* ── Header ── */
+        .affiliate-header {
+          margin-bottom: 80px;
+        }
+        .affiliate-badge {
+          display: inline-block;
+          font-size: 11px;
+          font-weight: 900;
+          color: #FFB800;
+          letter-spacing: 5px;
+          margin-bottom: 24px;
+        }
+        .affiliate-main-title {
+          font-size: clamp(2.5rem, 5vw, 4.5rem);
+          font-weight: 900;
+          color: #fff;
+          line-height: 1.1;
+          margin: 0 0 24px 0;
+          letter-spacing: -2px;
+        }
+        .affiliate-description {
+          font-size: 1.15rem;
+          color: rgba(255, 255, 255, 0.5);
+          line-height: 1.7;
+          max-width: 700px;
+          margin: 0 auto;
+        }
+
+        /* ── Tiers Grid ── */
+        .affiliate-tiers-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 20px;
+          margin-bottom: 100px;
+        }
+        @media (min-width: 768px) {
+          .affiliate-tiers-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (min-width: 1024px) {
+          .affiliate-tiers-grid { grid-template-columns: repeat(5, 1fr); }
+        }
+
+        .affiliate-tier-card {
+          position: relative;
+          height: 100%;
+        }
+        .tier-card-inner {
+          position: relative;
+          height: 100%;
+          background: rgba(10, 10, 10, 0.6);
+          backdrop-filter: blur(16px);
+          -webkit-backdrop-filter: blur(16px);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 40px;
+          padding: 50px 20px;
+          text-align: center;
+          transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+          overflow: hidden;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+        }
+        .affiliate-tier-card:hover .tier-card-inner {
+          background: rgba(15, 15, 15, 0.8);
+          border-color: rgba(255, 184, 0, 0.4);
+          transform: translateY(-12px) scale(1.02);
+          box-shadow: 0 40px 80px rgba(0,0,0,0.6);
+        }
+        .tier-level-indicator {
+          position: absolute;
+          top: 30px;
+          font-size: 10px;
+          font-weight: 900;
+          color: rgba(255, 255, 255, 0.2);
+          letter-spacing: 3px;
+        }
+        .tier-icon-wrapper {
+          position: relative;
+          width: 64px;
+          height: 64px;
+          background: rgba(255, 184, 0, 0.1);
+          border-radius: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-bottom: 30px;
+          color: #FFB800;
+          font-size: 24px;
+          border: 1px solid rgba(255, 184, 0, 0.2);
+          transition: transform 0.4s ease;
+        }
+        .affiliate-tier-card:hover .tier-icon-wrapper {
+          transform: scale(1.1) rotate(5deg);
+          background: rgba(255, 184, 0, 0.2);
+        }
+        .tier-icon-glow {
+          position: absolute;
+          inset: -10px;
+          background: radial-gradient(circle, rgba(255, 184, 0, 0.2) 0%, transparent 70%);
+          opacity: 0;
+          transition: opacity 0.4s ease;
+        }
+        .affiliate-tier-card:hover .tier-icon-glow { opacity: 1; }
+
+        .tier-title {
+          font-size: 11px;
+          font-weight: 900;
+          color: rgba(255, 255, 255, 0.4);
+          text-transform: uppercase;
+          letter-spacing: 2px;
+          margin: 0 0 10px 0;
+        }
+        .tier-bonus-wrap {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+        .tier-bonus {
+          font-size: 3rem;
+          font-weight: 900;
+          line-height: 1;
+        }
+        .gold-text-shimmer {
+          background: linear-gradient(135deg, #FFB800, #FF6200, #FFB800);
+          background-size: 200% auto;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          animation: shine 4s linear infinite;
+        }
+        .tier-bonus-label {
+          font-size: 9px;
+          font-weight: 900;
+          letter-spacing: 2px;
+          color: rgba(255, 255, 255, 0.2);
+        }
+        .tier-card-flare {
+          position: absolute;
+          bottom: -50px;
+          right: -50px;
+          width: 150px;
+          height: 150px;
+          background: radial-gradient(circle, rgba(255, 184, 0, 0.05) 0%, transparent 70%);
+          opacity: 0;
+          transition: opacity 0.6s ease;
+        }
+        .affiliate-tier-card:hover .tier-card-flare { opacity: 1; }
+
+        /* ── Insights Box ── */
+        .affiliate-insights {
+          position: relative;
+        }
+        .insights-glass {
+          background: rgba(255, 255, 255, 0.02);
+          backdrop-filter: blur(24px);
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          border-radius: 48px;
+          padding: 40px;
+        }
+        @media (min-width: 1024px) {
+          .insights-glass { padding: 80px; }
+        }
+        .insights-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 60px;
+          align-items: center;
+        }
+        @media (min-width: 1024px) {
+          .insights-grid { grid-template-columns: 1.1fr 0.9fr; gap: 100px; }
+        }
+
+        .insights-title {
+          font-size: 3rem;
+          font-weight: 900;
+          color: #fff;
+          line-height: 1.1;
+          margin-bottom: 48px;
+          letter-spacing: -1.5px;
+        }
+        .insights-features {
+          display: flex;
+          flex-direction: column;
+          gap: 32px;
+        }
+        .insight-feature-item {
+          display: flex;
+          gap: 20px;
+          align-items: flex-start;
+        }
+        .feature-icon {
+          width: 48px;
+          height: 48px;
+          background: rgba(255, 255, 255, 0.05);
+          border-radius: 14px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #FFB800;
+          font-size: 20px;
+          flex-shrink: 0;
+        }
+        .feature-info h5 {
+          font-size: 1.1rem;
+          font-weight: 900;
+          color: #fff;
+          margin: 0 0 4px 0;
+        }
+        .feature-info p {
+          font-size: 14px;
+          color: rgba(255, 255, 255, 0.5);
+          margin: 0;
+        }
+
+        /* ── Performance Card ── */
+        .performance-card {
+          background: rgba(0, 0, 0, 0.4);
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          border-radius: 32px;
+          padding: 32px;
+        }
+        .perf-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 40px;
+        }
+        .perf-label {
+          font-size: 10px;
+          font-weight: 900;
+          letter-spacing: 2px;
+          color: rgba(255, 255, 255, 0.3);
+        }
+        .perf-status {
+          font-size: 10px;
+          font-weight: 900;
+          color: #00e676;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .pulse-dot {
+          width: 6px;
+          height: 6px;
+          background: #00e676;
+          border-radius: 50%;
+          box-shadow: 0 0 10px #00e676;
+          animation: blink 1.5s infinite;
+        }
+
+        .perf-chart {
+          display: flex;
+          align-items: flex-end;
+          justify-content: space-between;
+          gap: 8px;
+          height: 140px;
+          margin-bottom: 40px;
+          padding-bottom: 10px;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .chart-bar {
+          flex: 1;
+          background: linear-gradient(to top, rgba(255, 184, 0, 0.1), #FFB800);
+          border-radius: 6px 6px 2px 2px;
+        }
+
+        .perf-stats {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 16px;
+        }
+        .perf-stat-item {
+          text-align: center;
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+        .perf-stat-item .val { font-size: 1.1rem; font-weight: 900; color: #fff; }
+        .perf-stat-item .lbl { font-size: 8px; font-weight: 900; color: rgba(255, 255, 255, 0.3); letter-spacing: 1px; }
+        .green-text { color: #00e676 !important; }
+
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
       `}</style>
     </section>
   );
 };
+
 export default AffiliateProgram;
+

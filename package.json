@@ -10,10 +10,12 @@
   },
   "dependencies": {
     "@popperjs/core": "^2.11.8",
+    "@tailwindcss/postcss": "^4.3.0",
     "axios": "^1.10.0",
     "bootstrap": "^5.3.6",
     "chart.js": "^4.5.0",
     "chartjs-plugin-datalabels": "^2.2.0",
+    "ethers": "^6.16.0",
     "framer-motion": "^12.18.1",
     "loadash": "^1.0.0",
     "lodash": "^4.17.21",
@@ -32,6 +34,9 @@
   "devDependencies": {
     "@types/node": "25.5.0",
     "@types/react": "19.1.7",
+    "autoprefixer": "^10.5.0",
+    "postcss": "^8.5.14",
+    "tailwindcss": "^4.3.0",
     "typescript": "5.8.3"
   }
 }

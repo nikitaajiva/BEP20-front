@@ -20,9 +20,9 @@ const EventHeroSection = () => {
 
         {/* Right: Content */}
         <div>
-         <h1 class="text-4xl md:text-5xl font-bold leading-tight mb-4 text-white relative inline-block blockchainweek-title">
+         <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-4 text-white relative inline-block blockchainweek-title">
   BEPVault Live at Malaysia Blockchain Week 2025
-  <span class="block w-full h-1 bg-[#ffd700] mt-2 rounded-lg"></span>
+  <span className="block w-full h-1 mt-2 rounded-lg" style={{ background: '#ffd700' }}></span>
 </h1>
           <p className="text-lg md:text-xl text-gray-300 mb-6 max-w-2xl">
             We’re proud to represent the next wave of decentralized finance at MYBW 2025 — Asia’s most influential blockchain summit.
@@ -50,7 +50,7 @@ const EventHeroSection = () => {
 
             <div>
               <p className="text-gray-400 text-sm mb-1">Location</p>
-              <p className="text-[#ffd700] font-semibold leading-snug">
+               <p className="font-semibold leading-snug" style={{ color: '#ffd700' }}>
                 World Trade Center, Kuala Lumpur<br />
                 Alongside Global Leaders: Google Cloud, GAIA IT, and more. <br />
                 This is more than an appearance — it’s our global declaration.

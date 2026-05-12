@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useSearchParams } from "next/navigation";
+import Image from "next/image";
 import LedgerHistoryTable from "@/components/LedgerHistoryTable";
 import { LEDGER_EVENT_TYPES } from "../../../constants/ledgerEventTypes";
 import {
@@ -12,7 +13,9 @@ import {
   History,
   FileText,
   Search,
-  FilterX
+  FilterX,
+  ShieldCheck,
+  Zap
 } from "lucide-react";
 import styles from "./ledger.module.css";
 
@@ -39,7 +42,6 @@ export default function LedgerPageContent() {
     endDate: "",
   });
 
-  // Fetch the available event types from the backend
   useEffect(() => {
     const fetchEventTypes = async () => {
       if (!token) return;
@@ -51,16 +53,9 @@ export default function LedgerPageContent() {
         const response = await fetch(`${API_BASE}/ledger/history/event-types`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch event types (${response.status})`);
-        }
-
+        if (!response.ok) throw new Error(`Failed to fetch event types (${response.status})`);
         const data = await response.json();
-
-        if (data.success) {
-          setEventTypes(data.data);
-        }
+        if (data.success) setEventTypes(data.data);
       } catch (err) {
         console.error("Failed to fetch event types:", err);
         setEventTypes(LEDGER_EVENT_TYPES);
@@ -70,23 +65,16 @@ export default function LedgerPageContent() {
   }, [token]);
 
   const handleFilterChange = (e) => {
-    setFilters({
-      ...filters,
-      [e.target.name]: e.target.value,
-    });
+    setFilters({ ...filters, [e.target.name]: e.target.value });
   };
 
   const clearFilters = () => {
-    setFilters({
-      eventType: "all",
-      startDate: "",
-      endDate: "",
-    });
+    setFilters({ eventType: "all", startDate: "", endDate: "" });
   };
 
   const getFilterTitle = () => {
-    if (filters.eventType === "all") return "Unified Transaction Logs";
-    return `${formatEventType(filters.eventType)} Log Directory`;
+    if (filters.eventType === "all") return "UNIFIED ARCHIVE LOGS";
+    return `${formatEventType(filters.eventType)} DIRECTORY`;
   };
 
   useEffect(() => {
@@ -96,99 +84,131 @@ export default function LedgerPageContent() {
 
   if (loading) {
     return (
-      <div className={styles.loading}>
-        <RefreshCw className="spin" size={40} style={{ color: '#ffd700', animation: 'spin 2s linear infinite' }} />
-        <span style={{ color: '#888', fontWeight: '700', letterSpacing: '1px', marginTop: '15px' }}>SYNCHRONIZING LEDGER...</span>
+      <div className={styles.ledger_loading}>
+        <RefreshCw size={48} style={{ color: '#FFB800', animation: 'spin 2s linear infinite' }} />
+        <span style={{ color: '#888', fontWeight: '800', letterSpacing: '2px', marginTop: '20px' }}>SYNCHRONIZING LEDGER VAULT...</span>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className={styles.error}>
-        <div className={styles.errorTitle}>SYSTEM ERROR</div>
+      <div className={styles.ledger_error}>
+        <div className={styles.ledger_errorTitle}>VAULT ACCESS DENIED</div>
         <p style={{ color: '#aaa' }}>{error}</p>
-        <button onClick={() => window.location.reload()} className={styles.refreshBtn}>
-          <RefreshCw size={18} />
-          RETRY CONNECTION
+        <button onClick={() => window.location.reload()} className={styles.ledger_refreshBtn}>
+          <RefreshCw size={18} /> RETRY CONNECTION
         </button>
       </div>
     );
   }
 
-  if (!user) {
-    return (
-      <div className={styles.loading}>
-        <span style={{ color: '#888' }}>PLEASE LOG IN TO ACCESS LEDGER archives.</span>
-      </div>
-    );
-  }
-
   return (
-    <div className={styles.mainContent}>
-      <div className={styles.headerRow}>
-        <div className={styles.titleArea}>
-          <h1 className={styles.pageTitle}>Ecosystem Ledger</h1>
-          <p className={styles.pageSubtitle}>{getFilterTitle()}</p>
+    <div className={styles.ledger_mainContent}>
+      
+      {/* ── CINEMATIC HERO BANNER ── */}
+      <div className={styles.ledger_hero}>
+        <Image 
+          src="/IMG/ledger-hero.png" 
+          alt="Ledger Vault" 
+          fill 
+          className={styles.ledger_heroImage} 
+          priority 
+        />
+        <div className={styles.ledger_heroOverlay}>
+          <div className={styles.ledger_heroBadge}>
+            <span className={styles.ledger_pulseDot} />
+            IMMUTABLE LEDGER
+          </div>
+          <h1 className={styles.ledger_heroTitle}>
+            Ecosystem <span>Ledger</span>
+          </h1>
+          <p className={styles.ledger_heroSubtitle}>
+            Reviewing cryptographically secured transaction history and protocol settlements.
+          </p>
         </div>
       </div>
 
-      <div className={styles.filterContainer}>
-        <div className={styles.filterGrid}>
-          <div className={styles.filterGroup}>
-            <label className={styles.filterLabel}>Log Classification</label>
-            <select
-              id="eventType"
-              name="eventType"
-              className={styles.filterSelect}
-              value={filters.eventType}
-              onChange={handleFilterChange}
-            >
-              <option value="all">Comprehensive View</option>
-              {eventTypes.map((type) => (
-                <option key={type} value={type}>
-                  {formatEventType(type)}
-                </option>
-              ))}
-            </select>
+      <div className={styles.ledger_bentoGrid}>
+        
+        {/* ── FILTER GLASS CARD ── */}
+        <div className={`${styles.ledger_glassCard} ${styles.ledger_filterBox}`}>
+          <div className={styles.ledger_filterTitleRow}>
+            <Filter size={18} className={styles.ledger_boxIcon} />
+            <span className={styles.ledger_boxTitle}>{getFilterTitle()}</span>
           </div>
 
-          <div className={styles.filterGroup}>
-            <label className={styles.filterLabel}>Start Epoch</label>
-            <input
-              type="date"
-              id="startDate"
-              name="startDate"
-              className={styles.filterInput}
-              value={filters.startDate}
-              onChange={handleFilterChange}
-            />
-          </div>
+          <div className={styles.ledger_filterGrid}>
+            <div className={styles.ledger_filterGroup}>
+              <label className={styles.ledger_filterLabel}>Log Classification</label>
+              <select
+                id="eventType"
+                name="eventType"
+                className={styles.ledger_filterSelect}
+                value={filters.eventType}
+                onChange={handleFilterChange}
+              >
+                <option value="all">Comprehensive System View</option>
+                {eventTypes.map((type) => (
+                  <option key={type} value={type}>
+                    {formatEventType(type)}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          <div className={styles.filterGroup}>
-            <label className={styles.filterLabel}>End Epoch</label>
-            <input
-              type="date"
-              id="endDate"
-              name="endDate"
-              className={styles.filterInput}
-              value={filters.endDate}
-              onChange={handleFilterChange}
-            />
-          </div>
+            <div className={styles.ledger_filterGroup}>
+              <label className={styles.ledger_filterLabel}>Start Epoch</label>
+              <input
+                type="date"
+                name="startDate"
+                className={styles.ledger_filterInput}
+                value={filters.startDate}
+                onChange={handleFilterChange}
+              />
+            </div>
 
-          <button className={styles.clearBtn} onClick={clearFilters}>
-            <FilterX size={18} />
-            Reset Filters
-          </button>
+            <div className={styles.ledger_filterGroup}>
+              <label className={styles.ledger_filterLabel}>End Epoch</label>
+              <input
+                type="date"
+                name="endDate"
+                className={styles.ledger_filterInput}
+                value={filters.endDate}
+                onChange={handleFilterChange}
+              />
+            </div>
+
+            <button className={styles.ledger_clearBtn} onClick={clearFilters}>
+              <FilterX size={18} />
+              Reset Archives
+            </button>
+          </div>
         </div>
-      </div>
 
-      <div className={styles.ledgerTableCard}>
-        <div className={styles.tableHeaderRow}>
-          <h4 className={styles.tableTitle}>Transaction Archives</h4>
+        {/* ── DATA TABLE GLASS CARD ── */}
+        <div className={`${styles.ledger_glassCard} ${styles.ledger_tableBox}`}>
+          <div className={styles.ledger_tableHeader}>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <History size={18} className={styles.ledger_boxIcon} style={{ marginRight: '10px' }} />
+              <span className={styles.ledger_tableTitle}>Transaction Archives</span>
+            </div>
+            <div className={styles.ledger_tableLegend}>
+              <div className={styles.ledger_legendItem}>
+                <div className={styles.ledger_legendDot} style={{ background: '#00E5A0' }} />
+                <span>CREDIT</span>
+              </div>
+              <div className={styles.ledger_legendItem}>
+                <div className={styles.ledger_legendDot} style={{ background: '#FF4D6A' }} />
+                <span>DEBIT</span>
+              </div>
+            </div>
+          </div>
+          <div style={{ padding: '20px' }}>
+             <LedgerHistoryTable filters={filters} />
+          </div>
         </div>
-        <LedgerHistoryTable filters={filters} />
+
       </div>
     </div>
   );

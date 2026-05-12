@@ -1,201 +1,120 @@
 "use client";
 export const dynamic = "force-dynamic";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
-import styles from "../login/signin.module.css";
-import fpStyles from "./forgot-password.module.css";
+import { Mail, ShieldAlert, CheckCircle2, ArrowRight, ShieldCheck, Lock } from "lucide-react";
+import styles from "./forgot-password.module.css";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
-  const [particles, setParticles] = useState([]);
-
-  const {
-    forgotPassword,
-    forgotPasswordMessage,
-    error,
-    loading,
-    setError,
-  } = useAuth();
-
-  // Generate background particles on client only (avoids hydration mismatch)
-  useEffect(() => {
-    const p = Array.from({ length: 80 }, (_, i) => ({
-      id: i,
-      left: `${((i * 37 + 11) % 100).toFixed(1)}%`,
-      top: `${((i * 53 + 7) % 100).toFixed(1)}%`,
-      size: `${1 + (i % 3) * 0.8}px`,
-      duration: `${4 + (i % 6)}s`,
-      delay: `${(i % 8) * 0.7}s`,
-    }));
-    setParticles(p);
-  }, []);
+  const { forgotPassword, forgotPasswordMessage, error, loading, setError } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
     if (!email.trim()) {
-      setError("Please enter your email address.");
+      setError("Enter registered email address.");
       return;
     }
     await forgotPassword(email.trim());
   };
 
   return (
-    <div className={styles.signInPage}>
-
-      {/* Background rays */}
-      <div className={styles.lightRaysContainer}>
-        <div className={styles.ray} />
-        <div className={styles.ray} />
-      </div>
-      <div className={styles.ambientGlow} />
-
-      {/* Floating particles */}
-      <div className={styles.bgAnimation}>
-        {particles.map((p) => (
-          <div
-            key={p.id}
-            className={styles.particle}
-            style={{
-              left: p.left,
-              top: p.top,
-              width: p.size,
-              height: p.size,
-              animationDuration: p.duration,
-              animationDelay: p.delay,
-            }}
-          />
-        ))}
+    <div className={styles.authPageContainer}>
+      
+      {/* ── BACKGROUND ── */}
+      <div className={styles.backgroundHero}>
+        <Image src="/IMG/reset-hero.png" alt="Recovery" fill className={styles.heroImage} priority />
+        <div className={styles.heroOverlay} />
       </div>
 
-      <div className={styles.externalBorder}>
-        <div className={styles.mainContainer}>
+      {/* ── MAIN CONTENT ── */}
+      <div className={styles.centeredContent}>
+        
+        {/* Header above card */}
+        <div className={styles.heroHeader}>
+          <h1 className={styles.heroTagline}>
+            Secure <span>Protocol</span> Recovery
+          </h1>
+          <p className={styles.heroSubtitle}>
+            Restoring access to your digital vault through cryptographically secured recovery channels.
+          </p>
+        </div>
 
-          {/* Glass Card */}
-          <div className={`${styles.formGlassCard} ${fpStyles.narrowCard}`}>
-
-            {/* Top logo badge */}
-            <div className={styles.logoBoxTop}>
-              <Image
-                src="/bepvault_logo.png"
-                alt="BEPVault"
-                width={48}
-                height={48}
-                style={{ objectFit: "contain" }}
-              />
+        {/* ── REDESIGNED SPLIT CARD ── */}
+        <div className={styles.formGlassCard}>
+          
+          {/* Left Side: Visual Anchor */}
+          <div className={styles.cardVisualSide}>
+            <div className={styles.logoBox}>
+              <Image src="/img/Pnglogo.png" alt="Logo" width={80} height={80} style={{ objectFit: 'contain' }} />
             </div>
+            <h3 className={styles.visualTitle}>VAULT ACCESS</h3>
+            <p className={styles.visualText}>
+              Verification required to authorize <br /> password reset sequence.
+            </p>
+            <Lock size={40} style={{ marginTop: '30px', color: 'rgba(255, 184, 0, 0.1)' }} />
+          </div>
 
-            {/* Header */}
-            <div className={styles.cardHeader}>
-              <h1 className={styles.title}>
-                Reset <span className={styles.vaultText}>Password</span>
-              </h1>
-              <p className={styles.subtitle}>
-                {forgotPasswordMessage
-                  ? "Check your inbox for the reset link."
-                  : "Enter your registered email and we'll send a reset link."}
-              </p>
-            </div>
-
-            {/* Success State */}
+          {/* Right Side: Interaction Form */}
+          <div className={styles.cardFormSide}>
             {forgotPasswordMessage ? (
-              <div className={fpStyles.successBox}>
-                <div className={fpStyles.successIcon}>✓</div>
-                <p className={fpStyles.successText}>{forgotPasswordMessage}</p>
-                <p className={fpStyles.successSub}>
-                  Didn't receive it? Check your spam folder or{" "}
-                  <button
-                    onClick={() => handleSubmit({ preventDefault: () => {} })}
-                    className={fpStyles.resendBtn}
-                    disabled={loading}
-                  >
-                    resend
-                  </button>
-                  .
-                </p>
-                <Link href="/login" className={fpStyles.backBtn}>
-                  ← Back to Sign In
+              <div className={styles.formBody}>
+                <div className={`${styles.statusMessage} ${styles.successState}`}>
+                  <CheckCircle2 size={20} />
+                  <span>{forgotPasswordMessage}</span>
+                </div>
+                <Link href="/login" className={styles.submitBtn} style={{ textDecoration: 'none' }}>
+                  Return to Vault
                 </Link>
               </div>
             ) : (
-              /* Form */
-              <form onSubmit={handleSubmit} className={styles.signInForm} noValidate>
-
-                {/* Error */}
+              <form onSubmit={handleSubmit} className={styles.formBody}>
+                
                 {error && (
-                  <div className={fpStyles.errorBox}>
-                    <span className={fpStyles.errorIcon}>⚠</span> {error}
+                  <div className={`${styles.statusMessage} ${styles.errorState}`}>
+                    <ShieldAlert size={20} />
+                    <span>{error}</span>
                   </div>
                 )}
 
-                {/* Email field */}
                 <div className={styles.inputGroup}>
-                  <label htmlFor="fp-email" className={styles.label}>
-                    EMAIL ADDRESS
-                  </label>
-                  <input
-                    id="fp-email"
-                    type="email"
-                    className={styles.inputField}
-                    placeholder="you@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    disabled={loading}
-                    autoComplete="email"
-                    autoFocus
-                  />
+                  <label className={styles.label}>IDENTIFICATION</label>
+                  <div className={styles.inputWrapper}>
+                    <Mail size={18} className={styles.inputIcon} />
+                    <input
+                      type="email"
+                      className={styles.inputControl}
+                      placeholder="Registered Email Address"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      disabled={loading}
+                      required
+                    />
+                  </div>
                 </div>
 
-                {/* Submit */}
-                <button
-                  type="submit"
-                  className={styles.signInButton}
-                  disabled={loading}
-                  style={{ marginTop: "0.5rem" }}
-                >
+                <button type="submit" className={styles.submitBtn} disabled={loading}>
                   {loading ? (
-                    <span className={fpStyles.btnLoading}>
-                      <span className={fpStyles.spinner} /> Sending…
-                    </span>
+                    <div className={styles.spinner} />
                   ) : (
-                    "Send Reset Link"
+                    <>Initiate Recovery <ArrowRight size={18} /></>
                   )}
                 </button>
 
-                {/* Divider */}
-                <div className={styles.dividerLine} style={{ marginTop: "1.5rem" }} />
-
-                {/* Back to login */}
-                <div className={styles.createAccountText}>
-                  Remembered your password?{" "}
-                  <Link href="/login" className={styles.createAccountLink}>
-                    Sign In
+                <div className={styles.footerActions}>
+                  <Link href="/login" className={styles.backLink}>
+                    Back to <span>Sign In</span>
                   </Link>
                 </div>
-
               </form>
             )}
           </div>
-
-          {/* Footer */}
-          <div className={styles.loginFooter}>
-            <span>© 2024 BEPVault. All rights reserved. |</span>
-            <Link href="/terms" className={styles.footerLink}>Terms</Link>
-            <span>|</span>
-            <Link href="/privacy" className={styles.footerLink}>Privacy</Link>
-          </div>
         </div>
-      </div>
 
-      {/* Corner star */}
-      <div className={styles.cornerStar}>
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
-          <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="rgba(255,215,0,0.5)" />
-        </svg>
       </div>
     </div>
   );

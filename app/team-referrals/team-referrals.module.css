@@ -1,728 +1,574 @@
-.pageContainer {
-  background-color: #000000;
-  min-height: 100vh;
-  color: #ffffff;
-  font-family: 'Inter', sans-serif;
-  overflow-y: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
+/* ══════════════════════════════════════════
+   COMMUNITY ECOSYSTEM — BENTO LUXURY LAYOUT
+   Deep Onyx & Gold Design System
+══════════════════════════════════════════ */
 
-.pageContainer::-webkit-scrollbar {
-  display: none;
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+
+.pageContainer {
+  min-height: 100vh;
+  background: #050505;
+  color: #fff;
+  font-family: 'Outfit', sans-serif;
+  padding: 40px 24px;
 }
 
 .contentWrapper {
-  display: flex;
+  max-width: 1700px;
+  margin: 0 auto;
 }
 
-.mainContent {
-  flex-grow: 1;
-  padding: 2.5rem;
-  margin-left: 0;
-  transition: all 0.3s ease;
-  overflow-y: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.mainContent::-webkit-scrollbar {
-  display: none;
-}
-
-.headerRow {
-  margin-bottom: 2.5rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.innerfilterCardlabel {
-  color: #777;
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.innerfilterCardvalue {
-  color: #ffd700;
-  font-weight: 800;
-  font-size: 16px;
-}
-
-.titleSection {
-  border-left: 4px solid #ffd700;
-  padding-left: 20px;
-}
-
-.pageTitle {
-  font-size: 2.2rem;
-  font-weight: 900;
-  margin: 0;
-  background: linear-gradient(135deg, #fff 0%, #ffd700 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  letter-spacing: -0.5px;
-}
-
-.pageSubtitle {
-  color: #777;
-  font-size: 0.95rem;
-  margin-top: 5px;
-}
-
-/* Card Styles */
-.card {
-  background: rgba(10, 10, 10, 0.7);
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
-  border-radius: 24px;
-  border: 1px solid rgba(255, 215, 0, 0.1);
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  overflow: hidden;
-}
-
-.card:hover {
-  border-color: rgba(255, 215, 0, 0.25);
-  box-shadow: 0 20px 45px rgba(255, 215, 0, 0.08);
-  transform: translateY(-4px);
-}
-
-.cardHeader {
-  padding: 20px 25px;
-  border-bottom: 1px solid rgba(255, 215, 0, 0.05);
-}
-
-.headerTitleWithIcon {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.headerIcon {
-  color: #ffd700;
-  filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.3));
-}
-
-.cardTitle {
-  font-size: 16px;
-  font-weight: 700;
-  color: #fff;
-  margin: 0;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.cardBody {
-  padding: 25px;
-}
-
-/* Stat Pills */
-.statPill {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 18px;
-  padding: 18px 22px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  transition: all 0.2s ease;
-}
-
-.statPill:hover {
-  background: rgba(255, 215, 0, 0.04);
-  border-color: rgba(255, 215, 0, 0.15);
-}
-
-.statPillLeft {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: #aaa;
-  font-size: 13px;
-  font-weight: 500;
-}
-
-.statBadge {
-  background: rgba(255, 215, 0, 0.1);
-  color: #ffd700;
-  padding: 6px 14px;
-  border-radius: 12px;
-  font-weight: 800;
-  font-size: 14px;
-  border: 1px solid rgba(255, 215, 0, 0.2);
-  box-shadow: 0 0 10px rgba(255, 215, 0, 0.05);
-}
-
-.loading {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 400px;
+/* ── Bento Grid ── */
+.bentoGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: minmax(180px, auto);
   gap: 20px;
-  color: #ffd700;
-  font-weight: 700;
-  letter-spacing: 1px;
 }
 
-.errorMessage {
-  background: rgba(255, 77, 77, 0.1);
-  border: 1px solid rgba(255, 77, 77, 0.2);
-  color: #ff4d4d;
-  padding: 20px;
-  border-radius: 16px;
-  text-align: center;
-  margin-top: 20px;
-  font-weight: 600;
-}
-
-/* Navigator / Select */
-.selectWrapper {
+.bentoBox {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 28px;
+  padding: 24px;
   position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
 }
 
-.levelDropdown {
-  width: 100%;
-  padding: 16px 20px;
-  background: rgba(255, 215, 0, 0.03);
-  border: 1px solid rgba(255, 215, 0, 0.1);
-  border-radius: 16px;
-  color: #fff;
-  font-weight: 600;
-  font-size: 14px;
-  appearance: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
+.bentoBox:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 184, 0, 0.3);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6);
 }
 
-.levelDropdown:focus {
-  outline: none;
-  border-color: rgba(255, 215, 0, 0.4);
-  background: rgba(255, 215, 0, 0.06);
+/* ── Specific Box Sizes ── */
+.bentoHero {
+  grid-column: span 3;
+  grid-row: span 2;
+  padding: 0;
 }
 
-/* Filter Cards */
-.filterCard {
+.bentoSmall {
+  grid-column: span 1;
+  grid-row: span 1;
+}
+
+.bentoMedium {
+  grid-column: span 1;
+  grid-row: span 1;
+}
+
+.bentoWide {
+  grid-column: span 4;
+  grid-row: span 1;
+}
+
+.bentoTableBox {
+  grid-column: span 4;
+}
+
+/* ── Hero Component ── */
+.heroImage {
+  object-fit: cover;
+  object-position: center 30%;
+  filter: brightness(0.6);
+}
+
+.heroOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(5,5,5,0.95) 0%, rgba(5,5,5,0.2) 50%, rgba(5,5,5,0.8) 100%);
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  justify-content: center;
+  padding: 0 50px;
 }
 
-.innerfilterCardheaddingsection {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 16px;
-  padding: 16px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.navigationBreadcrumbs {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(5px);
-  padding: 12px 25px;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 25px;
-}
-
-.breadcrumbPath {
-  display: flex;
+.liveBadge {
+  display: inline-flex;
   align-items: center;
   gap: 8px;
-  flex-wrap: wrap;
-}
-
-.breadcrumbLink, .breadcrumbItem {
-  color: #777;
-  font-size: 13px;
-  text-decoration: none;
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
-
-.breadcrumbLink:hover {
-  color: #ffd700;
-}
-
-.breadcrumbSeparator {
-  color: #444;
-}
-
-.breadcrumbNodeLink {
-  color: #3399ff;
-  text-decoration: none;
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.breadcrumbNodeLink:hover {
-  text-decoration: underline;
-}
-
-.activeNodeName {
-  color: #ffd700;
-  font-weight: 800;
-  font-size: 14px;
-}
-
-.breadcrumbActions {
-  display: flex;
-  align-items: center;
-}
-
-.premiumBackButton {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #fff;
-  padding: 8px 16px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.premiumBackButton:hover {
-  background: rgba(255, 215, 0, 0.1);
-  border-color: rgba(255, 215, 0, 0.3);
-  color: #ffd700;
-}
-
-/* Date Inputs */
-.dateLabel {
-  display: block;
-  font-size: 12px;
-  color: #666;
-  margin-bottom: 8px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.dateInput {
-  width: 100%;
-  padding: 14px 18px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 14px;
-  color: #fff;
-  font-size: 14px;
-  transition: all 0.3s ease;
-}
-
-.dateInput:focus {
-  outline: none;
-  border-color: rgba(255, 215, 0, 0.3);
-  background: rgba(255, 215, 0, 0.04);
-}
-
-/* Search Box Premium */
-.searchBoxWrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.searchBoxIcon {
-  position: absolute;
-  left: 18px;
-  color: #ffd700;
-  opacity: 0.6;
-}
-
-.searchInputPremium {
-  width: 100%;
-  padding: 14px 18px 14px 48px;
-  background: rgba(255, 215, 0, 0.03);
-  border: 1px solid rgba(255, 215, 0, 0.1);
-  border-radius: 14px;
-  color: #fff;
-  font-size: 14px;
-}
-
-.clearSearchBtn {
-  position: absolute;
-  right: 15px;
-  background: none;
-  border: none;
-  color: #555;
-  cursor: pointer;
-  padding: 5px;
-}
-
-.searchActionBtn {
-  width: 100%;
-  padding: 14px;
-  background: linear-gradient(135deg, #ffd700 0%, #ffa500 100%);
-  color: #000;
-  border: none;
-  border-radius: 14px;
-  font-weight: 800;
-  font-size: 14px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  cursor: pointer;
-  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
-}
-
-/* Stat Cards (Ledger) */
-.statCard {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 18px;
-  padding: 20px;
-}
-
-.statValue {
-  color: #4f8cff;
-  font-size: 26px;
-  font-weight: 900;
-  margin-top: 5px;
-}
-
-.claimedstatValue {
-  color: #ff4d4d;
-  font-size: 26px;
-  font-weight: 900;
-  margin-top: 5px;
-}
-
-.valUnit {
-  font-size: 12px;
-  color: #666;
-  margin-left: 4px;
-  font-weight: 600;
-}
-
-/* Pagination Adjustments */
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  margin-top: 30px;
-  padding-bottom: 20px;
-}
-
-.paginationArrow {
-  background: rgba(255, 215, 0, 0.1);
-  border: 1px solid rgba(255, 215, 0, 0.2);
-  color: #ffd700;
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.paginationArrow:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-}
-
-.paginationArrow:hover:not(:disabled) {
-  background: rgba(255, 215, 0, 0.2);
-  transform: scale(1.05);
-}
-
-.pageOption {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #aaa;
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.3s ease;
-}
-
-.pageOption:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
-}
-
-.activePage {
-  background: #ffd700;
-  border: 1px solid #ffd700;
-  color: #000;
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
-}
-
-.ellipsis {
-    color: #555;
-    font-weight: 800;
-    margin: 0 5px;
-}
-
-/* Network Table Header */
-.networkTableWrapper {
-    margin-top: 30px;
-}
-
-.networkTableHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 10px 20px 10px;
-    flex-wrap: wrap;
-    gap: 20px;
-}
-
-.networkActions {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-}
-
-.premiumSearchBox {
-    position: relative;
-    display: flex;
-    align-items: center;
-}
-
-.searchIconSmall {
-    position: absolute;
-    left: 14px;
-    color: #555;
-}
-
-.premiumSearchInput {
-    padding: 10px 35px 10px 40px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    color: #fff;
-    font-size: 13px;
-    width: 280px;
-}
-
-.clearSearchIcon {
-    position: absolute;
-    right: 12px;
-    color: #555;
-    cursor: pointer;
-}
-
-/* Table Styles */
-.tableContainer {
-  background: rgba(15, 15, 15, 0.4);
-  backdrop-filter: blur(20px);
-  border-radius: 24px;
-  border: 1px solid rgba(255, 215, 0, 0.1);
-  overflow-x: auto;
-  margin-top: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.tableContainer::-webkit-scrollbar {
-  display: none;
-}
-
-.referralsTable {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-}
-
-.tableHeader {
-  padding: 20px 25px;
-  background: rgba(255, 215, 0, 0.03);
-  color: #888;
+  background: rgba(255, 184, 0, 0.1);
+  border: 1px solid rgba(255, 184, 0, 0.3);
+  color: #FFB800;
+  padding: 6px 14px;
+  border-radius: 100px;
   font-size: 11px;
   font-weight: 800;
-  text-transform: uppercase;
   letter-spacing: 1.5px;
-  border-bottom: 1px solid rgba(255, 215, 0, 0.1);
-  text-align: left;
+  width: fit-content;
+  margin-bottom: 16px;
 }
 
-.tableCell {
-  padding: 20px 25px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-  color: #eee;
-  font-size: 14px;
-  vertical-align: middle;
-  transition: all 0.2s ease;
+.pulseDot {
+  width: 6px;
+  height: 6px;
+  background: #FFB800;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
 }
 
-.referralsTable tbody tr:hover .tableCell {
-  background: rgba(255, 215, 0, 0.02);
-  color: #fff;
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.5); opacity: 0.4; }
+  100% { transform: scale(1); opacity: 1; }
 }
 
-.referralsTable tbody tr:last-child .tableCell {
-  border-bottom: none;
+.heroTitle {
+  font-size: 48px;
+  font-weight: 900;
+  margin: 0;
+  line-height: 1;
+  letter-spacing: -1.5px;
 }
 
-.textRight {
-  text-align: right;
+.heroTitle span {
+  background: linear-gradient(90deg, #FFB800 0%, #FF6200 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.textCenter {
-  text-align: center;
+.heroSubtitle {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 16px;
+  margin-top: 12px;
 }
 
-.lpAmount {
-  font-family: 'Poppins', sans-serif;
+.heroStats {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  margin-top: 40px;
 }
 
-.usernameLink {
-  color: #4f8cff;
-  text-decoration: none;
-  font-weight: 700;
-  transition: all 0.2s ease;
-  cursor: pointer;
-  display: inline-block;
-}
-
-.usernameLink:hover {
-  color: #ffd700;
-  transform: translateX(3px);
-}
-
-.nodeNameGroup {
+.heroStatItem {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.nodeMainName {
-  font-size: 15px;
+.heroStatLabel {
+  font-size: 10px;
   font-weight: 800;
-  color: #4f8cff;
+  letter-spacing: 1px;
+  color: rgba(255, 255, 255, 0.3);
 }
 
-.nodeUhid {
-  font-size: 11px;
-  color: #555;
-  font-weight: 600;
+.heroStatValue {
+  font-size: 28px;
+  font-weight: 900;
+  color: #FFB800;
+}
+
+.heroStatValue small {
+  font-size: 12px;
+  opacity: 0.5;
+}
+
+.heroStatDivider {
+  width: 1px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ── Box Utilities ── */
+.boxHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.boxHeader span {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.6);
   letter-spacing: 0.5px;
 }
 
-.sponsorName {
-  font-weight: 700;
-  color: #fff;
-  font-size: 14px;
+.boxIcon {
+  color: #FFB800;
 }
 
-.sizeBadge {
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  color: #00E5A0;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+/* ── Rank Box ── */
+.rankCenter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.rankBadgeContainer {
+  margin-bottom: 12px;
+  transform: scale(1.1);
+}
+
+.rankText {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.4);
+  margin-bottom: 16px;
+}
+
+.connectionsRow {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 8px 16px;
+  border-radius: 12px;
+}
+
+.connItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #FFB800;
+}
+
+/* ── Navigator ── */
+.premiumSelect {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 14px 18px;
+  color: #fff;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+.navStats {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.navStatRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 12px;
+}
+
+.navStatRow span:first-child {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.navStatVal {
+  font-size: 13px;
+  font-weight: 800;
+  color: #FFB800;
+}
+
+/* ── Log Scanner ── */
+.logScannerBody {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.scanGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.5fr auto;
+  gap: 16px;
+  align-items: flex-end;
+}
+
+.scanInputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.scanLabel {
+  font-size: 9px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.3);
+  letter-spacing: 1px;
+}
+
+.scanInput {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 10px 14px;
+  color: #fff;
+  font-size: 13px;
+  outline: none;
+  color-scheme: dark;
+}
+
+.scannerWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.scannerIcon {
+  position: absolute;
+  left: 12px;
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.scannerInput {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 10px 14px 10px 36px;
+  color: #fff;
+  font-size: 13px;
+  outline: none;
+}
+
+.scanButton {
+  background: linear-gradient(90deg, #FFB800 0%, #FF6200 100%);
+  border: none;
+  border-radius: 12px;
+  padding: 10px 24px;
+  color: #000;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  height: 42px;
+}
+
+.resResults {
+  display: flex;
+  gap: 20px;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 16px 24px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(5px);
+}
+
+.resItem {
+  flex: 1;
+}
+
+.resLabel {
+  font-size: 9px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.3);
+  margin-bottom: 4px;
+}
+
+.resValueGreen { font-size: 20px; font-weight: 900; color: #00E5A0; }
+.resValueRed { font-size: 20px; font-weight: 900; color: #FF4D6A; }
+.resDivider { width: 1px; background: rgba(255, 255, 255, 0.08); }
+
+/* ── Table Area ── */
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.tableSearch {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.tableSearchIcon {
+  position: absolute;
+  left: 12px;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.tableSearch input {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 10px 14px 10px 36px;
+  color: #fff;
+  font-size: 13px;
+  width: 240px;
+  outline: none;
+  transition: all 0.3s;
+}
+
+.tableSearch input:focus { width: 300px; border-color: rgba(255, 184, 0, 0.4); }
+
+.refreshBtn {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: rgba(255, 184, 0, 0.1);
+  border: 1px solid rgba(255, 184, 0, 0.2);
+  color: #FFB800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinning { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Path Navigation ── */
+.nodePath {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: rgba(255, 184, 0, 0.05);
+  border-radius: 14px;
+  margin-bottom: 20px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.pathRoot { cursor: pointer; font-weight: 800; color: #FFB800; }
+.pathItem { cursor: pointer; transition: color 0.2s; }
+.pathItem:hover { color: #fff; }
+.pathActive { font-weight: 800; color: #fff; }
+.pathSep { opacity: 0.3; }
+
+.backBtn {
+  margin-left: auto;
   background: rgba(255, 255, 255, 0.05);
+  border: none;
   padding: 6px 12px;
   border-radius: 8px;
-  font-size: 12px;
-  font-weight: 800;
   color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 11px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ── Table Design ── */
+.tableContainer {
+  overflow-x: auto;
+}
+
+.premiumTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.premiumTable th {
+  padding: 16px;
+  text-align: left;
+  font-size: 10px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.25);
+  letter-spacing: 1px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.premiumTable td {
+  padding: 20px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+}
+
+.premiumTable tbody tr:hover {
+  background: rgba(255, 184, 0, 0.02);
+}
+
+.nodeIdentity {
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+}
+
+.nodeUser { font-weight: 700; font-size: 14px; color: #fff; }
+.nodeIdentity:hover .nodeUser { color: #FFB800; }
+.nodeID { font-size: 11px; color: rgba(255, 255, 255, 0.3); }
+
+.sponsorTag { font-size: 13px; color: rgba(255, 255, 255, 0.5); }
+.sizeTag {
+  background: rgba(255, 184, 0, 0.1);
+  padding: 4px 10px;
+  border-radius: 8px;
+  color: #FFB800;
+  font-size: 11px;
+  font-weight: 800;
   display: inline-block;
 }
 
-.regionGroup {
+.locInfo { display: flex; flex-direction: column; }
+.locName { font-size: 13px; font-weight: 600; color: rgba(255, 255, 255, 0.7); }
+.locContact { font-size: 11px; color: rgba(255, 255, 255, 0.25); }
+
+.txtRight { text-align: right; }
+.liqVal { font-size: 15px; font-weight: 900; color: #FFB800; }
+.poolVal { font-size: 15px; font-weight: 700; color: #fff; }
+
+.capBar { margin-top: 6px; }
+.capInfo { display: flex; justify-content: flex-end; gap: 6px; font-size: 9px; font-weight: 800; }
+.capInfo span:first-child { color: rgba(255, 255, 255, 0.2); }
+.capNum { color: #00E5A0; }
+
+/* ── Pagination ── */
+.bentoPagination {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 30px;
 }
 
-.regionLabel {
-  font-size: 10px;
-  color: #555;
-  text-transform: uppercase;
-  margin-bottom: 2px;
-  font-weight: 700;
-}
-
-.regionName {
-  font-size: 12px;
-  color: #ffd700;
-  font-weight: 700;
-}
-
-.regionContact {
-  margin-top: 4px;
-  font-size: 13px;
+.pagesRow { display: flex; gap: 8px; }
+.pgBtn {
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
   color: #fff;
-  font-weight: 500;
+  font-size: 13px;
+  cursor: pointer;
 }
 
-.premiumRefreshBtn {
-    background: rgba(255, 215, 0, 0.1);
-    border: 1px solid rgba(255, 215, 0, 0.2);
-    color: #ffd700;
-    width: 42px;
-    height: 42px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
+.pgActive {
+  background: linear-gradient(90deg, #FFB800 0%, #FF6200 100%);
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  color: #000;
+  font-weight: 900;
+  border: none;
 }
 
-.premiumRefreshBtn:hover {
-    background: rgba(255, 215, 0, 0.2);
-    transform: rotate(30deg);
-}
+.bentoPagination button:disabled { opacity: 0.2; cursor: not-allowed; }
 
-.spinIcon {
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-@media (max-width: 992px) {
-  .mainContent {
-    padding: 1.5rem;
-  }
-  .headerRow {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 15px;
-  }
+/* ── Responsive ── */
+@media (max-width: 1200px) {
+  .bentoGrid { grid-template-columns: repeat(2, 1fr); }
+  .bentoHero { grid-column: span 2; }
+  .bentoWide { grid-column: span 2; }
+  .bentoTableBox { grid-column: span 2; }
 }
 
 @media (max-width: 768px) {
-  .pageTitle {
-    font-size: 1.8rem;
-  }
-  .premiumSearchInput {
-      width: 100%;
-  }
-  .networkTableHeader {
-      flex-direction: column;
-      align-items: flex-start;
-  }
-  .networkActions {
-      width: 100%;
-  }
-  .premiumSearchBox {
-      flex-grow: 1;
-  }
+  .bentoGrid { grid-template-columns: 1fr; }
+  .bentoHero, .bentoSmall, .bentoMedium, .bentoWide, .bentoTableBox { grid-column: span 1; }
+  .scanGrid { grid-template-columns: 1fr; }
+  .heroTitle { font-size: 32px; }
+  .heroOverlay { padding: 0 24px; }
 }

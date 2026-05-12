@@ -1,173 +1,277 @@
-.pageContainer {
-  background-color: #000000;
+/* ══════════════════════════════════════════
+   ECOSYSTEM LEDGER — GLASS BENTO LAYOUT
+   Deep Onyx & Gold Design System
+══════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+
+.ledger_pageContainer {
   min-height: 100vh;
-  color: #ffffff;
-  font-family: 'Inter', sans-serif;
-  overflow-y: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.pageContainer::-webkit-scrollbar {
-  display: none;
-}
-
-.contentWrapper {
-  display: flex;
-  min-height: 100vh;
-}
-
-.mainContent {
-  flex-grow: 1;
-  padding: 2.5rem;
-  margin-left: 0;
-  transition: all 0.3s ease;
-  overflow-y: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.mainContent::-webkit-scrollbar {
-  display: none;
-}
-
-.headerRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  margin-bottom: 2.5rem;
-  gap: 20px;
-}
-
-.titleArea {
-  flex: 1;
-}
-
-.pageTitle {
-  font-size: 2.5rem;
-  font-weight: 900;
+  background: #050505;
   color: #fff;
-  margin: 0;
-  letter-spacing: -1px;
-  background: linear-gradient(135deg, #fff 0%, #ffd700 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 10px 20px rgba(0,0,0,0.3);
+  font-family: 'Outfit', sans-serif;
 }
 
-.pageSubtitle {
-  color: #555;
-  font-size: 14px;
-  font-weight: 600;
-  margin-top: 8px;
-  text-transform: uppercase;
-  letter-spacing: 2px;
+.ledger_contentWrapper {
+  max-width: 1700px;
+  margin: 0 auto;
+  padding: 40px 24px;
 }
 
-/* Filters Section */
-.filterContainer {
-  background: rgba(15, 15, 15, 0.4);
-  backdrop-filter: blur(20px);
-  border-radius: 24px;
-  border: 1px solid rgba(255, 215, 0, 0.1);
-  padding: 1.5rem;
-  margin-bottom: 2rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-}
-
-.filterGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
-  align-items: flex-end;
-}
-
-.filterGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.filterLabel {
-  font-size: 11px;
-  font-weight: 800;
-  color: #555;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  padding-left: 4px;
-}
-
-.filterInput, .filterSelect {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 215, 0, 0.15);
-  border-radius: 14px;
-  padding: 12px 18px;
-  color: #fff;
-  font-size: 14px;
-  font-weight: 600;
-  transition: all 0.3s ease;
+.ledger_mainContent {
   width: 100%;
 }
 
-.filterInput:focus, .filterSelect:focus {
-  outline: none;
-  border-color: #ffd700;
-  background: rgba(255, 215, 0, 0.05);
-  box-shadow: 0 0 15px rgba(255, 215, 0, 0.1);
+/* ── Hero Banner Section ── */
+.ledger_hero {
+  position: relative;
+  width: 100%;
+  max-width: 1650px;
+  height: 320px;
+  border-radius: 40px;
+  overflow: hidden;
+  margin: 0 auto 30px;
+  background: #050505;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
 }
 
-.clearBtn {
+.ledger_heroImage {
+  width: 65% !important;
+  left: auto !important;
+  right: 0 !important;
+  object-fit: cover;
+  object-position: center 40%;
+  filter: brightness(0.7) contrast(1.1);
+  transition: transform 10s linear;
+}
+
+.ledger_hero:hover .ledger_heroImage {
+  transform: scale(1.05);
+}
+
+.ledger_heroOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, #050505 35%, rgba(5, 5, 5, 0.8) 50%, transparent 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 60px;
+  z-index: 2;
+}
+
+.ledger_heroBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 184, 0, 0.1);
+  border: 1px solid rgba(255, 184, 0, 0.3);
+  color: #FFB800;
+  padding: 6px 16px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  width: fit-content;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+}
+
+.ledger_pulseDot {
+  width: 6px;
+  height: 6px;
+  background: #FFB800;
+  border-radius: 50%;
+  animation: ledger_pulse 2s infinite;
+}
+
+@keyframes ledger_pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.5); opacity: 0.4; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.ledger_heroTitle {
+  font-size: 52px;
+  font-weight: 950;
+  margin: 0;
+  line-height: 1;
+  letter-spacing: -2px;
+}
+
+.ledger_heroTitle span {
+  background: linear-gradient(90deg, #FFB800 0%, #FF6200 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.ledger_heroSubtitle {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 16px;
+  margin-top: 14px;
+  font-weight: 400;
+  max-width: 500px;
+}
+
+/* ── Bento Layout ── */
+.ledger_bentoGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  max-width: 1650px;
+  margin: 0 auto;
+}
+
+.ledger_glassCard {
+  background: rgba(10, 10, 10, 0.65);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 28px;
+  padding: 30px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.ledger_glassCard:hover {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 184, 0, 0.2);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+.ledger_filterBox {
+  grid-column: span 4;
+}
+
+.ledger_tableBox {
+  grid-column: span 4;
+  padding: 0;
+}
+
+/* ── Filter Styling ── */
+.ledger_filterTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.ledger_boxIcon {
+  color: #FFB800;
+}
+
+.ledger_boxTitle {
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: rgba(255, 255, 255, 0.8);
+  text-transform: uppercase;
+}
+
+.ledger_filterGrid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr auto;
+  gap: 20px;
+  align-items: flex-end;
+}
+
+.ledger_filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ledger_filterLabel {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: rgba(255, 255, 255, 0.3);
+  text-transform: uppercase;
+}
+
+.ledger_filterSelect, .ledger_filterInput {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 14px 20px;
+  color: #fff;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  transition: all 0.3s;
+  color-scheme: dark;
+}
+
+.ledger_filterSelect:focus, .ledger_filterInput:focus {
+  border-color: rgba(255, 184, 0, 0.4);
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.ledger_clearBtn {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #888;
-  padding: 12px 20px;
-  border-radius: 14px;
+  border-radius: 16px;
+  padding: 14px 24px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 13px;
   font-weight: 700;
-  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s;
+  height: 52px;
+}
+
+.ledger_clearBtn:hover {
+  background: rgba(255, 77, 106, 0.1);
+  border-color: rgba(255, 77, 106, 0.3);
+  color: #FF4D6A;
+}
+
+/* ── Table Container ── */
+.ledger_tableHeader {
+  padding: 30px 40px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  height: 46px;
-}
-
-.clearBtn:hover {
-  background: rgba(255, 77, 77, 0.1);
-  border-color: rgba(255, 77, 77, 0.3);
-  color: #ff4d4d;
-}
-
-/* Table Section */
-.ledgerTableCard {
-  background: rgba(15, 15, 15, 0.4);
-  backdrop-filter: blur(20px);
-  border-radius: 24px;
-  border: 1px solid rgba(255, 215, 0, 0.1);
-  padding: 1.5rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-}
-
-.tableHeaderRow {
-  display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  padding: 0 10px;
 }
 
-.tableTitle {
+.ledger_tableTitle {
   font-size: 18px;
   font-weight: 800;
+  margin: 0;
   color: #fff;
-  text-transform: uppercase;
-  letter-spacing: 1px;
 }
 
-.loading, .error {
-  min-height: 400px;
+.ledger_tableLegend {
+  display: flex;
+  gap: 20px;
+}
+
+.ledger_legendItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.ledger_legendDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+/* ── Loading / State ── */
+.ledger_loading {
+  min-height: 100vh;
+  background: #050505;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -175,175 +279,59 @@
   gap: 20px;
 }
 
-.errorTitle {
-  color: #ff4d4d;
-  font-weight: 800;
-  font-size: 1.2rem;
+.ledger_error {
+  min-height: 100vh;
+  background: #050505;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px;
 }
 
-.refreshBtn {
-  background: rgba(255, 215, 0, 0.1);
-  border: 1px solid rgba(255, 215, 0, 0.2);
-  color: #ffd700;
-  padding: 10px 24px;
-  border-radius: 12px;
-  font-weight: 700;
-  cursor: pointer;
+.ledger_errorTitle {
+  font-size: 32px;
+  font-weight: 900;
+  color: #FF4D6A;
+  margin-bottom: 10px;
+}
+
+.ledger_refreshBtn {
+  background: linear-gradient(90deg, #FFB800 0%, #FF6200 100%);
+  border: none;
+  padding: 14px 28px;
+  border-radius: 14px;
+  color: #000;
+  font-weight: 800;
   display: flex;
   align-items: center;
-  gap: 8px;
-  transition: all 0.3s ease;
+  gap: 10px;
+  cursor: pointer;
+  margin-top: 30px;
 }
 
-.refreshBtn:hover {
-  background: #ffd700;
-  color: #000;
-  transform: translateY(-2px);
-}
-
+/* ── Responsive ── */
 @media (max-width: 1024px) {
-  .mainContent {
-    padding: 1.5rem 0.5rem 120px 0.5rem;
-    width: 100%;
-    margin-left: 0;
+  .ledger_filterGrid {
+    grid-template-columns: 1fr 1fr;
   }
+  .ledger_clearBtn {
+    grid-column: span 2;
+  }
+  .ledger_heroTitle { font-size: 38px; }
+  .ledger_heroOverlay { padding: 0 40px; }
 }
 
-@media (max-width: 768px) {
-  .pageTitle {
-    font-size: 1.8rem;
-    text-align: center;
-  }
-  
-  .pageSubtitle {
-    text-align: center;
-    font-size: 12px;
-  }
-
-  .headerRow {
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 1.5rem;
-  }
-
-  .filterGrid {
+@media (max-width: 640px) {
+  .ledger_filterGrid {
     grid-template-columns: 1fr;
-    gap: 1rem;
   }
-
-  .ledgerTableCard {
-    padding: 0.5rem;
-    background: transparent;
-    border: none;
-    box-shadow: none;
-    backdrop-filter: none;
+  .ledger_clearBtn {
+    grid-column: span 1;
   }
-
-  /* Mobile Card Styling for Ledger Entries */
-  .mobileLedgerCard {
-    background: rgba(15, 15, 15, 0.6);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 215, 0, 0.1);
-    border-radius: 20px;
-    padding: 1.25rem;
-    margin-bottom: 1rem;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  }
-
-  .cardTop {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 1rem;
-  }
-
-  .cardDate {
-    font-size: 11px;
-    color: #888;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .cardTypeBadge {
-    font-size: 10px;
-    font-weight: 800;
-    padding: 4px 10px;
-    border-radius: 6px;
-    text-transform: uppercase;
-  }
-
-  .cardMainInfo {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.25rem;
-    padding: 12px;
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 12px;
-  }
-
-  .cardNodes {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin-bottom: 1rem;
-  }
-
-  .nodeItem {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .nodeLabel {
-    font-size: 10px;
-    color: #555;
-    text-transform: uppercase;
-    font-weight: 800;
-    width: 60px;
-  }
-
-  .nodeValue {
-    font-size: 13px;
-    color: #ffd700;
-    font-weight: 700;
-  }
-
-  .cardAmount {
-    font-size: 18px;
-    font-weight: 900;
-  }
-
-  .cardBottom {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
-    padding-top: 12px;
-    margin-top: 10px;
-  }
-
-  .yieldValue {
-    font-size: 12px;
-    font-weight: 800;
-    color: #fff;
-  }
-
-  .cardNarrative {
-    font-size: 11px;
-    color: #777;
-    margin-top: 8px;
-    font-style: italic;
-  }
-
-  .desktopOnly {
-    display: none !important;
-  }
-}
-
-@media (min-width: 769px) {
-  .mobileOnly {
-    display: none !important;
-  }
+  .ledger_heroTitle { font-size: 28px; }
+  .ledger_heroOverlay { padding: 0 24px; }
+  .ledger_heroBadge { margin-bottom: 10px; }
+  .ledger_hero { height: 260px; border-radius: 24px; }
 }

@@ -5,10 +5,11 @@ import React, { useState, useEffect, useRef, Suspense } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import Image from "next/image";
-import styles from "./signup.module.css";
+import "@/components/landing/landingpage.css";
 import { useAuth } from "@/context/AuthContext";
 import { COUNTRIES_DATA } from "@/utils/countries";
 import { useSearchParams } from "next/navigation";
+import { motion } from "framer-motion";
 
 function SignUpForm() {
   const { signup, error, loading, setError } = useAuth();
@@ -24,9 +25,8 @@ function SignUpForm() {
   const [countrySearch, setCountrySearch] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
-  const [wasAutoDetected, setWasAutoDetected] = useState(false);
-
-  // Animation state
+  
+  // Animation particles
   const [particles, setParticles] = useState([]);
 
   const filteredCountries = COUNTRIES_DATA.filter((country) =>
@@ -34,16 +34,14 @@ function SignUpForm() {
   );
 
   useEffect(() => {
-    // Generate particles for background
-    const newParticles = Array.from({ length: 40 }).map((_, i) => ({
+    setParticles(Array.from({ length: 30 }).map((_, i) => ({
       id: i,
       left: `${Math.random() * 100}%`,
       top: `${Math.random() * 100}%`,
-      size: Math.random() * 3 + 1,
-      duration: Math.random() * 3 + 2,
-      delay: Math.random() * 5
-    }));
-    setParticles(newParticles);
+      size: `${Math.random() * 3 + 1}px`,
+      duration: `${Math.random() * 3 + 2}s`,
+      delay: `${Math.random() * 5}s`
+    })));
   }, []);
 
   useEffect(() => {
@@ -53,9 +51,7 @@ function SignUpForm() {
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [dropdownRef]);
 
   const handleCountrySelect = (country) => {
@@ -70,34 +66,21 @@ function SignUpForm() {
 
   const handleCountryInputFocus = () => {
     setIsDropdownOpen(true);
-    if (
-      formData.selectedCountry &&
-      countrySearch ===
-      `${formData.selectedCountry.flag} ${formData.selectedCountry.name}`
-    ) {
+    if (formData.selectedCountry && countrySearch === `${formData.selectedCountry.flag} ${formData.selectedCountry.name}`) {
       setCountrySearch("");
     }
   };
 
   const handleCountryInputChange = (e) => {
     setCountrySearch(e.target.value);
-    if (!isDropdownOpen) {
-      setIsDropdownOpen(true);
-    }
+    if (!isDropdownOpen) setIsDropdownOpen(true);
     if (e.target.value === "") {
-      setFormData((prev) => ({
-        ...prev,
-        selectedCountry: null,
-        countryCode: "",
-      }));
+      setFormData((prev) => ({ ...prev, selectedCountry: null, countryCode: "" }));
     }
   };
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
@@ -106,26 +89,19 @@ function SignUpForm() {
     setMessage("");
 
     if (!formData.email || !formData.selectedCountry) {
-      setError(
-        "Please fill in all required fields including email and country."
-      );
+      setError("Please fill in all required fields including email and country.");
       return;
     }
+    
     const emailParts = formData.email.split("@");
-    if (
-      !formData.email.includes("@") ||
-      emailParts.length < 2 ||
-      !emailParts[0] ||
-      !emailParts[1].includes(".")
-    ) {
+    if (!formData.email.includes("@") || emailParts.length < 2 || !emailParts[0] || !emailParts[1].includes(".")) {
       setError("Error! Please enter a valid email.");
       return;
     }
-    const derivedUsername = emailParts[0];
 
     const payload = {
       email: formData.email,
-      username: derivedUsername,
+      username: emailParts[0],
       country: formData.selectedCountry.code,
       countryCode: formData.countryCode,
       whatsappContact: formData.whatsappContact,
@@ -133,17 +109,12 @@ function SignUpForm() {
     };
 
     const result = await signup(payload);
-
-    if (result && result.success) {
-      setMessage(result.message);
-    }
+    if (result && result.success) setMessage(result.message);
   };
 
   useEffect(() => {
     if (formData.selectedCountry) {
-      setCountrySearch(
-        `${formData.selectedCountry.flag} ${formData.selectedCountry.name}`
-      );
+      setCountrySearch(`${formData.selectedCountry.flag} ${formData.selectedCountry.name}`);
     } else {
       setCountrySearch("");
     }
@@ -154,221 +125,221 @@ function SignUpForm() {
       try {
         const res = await fetch("https://ipapi.co/json/");
         const data = await res.json();
-        const countryCode = data.country;
-
-        const found = COUNTRIES_DATA.find(
-          (c) => c.code.toUpperCase() === countryCode.toUpperCase()
-        );
-
+        const found = COUNTRIES_DATA.find((c) => c.code.toUpperCase() === data.country.toUpperCase());
         if (found) {
-          setFormData((prev) => ({
-            ...prev,
-            selectedCountry: found,
-            countryCode: found.dial_code,
-          }));
-          setWasAutoDetected(true);
+          setFormData((prev) => ({ ...prev, selectedCountry: found, countryCode: found.dial_code }));
         }
-      } catch (err) {
-        console.error("Failed to fetch IP country:", err);
-      }
+      } catch (err) { console.error("Failed to fetch IP country:", err); }
     }
-
     fetchUserCountry();
   }, []);
 
   return (
     <>
       <Head>
-        <title>Sign Up - BEPVault</title>
-        <meta name="description" content="Create your BEPVault account" />
-        <link rel="icon" href="/favicon.ico" />
+        <title>Sign Up - TokingHoofborn</title>
+        <meta name="description" content="Create your TokingHoofborn account" />
       </Head>
 
-      <div className={styles.signUpPage}>
-        {/* Animated Background */}
-        <div className={styles.lightRaysContainer}>
-          <div className={styles.ray}></div>
-          <div className={styles.ray}></div>
-        </div>
-        <div className={styles.ambientGlow}></div>
-
-        <div className={styles.bgAnimation}>
+      <div className="signInPage">
+        {/* Cinematic Background Layer */}
+        <div className="backgroundCanvas">
+          <div className="fireGlowTop" />
+          <div className="fireGlowBottom" />
           {particles.map((p) => (
             <div
               key={p.id}
-              className={styles.particle}
+              className="fireSpark"
               style={{
                 left: p.left,
                 top: p.top,
-                width: `${p.size}px`,
-                height: `${p.size}px`,
-                animationDelay: `${p.delay}s`,
-                animationDuration: `${p.duration}s`
+                width: p.size,
+                height: p.size,
+                animationDuration: p.duration,
+                animationDelay: p.delay,
               }}
-            ></div>
+            />
           ))}
         </div>
 
-        <div className={styles.externalBorder}>
-          <div className={styles.mainContainer}>
-            <div className={styles.formGlassCard}>
-              {/* Floating Logo Box */}
-              <div className={styles.logoBoxTop}>
-                <Link href="/">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="mainContainer"
+        >
+          {/* Top Branding Section */}
+          <div className="brandHeader">
+            <div className="logoCircle">
+              <Image src="/img/main-logo.avif" alt="Logo" width={60} height={60} className="object-contain" />
+              <div className="logoGlowPulse" />
+            </div>
+            <h1 className="brandTitle">
+              Toking<span className="goldText">Hoofborn</span>
+            </h1>
+          </div>
+
+          {/* Main Auth Card */}
+          <div className="authCard">
+            <div className="cardContent">
+              
+              {/* Left Side: Cinematic Visual */}
+              <div className="visualSide">
+                <div className="imageFrame">
                   <Image
-                    src="/bepvault_logo.png"
-                    alt="Logo"
-                    width={45}
-                    height={45}
+                    src="/IMG/signup-visual.png"
+                    alt="Majestic White Stallion"
+                    fill
+                    className="visualImage"
+                    priority
                   />
-                </Link>
-              </div>
-
-              <div className={styles.cardHeader}>
-                <h1 className={styles.title}>Welcome to <span className={styles.vaultText}>BEPVault!</span></h1>
-                <p className={styles.subtitle}>Secure access to your administrative command center</p>
-              </div>
-
-              <div className={styles.cardBody}>
-                {/* Left Side: Illustration */}
-                <div className={styles.illustrationContainer}>
-                  <div className={styles.robotWrapper}>
-                    <Image
-                      src="/assets/img/illustrations/bepvault-robot.png"
-                      alt="BEPVault Robot"
-                      width={450}
-                      height={450}
-                      className={styles.robotImage}
-                      priority
-                    />
+                  <div className="imageOverlay" />
+                  <div className="imageTag">
+                    <span className="tagDot" />
+                    NEW RECRUIT
                   </div>
                 </div>
+              </div>
 
-                {/* Right Side: Form */}
-                <div className={styles.formSide}>
-                  {error && <div className={styles.errorMessage}>{error}</div>}
-                  {message && <div className={styles.successMessage}>{message}</div>}
+              {/* Right Side: Sign Up Form */}
+              <div className="formSide">
+                <div className="formHeader">
+                  <h2 className="formTitle">Join the Elite</h2>
+                  <p className="formSubtitle">Secure access to your administrative command center</p>
+                </div>
 
-                  {!message && (
-                    <form onSubmit={handleSubmit} className={styles.signUpForm}>
-                      <div className={styles.inputGroup}>
-                        <label htmlFor="email" className={styles.label}>EMAIL ADDRESS</label>
+                {error && (
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="errorMessage">
+                    <i className="ri-error-warning-fill" /> {error}
+                  </motion.div>
+                )}
+
+                {message ? (
+                  <div className="successMessage">
+                    <i className="ri-checkbox-circle-fill" style={{ fontSize: '48px' }} />
+                    <h3>Welcome Aboard!</h3>
+                    <p>{message}</p>
+                    <Link href="/login" className="signInButton" style={{ textDecoration: 'none' }}>
+                      PROCEED TO LOGIN
+                    </Link>
+                  </div>
+                ) : (
+                  <form onSubmit={handleSubmit} className="authForm">
+                    <div className="fieldGroup">
+                      <label>EMAIL ADDRESS</label>
+                      <div className="inputWrapper">
+                        <i className="ri-mail-line" />
                         <input
                           type="email"
-                          id="email"
                           name="email"
-                          className={styles.inputField}
                           placeholder="Enter Your Email Address"
                           value={formData.email}
                           onChange={handleChange}
                           required
                         />
                       </div>
+                    </div>
 
-                      <div className={styles.inputGroup}>
-                        <label htmlFor="sponsorId" className={styles.label}>REFERRED BY</label>
+                    <div className="fieldGroup">
+                      <label>REFERRED BY</label>
+                      <div className="inputWrapper">
+                        <i className="ri-user-follow-line" />
                         <input
                           type="text"
-                          id="sponsorId"
-                          name="sponsorId"
-                          className={styles.inputField}
                           value={sponsorId || ""}
                           placeholder="No referral code detected"
                           disabled
+                          style={{ opacity: 0.6 }}
                         />
                       </div>
+                    </div>
 
-                      <div className={styles.inputGroup} ref={dropdownRef}>
-                        <label htmlFor="countrySearch" className={styles.label}>SELECT COUNTRY</label>
-                        <div className={styles.countryInputWrapper}>
+                    <div className="fieldGroup" ref={dropdownRef}>
+                      <label>SELECT COUNTRY</label>
+                      <div className="countryInputWrapper">
+                        <div className="inputWrapper" style={{ width: '100%' }}>
+                          <i className="ri-earth-line" />
                           <input
                             type="text"
-                            id="countrySearch"
-                            className={styles.inputField}
                             placeholder="Select Country"
                             value={countrySearch}
                             onChange={handleCountryInputChange}
                             onFocus={handleCountryInputFocus}
                             autoComplete="off"
                           />
-                          <i className={`bi bi-chevron-down ${styles.dropdownChevron} ${isDropdownOpen ? styles.dropdownChevronOpen : ""}`}></i>
+                          <i className={`ri-arrow-down-s-line dropdownChevron ${isDropdownOpen ? "dropdownChevronOpen" : ""}`}></i>
                         </div>
                         {isDropdownOpen && (
-                          <ul className={styles.countryDropdownList}>
+                          <ul className="countryDropdownList">
                             {filteredCountries.length > 0 ? (
                               filteredCountries.map((country) => (
-                                <li
-                                  key={country.code}
-                                  onClick={() => handleCountrySelect(country)}
-                                  className={styles.countryDropdownItem}
-                                >
+                                <li key={country.code} onClick={() => handleCountrySelect(country)} className="countryDropdownItem">
                                   <span>{country.flag} {country.name}</span>
-                                  <span className={styles.countryDialCode}>{country.dial_code}</span>
+                                  <span className="countryDialCode">{country.dial_code}</span>
                                 </li>
                               ))
                             ) : (
-                              <div className={styles.countryDropdownNoResults}>No countries found</div>
+                              <div className="countryDropdownNoResults">No countries found</div>
                             )}
                           </ul>
                         )}
                       </div>
+                    </div>
 
-                      <div className={styles.inputGroup}>
-                        <label htmlFor="whatsappContact" className={styles.label}>WHATSAPP CONTACT</label>
-                        <div style={{ display: 'flex', gap: '12px' }}>
-                          <div 
-                            className={`${styles.inputField} ${styles.countryCodeBox}`}
-                            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                          >
-                            {formData.countryCode || "--"}
-                          </div>
+                    <div className="fieldGroup">
+                      <label>WHATSAPP CONTACT</label>
+                      <div style={{ display: 'flex', gap: '12px' }}>
+                        <div className="inputWrapper countryCodeBox">
+                          {formData.countryCode || "--"}
+                        </div>
+                        <div className="inputWrapper" style={{ flex: 1 }}>
+                          <i className="ri-whatsapp-line" />
                           <input
                             type="tel"
-                            id="whatsappContact"
                             name="whatsappContact"
-                            className={styles.inputField}
                             placeholder="WhatsApp Number"
                             value={formData.whatsappContact}
                             onChange={handleChange}
                             required
+                            style={{ paddingLeft: '44px' }}
                           />
                         </div>
                       </div>
+                    </div>
 
-                      <button
-                        type="submit"
-                        className={styles.submitButton}
-                        disabled={loading || !sponsorId}
-                      >
-                        {loading ? "CREATING ACCOUNT..." : "SIGN UP"}
-                      </button>
+                    <button
+                      type="submit"
+                      className="signInButton"
+                      disabled={loading || !sponsorId}
+                    >
+                      {loading ? (
+                        <div className="loader" />
+                      ) : (
+                        <>
+                          SIGN UP NOW
+                          <i className="ri-arrow-right-line" />
+                        </>
+                      )}
+                    </button>
 
-                      <p className={styles.signInRedirect}>
-                        Already have an account?{" "}
-                        <Link href="/login" className={styles.signInLink}>Sign in now!</Link>
-                      </p>
-                    </form>
-                  )}
-                </div>
-              </div>
-
-              {/* Footer moved outside cardBody but inside formGlassCard */}
-              <div className={styles.loginFooter}>
-                <span>© 2026 BEPVault. All rights reserved. | </span>
-                <Link href="/terms" className={styles.footerLink}>Terms & Conditions</Link>
-                <span> | </span>
-                <Link href="/privacy" className={styles.footerLink}>Privacy Policy</Link>
+                    <p className="signInRedirect">
+                      Already have an account?{" "}
+                      <Link href="/login" className="signInLink">Sign in now!</Link>
+                    </p>
+                  </form>
+                )}
               </div>
             </div>
           </div>
 
-          {/* Corner Star */}
-          <div className={styles.cornerStar}>
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="rgba(255,215,0,0.4)" />
-            </svg>
+          {/* Bottom Legal Links */}
+          <div className="legalLinks">
+            <p>© 2026 TokingHoofborn. All Rights Reserved.</p>
+            <div className="legalGap" />
+            <Link href="/terms">Terms</Link>
+            <Link href="/privacy">Privacy</Link>
           </div>
-        </div>
+        </motion.div>
       </div>
     </>
   );
@@ -376,7 +347,7 @@ function SignUpForm() {
 
 export default function SignUpPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<div className="signInPage"><div className="loader" /></div>}>
       <SignUpForm />
     </Suspense>
   );

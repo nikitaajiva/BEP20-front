@@ -124,9 +124,10 @@ const RedesignedDashboard = ({
             </span>
             <button
               className={styles.passCopyBtn}
+              onClick={handleCopyLink}
               title="Copy Invitation Link"
             >
-              {copySuccess ? <Activity size={12} color="#7FFF4C" /> : <Copy size={12} />}
+              {copySuccess && copySuccess !== "code" ? <Activity size={12} color="#FFB800" /> : <Copy size={12} />}
             </button>
           </div>
         </div>

@@ -13,8 +13,8 @@
 .sidebar {
   width: 260px;
   height: 100vh;
-  background: rgba(10, 10, 10, 0.55);
-  border-right: 1px solid rgba(255, 102, 0, 0.15);
+  background: rgba(5, 5, 5, 0.85);
+  border-right: 1px solid rgba(255, 184, 0, 0.1);
   display: flex;
   flex-direction: column;
   padding: 30px 15px;
@@ -22,17 +22,42 @@
   left: 0;
   top: 0;
   z-index: 100;
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  box-shadow: 10px 0 50px rgba(0, 0, 0, 0.6);
 }
 
 .sidebarLogo {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 0 15px 40px 15px;
+  padding: 0 10px 40px 10px;
   text-decoration: none;
+}
+
+.logoImgWrapper {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  transition: all 0.3s ease;
+}
+
+.sidebarBrandText {
+  display: flex;
+  flex-direction: column;
+}
+
+.brandMain {
+  font-size: 18px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 0.5px;
+}
+
+.goldText {
+  background: linear-gradient(90deg, #FFB800 0%, #FF6200 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .sidebarNav {
@@ -66,17 +91,17 @@
 }
 
 .navLink:hover {
-  background: rgba(255, 102, 0, 0.08);
+  background: rgba(255, 184, 0, 0.08);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 102, 0, 0.25);
-  color: #ff8c00;
+  border: 1px solid rgba(255, 184, 0, 0.2);
+  color: #FFB800;
 }
 
 .navLink:hover svg,
 .navLink:hover i {
   transform: scale(1.1);
-  filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.6));
+  filter: drop-shadow(0 0 5px rgba(255, 184, 0, 0.6));
 }
 
 .navLinkActive svg,
@@ -86,19 +111,18 @@
 }
 
 .navLinkActive {
-  background: linear-gradient(135deg, rgba(255, 102, 0, 0.8) 0%, rgba(255, 60, 0, 0.8) 100%);
+  background: linear-gradient(135deg, #FFB800 0%, #FF6200 100%);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 102, 0, 0.6);
-  color: #fff !important;
-  box-shadow: 0 4px 15px rgba(255, 102, 0, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 184, 0, 0.6);
+  color: #000 !important;
+  box-shadow: 0 4px 20px rgba(255, 184, 0, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.4);
 }
 
 .navLinkActive:hover {
-  background: linear-gradient(135deg, rgba(255, 102, 0, 0.95) 0%, rgba(255, 60, 0, 0.95) 100%);
-  color: #ffffff !important;
-  box-shadow: 0 6px 20px rgba(255, 102, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.6);
-  text-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #FFD700 0%, #FFB800 100%);
+  color: #000 !important;
+  box-shadow: 0 6px 25px rgba(255, 184, 0, 0.5);
 }
 
 .sidebarFooter {
@@ -138,15 +162,15 @@
   height: 200%;
   background: conic-gradient(from 180deg at 50% 50%,
       transparent 0deg,
-      rgba(255, 102, 0, 0.18) 20deg,
+      rgba(255, 184, 0, 0.12) 20deg,
       transparent 40deg,
-      rgba(255, 140, 0, 0.15) 70deg,
+      rgba(255, 215, 0, 0.1) 70deg,
       transparent 110deg,
-      rgba(255, 69, 0, 0.2) 150deg,
+      rgba(255, 98, 0, 0.15) 150deg,
       transparent 190deg,
-      rgba(255, 102, 0, 0.15) 240deg,
+      rgba(255, 184, 0, 0.1) 240deg,
       transparent 280deg,
-      rgba(255, 140, 0, 0.18) 320deg,
+      rgba(255, 215, 0, 0.12) 320deg,
       transparent 360deg);
   animation: rotateRay 30s linear infinite;
 }
@@ -173,7 +197,7 @@
   left: 0;
   right: 0;
   height: 100vh;
-  background: radial-gradient(circle at 50% 0%, rgba(255, 102, 0, 0.15) 0%, transparent 75%);
+  background: radial-gradient(circle at 50% 0%, rgba(255, 184, 0, 0.12) 0%, transparent 75%);
   z-index: 2;
   pointer-events: none;
 }
@@ -194,7 +218,7 @@
   position: absolute;
   width: 1.5px;
   height: 1.5px;
-  background: #ff6600;
+  background: #FFB800;
   border-radius: 50%;
   animation-name: sparkleTwinkle;
   animation-iteration-count: infinite;
@@ -213,7 +237,7 @@
   50% {
     opacity: 0.5;
     transform: scale(1.3);
-    box-shadow: 0 0 12px rgba(255, 102, 0, 0.8), 0 0 5px rgba(255, 255, 255, 0.6);
+    box-shadow: 0 0 12px rgba(255, 184, 0, 0.8), 0 0 5px rgba(255, 255, 255, 0.6);
   }
 }
 
@@ -375,90 +399,12 @@
   }
 }
 
-.orbitDot {
-  position: absolute;
-  background: #ff6600;
-  border-radius: 50%;
-}
-
-.largeDot {
-  width: 15px;
-  height: 15px;
-  transform: rotate(0deg) translate(220px);
-  box-shadow: 0 0 25px rgba(255, 102, 0, 0.8);
-}
-
-.smallDot {
-  width: 7px;
-  height: 7px;
-  transform: rotate(180deg) translate(220px);
-  box-shadow: 0 0 15px rgba(255, 102, 0, 0.5);
-}
-
-.hubWrapper {
-  position: relative;
-  width: 280px;
-  height: 280px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 10;
-  perspective: 1500px;
-  transform-style: preserve-3d;
-}
-
-.mainCircle {
-  width: 280px;
-  height: 280px;
-  background: radial-gradient(circle at center, #0e0e0e 0%, #000 100%);
-  border: 4px solid #ff6600;
-  border-radius: 50%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  box-shadow: 
-    0 0 80px rgba(255, 102, 0, 0.25),
-    inset 0 0 40px rgba(255, 102, 0, 0.12);
-  z-index: 5;
-  transform: rotateX(15deg) translateZ(50px);
-  transform-style: preserve-3d;
-  transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
-}
-
-/* 3D Depth Layers */
-.mainCircle::before {
-  content: '';
-  position: absolute;
-  inset: -10px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, rgba(255, 102, 0, 0.2), transparent);
-  transform: translateZ(-30px);
-  filter: blur(15px);
-  z-index: -1;
-}
-
-.mainCircle::after {
-  content: '';
-  position: absolute;
-  top: 5%;
-  left: 15%;
-  width: 70%;
-  height: 40%;
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), transparent);
-  border-radius: 50% 50% 0 0;
-  pointer-events: none;
-  transform: translateZ(20px);
-}
-
-/* New Spinning Tech Rings - Fixed Centering */
 .techRing {
   position: absolute;
   top: 50%;
   left: 50%;
   border-radius: 50%;
-  border: 1px dashed rgba(255, 102, 0, 0.2);
+  border: 1px dashed rgba(255, 184, 0, 0.2);
   pointer-events: none;
   z-index: 1;
 }
@@ -467,14 +413,14 @@
   width: 360px;
   height: 360px;
   animation: spinRing1 40s linear infinite;
-  border-top-color: #ff6600;
+  border-top-color: #FFB800;
 }
 
 .ring2 {
   width: 440px;
   height: 440px;
   animation: spinRing2 60s linear infinite reverse;
-  border-bottom-color: #ff8c00;
+  border-bottom-color: #FFD700;
   opacity: 0.3;
 }
 
@@ -482,8 +428,8 @@
   width: 360px;
   height: 360px;
   animation: spinRing1 30s linear infinite;
-  border-top-color: #00f2ff;
-  border-bottom-color: #00f2ff;
+  border-top-color: #FFD700;
+  border-bottom-color: #FFD700;
   opacity: 0.4;
 }
 
@@ -499,8 +445,8 @@
 
 .addFundsHubBtn {
   margin-top: 10px;
-  background: linear-gradient(135deg, #ff6600 0%, #ff3200 100%);
-  color: #fff;
+  background: linear-gradient(135deg, #FFB800 0%, #FF6200 100%);
+  color: #000;
   border: none;
   border-radius: 18px;
   padding: 5px 14px;
@@ -512,16 +458,16 @@
   align-items: center;
   gap: 5px;
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(255, 102, 0, 0.4);
+  box-shadow: 0 4px 15px rgba(255, 184, 0, 0.4);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 30;
   position: relative;
-  transform: translateZ(90px); /* Primary button visibility */
+  transform: translateZ(90px);
 }
 
 .addFundsHubBtn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(255, 102, 0, 0.5);
+  box-shadow: 0 8px 25px rgba(255, 184, 0, 0.5);
   filter: brightness(1.1);
 }
 
@@ -541,7 +487,7 @@
   left: 50%;
   transform: translateX(-50%);
   font-size: 11px;
-  color: #ff8c00;
+  color: #FFD700;
   text-transform: uppercase;
   letter-spacing: 2px;
   display: flex;
@@ -551,14 +497,14 @@
   background: rgba(0, 0, 0, 0.7);
   padding: 6px 16px;
   border-radius: 50px;
-  border: 1px solid rgba(255, 102, 0, 0.3);
+  border: 1px solid rgba(255, 184, 0, 0.3);
   backdrop-filter: blur(8px);
   z-index: 40;
-  transform: translateX(-50%) translateZ(100px); /* Prominent label */
+  transform: translateX(-50%) translateZ(100px);
 }
 
 .historyEyeBtn {
-  color: #ff8c00;
+  color: #FFD700;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -571,13 +517,13 @@
 .historyEyeBtn:hover {
   opacity: 1;
   transform: scale(1.1);
-  filter: drop-shadow(0 0 5px rgba(255, 102, 0, 0.6));
+  filter: drop-shadow(0 0 5px rgba(255, 184, 0, 0.6));
 }
 
 .hubAmount {
   font-size: 40px;
   font-weight: 800;
-  color: #ff8c00;
+  color: #FFD700;
   line-height: 1.1;
 }
 
@@ -594,10 +540,10 @@
 
 
 .stakingCircle {
-  border-color: #00f2ff !important;
+  border-color: #FFD700 !important;
   box-shadow: 
-    0 0 80px rgba(0, 242, 255, 0.25),
-    inset 0 0 40px rgba(0, 242, 255, 0.12) !important;
+    0 0 80px rgba(255, 215, 0, 0.25),
+    inset 0 0 40px rgba(255, 215, 0, 0.12) !important;
 }
 
 .stakingProgressBox {
@@ -608,7 +554,7 @@
 
 .stakingDaysRemaining {
   font-size: 10px;
-  color: #00f2ff;
+  color: #FFD700;
   font-weight: 800;
   letter-spacing: 1px;
   margin-bottom: 6px;
@@ -623,16 +569,16 @@
 
 .miniChartFill {
   height: 100%;
-  background: #00f2ff;
-  box-shadow: 0 0 10px #00f2ff;
+  background: #FFD700;
+  box-shadow: 0 0 10px #FFD700;
 }
 
 .activateBtn {
   margin-top: 15px;
   padding: 8px 16px;
-  background: rgba(0,242,255,0.1);
-  border: 1px solid rgba(0,242,255,0.4);
-  color: #00f2ff;
+  background: rgba(255, 215, 0, 0.1);
+  border: 1px solid rgba(255, 215, 0, 0.4);
+  color: #FFD700;
   border-radius: 8px;
   font-size: 10px;
   font-weight: 800;
@@ -641,9 +587,9 @@
 }
 
 .activateBtn:hover {
-  background: #00f2ff;
+  background: #FFD700;
   color: #000;
-  box-shadow: 0 0 20px #00f2ff;
+  box-shadow: 0 0 20px #FFD700;
 }
 
 .nftStatusBar {
@@ -713,7 +659,7 @@
 }
 
 .mainInvestBtn {
-  background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+  background: linear-gradient(135deg, #FFB800 0%, #FF6200 100%);
   color: #000;
   border: none;
   padding: 12px 40px;
@@ -722,7 +668,7 @@
   font-weight: 900;
   letter-spacing: 2px;
   cursor: pointer;
-  box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+  box-shadow: 0 0 30px rgba(255, 184, 0, 0.3);
   transition: all 0.3s ease;
   white-space: nowrap;
 }
@@ -861,13 +807,13 @@
 
 .miniChartFill {
   height: 100%;
-  background: #00f2ff;
-  box-shadow: 0 0 10px #00f2ff;
+  background: #FFB800;
+  box-shadow: 0 0 10px rgba(255, 184, 0, 0.5);
 }
 
 .stakingDaysRemaining {
   font-size: 8px;
-  color: #00f2ff;
+  color: #FFB800;
   font-weight: 900;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -900,7 +846,7 @@
 .marketValue {
   font-size: 11px;
   font-weight: 900;
-  color: #00f2ff;
+  color: #FFD700;
 }
 
 .noStakeWrapper {
@@ -916,9 +862,9 @@
 }
 
 .supportAdminBtn {
-  background: rgba(43, 85, 255, 0.1);
-  border: 1px solid rgba(43, 85, 255, 0.3);
-  color: #4cc9f0;
+  background: rgba(255, 184, 0, 0.1);
+  border: 1px solid rgba(255, 184, 0, 0.3);
+  color: #FFB800;
   padding: 6px 14px;
   border-radius: 8px;
   font-size: 13px;
@@ -941,9 +887,9 @@
 }
 
 .redeemBtnTop {
-  background: rgba(255, 102, 0, 0.1);
-  border: 1px solid rgba(255, 102, 0, 0.4);
-  color: #ff8c00;
+  background: rgba(255, 184, 0, 0.1);
+  border: 1px solid rgba(255, 184, 0, 0.4);
+  color: #FFD700;
   border-radius: 20px;
   padding: 8px 16px;
   font-size: 13px;
@@ -958,12 +904,12 @@
 .redeemBtnTop:hover {
   background: rgba(255, 215, 0, 0.2);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 102, 0, 0.2);
+  box-shadow: 0 4px 12px rgba(255, 184, 0, 0.2);
 }
 
 .connectBtn {
-  background: linear-gradient(135deg, #ff6600 0%, #ff3200 100%);
-  color: #fff;
+  background: linear-gradient(135deg, #FFB800 0%, #FF6200 100%);
+  color: #000;
   border: none;
   padding: 10px 20px;
   border-radius: 25px;
@@ -974,7 +920,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  box-shadow: 0 4px 15px rgba(255, 102, 0, 0.35);
+  box-shadow: 0 4px 15px rgba(255, 184, 0, 0.35);
 }
 
 .connectBtn:hover {
@@ -987,7 +933,7 @@
   align-items: center;
   gap: 8px;
   margin-right: 8px;
-  color: #ff8c00;
+  color: #FFB800;
   font-weight: 800;
   font-size: 14px;
 }
@@ -1000,7 +946,7 @@
 }
 
 .headerBalanceValue {
-  color: #ff8c00;
+  color: #FFB800;
   font-size: 14px;
 }
 

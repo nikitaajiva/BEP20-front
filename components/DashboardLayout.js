@@ -463,13 +463,13 @@ const LedgerInfoCard = ({
                         onClick={onTransferClick}
                         className="btn btn-icon"
                         style={{
-                          background: "rgba(127, 255, 76, 0.1)",
-                          border: "1px solid rgba(127, 255, 76, 0.2)",
+                          background: "rgba(255, 184, 0, 0.1)",
+                          border: "1px solid rgba(255, 184, 0, 0.2)",
                           width: "45px",
                           height: "45px",
                           cursor: "pointer",
                           transition: "all 0.3s ease",
-                          color: "rgb(127, 255, 76)",
+                          color: "#FFB800",
                           padding: "0.25rem",
                           alignSelf: "flex-start",
                         }}
@@ -542,7 +542,7 @@ const LedgerInfoCard = ({
                   )}
                   {showEarningInfo && roiPercentage > 0 && (
                     <div>
-                      <small style={{ color: "#7FFF4C" }}>
+                      <small style={{ color: "#FFD700" }}>
                         Earning {roiPercentage}% daily
                       </small>
                     </div>
@@ -601,9 +601,9 @@ const LedgerInfoCard = ({
               }
               className="btn w-100"
               style={{
-                background: "rgba(127, 255, 76, 0.1)",
-                border: "1px solid rgba(127, 255, 76, 0.2)",
-                color: "rgb(127, 255, 76)",
+                background: "rgba(255, 184, 0, 0.1)",
+                border: "1px solid rgba(255, 184, 0, 0.2)",
+                color: "#FFB800",
                 width: "45px",
                 height: "45px",
                 borderRadius: "12px",
@@ -614,7 +614,7 @@ const LedgerInfoCard = ({
                 textAlign: "center",
                 justifyContent: "center",
                 transition: "all 0.3s ease",
-                opacity: walletType === "boost" ? 0.5 : 1, // Dim if disabled
+                opacity: walletType === "boost" ? 0.5 : 1,
               }}
             >
               View History
@@ -1372,10 +1372,10 @@ export default function DashboardLayout({
         type: 'line',
         label: "Primary Trend",
         data: bUsageValues,
-        borderColor: "#ff8c00", // Dark Orange
-        backgroundColor: "rgba(255, 140, 0, 0.1)",
+        borderColor: "#FFB800", // Gold
+        backgroundColor: "rgba(255, 184, 0, 0.1)",
         borderWidth: 4,
-        pointBackgroundColor: "#ffd700", // Gold/Yellow point
+        pointBackgroundColor: "#FFD700", // Platinum point
         pointBorderColor: "#fff",
         pointBorderWidth: 2,
         pointRadius: 6,
@@ -1386,11 +1386,11 @@ export default function DashboardLayout({
       {
         type: 'line',
         label: "Secondary Trend",
-        data: bUsageValues.map(v => v * 0.7 + 5), // Secondary data line
-        borderColor: "#a020f0", // Purple
-        backgroundColor: "rgba(160, 32, 240, 0.1)",
+        data: bUsageValues.map(v => v * 0.7 + 5),
+        borderColor: "#FF6200", // Amber
+        backgroundColor: "rgba(255, 98, 0, 0.1)",
         borderWidth: 4,
-        pointBackgroundColor: "#ff00ff", // Magenta/Purple point
+        pointBackgroundColor: "#FFB800", // Gold point
         pointBorderColor: "#fff",
         pointBorderWidth: 2,
         pointRadius: 6,
@@ -1411,8 +1411,8 @@ export default function DashboardLayout({
     plugins: {
       legend: { display: false },
       tooltip: {
-        backgroundColor: "rgba(10, 15, 25, 0.95)",
-        titleColor: "#ffd700",
+        backgroundColor: "rgba(5, 5, 5, 0.95)",
+        titleColor: "#FFB800",
         bodyColor: "#fff",
         borderColor: "rgba(255, 255, 255, 0.1)",
         borderWidth: 1,
@@ -1466,7 +1466,7 @@ export default function DashboardLayout({
         const { ctx } = chart;
         ctx.save();
         ctx.shadowBlur = 15;
-        ctx.shadowColor = 'rgba(255, 215, 0, 0.6)';
+        ctx.shadowColor = 'rgba(255, 184, 0, 0.6)';
         args.meta.dataset.draw(ctx);
         ctx.restore();
       }

@@ -175,8 +175,8 @@ export const ActionableWalletCard = ({
             <History size={14} />
             View History
           </button>
-        </div>
-      </div>
+        </div >
+      </div >
     );
   }
 
@@ -393,7 +393,7 @@ export const HorseNFTCard = ({
 
       {!isActive ? (
         <div className={styles.nftEmptyState}>
-          <button 
+          <button
             className={styles.nftGetStartedBtn}
             onClick={() => window.location.href = "/dashboard/nft-packages"}
           >

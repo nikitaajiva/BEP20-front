@@ -2,7 +2,7 @@
 import React from "react";
 import styles from "./RedesignedDashboard.module.css";
 import { motion } from "framer-motion";
-import { Wallet, Droplets, TrendingUp, Activity, Plus, History, Shield, Eye, Gift, Copy, LogOut } from "lucide-react";
+import { Wallet, Droplets, TrendingUp, Activity, Plus, History, Shield, Eye, Gift, Copy } from "lucide-react";
 import { FaHorse } from "react-icons/fa";
 import Link from "next/link";
 import StakingModal from "./StakingModal";
@@ -32,6 +32,7 @@ const RedesignedDashboard = ({
   const lpBalance = parseFloat(lpWallet?.balance || "0").toLocaleString(undefined, { minimumFractionDigits: 2 });
   const lpAutopositioning = parseFloat(lpWallet?.autopositioning || "0").toLocaleString(undefined, { minimumFractionDigits: 2 });
   const lpPending = parseFloat(lpWallet?.pending || "0").toLocaleString(undefined, { minimumFractionDigits: 2 });
+
 
   const getRoi = (b) => {
     const val = parseFloat(b || 0);
@@ -116,12 +117,6 @@ const RedesignedDashboard = ({
     });
   };
 
-  const handleCopyPhantomWallet = (e) => {
-    e.stopPropagation();
-    if (!phantomWalletAddress) return;
-    navigator.clipboard.writeText(phantomWalletAddress);
-  };
-
   const [showInvestMenu, setShowInvestMenu] = React.useState(false);
   const [isStakingModalOpen, setIsStakingModalOpen] = React.useState(false);
   const [isNftModalOpen, setIsNftModalOpen] = React.useState(false);
@@ -129,7 +124,7 @@ const RedesignedDashboard = ({
   return (
     <div className="min-h-screen bg-black text-white relative font-inter overflow-x-hidden">
       {/* Unified Top Header Actions */}
-      <div className={styles.dashboardTopHeader}>
+    <div className={styles.dashboardTopHeader}>
         {/* LEFT: Vault Pass (Invitation Link) */}
         <div className={styles.headerLeft}>
           <div
@@ -138,7 +133,7 @@ const RedesignedDashboard = ({
             title="Click to copy invitation link"
           >
             <div className={styles.passHeader}>
-              <span className={styles.passLabel}>INVITE FRIENDS & EARN REWARDS</span>
+              <span className={styles.passLabel}>INVITE FRIENDS &amp; EARN REWARDS</span>
               <div className={styles.inviteCodeBadge} onClick={handleCopyCode} title="Click to copy invite code">
                 CODE: {user?.username || "---"}
               </div>
@@ -443,6 +438,26 @@ const RedesignedDashboard = ({
         onClose={() => setIsNftModalOpen(false)}
       />
 
+      {/* NFT Tier Footer Info */}
+      {/* <div className={styles.nftStatusBar}>
+        <div className={styles.nftStatusItem}>
+          <Shield size={16} color={nftTierLabel && nftTierLabel !== 'NO ACTIVE PACKAGE' ? '#ffd700' : '#555'} />
+          <span className={styles.nftStatusLabel}>ACTIVE NFT TIER:</span>
+          <span
+            className={styles.nftStatusValue}
+            style={{
+              color: nftTierLabel === 'PREMIUM PACK'  ? '#ffd700'
+                   : nftTierLabel === 'GROWTH PACK'   ? '#00ff88'
+                   : nftTierLabel === 'STARTER PACK'  ? '#4cc9f0'
+                   : nftTierLabel === 'STAKING ACTIVE' ? '#f038ff'
+                   : '#555'
+            }}
+          >
+            {nftTierLabel || 'NO ACTIVE PACKAGE'}
+          </span>
+        </div>
+        <div className={styles.statusGlowLine}></div>
+      </div> */}
       {children}
     </div>
   );

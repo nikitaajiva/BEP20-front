@@ -4,6 +4,15 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import styles from "./profile.module.css";
 import Link from "next/link";
+
+const shortenWalletAddress = (walletAddress) => {
+  if (!walletAddress) {
+    return "";
+  }
+
+  return `SOL: ${walletAddress.slice(0, 4)}...${walletAddress.slice(-4)}`;
+};
+
 export default function ProfilePage() {
   const { user, loading, updateUser, API_URL, connectPhantomWallet } = useAuth();
 
@@ -488,7 +497,7 @@ export default function ProfilePage() {
             <label>Phantom Wallet (Solana)</label>
             {user?.phantomWalletAddress ? (
               <div className={styles.inputField} style={{ opacity: 0.8 }}>
-                Connected: {user.phantomWalletAddress}
+                Connected: {shortenWalletAddress(user.phantomWalletAddress)}
               </div>
             ) : (
               <button
@@ -802,4 +811,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-

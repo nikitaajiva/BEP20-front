@@ -1,6 +1,6 @@
 /* Main Card Container */
 .USDT-comm-rew-card {
-    max-height: 600px;
+    height: 380px; /* Adjusted height to fit within the 480px total container */
     overflow-y: auto;
     padding: 20px 10px;
     scrollbar-width: thin;
@@ -58,7 +58,7 @@
 
 /* The Shaped Card */
 .cr-card {
-    width: 280px;
+    width: 350px;
     background: rgba(10, 10, 10, 0.4);
     backdrop-filter: blur(15px);
     border: 1px solid rgba(255, 255, 255, 0.08);

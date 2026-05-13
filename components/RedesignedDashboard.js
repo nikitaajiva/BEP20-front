@@ -10,12 +10,11 @@ import NFTModal from "./NFTModal";
 
 const RedesignedDashboard = ({
   user,
-  walletAccount,
-  onWalletConnect,
-  onWalletDisconnect,
-  onOpenAddLPModal,
-  onOpenZeroRiskModal,
-  onRedeem,
+  onLogout,
+  onConnectPhantom,
+  phantomStatus,
+  phantomLoading,
+  phantomErrorCode,
   ledgerDetails,
   orbitCard1,
   orbitCard2,
@@ -23,13 +22,10 @@ const RedesignedDashboard = ({
   orbitCard4,
   bottomCards,
   extraHubCard,
-  onConnectPhantom,
-  phantomStatus,
-  phantomLoading,
-  phantomErrorCode,
-  shortAddress: shortAddressProp,
   nftTierLabel,
-  onLogout,
+  onOpenAddLPModal,
+  onOpenZeroRiskModal,
+  onRedeem,
   children
 }) => {
   const lpWallet = ledgerDetails?.lpWallet || {};
@@ -67,16 +63,14 @@ const RedesignedDashboard = ({
     size: `${1 + Math.random() * 2}px`
   })), []);
 
-  const phantomWalletAddress = `${user?.phantomWalletAddress || ""}`.trim();
-  const hasPhantomWallet = phantomWalletAddress.length > 0;
-  const phantomShortAddress = hasPhantomWallet
-    ? `SOL: ${phantomWalletAddress.slice(0, 4)}...${phantomWalletAddress.slice(-4)}`
+  const phantomWalletAddress = user?.phantomWalletAddress || "";
+  const shortPhantomAddress = phantomWalletAddress
+    ? `${phantomWalletAddress.slice(0, 4)}...${phantomWalletAddress.slice(-4)}`
     : "";
-
-  const hasWallet = walletAccount && walletAccount.trim().length > 0;
-  const shortAddress = shortAddressProp || (hasWallet
-    ? `${walletAccount.slice(0, 6)}...${walletAccount.slice(-4)}`
-    : "");
+  const hasPhantomWallet = phantomWalletAddress.length > 0;
+  const walletButtonLabel = hasPhantomWallet
+    ? `SOL: ${shortPhantomAddress}`
+    : "Connect";
 
   const [mounted, setMounted] = React.useState(false);
   const [copySuccess, setCopySuccess] = React.useState(false);
@@ -200,54 +194,21 @@ const RedesignedDashboard = ({
               Redeem
             </button>
 
-            {/* BSC / BEP20 Wallet */}
-            <button
-              className={`${styles.connectBtn} ${hasWallet ? styles.connectBtnConnected : ""}`}
-              onClick={onWalletConnect}
-              title={hasWallet ? "Wallet Connected" : "Connect Wallet"}
-            >
-              <Wallet size={14} />
-              <span className={styles.buttonLabel}>{hasWallet ? shortAddress : "Connect Wallet"}</span>
-              {hasWallet && (
-                <div className={styles.walletActions}>
-                  <span
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      navigator.clipboard.writeText(walletAccount);
-                    }}
-                    title="Copy Address"
-                  >
-                    <Copy size={11} />
-                  </span>
-                  <span
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (onWalletDisconnect) onWalletDisconnect();
-                    }}
-                    title="Disconnect"
-                  >
-                    <Activity size={11} style={{ transform: 'rotate(90deg)' }} />
-                  </span>
-                </div>
-              )}
-            </button>
-
-            {/* Phantom Wallet (Solana) */}
             <div className={styles.phantomWalletGroup}>
               <button
                 type="button"
                 className={`${styles.connectBtn} ${hasPhantomWallet ? styles.connectBtnConnected : ""}`}
-                onClick={hasPhantomWallet || phantomLoading ? undefined : onConnectPhantom}
+                onClick={() => {
+                  if (!hasPhantomWallet) {
+                    onConnectPhantom?.();
+                  }
+                }}
                 disabled={phantomLoading}
                 title={hasPhantomWallet ? "Phantom Connected" : "Connect Phantom Wallet"}
               >
                 <Wallet size={14} />
                 <span className={styles.buttonLabel}>
-                  {hasPhantomWallet
-                    ? phantomShortAddress
-                    : phantomLoading
-                      ? "Connecting..."
-                      : "Connect Phantom"}
+                  {phantomLoading ? "Connecting..." : walletButtonLabel}
                 </span>
                 {hasPhantomWallet && (
                   <div className={styles.walletActions}>

@@ -632,9 +632,10 @@ export default function DashboardLayout({
   children,
   user: userProp,
   loading: loadingProp,
-  phantomWalletAddress = "",
+  phantomWalletAddress: phantomWalletAddressProp = "",
   phantomBalance = "0.000000",
   phantomBalanceLoading = false,
+  phantomBalanceError = "",
   refreshPhantomBalance,
   phantomStatus,
   phantomLoading,
@@ -661,6 +662,11 @@ export default function DashboardLayout({
   const user = userProp || authUser;
   const loading = loadingProp || authLoading;
   const logout = onLogout || authLogout;
+
+  const phantomWalletAddress = user?.phantomWalletAddress || phantomWalletAddressProp || "";
+  const shortPhantomAddress = phantomWalletAddress
+    ? `${phantomWalletAddress.slice(0, 4)}...${phantomWalletAddress.slice(-4)}`
+    : "";
 
   const [isAutoPositioningActive, setIsAutoPositioningActive] = useState(false);
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
@@ -1475,14 +1481,10 @@ export default function DashboardLayout({
       <RedesignedDashboard
         user={user}
         onLogout={logout}
-        walletAccount={walletAccount}
-        onWalletConnect={onWalletConnect}
-        onWalletDisconnect={onWalletDisconnect}
         onConnectPhantom={onConnectPhantom}
         phantomStatus={phantomStatus}
         phantomLoading={phantomLoading}
         phantomErrorCode={phantomErrorCode}
-        shortAddress={shortAddress}
         onOpenZeroRiskModal={() => setShowZeroRiskWarningModal(true)}
         onOpenAddLPModal={() => setIsAddLPModalOpen(true)}
         onRedeem={() => setIsCommunityRewardsModalOpen(true)}
@@ -1492,8 +1494,8 @@ export default function DashboardLayout({
             title="Primary Wallet"
             type="system"
             subtitle={
-              (phantomWalletAddress && phantomWalletAddress.trim())
-                ? `CONNECTED • ${phantomWalletAddress.trim().slice(0, 4)}...${phantomWalletAddress.trim().slice(-4)}`
+              phantomWalletAddress
+                ? `CONNECTED • ${shortPhantomAddress}`
                 : "CONNECT WALLET"
             }
             layout="horizontal"
@@ -1512,7 +1514,9 @@ export default function DashboardLayout({
               }
             }}
             depositLabel={phantomWalletAddress ? "Refresh" : "Connect"}
-            onViewHistory={() => window.location.href = "/dashboard/ledger"}
+            onViewHistory={() => {
+              window.location.href = "/dashboard/ledger";
+            }}
           />
         }
         orbitCard2={

@@ -47,6 +47,7 @@ export default function DashboardPage() {
   const [phantomErrorCode, setPhantomErrorCode] = useState("");
   const [phantomBalance, setPhantomBalance] = useState("0.000000");
   const [phantomBalanceLoading, setPhantomBalanceLoading] = useState(false);
+  const [phantomBalanceError, setPhantomBalanceError] = useState("");
 
   const shortAddress = (address) => {
     if (!address) return "";
@@ -93,59 +94,52 @@ export default function DashboardPage() {
     }
   }, [user, API_URL]);
 
-  const fetchPhantomBalance = useCallback(async (walletAddressOverride = "") => {
-    const phantomWalletAddress = `${walletAddressOverride || user?.phantomWalletAddress || ""}`.trim();
-    const token = safeStorage.getItem("token");
-
-    if (!phantomWalletAddress) {
+  const fetchPhantomBalance = useCallback(async () => {
+    if (!user?.phantomWalletAddress) {
       setPhantomBalance("0.000000");
-      setPhantomBalanceLoading(false);
-      return {
-        success: false,
-        code: "PHANTOM_WALLET_NOT_CONNECTED",
-      };
+      return;
     }
 
-    if (!token) {
-      setPhantomBalance("0.000000");
-      setPhantomBalanceLoading(false);
-      return {
-        success: false,
-        code: "AUTH_REQUIRED",
-      };
+    const localToken =
+      typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
+    if (!localToken) {
+      setPhantomBalanceError("Authentication token not found.");
+      return;
     }
 
     setPhantomBalanceLoading(true);
+    setPhantomBalanceError("");
 
     try {
       const response = await fetch(`${API_URL}/auth/phantom/balance`, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${localToken}`,
         },
       });
+
       const data = await response.json();
 
       if (!response.ok || !data.success) {
-        throw new Error(data.message || "Failed to fetch Phantom balance.");
+        throw new Error(data.message || "Failed to fetch SOL balance.");
       }
 
-      setPhantomBalance(data.balanceSol || "0.000000");
-      return {
-        success: true,
-        balanceSol: data.balanceSol || "0.000000",
-      };
+      setPhantomBalance(data.balanceSol || data.balance || "0.000000");
     } catch (error) {
-      console.error("Failed to fetch Phantom balance:", error);
-      setPhantomBalance("0.000000");
-      return {
-        success: false,
-        code: "PHANTOM_BALANCE_FETCH_FAILED",
-        error: error.message || "Failed to fetch Phantom balance.",
-      };
+      console.error("Phantom balance fetch error:", error);
+      setPhantomBalanceError(error.message || "Failed to fetch SOL balance.");
     } finally {
       setPhantomBalanceLoading(false);
     }
   }, [API_URL, user?.phantomWalletAddress]);
+
+  useEffect(() => {
+    if (user?.phantomWalletAddress) {
+      fetchPhantomBalance();
+    } else {
+      setPhantomBalance("0.000000");
+    }
+  }, [user?.phantomWalletAddress, fetchPhantomBalance]);
 
   const savePendingDeposit = useCallback((intent, updates = {}) => {
     if (!intent) return null;
@@ -435,9 +429,9 @@ export default function DashboardPage() {
       const result = await connectPhantomWallet();
 
       if (result.success) {
-        await fetchPhantomBalance(result.walletAddress);
         setPhantomStatus(`Connected: ${result.walletAddress}`);
         setPhantomErrorCode("");
+        await fetchPhantomBalance();
       } else {
         setPhantomStatus(result.error || "Failed to connect wallet.");
         setPhantomErrorCode(result.code || "PHANTOM_CONNECT_FAILED");
@@ -873,6 +867,7 @@ export default function DashboardPage() {
         phantomWalletAddress={user?.phantomWalletAddress || ""}
         phantomBalance={phantomBalance}
         phantomBalanceLoading={phantomBalanceLoading}
+        phantomBalanceError={phantomBalanceError}
         refreshPhantomBalance={fetchPhantomBalance}
         phantomStatus={phantomStatus}
         phantomLoading={phantomLoading}

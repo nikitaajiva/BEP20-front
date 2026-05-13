@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import styles from "./profile.module.css";
 import Link from "next/link";
+import safeStorage from "@/utils/safeStorage";
 
 const shortenWalletAddress = (walletAddress) => {
   if (!walletAddress) {
@@ -177,7 +178,7 @@ export default function ProfilePage() {
     setError("");
 
     try {
-      const token = localStorage.getItem("token");
+      const token = safeStorage.getItem("token");
       const response = await fetch(`${API_URL}/users/profile`, {
         method: "PUT",
         headers: {
@@ -204,7 +205,7 @@ export default function ProfilePage() {
 
   const handlePasswordReset = async () => {
     try {
-      const token = localStorage.getItem("token");
+      const token = safeStorage.getItem("token");
       if (!token) throw new Error("No token found");
 
       const response = await fetch(`${API_URL}/auth/reset-password/${token}`, {
@@ -257,7 +258,7 @@ export default function ProfilePage() {
 
     try {
       setVerifySending(true);
-      const token = localStorage.getItem("token");
+      const token = safeStorage.getItem("token");
       if (!token) throw new Error("No token found");
 
       const res = await fetch(`${API_URL}/auth/send-email-verification`, {

@@ -136,8 +136,8 @@ const RedesignedDashboard = ({
         </div>
 
         {/* MIDDLE: Primary Wallet (Horizontal Card) */}
-        <div className="flex-grow flex justify-center px-4">
-          <div className="w-full max-w-xl scale-95 origin-center">
+        <div style={{ flex: 1, display: 'flex', justifyContent: 'center', padding: '0 20px', minWidth: 0 }}>
+          <div style={{ width: '100%', maxWidth: '680px' }}>
             {orbitCard1}
           </div>
         </div>
@@ -352,14 +352,14 @@ const RedesignedDashboard = ({
         </div>
       </div>
 
-      {/* <StakingModal
+      <StakingModal
         isOpen={isStakingModalOpen}
         onClose={() => setIsStakingModalOpen(false)}
       />
       <NFTModal
         isOpen={isNftModalOpen}
         onClose={() => setIsNftModalOpen(false)}
-      /> */}
+      />
 
       {/* NFT Tier Footer Info */}
       {/* <div className={styles.nftStatusBar}>

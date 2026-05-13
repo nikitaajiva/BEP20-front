@@ -117,6 +117,12 @@ const RedesignedDashboard = ({
     });
   };
 
+  const handleCopyPhantomWallet = (e) => {
+    e.stopPropagation();
+    if (!phantomWalletAddress) return;
+    navigator.clipboard.writeText(phantomWalletAddress);
+  };
+
   const [showInvestMenu, setShowInvestMenu] = React.useState(false);
   const [isStakingModalOpen, setIsStakingModalOpen] = React.useState(false);
   const [isNftModalOpen, setIsNftModalOpen] = React.useState(false);
@@ -166,13 +172,6 @@ const RedesignedDashboard = ({
 
         {/* RIGHT: Action Buttons */}
         <div className={styles.topRightActions}>
-          <div className={styles.headerBalanceWrapper}>
-            <span className={styles.headerBalanceLabel}>REDEEMABLE BALANCE:</span>
-            <span className={styles.headerBalanceValue}>
-              {parseFloat(ledgerDetails?.communityRewards?.balance || "0").toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USDT
-            </span>
-          </div>
-          
           <div className={styles.headerActionsRow}>
             {user?.userType === "superadmin" && (
               <Link href="/support/dashboard" className={styles.supportAdminBtn}>

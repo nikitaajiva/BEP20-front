@@ -130,7 +130,7 @@ const RedesignedDashboard = ({
   return (
     <div className="min-h-screen bg-black text-white relative font-inter overflow-x-hidden">
       {/* Unified Top Header Actions */}
-    <div className={styles.dashboardTopHeader}>
+      <div className={styles.dashboardTopHeader}>
         {/* LEFT: Vault Pass (Invitation Link) */}
         <div className={styles.headerLeft}>
           <div
@@ -139,10 +139,7 @@ const RedesignedDashboard = ({
             title="Click to copy invitation link"
           >
             <div className={styles.passHeader}>
-              <span className={styles.passLabel}>INVITE FRIENDS &amp; EARN REWARDS</span>
-              <div className={styles.inviteCodeBadge} onClick={handleCopyCode} title="Click to copy invite code">
-                CODE: {user?.username || "---"}
-              </div>
+              <span className={styles.passLabel}>INVITE &amp; EARN </span>
             </div>
             <div className={styles.passLinkWrapper}>
               <span className={styles.passUrl}>
@@ -179,7 +176,7 @@ const RedesignedDashboard = ({
                 Support
               </Link>
             )}
-            
+
             <button
               className={styles.redeemBtnTop}
               onClick={onRedeem}
@@ -261,10 +258,10 @@ const RedesignedDashboard = ({
 
       {/* Main Content Grid */}
       <div className={styles.mainContentWrapper}>
-        
+
         {/* ===== ROW 1: Horse NFT | Staking Engine | Community Wallet ===== */}
         <div className={styles.dashboardRow1}>
-          
+
           {/* LEFT: Horse NFT Card */}
           <div className={styles.row1Card}>
             {orbitCard2}
@@ -286,58 +283,45 @@ const RedesignedDashboard = ({
 
               {/* Inner Content */}
               <div className={styles.stakingCircleInner}>
-                {user?.stakingPlan?.days ? (
-                  <>
-                    <div className={styles.hubAmount} style={{ color: "#00f2ff", fontSize: 36 }}>
-                      {parseFloat(user.stakingPlan.amount).toLocaleString()}
-                    </div>
-                    <div className={styles.hubCurrency} style={{ letterSpacing: 4, marginBottom: 12 }}>TOKING</div>
-                    <div className={styles.hubSeparator}></div>
-                    <div className={styles.stakingStatsDetail} style={{ marginTop: 12 }}>
-                      <div className={styles.statDetailItem}>
-                        <span className={styles.statDetailLabel}>EST. REWARDS</span>
-                        <span className={styles.statDetailValue} style={{ color: "#00f2ff" }}>+{(user.stakingPlan.amount * 0.28).toFixed(2)}</span>
-                      </div>
-                      <div className={styles.statDetailItem}>
-                        <span className={styles.statDetailLabel}>UNLOCKS ON</span>
-                        <span className={styles.statDetailValue}>
-                          {new Date(new Date(user.stakingPlan.startDate).getTime() + user.stakingPlan.days * 86400000).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                        </span>
-                      </div>
-                    </div>
-                    <div className={styles.stakingProgressBox} style={{ marginTop: 12 }}>
-                      <div className={styles.miniChart}>
-                        <div className={styles.miniChartFill} style={{ width: '35%' }}></div>
-                      </div>
-                      <div className={styles.stakingDaysRemaining}>{user.stakingPlan.days} DAY LOCK</div>
-                    </div>
-                    <div className={styles.marketStatsRow} style={{ marginTop: 10 }}>
-                      <div className={styles.marketStat}>
-                        <span className={styles.marketLabel}>TODAY</span>
-                        <span className={styles.marketValue} style={{ color: "#00f2ff" }}>+{(user.stakingPlan.amount * 0.28 / 365).toFixed(4)}</span>
-                      </div>
-                      <div className={styles.marketStat}>
-                        <span className={styles.marketLabel}>TOKEN</span>
-                        <span className={styles.marketValue} style={{ color: "#00ff00" }}>$0.124 <TrendingUp size={10} /></span>
-                      </div>
-                    </div>
-                  </>
-                ) : (
-                  <div className={styles.stakingInactiveHub}>
-                    <div className={styles.hubAmount} style={{ color: "rgba(0, 242, 255, 0.4)", fontSize: 36 }}>0.00</div>
-                    <div className={styles.hubCurrency} style={{ letterSpacing: 4, marginBottom: 20 }}>TOKING</div>
-                    
-                    <button 
-                      className={styles.hubStartStakingBtn}
-                      onClick={() => setIsStakingModalOpen(true)}
-                    >
-                      <Plus size={14} />
-                      START STAKING
-                    </button>
-                    
-                    <p className={styles.hubInactiveNote}>ENGINE READY TO DEPLOY</p>
+                <>
+                  <div className={styles.hubAmount} style={{ color: "#00f2ff", fontSize: 36 }}>
+                    {parseFloat(user?.stakingPlan?.amount || "0") > 0 ? parseFloat(user.stakingPlan.amount).toLocaleString() : "0.00"}
                   </div>
-                )}
+                  <div className={styles.hubCurrency} style={{ letterSpacing: 4, marginBottom: 12 }}>TOKING</div>
+                  <div className={styles.hubSeparator}></div>
+                  <div className={styles.stakingStatsDetail} style={{ marginTop: 12 }}>
+                    <div className={styles.statDetailItem}>
+                      <span className={styles.statDetailLabel}>EST. REWARDS</span>
+                      <span className={styles.statDetailValue} style={{ color: "#00f2ff" }}>
+                        +{(parseFloat(user?.stakingPlan?.amount || "0") * 0.28).toFixed(2)}
+                      </span>
+                    </div>
+                    <div className={styles.statDetailItem}>
+                      <span className={styles.statDetailLabel}>UNLOCKS ON</span>
+                      <span className={styles.statDetailValue}>
+                        {user?.stakingPlan?.startDate ? new Date(new Date(user.stakingPlan.startDate).getTime() + (user.stakingPlan.days || 0) * 86400000).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : "--"}
+                      </span>
+                    </div>
+                  </div>
+                  <div className={styles.stakingProgressBox} style={{ marginTop: 12 }}>
+                    <div className={styles.miniChart}>
+                      <div className={styles.miniChartFill} style={{ width: user?.stakingPlan?.days ? '35%' : '0%' }}></div>
+                    </div>
+                    <div className={styles.stakingDaysRemaining}>{user?.stakingPlan?.days || 0} DAY LOCK</div>
+                  </div>
+                  <div className={styles.marketStatsRow} style={{ marginTop: 10 }}>
+                    <div className={styles.marketStat}>
+                      <span className={styles.marketLabel}>TODAY</span>
+                      <span className={styles.marketValue} style={{ color: "#00f2ff" }}>
+                        +{(parseFloat(user?.stakingPlan?.amount || "0") * 0.28 / 365).toFixed(4)}
+                      </span>
+                    </div>
+                    <div className={styles.marketStat}>
+                      <span className={styles.marketLabel}>TOKEN</span>
+                      <span className={styles.marketValue} style={{ color: "#00ff00" }}>$0.124 <TrendingUp size={10} /></span>
+                    </div>
+                  </div>
+                </>
               </div>
             </div>
 
@@ -356,7 +340,7 @@ const RedesignedDashboard = ({
             {/* Investment Selection Modal */}
             {showInvestMenu && (
               <div className={styles.investModalOverlay} onClick={() => setShowInvestMenu(false)}>
-                <motion.div 
+                <motion.div
                   className={styles.investModalContent}
                   onClick={(e) => e.stopPropagation()}
                   initial={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -365,9 +349,9 @@ const RedesignedDashboard = ({
                   <button className={styles.investModalClose} onClick={() => setShowInvestMenu(false)}>✖</button>
                   <h3 className={styles.investModalTitle}>CHOOSE INVESTMENT TYPE</h3>
                   <p className={styles.investModalSubtitle}>Select a vehicle to start earning rewards</p>
-                  
+
                   <div className={styles.investCardsGrid}>
-                    <motion.div 
+                    <motion.div
                       className={styles.investSelectionCard}
                       onClick={() => {
                         setIsStakingModalOpen(true);
@@ -383,7 +367,7 @@ const RedesignedDashboard = ({
                       <button className={styles.investSelectBtn}>SELECT</button>
                     </motion.div>
 
-                    <motion.div 
+                    <motion.div
                       className={styles.investSelectionCard}
                       onClick={() => {
                         setIsNftModalOpen(true);

@@ -1508,12 +1508,12 @@ export default function DashboardLayout({
             currency="SOL"
             onDeposit={() => {
               if (phantomWalletAddress) {
-                refreshPhantomBalance?.();
+                onOpenAmountModal?.();
               } else {
                 onConnectPhantom?.();
               }
             }}
-            depositLabel={phantomWalletAddress ? "Refresh" : "Connect"}
+            depositLabel={phantomWalletAddress ? "Deposit" : "Connect"}
             onViewHistory={() => {
               window.location.href = "/dashboard/ledger";
             }}

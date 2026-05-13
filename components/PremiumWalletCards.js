@@ -443,10 +443,6 @@ export const HorseNFTCard = ({
           <History size={16} />
           <span>VIEW ASSET HISTORY</span>
         </button>
-        <button className={styles.nftShowMoreBtn} onClick={() => window.location.href = "/dashboard/nft-packages"}>
-          <Plus size={14} />
-          <span>{isActive ? 'UPGRADE' : 'GET PACKAGE'}</span>
-        </button>
       </div>
     </div>
   );

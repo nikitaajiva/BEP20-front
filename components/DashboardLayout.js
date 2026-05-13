@@ -632,6 +632,10 @@ export default function DashboardLayout({
   children,
   user: userProp,
   loading: loadingProp,
+  phantomWalletAddress = "",
+  phantomBalance = "0.000000",
+  phantomBalanceLoading = false,
+  refreshPhantomBalance,
   phantomStatus,
   phantomLoading,
   phantomErrorCode,
@@ -1451,22 +1455,26 @@ export default function DashboardLayout({
             title="Primary Wallet"
             type="system"
             subtitle={
-              (walletAccount && walletAccount.trim())
-                ? `CONNECTED • ${walletAccount.trim().slice(0, 6)}...${walletAccount.trim().slice(-4)}`
+              (phantomWalletAddress && phantomWalletAddress.trim())
+                ? `CONNECTED • ${phantomWalletAddress.trim().slice(0, 4)}...${phantomWalletAddress.trim().slice(-4)}`
                 : "CONNECT WALLET"
             }
             layout="horizontal"
             showPlusBtn={false}
-            balance={formatPrimaryBalance(ledgerDetails?.bnbWallet?.balance || "0")}
-            currency="BNB"
+            balance={
+              phantomBalanceLoading
+                ? "..."
+                : formatPrimaryBalance(phantomBalance || "0")
+            }
+            currency="SOL"
             onDeposit={() => {
-              if (walletAccount) {
-                onOpenAmountModal?.();
+              if (phantomWalletAddress) {
+                refreshPhantomBalance?.();
               } else {
-                onWalletConnect?.();
+                onConnectPhantom?.();
               }
             }}
-            depositLabel={walletAccount ? "Deposit" : "Connect"}
+            depositLabel={phantomWalletAddress ? "Refresh" : "Connect"}
             onViewHistory={() => window.location.href = "/dashboard/ledger"}
           />
         }

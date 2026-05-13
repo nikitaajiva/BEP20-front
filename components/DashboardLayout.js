@@ -1591,22 +1591,21 @@ export default function DashboardLayout({
         nftTierLabel={nftTierLabel}
         extraHubCard={<Communitybooster />}
         bottomCards={
-          <div style={{ width: '100%', maxWidth: '1400px', margin: '0 auto' }}>
+          <div style={{ width: '100%', maxWidth: '1600px', margin: '0 auto' }}>
             {/* Analytical & Rewards Stack stays below the Hub circle */}
-            <div className="row g-4 mb-4">
-              <div className="col-12 col-xl-7">
+            <div className="row g-4">
+              <div className="col-12 col-xl-6 d-flex flex-column">
                 <X_BonusCard />
               </div>
-              <div className="col-12 col-xl-5">
+              <div className="col-12 col-xl-6 d-flex flex-column">
                 <CommunityRewardsCardnew />
               </div>
             </div>
-            {/* Investment Sections — Token Staking & Horse NFT Packages */}
-            <InvestmentSections />
+            {/* <InvestmentSections /> */}
           </div>
         }
       >
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px 100px' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px 40px' }}>
           {children}
         </div>
       </RedesignedDashboard>

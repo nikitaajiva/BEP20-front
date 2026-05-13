@@ -10,8 +10,11 @@
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
     position: relative;
     width: 100%;
-    overflow-x: hidden;
-    padding-bottom: 50px; /* More gap at the bottom as requested */
+    height: 480px; /* Fixed height as requested */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding-bottom: 20px;
 }
 
 .xBonusHeader h5 {
@@ -47,9 +50,12 @@
 .xBonusList {
     display: flex;
     flex-direction: column;
-    gap: 8px; /* Tight gap for molecular look */
+    gap: 16px; 
     width: 100%;
     position: relative;
+    flex: 1;
+    overflow: hidden; /* Hide scrollbar completely */
+    padding-bottom: 15px; /* Room for hover scale at the bottom */
 }
 
 /* Vertical Connector Base */
@@ -82,7 +88,7 @@
 }
 
 .xBonusRow:hover {
-    transform: scale(1.02);
+    transform: scale(1.01); /* Reduced scale to prevent overflow */
     z-index: 5;
 }
 
@@ -90,7 +96,7 @@
 .levelCard {
     background: rgba(10, 10, 10, 0.4);
     border: 1px solid rgba(255, 255, 255, 0.06);
-    height: 64px;
+    height: 72px; /* Increased height */
     display: flex !important;
     align-items: center;
     padding: 0 40px 0 20px;
@@ -185,7 +191,7 @@
 .lpCard {
     background: rgba(255, 255, 255, 0.02);
     border: 1px solid rgba(255, 255, 255, 0.05);
-    height: 54px;
+    height: 62px; /* Increased to match levelCard better */
     display: flex !important;
     flex-direction: column;
     justify-content: center;

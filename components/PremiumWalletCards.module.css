@@ -326,7 +326,7 @@
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 215, 0, 0.12);
-  box-shadow: 0 0 0 1px rgba(255,255,255,0.03) inset, 0 4px 24px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.03) inset, 0 4px 24px rgba(0, 0, 0, 0.4);
   border-radius: 12px;
   padding: 0 16px;
   color: #ffffff;
@@ -624,8 +624,13 @@
 }
 
 @keyframes stardustMovement {
-  from { background-position: 0 0; }
-  to { background-position: 600px 600px; }
+  from {
+    background-position: 0 0;
+  }
+
+  to {
+    background-position: 600px 600px;
+  }
 }
 
 .boostGaugeArea {
@@ -652,8 +657,8 @@
   border-radius: 50%;
   background: radial-gradient(circle at center, #151921 0%, #0a0a0c 100%);
   border: 4px solid rgba(0, 0, 0, 0.4);
-  box-shadow: 0 12px 45px rgba(0, 0, 0, 0.8), 
-              inset 0 4px 15px rgba(0,0,0,0.5);
+  box-shadow: 0 12px 45px rgba(0, 0, 0, 0.8),
+    inset 0 4px 15px rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -692,8 +697,13 @@
 }
 
 @keyframes swirlRotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .pulsingGlow {
@@ -705,9 +715,20 @@
 }
 
 @keyframes pulseSize {
-  0% { transform: scale(0.9); opacity: 0.3; }
-  50% { transform: scale(1.1); opacity: 0.6; }
-  100% { transform: scale(0.9); opacity: 0.3; }
+  0% {
+    transform: scale(0.9);
+    opacity: 0.3;
+  }
+
+  50% {
+    transform: scale(1.1);
+    opacity: 0.6;
+  }
+
+  100% {
+    transform: scale(0.9);
+    opacity: 0.3;
+  }
 }
 
 .gaugeInner {
@@ -746,7 +767,7 @@
   align-items: center;
   margin-bottom: 15px;
   font-size: 11px;
-  color: rgba(255,255,255,0.4);
+  color: rgba(255, 255, 255, 0.4);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -798,7 +819,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, transparent, rgba(255,140,0,0.1), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 140, 0, 0.1), transparent);
   transform: translateX(-100%);
   transition: transform 0.6s ease;
 }
@@ -867,6 +888,7 @@
     flex-direction: column;
     height: auto;
   }
+
   .boostGaugeArea {
     width: 100%;
     align-items: center;
@@ -936,8 +958,17 @@
 }
 
 @keyframes nftPulseSmall {
-  0%, 100% { opacity: 0.3; transform: scale(1); }
-  50% { opacity: 0.6; transform: scale(1.1); }
+
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.6;
+    transform: scale(1.1);
+  }
 }
 
 .nftMainBalanceLarge {
@@ -1080,4 +1111,44 @@
   background: rgba(255, 215, 0, 0.1);
   border-color: #ffd700;
   transform: translateY(-2px);
+}
+
+.nftEmptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 15px 0;
+  gap: 12px;
+}
+
+.nftGetStartedBtn {
+  background: rgba(255, 215, 0, 0.1);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  color: #ffd700;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.nftGetStartedBtn:hover {
+  background: #ffd700;
+  color: #000;
+  transform: scale(1.05);
+  box-shadow: 0 0 25px rgba(255, 215, 0, 0.4);
+}
+
+.nftEmptySubtext {
+  font-size: 8px;
+  color: rgba(255, 215, 0, 0.5);
+  letter-spacing: 1px;
+  font-weight: 700;
+  text-transform: uppercase;
 }

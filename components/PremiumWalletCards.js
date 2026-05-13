@@ -391,59 +391,74 @@ export const HorseNFTCard = ({
         {balance} <span>USDT</span>
       </div>
 
-      <div className={styles.roiProgressSection}>
-        <div className={styles.roiLabelRow}>
-          <span>Annual ROI Target</span>
-          <span style={{ color: roiProgress > 0 ? '#00ff00' : '#555' }}>
-            {roiProgress > 0 ? `${roiProgress}%` : 'N/A'}
-          </span>
+      {!isActive ? (
+        <div className={styles.nftEmptyState}>
+          <button 
+            className={styles.nftGetStartedBtn}
+            onClick={() => window.location.href = "/dashboard/nft-packages"}
+          >
+            <Plus size={18} />
+            MINT YOUR NFT
+          </button>
+          <p className={styles.nftEmptySubtext}>OWN A FRACTION OF A RACING LEGEND</p>
         </div>
-        <div className={styles.roiProgressBar}>
-          <div
-            className={styles.roiProgressFill}
-            style={{
-              width: roiProgress > 0 ? `${Math.min(roiProgress, 100)}%` : '0%',
-              background: roiProgress >= 60 ? 'linear-gradient(90deg,#ffd700,#ff8c00)'
-                : roiProgress >= 50 ? 'linear-gradient(90deg,#00ff88,#00d2ff)'
-                  : roiProgress > 0 ? 'linear-gradient(90deg,#7fff4c,#00ff88)'
-                    : 'rgba(255,255,255,0.05)'
-            }}
-          ></div>
-        </div>
-      </div>
-
-      <div className={styles.nftStatsGrid}>
-        <div className={styles.nftStatItem}>
-          <span className={styles.nftStatLabel}>Daily Yield</span>
-          <span className={styles.nftStatValue} style={{ color: isActive ? "#00ff00" : "#555" }}>
-            {dailyYield} USDT
-          </span>
-        </div>
-        <div className={styles.nftStatItem}>
-          <span className={styles.nftStatLabel}>Est. Payout</span>
-          <span className={styles.nftStatValue} style={{ color: isActive ? undefined : '#555' }}>
-            {estPayout} USDT
-          </span>
-        </div>
-        <div className={styles.nftStatItem} style={{ border: 'none' }}>
-          <div className={styles.nftStatLabelGroup}>
-            <span className={styles.nftStatLabel}>Next Payout</span>
-            <span className={styles.nftTimeLeft} style={{ color: isActive ? undefined : '#555' }}>
-              {isActive ? `${liveTimeLeft} LEFT` : '--'}
-            </span>
+      ) : (
+        <>
+          <div className={styles.roiProgressSection}>
+            <div className={styles.roiLabelRow}>
+              <span>Annual ROI Target</span>
+              <span style={{ color: roiProgress > 0 ? '#00ff00' : '#555' }}>
+                {roiProgress > 0 ? `${roiProgress}%` : 'N/A'}
+              </span>
+            </div>
+            <div className={styles.roiProgressBar}>
+              <div
+                className={styles.roiProgressFill}
+                style={{
+                  width: roiProgress > 0 ? `${Math.min(roiProgress, 100)}%` : '0%',
+                  background: roiProgress >= 60 ? 'linear-gradient(90deg,#ffd700,#ff8c00)'
+                    : roiProgress >= 50 ? 'linear-gradient(90deg,#00ff88,#00d2ff)'
+                      : roiProgress > 0 ? 'linear-gradient(90deg,#7fff4c,#00ff88)'
+                        : 'rgba(255,255,255,0.05)'
+                }}
+              ></div>
+            </div>
           </div>
-          <span className={styles.nftStatValue} style={{ color: isActive ? undefined : '#555' }}>
-            {nextPayout} USDT
-          </span>
-        </div>
-      </div>
 
-      <div className={styles.nftActionButtonsSimple}>
-        <button className={styles.nftHistoryBtnFull} onClick={onViewHistory}>
-          <History size={16} />
-          <span>VIEW ASSET HISTORY</span>
-        </button>
-      </div>
+          <div className={styles.nftStatsGrid}>
+            <div className={styles.nftStatItem}>
+              <span className={styles.nftStatLabel}>Daily Yield</span>
+              <span className={styles.nftStatValue} style={{ color: isActive ? "#00ff00" : "#555" }}>
+                {dailyYield} USDT
+              </span>
+            </div>
+            <div className={styles.nftStatItem}>
+              <span className={styles.nftStatLabel}>Est. Payout</span>
+              <span className={styles.nftStatValue} style={{ color: isActive ? undefined : '#555' }}>
+                {estPayout} USDT
+              </span>
+            </div>
+            <div className={styles.nftStatItem} style={{ border: 'none' }}>
+              <div className={styles.nftStatLabelGroup}>
+                <span className={styles.nftStatLabel}>Next Payout</span>
+                <span className={styles.nftTimeLeft} style={{ color: isActive ? undefined : '#555' }}>
+                  {isActive ? `${liveTimeLeft} LEFT` : '--'}
+                </span>
+              </div>
+              <span className={styles.nftStatValue} style={{ color: isActive ? undefined : '#555' }}>
+                {nextPayout} USDT
+              </span>
+            </div>
+          </div>
+
+          <div className={styles.nftActionButtonsSimple}>
+            <button className={styles.nftHistoryBtnFull} onClick={onViewHistory}>
+              <History size={16} />
+              <span>VIEW ASSET HISTORY</span>
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 };

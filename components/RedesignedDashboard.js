@@ -290,10 +290,20 @@ const RedesignedDashboard = ({
                     </div>
                   </>
                 ) : (
-                  <>
-                    <div className={styles.hubAmount} style={{ fontSize: 22, color: "#444" }}>INACTIVE</div>
-                    <div className={styles.inactiveNote}>ENGINE READY</div>
-                  </>
+                  <div className={styles.stakingInactiveHub}>
+                    <div className={styles.hubAmount} style={{ color: "rgba(0, 242, 255, 0.4)", fontSize: 36 }}>0.00</div>
+                    <div className={styles.hubCurrency} style={{ letterSpacing: 4, marginBottom: 20 }}>TOKING</div>
+                    
+                    <button 
+                      className={styles.hubStartStakingBtn}
+                      onClick={() => setIsStakingModalOpen(true)}
+                    >
+                      <Plus size={14} />
+                      START STAKING
+                    </button>
+                    
+                    <p className={styles.hubInactiveNote}>ENGINE READY TO DEPLOY</p>
+                  </div>
                 )}
               </div>
             </div>

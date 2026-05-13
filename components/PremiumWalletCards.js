@@ -168,9 +168,11 @@ export const ActionableWalletCard = ({
 
         {/* RIGHT: Action Buttons */}
         <div className={styles.horizontalRight}>
-          <button className={styles.glassBtnPrimary} onClick={onDeposit}>
-            + {finalDepositLabel}
-          </button>
+          {finalDepositLabel !== "Connect" && (
+            <button className={styles.glassBtnPrimary} onClick={onDeposit}>
+              + {finalDepositLabel}
+            </button>
+          )}
           <button className={styles.glassBtnSecondary} onClick={onViewHistory}>
             <History size={14} />
             View History
@@ -220,7 +222,9 @@ export const ActionableWalletCard = ({
       )}
 
       <div className={styles.actionButtons}>
-        <button className={styles.primaryBtn} onClick={onDeposit}>+ {finalDepositLabel}</button>
+        {finalDepositLabel !== "Connect" && (
+          <button className={styles.primaryBtn} onClick={onDeposit}>+ {finalDepositLabel}</button>
+        )}
         <button className={styles.secondaryBtn} onClick={onViewHistory}>
           <History size={18} />
           View History
@@ -442,10 +446,6 @@ export const HorseNFTCard = ({
         <button className={styles.nftHistoryBtnFull} onClick={onViewHistory}>
           <History size={16} />
           <span>VIEW ASSET HISTORY</span>
-        </button>
-        <button className={styles.nftShowMoreBtn} onClick={() => window.location.href = "/dashboard/nft-packages"}>
-          <Plus size={14} />
-          <span>{isActive ? 'UPGRADE' : 'GET PACKAGE'}</span>
         </button>
       </div>
     </div>

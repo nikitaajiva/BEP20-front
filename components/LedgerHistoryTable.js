@@ -177,10 +177,10 @@ export default function LedgerHistoryTable({ filters }) {
       <div
         className="card p-4 mb-4"
         style={{
-          background: "#181f3a",
+          background: "transparent",
           borderRadius: "22px",
-          boxShadow: "0 8px 32px 0 rgba(16,25,53,0.18)",
-          border: "1px solid #2a3150",
+          boxShadow: "none",
+          border: "none",
         }}
       >
         <h4
@@ -204,10 +204,10 @@ export default function LedgerHistoryTable({ filters }) {
       <div
         className="card p-4 mb-4"
         style={{
-          background: "#181f3a",
+          background: "transparent",
           borderRadius: "22px",
-          boxShadow: "0 8px 32px 0 rgba(16,25,53,0.18)",
-          border: "1px solid #2a3150",
+          boxShadow: "none",
+          border: "none",
         }}
       >
         <h4
@@ -231,10 +231,10 @@ export default function LedgerHistoryTable({ filters }) {
       <div
         className="card p-4 mb-4"
         style={{
-          background: "#181f3a",
+          background: "transparent",
           borderRadius: "22px",
-          boxShadow: "0 8px 32px 0 rgba(16,25,53,0.18)",
-          border: "1px solid #2a3150",
+          boxShadow: "none",
+          border: "none",
         }}
       >
         <h4
@@ -276,11 +276,11 @@ export default function LedgerHistoryTable({ filters }) {
       <div
         className="card p-4 mb-4 history-card-container"
         style={{
-          background: "rgba(15, 15, 15, 0.4)",
-          backdropFilter: "blur(20px)",
-          borderRadius: "22px",
-          boxShadow: "0 8px 32px 0 rgba(0,0,0,0.3)",
-          border: "1px solid rgba(255, 215, 0, 0.1)",
+          background: "transparent",
+          backdropFilter: "none",
+          borderRadius: "0",
+          boxShadow: "none",
+          border: "none",
         }}
       >
         {/* Desktop Table View */}

@@ -10,6 +10,13 @@ import { useAuth } from "@/context/AuthContext";
 const AppLayout = ({ children }) => {
   const { user, logout } = useAuth();
   const pathname = usePathname();
+
+  // ✅ All hooks must be called unconditionally — BEFORE any early returns
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const username = user?.username || user?.email?.split("@")[0] || "User";
 
   const navLinks = [
@@ -51,11 +58,6 @@ const AppLayout = ({ children }) => {
     return <>{children}</>;
   }
 
-  const [mounted, setMounted] = React.useState(false);
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
-
   return (
     <div className={styles.dashboardContainer} style={{ display: 'flex' }}>
       {/* Background Motion Rays */}
@@ -68,16 +70,16 @@ const AppLayout = ({ children }) => {
       {/* Sidebar Navigation */}
       <aside className={styles.sidebar}>
         <Link href="/" className={styles.sidebarLogo}>
-          <div style={{ width: 45, height: 45, position: "relative" }}>
+          <div className={styles.logoImgWrapper}>
             <Image
-              src="/bepvault_logo.png"
-              alt="Logo"
+              src="/img/main-logo.avif"
+              alt="Toking Hoofborn"
               fill
               style={{ objectFit: "contain" }}
             />
           </div>
-          <div className="d-flex flex-column">
-            <span style={{ color: "#ff6600", fontWeight: 800, fontSize: 18, lineHeight: 1 }}>TokingHoofborn</span>
+          <div className={styles.sidebarBrandText}>
+            <span className={styles.brandMain}>Toking<span className={styles.goldText}>Hoofborn</span></span>
           </div>
         </Link>
 

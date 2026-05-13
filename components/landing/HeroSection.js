@@ -1,342 +1,485 @@
 "use client";
-import React, { useEffect, useState, useRef } from "react";
-import Link from "next/link";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
+import { motion } from "framer-motion";
 
-// ── Animated Candlestick Chart ──────────────────────────────────────────────
-const CandleChart = () => {
-  const [candles, setCandles] = useState([]);
-  useEffect(() => {
-    const gen = () => {
-      const data = [];
-      let price = 300;
-      for (let i = 0; i < 28; i++) {
-        const open = price;
-        const change = (Math.random() - 0.46) * 18;
-        const close = open + change;
-        const high = Math.max(open, close) + Math.random() * 8;
-        const low = Math.min(open, close) - Math.random() * 8;
-        price = close;
-        data.push({ open, close, high, low, bull: close >= open });
-      }
-      return data;
-    };
-    setCandles(gen());
-    const id = setInterval(() => setCandles(gen()), 3000);
-    return () => clearInterval(id);
-  }, []);
-
-  if (!candles.length) return null;
-  const prices = candles.flatMap(c => [c.high, c.low]);
-  const minP = Math.min(...prices);
-  const maxP = Math.max(...prices);
-  const range = maxP - minP || 1;
-  const H = 200, W = 420;
-  const toY = v => H - ((v - minP) / range) * (H - 20) - 10;
-  const cW = W / candles.length;
-
-  return (
-    <svg width="100%" height={H} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none">
-      {/* Grid lines */}
-      {[0.25, 0.5, 0.75].map((r, i) => (
-        <line key={i} x1={0} y1={H * r} x2={W} y2={H * r}
-          stroke="rgba(255,215,0,0.06)" strokeWidth="1" strokeDasharray="4,4" />
-      ))}
-      {candles.map((c, i) => {
-        const x = i * cW + cW / 2;
-        const bodyTop = toY(Math.max(c.open, c.close));
-        const bodyBot = toY(Math.min(c.open, c.close));
-        const bodyH = Math.max(bodyBot - bodyTop, 2);
-        const color = c.bull ? "#00e676" : "#ff4444";
-        return (
-          <g key={i} style={{ transition: "all 0.8s ease" }}>
-            <line x1={x} y1={toY(c.high)} x2={x} y2={toY(c.low)} stroke={color} strokeWidth="1.5" opacity="0.7" />
-            <rect x={x - cW * 0.3} y={bodyTop} width={cW * 0.6} height={bodyH} fill={color} rx="1" opacity="0.9" />
-          </g>
-        );
-      })}
-    </svg>
-  );
-};
-
-// ── Blockchain Node Network Animation ──────────────────────────────────────
-const BlockchainNetwork = () => {
-  const nodes = [
-    { x: 50, y: 50 }, { x: 160, y: 25 }, { x: 270, y: 55 }, { x: 380, y: 30 },
-    { x: 100, y: 130 }, { x: 220, y: 110 }, { x: 330, y: 140 }, { x: 60, y: 200 },
-    { x: 180, y: 185 }, { x: 300, y: 200 }, { x: 410, y: 170 },
-  ];
-  const edges = [
-    [0,1],[1,2],[2,3],[0,4],[1,5],[2,5],[3,6],[4,5],[5,6],[4,7],[5,8],[6,9],[7,8],[8,9],[9,10],[6,10],[3,10]
-  ];
-
-  return (
-    <svg width="100%" height="220" viewBox="0 0 460 220" style={{ overflow: "visible" }}>
-      <defs>
-        <radialGradient id="nodeGrad" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#ffd700" stopOpacity="1" />
-          <stop offset="100%" stopColor="#ff8c00" stopOpacity="0.6" />
-        </radialGradient>
-        <filter id="glow">
-          <feGaussianBlur stdDeviation="3" result="coloredBlur" />
-          <feMerge><feMergeNode in="coloredBlur" /><feMergeNode in="SourceGraphic" /></feMerge>
-        </filter>
-      </defs>
-      {edges.map(([a, b], i) => (
-        <line key={i}
-          x1={nodes[a].x} y1={nodes[a].y} x2={nodes[b].x} y2={nodes[b].y}
-          stroke="rgba(255,215,0,0.15)" strokeWidth="1.5"
-        >
-          <animate attributeName="opacity" values="0.15;0.5;0.15" dur={`${2 + i * 0.3}s`} repeatCount="indefinite" />
-        </line>
-      ))}
-      {nodes.map((n, i) => (
-        <g key={i}>
-          <circle cx={n.x} cy={n.y} r="12" fill="rgba(255,215,0,0.08)" filter="url(#glow)">
-            <animate attributeName="r" values="10;14;10" dur={`${1.5 + i * 0.2}s`} repeatCount="indefinite" />
-          </circle>
-          <circle cx={n.x} cy={n.y} r="6" fill="url(#nodeGrad)" filter="url(#glow)">
-            <animate attributeName="opacity" values="0.7;1;0.7" dur={`${1.2 + i * 0.15}s`} repeatCount="indefinite" />
-          </circle>
-        </g>
-      ))}
-    </svg>
-  );
-};
-
-// ── Animated Area Graph ─────────────────────────────────────────────────────
-const AreaGraph = ({ color = "#ffd700", accent = "#ff8c00" }) => {
-  const [points, setPoints] = useState([]);
-  useEffect(() => {
-    const gen = () => {
-      const pts = [];
-      let v = 50;
-      for (let i = 0; i <= 40; i++) {
-        v = Math.max(10, Math.min(90, v + (Math.random() - 0.45) * 12));
-        pts.push(v);
-      }
-      return pts;
-    };
-    setPoints(gen());
-    const id = setInterval(() => setPoints(gen()), 2500);
-    return () => clearInterval(id);
-  }, []);
-
-  if (!points.length) return null;
-  const W = 300, H = 80;
-  const step = W / (points.length - 1);
-  const toY = v => H - (v / 100) * H;
-  const pathD = points.map((v, i) => `${i === 0 ? "M" : "L"} ${i * step} ${toY(v)}`).join(" ");
-  const areaD = pathD + ` L ${W} ${H} L 0 ${H} Z`;
-
-  return (
-    <svg width="100%" height={H + 10} viewBox={`0 0 ${W} ${H + 10}`} preserveAspectRatio="none">
-      <defs>
-        <linearGradient id={`areaGrad_${color}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={color} stopOpacity="0.3" />
-          <stop offset="100%" stopColor={color} stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <path d={areaD} fill={`url(#areaGrad_${color})`} style={{ transition: "d 1s ease" }} />
-      <path d={pathD} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" style={{ transition: "d 1s ease" }}>
-        <animate attributeName="stroke-dashoffset" from="1000" to="0" dur="2s" fill="freeze" />
-      </path>
-      {/* Animated dot at last point */}
-      <circle cx={(points.length - 1) * step} cy={toY(points[points.length - 1])} r="4" fill={color} filter="url(#glow)">
-        <animate attributeName="r" values="3;5;3" dur="1.5s" repeatCount="indefinite" />
-      </circle>
-    </svg>
-  );
-};
-
-// ── Live Ticker ─────────────────────────────────────────────────────────────
-const LiveTicker = () => {
-  const [bnbPrice, setBnbPrice] = useState({ price: 312.4, change: 2.4 });
+// ── Live Race Stats Component ─────────────────────────────────────────────
+const LiveRaceStats = () => {
+  const [activeRacers, setActiveRacers] = useState(12450);
   useEffect(() => {
     const id = setInterval(() => {
-      setBnbPrice(p => ({
-        price: +(p.price + (Math.random() - 0.48) * 3).toFixed(2),
-        change: +(Math.random() * 6 - 1.5).toFixed(2),
-      }));
-    }, 2000);
+      setActiveRacers(p => p + Math.floor(Math.random() * 5) - 2);
+    }, 3000);
     return () => clearInterval(id);
   }, []);
 
-  const isUp = bnbPrice.change >= 0;
   return (
-    <div style={{
-      display: "inline-flex", alignItems: "center", gap: "12px",
-      background: "rgba(255,215,0,0.08)", border: "1px solid rgba(255,215,0,0.2)",
-      borderRadius: "50px", padding: "0.5rem 1.2rem", marginBottom: "1.5rem",
-    }}>
-      <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#00e676", boxShadow: "0 0 8px #00e676", display: "inline-block" }}>
-        <style jsx>{`span { animation: livePulse 1s infinite; } @keyframes livePulse { 0%,100%{opacity:1} 50%{opacity:0.3} }`}</style>
-      </span>
-      <span style={{ color: "#ffd700", fontWeight: 700, fontSize: "0.9rem" }}>BNB Live</span>
-      <span style={{ color: "#fff", fontWeight: 800, fontSize: "1rem" }}>${bnbPrice.price}</span>
-      <span style={{ color: isUp ? "#00e676" : "#ff4444", fontWeight: 700, fontSize: "0.85rem" }}>
-        {isUp ? "▲" : "▼"} {Math.abs(bnbPrice.change)}%
-      </span>
+    <div className="hero-stats-container">
+      <div className="hero-stat-block">
+        <span className="hero-stat-label">Active Racers</span>
+        <span className="hero-stat-value gold-text drop-glow">
+          {activeRacers.toLocaleString()}
+        </span>
+      </div>
+      <div className="hero-stat-divider" />
+      <div className="hero-stat-block">
+        <span className="hero-stat-label">Track Status</span>
+        <span className="hero-stat-value track-green flex-center gap-2">
+          <span className="pulse-dot" />
+          OPTIMAL
+        </span>
+      </div>
+      <div className="hero-stat-divider" />
+      <div className="hero-stat-block">
+        <span className="hero-stat-label">Next Race</span>
+        <span className="hero-stat-value white-text">
+          02:45 <span className="text-sm text-gray-400" style={{fontSize: "14px"}}>MIN</span>
+        </span>
+      </div>
     </div>
   );
 };
 
-import { motion } from "framer-motion";
-
-// ── Main Hero Section ───────────────────────────────────────────────────────
 const HeroSection = () => {
-
   return (
-    <section style={{ position: "relative", minHeight: "100vh", overflow: "hidden", display: "flex", alignItems: "center" }}>
-      {/* Particle Grid Background */}
-      <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 60% 50%, rgba(255,140,0,0.07) 0%, transparent 60%), radial-gradient(ellipse at 20% 80%, rgba(255,215,0,0.05) 0%, transparent 50%)", zIndex: 0 }} />
-
-      <div className="container" style={{ position: "relative", zIndex: 5, paddingTop: "100px", paddingBottom: "60px" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4rem", alignItems: "center" }} className="hero-grid">
-
-          {/* LEFT */}
-          <motion.div 
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, ease: "easeOut" }}
-          >
-            <LiveTicker />
-
-            <motion.h1 
-              style={{
-                fontSize: "clamp(2.8rem, 5vw, 5rem)", fontWeight: 900, lineHeight: 1.08,
-                color: "#fff", marginBottom: "1.5rem", letterSpacing: "-1px",
-              }}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.8 }}
-            >
-              Earn Daily with<br />
-              <span style={{
-                background: "linear-gradient(135deg, #ffd700 0%, #ff8c00 50%, #ffd700 100%)",
-                backgroundSize: "200%",
-                WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-                animation: "gradShift 4s ease infinite",
-              }}>BEP20 BNB</span><br />
-              <span style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.7em", fontWeight: 600 }}>Liquidity Network</span>
-            </motion.h1>
-
-            <motion.p 
-              style={{ fontSize: "1.15rem", color: "rgba(255,255,255,0.65)", lineHeight: 1.7, marginBottom: "2rem", maxWidth: "500px" }}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.4, duration: 0.8 }}
-            >
-              The world's most advanced BEP20 community platform. Provide liquidity, earn compounded daily returns, and grow your network of BNB earners all on-chain, secure, and instant.
-            </motion.p>
-
-            {/* Stats row */}
-            <motion.div 
-              style={{ display: "flex", gap: "2rem", marginBottom: "2.5rem", flexWrap: "wrap" }}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.6, duration: 0.8 }}
-            >
-              {[
-                { val: "$12M+", label: "Total Liquidity" },
-                { val: "0.6%", label: "Daily Returns" },
-                { val: "50k+", label: "Active Members" },
-              ].map(s => (
-                <div key={s.label}>
-                  <div style={{ fontSize: "1.8rem", fontWeight: 900, color: "#ffd700", lineHeight: 1 }}>{s.val}</div>
-                  <div style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.5)", marginTop: "3px" }}>{s.label}</div>
-                </div>
-              ))}
-            </motion.div>
-          </motion.div>
-
-          {/* RIGHT — Charts */}
-          <motion.div 
-            initial={{ opacity: 0, x: 60 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.3, duration: 1.2, ease: "easeOut" }}
-          >
-            {/* Floating Coin Card */}
-            <motion.div 
-              style={{
-                background: "rgba(255,255,255,0.03)", backdropFilter: "blur(20px)",
-                border: "1px solid rgba(255,215,0,0.15)", borderRadius: "24px",
-                padding: "1.5rem", marginBottom: "1.2rem",
-                boxShadow: "0 20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,215,0,0.1)",
-              }}
-              animate={{ y: [0, -15, 0] }}
-              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-            >
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                  <div style={{ width: 36, height: 36, background: "linear-gradient(135deg,#ffd700,#ff8c00)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, color: "#000", fontSize: "0.9rem" }}>B</div>
-                  <div>
-                    <div style={{ color: "#fff", fontWeight: 700 }}>BNB / USDT</div>
-                    <div style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.75rem" }}>Binance Smart Chain</div>
-                  </div>
-                </div>
-                <div style={{ textAlign: "right" }}>
-                  <div style={{ color: "#ffd700", fontWeight: 800, fontSize: "1.3rem" }}>$312.40</div>
-                  <div style={{ color: "#00e676", fontSize: "0.8rem", fontWeight: 700 }}>▲ +2.4%</div>
-                </div>
-              </div>
-              <CandleChart />
-            </motion.div>
-
-            {/* Mini Stat Cards Grid */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-              {[
-                { icon: "ri-line-chart-line", label: "LP Yield", val: "+0.6%/day", col: "#00e676" },
-                { icon: "ri-group-line", label: "Team Bonus", val: "5 Levels", col: "#ffd700" },
-                { icon: "ri-safe-line", label: "BSC Security", val: "Audit Pass", col: "#4fc3f7" },
-                { icon: "ri-timer-line", label: "Settlement", val: "Instant", col: "#ff8c00" },
-              ].map((s, i) => (
-                <motion.div 
-                  key={s.label} 
-                  style={{
-                    background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)",
-                    borderRadius: "16px", padding: "1.2rem", transition: "all 0.3s",
-                  }}
-                  whileHover={{ scale: 1.05, background: "rgba(255,255,255,0.05)", borderColor: "rgba(255,215,0,0.3)" }}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.8 + (i * 0.1), duration: 0.5 }}
-                >
-                  <i className={s.icon} style={{ fontSize: "1.6rem", color: s.col, display: "block", marginBottom: "0.5rem" }} />
-                  <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.75rem" }}>{s.label}</div>
-                  <div style={{ color: "#fff", fontWeight: 700, fontSize: "1rem", marginTop: "3px" }}>{s.val}</div>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        </div>
+    <section className="hero-section">
+      {/* Background Cinematic Image */}
+      <div className="hero-bg-wrapper">
+        <Image 
+          src="/img/horseimg1.avif" 
+          alt="Horse Racing Background" 
+          fill 
+          className="hero-bg-image"
+          priority
+        />
+        <div className="hero-bg-overlay" />
+        <div className="hero-bg-gradient" />
       </div>
 
-      {/* Scroll Indicator */}
-      <div style={{ position: "absolute", bottom: "2rem", left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", opacity: 0.5 }}>
-        <span style={{ color: "#fff", fontSize: "0.75rem", letterSpacing: "2px", textTransform: "uppercase" }}>Scroll</span>
-        <div style={{ width: "24px", height: "38px", border: "1.5px solid rgba(255,255,255,0.3)", borderRadius: "12px", display: "flex", justifyContent: "center", paddingTop: "6px" }}>
-          <div style={{ width: "4px", height: "8px", background: "#ffd700", borderRadius: "2px", animation: "scrollBob 1.5s ease infinite" }} />
+      <div className="hero-content-wrapper">
+        <div className="hero-grid">
+          
+          {/* Left Content */}
+          <div className="hero-text-col">
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+            >
+              <div className="hero-badge">
+                <span className="hero-badge-dot"></span>
+                <span>The Elite Circuit is Live</span>
+              </div>
+
+              <h1 className="hero-title">
+                <span className="hero-title-top">UNLEASH THE</span>
+                <span className="hero-title-highlight">SPEED OF GOLD</span>
+              </h1>
+
+              <p className="hero-subtitle">
+                Experience the adrenaline of elite horse racing. Step into an exclusive ecosystem of professional-grade analytics and real-time rewards.
+              </p>
+
+              <div className="hero-action-group">
+                <button className="hero-btn hero-btn-gold">
+                  <span>START RACING NOW</span>
+                  <i className="ri-arrow-right-line" />
+                </button>
+                <button className="hero-btn hero-btn-glass">
+                  VIEW SCHEDULE
+                </button>
+              </div>
+
+              <LiveRaceStats />
+            </motion.div>
+          </div>
+
+          {/* Right Visual Glass Card */}
+          <div className="hero-visual-col">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, rotate: 2 }}
+              animate={{ opacity: 1, scale: 1, rotate: 0 }}
+              transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
+            >
+              <div className="hero-glass-card">
+                <div className="hero-glass-card-header">
+                  <div className="hgc-live-badge">LIVE EVENT</div>
+                  <div className="hgc-odds-badge">4/1 ODDS</div>
+                </div>
+
+                <div className="hero-glass-image-wrapper">
+                  <Image 
+                    src="/img/photo7.webp" 
+                    alt="Live Race" 
+                    fill 
+                    className="hero-glass-image" 
+                  />
+                  <div className="hero-glass-image-fade" />
+                  <div className="hero-glass-image-text">
+                    <h3>Grand Derby Royale</h3>
+                    <p>Kentucky Track • Group 1</p>
+                  </div>
+                </div>
+
+                <div className="hero-glass-footer">
+                  <div className="hgc-footer-item">
+                    <div className="hgc-footer-icon-wrapper">
+                      <Image src="/img/photo3.webp" alt="Vault" fill className="object-cover" />
+                    </div>
+                    <div className="hgc-footer-text">
+                      <span className="hgc-footer-label">Secure Vault</span>
+                      <span className="hgc-footer-val gold-text">ACTIVE</span>
+                    </div>
+                  </div>
+                  <button className="hgc-join-btn">Place Entry</button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+
         </div>
       </div>
 
       <style jsx global>{`
-        @keyframes gradShift { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
-        @keyframes scrollBob { 0%,100% { transform: translateY(0); opacity: 1; } 50% { transform: translateY(8px); opacity: 0.3; } }
-        .cta-primary {
-          background: linear-gradient(135deg,#ffd700,#ff8c00); color: #000; border: none;
-          padding: 1rem 2.2rem; border-radius: 8px; font-weight: 900; font-size: 1rem;
-          cursor: pointer; box-shadow: 0 6px 24px rgba(255,215,0,0.35); transition: all 0.3s;
+        .hero-section {
+          position: relative;
+          min-height: 100vh;
+          width: 100%;
+          display: flex;
+          align-items: center;
+          padding-top: 120px;
+          padding-bottom: 80px;
+          overflow: hidden;
+          background-color: #030303;
         }
-        .cta-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 36px rgba(255,215,0,0.55); }
-        .cta-secondary {
-          background: transparent; color: #fff; border: 1px solid rgba(255,255,255,0.2);
-          padding: 1rem 2.2rem; border-radius: 8px; font-weight: 700; font-size: 1rem;
-          cursor: pointer; transition: all 0.3s;
+
+        /* ── Background ── */
+        .hero-bg-wrapper {
+          position: absolute;
+          inset: 0;
+          z-index: 1;
         }
-        .cta-secondary:hover { border-color: #ffd700; color: #ffd700; background: rgba(255,215,0,0.05); }
-        @media (max-width: 900px) {
-          .hero-grid { grid-template-columns: 1fr !important; gap: 2rem !important; }
+        .hero-bg-image {
+          object-fit: cover;
+          object-position: center top;
+          opacity: 0.7;
+          transform: scale(1.05);
+          animation: slowZoom 20s infinite alternate;
+        }
+        @keyframes slowZoom {
+          from { transform: scale(1); }
+          to { transform: scale(1.1); }
+        }
+        .hero-bg-overlay {
+          position: absolute;
+          inset: 0;
+          background: rgba(0,0,0,0.3);
+        }
+        .hero-bg-gradient {
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, transparent 50%, #000 100%);
+        }
+
+        /* ── Layout ── */
+        .hero-content-wrapper {
+          position: relative;
+          z-index: 10;
+          width: 100%;
+          max-width: 1320px;
+          margin: 0 auto;
+          padding: 0 24px;
+        }
+        .hero-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 60px;
+          align-items: center;
+        }
+        @media (min-width: 1024px) {
+          .hero-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 100px;
+          }
+        }
+
+        /* ── Typography & Left Content ── */
+        .hero-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 10px;
+          background: rgba(255, 184, 0, 0.1);
+          border: 1px solid rgba(255, 184, 0, 0.3);
+          padding: 6px 16px;
+          border-radius: 100px;
+          margin-bottom: 24px;
+        }
+        .hero-badge-dot {
+          width: 8px;
+          height: 8px;
+          background-color: #FFB800;
+          border-radius: 50%;
+          box-shadow: 0 0 12px #FFB800;
+          animation: blink 2s infinite;
+        }
+        .hero-badge span {
+          color: #FFB800;
+          font-size: 11px;
+          font-weight: 800;
+          text-transform: uppercase;
+          letter-spacing: 2px;
+        }
+
+        .hero-title {
+          margin: 0 0 24px 0;
+          display: flex;
+          flex-direction: column;
+          gap: 5px;
+        }
+        
+        .hero-title-top {
+          font-size: clamp(1rem, 2vw, 1.5rem);
+          font-weight: 500;
+          color: rgba(255,255,255,0.8);
+          letter-spacing: 6px;
+          text-transform: uppercase;
+        }
+        
+        .hero-title-highlight {
+          font-size: clamp(2.5rem, 5vw, 4.5rem);
+          font-weight: 900;
+          letter-spacing: -1px;
+          background: linear-gradient(90deg, #FFB800 0%, #FF6200 50%, #FFB800 100%);
+          background-size: 200% auto;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          animation: shine 4s linear infinite;
+          filter: drop-shadow(0 10px 20px rgba(255,184,0,0.25));
+        }
+
+        .hero-subtitle {
+          font-size: clamp(1rem, 1.2vw, 1.2rem);
+          color: rgba(255,255,255,0.6);
+          line-height: 1.6;
+          max-width: 500px;
+          margin-bottom: 40px;
+        }
+
+        /* ── Buttons ── */
+        .hero-action-group {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 16px;
+          margin-bottom: 48px;
+        }
+        .hero-btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          padding: 16px 32px;
+          border-radius: 12px;
+          font-size: 14px;
+          font-weight: 800;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          border: none;
+        }
+        .hero-btn-gold {
+          background: linear-gradient(135deg, #FFB800 0%, #FF6200 100%) !important;
+          color: #000 !important;
+          box-shadow: 0 8px 25px rgba(255,184,0,0.35) !important;
+        }
+        .hero-btn-gold:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 12px 30px rgba(255,184,0,0.5) !important;
+        }
+        .hero-btn-glass {
+          background: rgba(255,255,255,0.05) !important;
+          color: #fff !important;
+          border: 1px solid rgba(255,255,255,0.1) !important;
+          backdrop-filter: blur(10px);
+        }
+        .hero-btn-glass:hover {
+          background: rgba(255,255,255,0.1) !important;
+          border-color: #FFB800 !important;
+        }
+
+        /* ── Stats ── */
+        .hero-stats-container {
+          display: flex;
+          align-items: center;
+          gap: 30px;
+          padding-top: 32px;
+          border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        .hero-stat-block {
+          display: flex;
+          flex-direction: column;
+        }
+        .hero-stat-divider {
+          width: 1px;
+          height: 40px;
+          background: rgba(255,255,255,0.1);
+        }
+        .hero-stat-label {
+          font-size: 9px;
+          text-transform: uppercase;
+          letter-spacing: 2px;
+          color: rgba(255,255,255,0.4);
+          font-weight: 700;
+          margin-bottom: 4px;
+        }
+        .hero-stat-value {
+          font-size: 22px;
+          font-weight: 900;
+        }
+        .gold-text { color: #FFB800 !important; }
+        .white-text { color: #fff !important; }
+        .track-green { color: #00e676 !important; }
+        .drop-glow { text-shadow: 0 0 15px rgba(255,184,0,0.35); }
+        .flex-center { display: flex; align-items: center; }
+        .pulse-dot {
+          width: 8px;
+          height: 8px;
+          background: #00e676;
+          border-radius: 50%;
+          animation: blink 1.5s infinite;
+        }
+
+        /* ── Right Visual Glass Card ── */
+        .hero-glass-card {
+          background: rgba(255, 255, 255, 0.03);
+          backdrop-filter: blur(20px);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 24px;
+          padding: 20px;
+          box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+        }
+        .hero-glass-card-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 16px;
+        }
+        .hgc-live-badge {
+          background: rgba(255, 0, 0, 0.2);
+          color: #ff4d4d;
+          padding: 4px 10px;
+          border-radius: 6px;
+          font-size: 10px;
+          font-weight: 900;
+        }
+        .hgc-odds-badge {
+          background: rgba(255, 184, 0, 0.12);
+          color: #FFB800;
+          padding: 4px 10px;
+          border-radius: 6px;
+          font-size: 10px;
+          font-weight: 900;
+        }
+        .hero-glass-image-wrapper {
+          position: relative;
+          width: 100%;
+          aspect-ratio: 16/11;
+          border-radius: 16px;
+          overflow: hidden;
+          margin-bottom: 20px;
+          background: #000;
+        }
+        .hero-glass-image {
+          object-fit: cover;
+          object-position: center 30%;
+          transition: transform 0.5s ease;
+          filter: contrast(1.05) brightness(1.1);
+        }
+        .hero-glass-card:hover .hero-glass-image {
+          transform: scale(1.05);
+        }
+        .hero-glass-image-fade {
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 40%, transparent 100%);
+        }
+        .hero-glass-image-text {
+          position: absolute;
+          bottom: 16px;
+          left: 16px;
+          z-index: 5;
+        }
+        .hero-glass-image-text h3 {
+          color: #fff;
+          font-size: 18px;
+          font-weight: 900;
+          margin-bottom: 4px;
+        }
+        .hero-glass-image-text p {
+          color: rgba(255,255,255,0.6);
+          font-size: 10px;
+          text-transform: uppercase;
+          font-weight: 700;
+        }
+        .hero-glass-footer {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        .hgc-footer-item {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+        .hgc-footer-icon-wrapper {
+          position: relative;
+          width: 40px;
+          height: 40px;
+          border-radius: 10px;
+          overflow: hidden;
+        }
+        .hgc-footer-text {
+          display: flex;
+          flex-direction: column;
+        }
+        .hgc-footer-label {
+          color: rgba(255,255,255,0.4);
+          font-size: 8px;
+          text-transform: uppercase;
+        }
+        .hgc-footer-val {
+          font-size: 12px;
+          font-weight: 800;
+        }
+        .hgc-join-btn {
+          background: transparent;
+          color: #fff;
+          border: 1px solid rgba(255,255,255,0.2);
+          padding: 8px 16px;
+          border-radius: 8px;
+          font-size: 10px;
+          font-weight: 800;
+          cursor: pointer;
+          transition: 0.3s;
+        }
+        .hgc-join-btn:hover {
+          background: #fff;
+          color: #000;
+        }
+
+        @keyframes shine {
+          to { background-position: 200% center; }
+        }
+        @keyframes blink {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.4; }
+        }
+
+        @media (max-width: 1023px) {
+          .hero-section { padding-top: 140px; }
+          .hero-grid { text-align: center; }
+          .hero-badge, .hero-action-group, .hero-stats-container { justify-content: center; margin-left: auto; margin-right: auto; }
+          .hero-subtitle { margin-left: auto; margin-right: auto; }
         }
       `}</style>
     </section>

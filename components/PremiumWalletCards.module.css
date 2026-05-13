@@ -26,13 +26,13 @@
 .iconBox {
   width: 48px;
   height: 48px;
-  background: rgba(255, 102, 0, 0.1);
-  border: 1px solid rgba(255, 102, 0, 0.3);
+  background: rgba(255, 184, 0, 0.1);
+  border: 1px solid rgba(255, 184, 0, 0.3);
   border-radius: 12px;
   display: flex;
   justify-content: center;
   align-items: center;
-  color: #ff8c00;
+  color: #FFB800;
   position: relative;
 }
 
@@ -197,9 +197,9 @@
 }
 
 .greenBtn {
-  background: rgba(0, 255, 0, 0.05);
-  border: 1px solid rgba(0, 255, 0, 0.2);
-  color: #00ff00;
+  background: rgba(255, 215, 0, 0.05);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  color: #FFD700;
   padding: 10px;
   border-radius: 12px;
   font-weight: 600;
@@ -209,7 +209,7 @@
 }
 
 .greenBtn:hover {
-  background: rgba(0, 255, 0, 0.1);
+  background: rgba(255, 215, 0, 0.1);
 }
 
 .blueBtn {
@@ -225,7 +225,7 @@
 }
 
 .blueBtn:hover {
-  background: rgba(255, 102, 0, 0.1);
+  background: rgba(255, 184, 0, 0.1);
 }
 
 .outlineGreenBtn {
@@ -247,8 +247,8 @@
 
 /* Banner & Utility (Right style) */
 .earningBanner {
-  background: rgba(0, 50, 0, 0.2);
-  border: 1px solid rgba(0, 255, 0, 0.1);
+  background: rgba(25, 20, 0, 0.2);
+  border: 1px solid rgba(255, 184, 0, 0.1);
   border-radius: 16px;
   padding: 10px 18px;
   display: flex;
@@ -261,13 +261,13 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  color: #00ff00;
+  color: #FFD700;
   font-size: 13px;
   font-weight: 600;
 }
 
 .earningRate {
-  color: #00ff00;
+  color: #FFD700;
   font-weight: 800;
   font-size: 18px;
 }
@@ -279,8 +279,8 @@
 
 .primaryBtn {
   flex: 1;
-  background: #ff6600;
-  color: #ffffff;
+  background: #FFB800;
+  color: #000000;
   border: none;
   border-radius: 12px;
   padding: 14px;
@@ -292,13 +292,13 @@
   align-items: center;
   gap: 8px;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(255, 102, 0, 0.3);
+  box-shadow: 0 4px 15px rgba(255, 184, 0, 0.3);
 }
 
 .primaryBtn:hover {
-  background: #ff8c00;
+  background: #FFD700;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255, 102, 0, 0.4);
+  box-shadow: 0 6px 20px rgba(255, 184, 0, 0.4);
 }
 
 .secondaryBtn {
@@ -417,22 +417,22 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: rgba(255, 102, 0, 0.15);
+  background: rgba(255, 184, 0, 0.15);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 102, 0, 0.4);
+  border: 1px solid rgba(255, 184, 0, 0.4);
   display: flex;
   justify-content: center;
   align-items: center;
-  color: #ff8c00;
+  color: #FFD700;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .glassPlusBtn:hover {
-  background: rgba(255, 102, 0, 0.3);
+  background: rgba(255, 184, 0, 0.3);
   transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(255, 102, 0, 0.3);
+  box-shadow: 0 4px 10px rgba(255, 184, 0, 0.3);
 }
 
 /* New Rewards Wallet Layout */
@@ -658,16 +658,16 @@
 
 .energyRibbon1 {
   inset: -10px;
-  border-top: 3px solid #ff4500;
-  border-right: 3px solid #ff8c00;
-  filter: blur(1px) drop-shadow(0 0 10px rgba(255, 69, 0, 0.4));
+  border-top: 3px solid #FFB800;
+  border-right: 3px solid #FF6200;
+  filter: blur(1px) drop-shadow(0 0 10px rgba(255, 184, 0, 0.4));
   animation: swirlRotate 3s linear infinite;
 }
 
 .energyRibbon2 {
   inset: -18px;
-  border-bottom: 2px solid #ff8c00;
-  border-left: 2px solid #ff4500;
+  border-bottom: 2px solid #FFD700;
+  border-left: 2px solid #FFB800;
   opacity: 0.4;
   filter: blur(2px);
   animation: swirlRotate 5s linear infinite reverse;
@@ -675,7 +675,7 @@
 
 .energyRibbon3 {
   inset: -25px;
-  border: 1px dashed rgba(255, 140, 0, 0.3);
+  border: 1px dashed rgba(255, 215, 0, 0.3);
   animation: swirlRotate 10s linear infinite;
 }
 
@@ -687,7 +687,7 @@
 .pulsingGlow {
   position: absolute;
   inset: -30px;
-  background: radial-gradient(circle, rgba(255, 69, 0, 0.05) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(255, 184, 0, 0.05) 0%, transparent 70%);
   border-radius: 50%;
   animation: pulseSize 3s ease-in-out infinite;
 }
@@ -706,9 +706,9 @@
 .gaugeValue {
   font-size: 22px;
   font-weight: 900;
-  color: #ff8c00;
+  color: #FFD700;
   letter-spacing: -1px;
-  text-shadow: 0 0 15px rgba(255, 140, 0, 0.3);
+  text-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
   margin-bottom: 2px;
 }
 

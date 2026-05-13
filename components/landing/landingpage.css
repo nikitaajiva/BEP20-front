@@ -1,0 +1,549 @@
+
+
+/* ── Login Page Redesign (Centralized) ── */
+
+.signInPage {
+  min-height: 100vh;
+  height: 100vh;
+  width: 100%;
+  background: #050505;
+  color: #fff;
+  font-family: 'Outfit', 'Inter', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  padding: 20px;
+}
+
+/* ── Background Canvas ── */
+.backgroundCanvas {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+.fireGlowTop {
+  position: absolute;
+  top: -20%;
+  left: 20%;
+  width: 60%;
+  height: 60%;
+  background: radial-gradient(circle, rgba(255, 184, 0, 0.08) 0%, transparent 70%);
+  filter: blur(100px);
+}
+.fireGlowBottom {
+  position: absolute;
+  bottom: -20%;
+  right: 10%;
+  width: 50%;
+  height: 50%;
+  background: radial-gradient(circle, rgba(255, 98, 0, 0.05) 0%, transparent 70%);
+  filter: blur(80px);
+}
+.fireSpark {
+  position: absolute;
+  background: #FFB800;
+  border-radius: 50%;
+  opacity: 0;
+  animation: sparkRise linear infinite;
+}
+@keyframes sparkRise {
+  0% { transform: translateY(0) scale(1); opacity: 0; }
+  20% { opacity: 0.6; }
+  80% { opacity: 0.4; }
+  100% { transform: translateY(-100px) scale(0); opacity: 0; }
+}
+
+/* ── Container & Header ── */
+.mainContainer {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 1100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  transform: translateY(-10px);
+}
+
+.brandHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.logoCircle {
+  position: relative;
+  width: 70px;
+  height: 70px;
+  background: rgba(0,0,0,0.8);
+  border: 2px solid rgba(255, 184, 0, 0.3);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+.logoGlowPulse {
+  position: absolute;
+  inset: -8px;
+  border-radius: 26px;
+  background: radial-gradient(circle, rgba(255, 184, 0, 0.2) 0%, transparent 70%);
+  animation: pulseGlow 3s infinite;
+}
+@keyframes pulseGlow {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.2); opacity: 0.2; }
+}
+.brandTitle {
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+}
+.goldText {
+  background: linear-gradient(90deg, #FFB800 0%, #FF6200 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ── Auth Card ── */
+.authCard {
+  width: 100%;
+  background: rgba(15, 15, 15, 0.7);
+  backdrop-filter: blur(40px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-left: none;
+  border-top: none;
+  border-bottom: none;
+  border-radius: 40px;
+  overflow: hidden;
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8),
+              0 0 50px rgba(255, 184, 0, 0.02);
+}
+.cardContent {
+  display: flex;
+  min-height: 680px;
+}
+
+/* ── Visual Side ── */
+.visualSide {
+  flex: 1.2;
+  background: #000;
+  position: relative;
+  overflow: hidden;
+}
+.imageFrame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.visualImage {
+  object-fit: cover;
+  transition: transform 10s linear;
+  mask-image: linear-gradient(to right, black 80%, transparent 100%),
+              linear-gradient(to bottom, black 80%, transparent 100%),
+              linear-gradient(to left, black 80%, transparent 100%),
+              linear-gradient(to top, black 80%, transparent 100%);
+  mask-composite: intersect;
+}
+.imageFrame:hover .visualImage {
+  transform: scale(1.1);
+}
+.imageOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, #050505 0%, transparent 20%, transparent 80%, rgba(15, 15, 15, 0.9) 100%),
+              linear-gradient(to bottom, #050505 0%, transparent 15%, transparent 85%, rgba(0,0,0,0.8) 100%);
+}
+.imageTag {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(10px);
+  padding: 8px 16px;
+  border-radius: 100px;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: #FFB800;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid rgba(255, 184, 0, 0.3);
+}
+.tagDot {
+  width: 6px;
+  height: 6px;
+  background: #FFB800;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #FFB800;
+}
+
+/* ── Form Side ── */
+.formSide {
+  flex: 1;
+  padding: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(20, 20, 20, 0.4) 0%, rgba(10, 10, 10, 0.6) 100%);
+}
+.formHeader {
+  margin-bottom: 40px;
+}
+.formTitle {
+  font-size: 32px;
+  font-weight: 900;
+  margin-bottom: 10px;
+  background: linear-gradient(180deg, #fff 0%, rgba(255,255,255,0.7) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -1px;
+}
+.formSubtitle {
+  color: rgba(255,255,255,0.4);
+  font-size: 14px;
+  letter-spacing: 0.5px;
+}
+
+.errorMessage {
+  background: rgba(255, 0, 0, 0.08);
+  border: 1px solid rgba(255, 0, 0, 0.2);
+  color: #ff5f5f;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 12px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.authForm {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.fieldGroup label {
+  font-size: 10px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.3);
+  letter-spacing: 1px;
+}
+.labelRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.forgotLink {
+  font-size: 10px;
+  color: #FFB800;
+  text-decoration: none;
+  font-weight: 700;
+}
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.inputWrapper i:not(.visibilityToggle i) {
+  position: absolute;
+  left: 20px;
+  color: #FFB800;
+  font-size: 18px;
+  opacity: 0.6;
+  transition: all 0.3s;
+}
+.inputWrapper input {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 16px 20px 16px 54px;
+  border-radius: 16px;
+  color: #fff;
+  font-size: 15px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+}
+.inputWrapper input:focus {
+  background: rgba(255, 184, 0, 0.03);
+  border-color: rgba(255, 184, 0, 0.5);
+  box-shadow: 0 0 25px rgba(255, 184, 0, 0.1), inset 0 2px 4px rgba(0,0,0,0.4);
+}
+.inputWrapper input:focus + i {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.visibilityToggle {
+  position: absolute;
+  right: 14px;
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,0.25);
+  cursor: pointer;
+}
+.optionsRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 10px 0;
+  white-space: nowrap;
+}
+.customCheckbox {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  color: rgba(255,255,255,0.5);
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.customCheckbox:hover {
+  color: rgba(255,255,255,0.8);
+}
+.customCheckbox input { display: none; }
+.checkmark {
+  width: 20px;
+  height: 20px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 6px;
+  position: relative;
+  transition: all 0.3s;
+}
+.customCheckbox input:checked + .checkmark { 
+  background: #FFB800; 
+  border-color: #FFB800; 
+  box-shadow: 0 0 15px rgba(255, 184, 0, 0.4);
+}
+.customCheckbox input:checked + .checkmark::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #000;
+  font-size: 12px;
+  font-weight: 900;
+}
+.forgotLink {
+  font-size: 13px;
+  color: #FFB800;
+  text-decoration: none;
+  font-weight: 700;
+  transition: all 0.3s;
+  opacity: 0.8;
+}
+.forgotLink:hover {
+  opacity: 1;
+  text-shadow: 0 0 10px rgba(255, 184, 0, 0.3);
+  text-decoration: underline;
+}
+
+.signInButton {
+  background: linear-gradient(90deg, #FFB800 0%, #FF6200 100%);
+  color: #000;
+  border: none;
+  padding: 18px;
+  border-radius: 16px;
+  font-weight: 900;
+  font-size: 15px;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  margin-top: 10px;
+  box-shadow: 0 10px 30px rgba(255, 98, 0, 0.3);
+  text-transform: uppercase;
+}
+.signInButton:hover { 
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(255, 98, 0, 0.4);
+  filter: brightness(1.1);
+}
+.signInButton:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.formFooter {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 13px;
+  color: rgba(255,255,255,0.4);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.signUpLink { color: #fff; font-weight: 700; text-decoration: none; }
+.signUpLink:hover { color: #FFB800; }
+
+/* ── Sign Up Specific Styles ── */
+.countryInputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.dropdownChevron {
+  position: absolute;
+  right: 20px;
+  color: #FFB800;
+  transition: transform 0.3s;
+  pointer-events: none;
+}
+.dropdownChevronOpen {
+  transform: rotate(180deg);
+}
+
+.countryDropdownList {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: rgba(15, 15, 15, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 184, 0, 0.2);
+  border-radius: 16px;
+  max-height: 250px;
+  overflow-y: auto;
+  z-index: 100;
+  padding: 8px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+}
+.countryDropdownItem {
+  padding: 12px 16px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+}
+.countryDropdownItem:hover {
+  background: rgba(255, 184, 0, 0.1);
+}
+.countryDialCode {
+  color: #FFB800;
+  font-weight: 700;
+  font-size: 12px;
+}
+.countryDropdownNoResults {
+  padding: 20px;
+  text-align: center;
+  color: rgba(255,255,255,0.3);
+  font-size: 13px;
+}
+
+.countryCodeBox {
+  min-width: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  color: #FFB800;
+  background: rgba(255, 184, 0, 0.05) !important;
+  border-color: rgba(255, 184, 0, 0.2) !important;
+}
+
+.successMessage {
+  background: rgba(0, 255, 136, 0.08);
+  border: 1px solid rgba(0, 255, 136, 0.2);
+  color: #00ff88;
+  padding: 24px;
+  border-radius: 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: fadeInScale 0.5s ease-out;
+}
+@keyframes fadeInScale {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.signInRedirect {
+  margin-top: 25px;
+  font-size: 14px;
+  color: rgba(255,255,255,0.4);
+  text-align: center;
+}
+.signInLink {
+  color: #FFB800;
+  font-weight: 800;
+  text-decoration: none;
+  margin-left: 5px;
+}
+.signInLink:hover {
+  text-decoration: underline;
+}
+
+/* Scrollbar Styling for Dropdown */
+.countryDropdownList::-webkit-scrollbar {
+  width: 6px;
+}
+.countryDropdownList::-webkit-scrollbar-track {
+  background: transparent;
+}
+.countryDropdownList::-webkit-scrollbar-thumb {
+  background: rgba(255, 184, 0, 0.2);
+  border-radius: 10px;
+}
+.countryDropdownList::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 184, 0, 0.4);
+}
+
+
+.legalLinks {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 20px;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 14px;
+  margin-top: 40px;
+}
+.legalLinks a {
+  color: rgba(255, 255, 255, 0.5);
+  text-decoration: none;
+  transition: all 0.3s;
+}
+.legalLinks a:hover {
+  color: #FFB800;
+}
+.legalGap {
+  width: 1px;
+  height: 14px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.loader {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(0,0,0,0.1);
+  border-top-color: #000;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@media (max-width: 1024px) {
+  .signInPage { height: auto; overflow: auto; padding: 40px 20px; }
+  .authCard { max-height: none; }
+  .cardContent { flex-direction: column; }
+  .visualSide { display: none; }
+  .formSide { padding: 40px; }
+}

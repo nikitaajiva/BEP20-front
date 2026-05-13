@@ -29,12 +29,12 @@ ChartJS.register(
 
 const getThemeColor = (type) => {
   switch (type) {
-    case 'boost': return '#f038ff'; // Electric Purple
-    case 'zero-risk': return '#00ff88'; // Emerald
-    case 'lp': return '#4cc9f0'; // Sapphire
-    case 'community': return '#ffd700'; // Gold
-    case 'system': return '#00d2ff'; // Cyan
-    default: return '#ffd700';
+    case 'boost': return '#FFB800'; // Gold
+    case 'zero-risk': return '#FFD700'; // Platinum Gold
+    case 'lp': return '#FFD700'; // Sapphire Gold
+    case 'community': return '#FFB800'; // Gold
+    case 'system': return '#FFB800'; // Gold
+    default: return '#FFB800';
   }
 };
 
@@ -95,7 +95,7 @@ export const RewardsWalletCard = ({
             <span>{lpBalance} USDT</span>
           </div>
           <div className={styles.rwProgressBar}>
-            <div className={styles.rwProgressFill} style={{ width: `${lpPerc}%`, background: '#4cc9f0' }}></div>
+            <div className={styles.rwProgressFill} style={{ width: `${lpPerc}%`, background: '#FFD700' }}></div>
           </div>
         </div>
 
@@ -105,7 +105,7 @@ export const RewardsWalletCard = ({
             <span>{communityBalance} USDT</span>
           </div>
           <div className={styles.rwProgressBar}>
-            <div className={styles.rwProgressFill} style={{ width: `${commPerc}%`, background: '#ffd700' }}></div>
+            <div className={styles.rwProgressFill} style={{ width: `${commPerc}%`, background: '#FFB800' }}></div>
           </div>
         </div>
 
@@ -153,14 +153,14 @@ export const ActionableWalletCard = ({
 
         <div className={styles.horizontalCenter}>
           <div className={styles.mainBalance} style={{ fontSize: "22px" }}>
-            {balance} <span style={{ fontSize: "13px", color: "#00ff00" }}>{displayCurrency}</span>
+            {balance} <span style={{ fontSize: "13px", color: "#FFB800" }}>{displayCurrency}</span>
           </div>
           {limit && limit !== "N/A" && (
             <div className={styles.limitText} style={{ fontSize: "11px" }}>
               Limit: <span>{limit} {displayCurrency}</span>
             </div>
           )}
-          {earningRate && <div className={styles.earningBannerLeft} style={{ marginTop: "5px", color: "#00ff00", fontSize: "12px" }}><TrendingUp size={12} /> Daily Earning: {earningRate}</div>}
+          {earningRate && <div className={styles.earningBannerLeft} style={{ marginTop: "5px", color: "#FFB800", fontSize: "12px" }}><TrendingUp size={12} /> Daily Earning: {earningRate}</div>}
         </div>
 
         <div className={styles.horizontalRight}>
@@ -261,16 +261,16 @@ export const BoostWalletCard = ({
 
         <div className={styles.gaugeWrapper}>
           <div className={styles.gaugeOuter}>
-             {/* Energy Ribbons & Swirls */}
-             <div className={styles.energyRibbon1}></div>
-             <div className={styles.energyRibbon2}></div>
-             <div className={styles.energyRibbon3}></div>
-             <div className={styles.pulsingGlow}></div>
-             
-             <div className={styles.gaugeInner}>
-               <div className={styles.gaugeValue}>{balance}</div>
-               <div className={styles.gaugeCurrency}>USDT</div>
-             </div>
+            {/* Energy Ribbons & Swirls */}
+            <div className={styles.energyRibbon1}></div>
+            <div className={styles.energyRibbon2}></div>
+            <div className={styles.energyRibbon3}></div>
+            <div className={styles.pulsingGlow}></div>
+
+            <div className={styles.gaugeInner}>
+              <div className={styles.gaugeValue}>{balance}</div>
+              <div className={styles.gaugeCurrency}>USDT</div>
+            </div>
           </div>
         </div>
       </div>
@@ -278,27 +278,27 @@ export const BoostWalletCard = ({
       {/* Right side: Chart & Button */}
       <div className={styles.boostChartArea}>
         <div className={styles.chartTitleRow}>
-            <span>History</span>
-            {earningRate && (
-              <div className={styles.rateBadge}>
-                <TrendingUp size={10} />
-                <span>Rate: {earningRate}</span>
-              </div>
-            )}
+          <span>History</span>
+          {earningRate && (
+            <div className={styles.rateBadge}>
+              <TrendingUp size={10} />
+              <span>Rate: {earningRate}</span>
+            </div>
+          )}
         </div>
         <div className={styles.miniChartSection}>
           {chartData && (
-            <Chart 
+            <Chart
               type="bar"
-              data={chartData} 
-              options={chartOptions} 
-              plugins={plugins} 
+              data={chartData}
+              options={chartOptions}
+              plugins={plugins}
             />
           )}
         </div>
         <button className={styles.premiumActionBtn} onClick={onViewHistory}>
-           <span>VIEW HISTORY</span>
-           <ArrowRight size={14} />
+          <span>VIEW HISTORY</span>
+          <ArrowRight size={14} />
         </button>
       </div>
     </div>
@@ -369,7 +369,7 @@ export const HorseNFTCard = ({
       <div className={styles.nftHeader}>
         <div className={styles.headerLeft}>
           <div className={styles.nftIconBox}>
-             <FaHorse size={20} color={isActive ? "#ffd700" : "#555"} />
+            <FaHorse size={20} color={isActive ? "#ffd700" : "#555"} />
           </div>
           <div className={styles.titleSection}>
             <h3>{title}</h3>
@@ -378,64 +378,64 @@ export const HorseNFTCard = ({
             </p>
           </div>
         </div>
-        
+
         {/* Compact Tier Image - Top Right */}
         <div className={styles.nftImageSmall}>
-           <span style={{ opacity: isActive ? 1 : 0.3 }}>
-             {nftImages[tier] || "🐎"}
-           </span>
-           <div className={styles.nftGlowSmall}></div>
+          <span style={{ opacity: isActive ? 1 : 0.3 }}>
+            {nftImages[tier] || "🐎"}
+          </span>
+          <div className={styles.nftGlowSmall}></div>
         </div>
       </div>
 
       <div className={styles.nftMainBalanceLarge} style={{ color: isActive ? undefined : '#555' }}>
-         {balance} <span>USDT</span>
+        {balance} <span>USDT</span>
       </div>
 
       <div className={styles.roiProgressSection}>
         <div className={styles.roiLabelRow}>
-           <span>Annual ROI Target</span>
-           <span style={{ color: roiProgress > 0 ? '#00ff00' : '#555' }}>
-             {roiProgress > 0 ? `${roiProgress}%` : 'N/A'}
-           </span>
+          <span>Annual ROI Target</span>
+          <span style={{ color: roiProgress > 0 ? '#00ff00' : '#555' }}>
+            {roiProgress > 0 ? `${roiProgress}%` : 'N/A'}
+          </span>
         </div>
         <div className={styles.roiProgressBar}>
-           <div
-             className={styles.roiProgressFill}
-             style={{
-               width: roiProgress > 0 ? `${Math.min(roiProgress, 100)}%` : '0%',
-               background: roiProgress >= 60 ? 'linear-gradient(90deg,#ffd700,#ff8c00)'
-                         : roiProgress >= 50 ? 'linear-gradient(90deg,#00ff88,#00d2ff)'
-                         : roiProgress > 0  ? 'linear-gradient(90deg,#7fff4c,#00ff88)'
-                         : 'rgba(255,255,255,0.05)'
-             }}
-           ></div>
+          <div
+            className={styles.roiProgressFill}
+            style={{
+              width: roiProgress > 0 ? `${Math.min(roiProgress, 100)}%` : '0%',
+              background: roiProgress >= 60 ? 'linear-gradient(90deg,#ffd700,#ff8c00)'
+                : roiProgress >= 50 ? 'linear-gradient(90deg,#00ff88,#00d2ff)'
+                  : roiProgress > 0 ? 'linear-gradient(90deg,#7fff4c,#00ff88)'
+                    : 'rgba(255,255,255,0.05)'
+            }}
+          ></div>
         </div>
       </div>
 
       <div className={styles.nftStatsGrid}>
         <div className={styles.nftStatItem}>
-           <span className={styles.nftStatLabel}>Daily Yield</span>
-           <span className={styles.nftStatValue} style={{ color: isActive ? "#00ff00" : "#555" }}>
-             {dailyYield} USDT
-           </span>
+          <span className={styles.nftStatLabel}>Daily Yield</span>
+          <span className={styles.nftStatValue} style={{ color: isActive ? "#00ff00" : "#555" }}>
+            {dailyYield} USDT
+          </span>
         </div>
         <div className={styles.nftStatItem}>
-           <span className={styles.nftStatLabel}>Est. Payout</span>
-           <span className={styles.nftStatValue} style={{ color: isActive ? undefined : '#555' }}>
-             {estPayout} USDT
-           </span>
+          <span className={styles.nftStatLabel}>Est. Payout</span>
+          <span className={styles.nftStatValue} style={{ color: isActive ? undefined : '#555' }}>
+            {estPayout} USDT
+          </span>
         </div>
         <div className={styles.nftStatItem} style={{ border: 'none' }}>
-           <div className={styles.nftStatLabelGroup}>
-             <span className={styles.nftStatLabel}>Next Payout</span>
-             <span className={styles.nftTimeLeft} style={{ color: isActive ? undefined : '#555' }}>
-               {isActive ? `${liveTimeLeft} LEFT` : '--'}
-             </span>
-           </div>
-           <span className={styles.nftStatValue} style={{ color: isActive ? undefined : '#555' }}>
-             {nextPayout} USDT
-           </span>
+          <div className={styles.nftStatLabelGroup}>
+            <span className={styles.nftStatLabel}>Next Payout</span>
+            <span className={styles.nftTimeLeft} style={{ color: isActive ? undefined : '#555' }}>
+              {isActive ? `${liveTimeLeft} LEFT` : '--'}
+            </span>
+          </div>
+          <span className={styles.nftStatValue} style={{ color: isActive ? undefined : '#555' }}>
+            {nextPayout} USDT
+          </span>
         </div>
       </div>
 

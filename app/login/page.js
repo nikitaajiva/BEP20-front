@@ -6,8 +6,9 @@ import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import styles from "./signin.module.css";
+import "@/components/landing/landingpage.css";
 import { useAuth } from "@/context/AuthContext";
+import { motion } from "framer-motion";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
@@ -36,28 +37,17 @@ export default function SignInPage() {
   };
 
   const [particles, setParticles] = useState([]);
-  const [streaks, setStreaks] = useState([]);
 
-  // Generate background animation elements
   useEffect(() => {
-    const newParticles = Array.from({ length: 120 }, (_, i) => ({
+    const newParticles = Array.from({ length: 80 }, (_, i) => ({
       id: i,
       left: `${(Math.random() * 100).toFixed(2)}%`,
       top: `${(Math.random() * 100).toFixed(2)}%`,
-      size: `${(1 + Math.random() * 2.5).toFixed(1)}px`,
-      duration: `${(3 + Math.random() * 6).toFixed(1)}s`,
-      delay: `${(Math.random() * 10).toFixed(1)}s`,
+      size: `${(1 + Math.random() * 3).toFixed(1)}px`,
+      duration: `${(4 + Math.random() * 8).toFixed(1)}s`,
+      delay: `${(Math.random() * 5).toFixed(1)}s`,
     }));
-
-    const newStreaks = Array.from({ length: 8 }, (_, i) => ({
-      id: i,
-      left: `${Math.random() * 100}%`,
-      duration: `${Math.random() * 5 + 3}s`,
-      delay: `${Math.random() * 10}s`,
-    }));
-
     setParticles(newParticles);
-    setStreaks(newStreaks);
   }, []);
 
   // Redirect if already logged in
@@ -69,25 +59,15 @@ export default function SignInPage() {
 
   return (
     <>
-      <Head>
-        <title>Sign In - BEPVault</title>
-        <meta name="description" content="Sign in to your BEPVault account" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
-      <div className={styles.signInPage}>
-        {/* Animated Background */}
-        <div className={styles.lightRaysContainer}>
-          <div className={styles.ray}></div>
-          <div className={styles.ray}></div>
-        </div>
-        <div className={styles.ambientGlow}></div>
-
-        <div className={styles.bgAnimation}>
+      <div className="signInPage">
+        {/* Cinematic Background Layer */}
+        <div className="backgroundCanvas">
+          <div className="fireGlowTop" />
+          <div className="fireGlowBottom" />
           {particles.map((p) => (
             <div
               key={p.id}
-              className={styles.particle}
+              className="fireSpark"
               style={{
                 left: p.left,
                 top: p.top,
@@ -98,175 +78,149 @@ export default function SignInPage() {
               }}
             />
           ))}
-          {streaks.map((s) => (
-            <div
-              key={s.id}
-              className={styles.goldenStreak}
-              style={{
-                left: s.left,
-                animationDuration: s.duration,
-                animationDelay: s.delay,
-              }}
-            />
-          ))}
         </div>
 
-        <div className={styles.externalBorder}>
-          <div className={styles.mainContainer}>
-            {/* Glass Form Card */}
-            <div className={styles.formGlassCard}>
-              {/* Logo Box half-hanging outside */}
-              <div className={styles.logoBoxTop}>
-                <Image
-                  src="/bepvault_logo.png"
-                  alt="BEPVault Logo"
-                  width={40}
-                  height={40}
-                  className={styles.logo}
-                />
-              </div>
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="mainContainer"
+        >
+          {/* Top Branding Section */}
+          <div className="brandHeader">
+            <div className="logoCircle">
+              <Image src="/img/main-logo.avif" alt="Logo" width={60} height={60} className="object-contain" />
+              <div className="logoGlowPulse" />
+            </div>
+            <h1 className="brandTitle">
+              Toking<span className="goldText">Hoofborn</span>
+            </h1>
+          </div>
 
-              <div className={styles.cardHeader}>
-                <h2 className={styles.title}>
-                  <span className={styles.welcomeText}>Welcome to </span>
-                  <span className={styles.vaultText}>BEPVault!</span>
-                </h2>
-                <p className={styles.subtitle}>
-                  Secure access to your administrative command center
-                </p>
-              </div>
-
-              <div className={styles.cardBody}>
-                {/* Left Side: Robot */}
-                <div className={styles.illustrationContainer}>
-                  <div className={styles.robotWrapper}>
-                    <Image
-                      src="/assets/img/illustrations/bepvault-robot.png"
-                      alt="BEPVault Robot"
-                      width={600}
-                      height={600}
-                      className={styles.robotImage}
-                      priority
-                    />
+          {/* Main Login Card */}
+          <div className="authCard">
+            <div className="cardContent">
+              
+              {/* Left Side: Cinematic Visual */}
+              <div className="visualSide">
+                <div className="imageFrame">
+                  <Image
+                    src="/IMG/login-visual.png"
+                    alt="Authentic Racing"
+                    fill
+                    className="visualImage"
+                    priority
+                  />
+                  <div className="imageOverlay" />
+                  <div className="imageTag">
+                    <span className="tagDot" />
+                    COMMAND CENTER
                   </div>
                 </div>
+              </div>
 
-                {/* Right Side: Form */}
-                <div className={styles.formSide}>
-                  {error && <div className={styles.errorMessage}>{error}</div>}
+              {/* Right Side: Login Form */}
+              <div className="formSide">
+                <div className="formHeader">
+                  <h2 className="formTitle">Welcome Back</h2>
+                  <p className="formSubtitle">Access your executive racing vault</p>
+                </div>
 
-                  {activationMessage ? (
-                    <div className={styles.activationMessageContainer}>
-                      <h3 className={styles.activationTitle}>
-                        Account Activation Required
-                      </h3>
-                      <p>{activationMessage}</p>
-                    </div>
-                  ) : (
-                    <form onSubmit={handleSubmit} className={styles.signInForm}>
-                      <div className={styles.inputGroup}>
-                        <label htmlFor="email" className={styles.label}>
-                          USERNAME | UHID
-                        </label>
+                {error && (
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="errorMessage"
+                  >
+                    <i className="ri-error-warning-fill" /> {error}
+                  </motion.div>
+                )}
+
+                {activationMessage ? (
+                  <div className="activationBox">
+                    <h3>Activation Required</h3>
+                    <p>{activationMessage}</p>
+                    <button onClick={() => window.location.reload()} className="btnSecondary">Retry</button>
+                  </div>
+                ) : (
+                  <form onSubmit={handleSubmit} className="authForm">
+                    <div className="fieldGroup">
+                      <label>IDENTITY ID / EMAIL</label>
+                      <div className="inputWrapper">
+                        <i className="ri-user-6-line" />
                         <input
                           type="text"
-                          id="email"
-                          className={styles.inputField}
-                          placeholder="Enter Username or UHID"
+                          placeholder="Enter your credentials"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           required
                         />
                       </div>
+                    </div>
 
-                      <div className={styles.inputGroup}>
-                        <label htmlFor="password" className={styles.label}>
-                          PASSWORD
-                        </label>
-                        <div className={styles.passwordWrapper}>
-                          <input
-                            type={showPassword ? "text" : "password"}
-                            id="password"
-                            className={styles.inputField}
-                            placeholder="Enter Password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setShowPassword(!showPassword)}
-                            className={styles.eyeButton}
-                            tabIndex="-1"
-                          >
-                            <i
-                              className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"
-                                }`}
-                            ></i>
-                          </button>
-                        </div>
+                    <div className="fieldGroup">
+                      <label>SECURITY PASSWORD</label>
+                      <div className="inputWrapper">
+                        <i className="ri-lock-2-line" />
+                        <input
+                          type={showPassword ? "text" : "password"}
+                          placeholder="••••••••"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          required
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="visibilityToggle"
+                        >
+                          <i className={showPassword ? "ri-eye-off-line" : "ri-eye-line"} />
+                        </button>
                       </div>
+                    </div>
 
-                      <div className={styles.formActionsRow}>
-                        <div className={styles.checkboxGroup}>
-                          <input
-                            type="checkbox"
-                            id="remember-me"
-                            className={styles.checkbox}
-                          />
-                          <label
-                            htmlFor="remember-me"
-                            className={styles.checkboxLabel}
-                          >
-                            Remember Me
-                          </label>
-                        </div>
-                      </div>
+                    <div className="optionsRow">
+                      <label className="customCheckbox">
+                        <input type="checkbox" />
+                        <span className="checkmark" />
+                        Keep me logged in
+                      </label>
+                      <Link href="/forgot-password" className="forgotLink">Forgot Password?</Link>
+                    </div>
 
-                      <button
-                        type="submit"
-                        className={styles.signInButton}
-                        disabled={authLoading}
-                      >
-                        {authLoading ? "Signing In..." : "SIGN IN"}
-                      </button>
+                    <button
+                      type="submit"
+                      className="signInButton"
+                      disabled={authLoading}
+                    >
+                      {authLoading ? (
+                        <div className="loader" />
+                      ) : (
+                        <>
+                          SECURE SIGN IN
+                          <i className="ri-arrow-right-line" />
+                        </>
+                      )}
+                    </button>
 
-                      <div className={styles.forgotPasswordContainer}>
-                        <Link href="/forgot-password" className={styles.forgotPasswordLink}>
-                          Forgot Password?
-                        </Link>
-                      </div>
-
-                      <div className={styles.dividerLine}></div>
-
-                      <div className={styles.createAccountText}>
-                        New on our platform?{" "}
-                        <Link href="/sign-up" className={styles.createAccountLink}>
-                          Create an account
-                        </Link>
-                      </div>
-
-                    </form>
-                  )}
-                </div>
-              </div>
-              {/* Footer moved inside */}
-              <div className={styles.loginFooter}>
-                <span>© 2026 BEPVault. All rights reserved. | </span>
-                <Link href="/terms" className={styles.footerLink}>Terms & Conditions</Link>
-                <span> | </span>
-                <Link href="/privacy" className={styles.footerLink}>Privacy Policy</Link>
+                    <div className="formFooter">
+                      <span>Don't have an account?</span>
+                      <Link href="/sign-up" className="signUpLink">Create Account</Link>
+                    </div>
+                  </form>
+                )}
               </div>
             </div>
           </div>
 
-          {/* Corner Star */}
-          <div className={styles.cornerStar}>
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="rgba(255,215,0,0.5)" />
-            </svg>
+          {/* Bottom Legal Links */}
+          <div className="legalLinks">
+            <p>© 2026 TokingHoofborn. All Rights Reserved.</p>
+            <div className="legalGap" />
+            <Link href="/terms">Terms</Link>
+            <Link href="/privacy">Privacy</Link>
           </div>
-        </div>
+        </motion.div>
       </div>
     </>
   );

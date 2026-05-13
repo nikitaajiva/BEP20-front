@@ -45,11 +45,11 @@ export default function LedgerPage() {
       <Suspense
         fallback={<div className={styles.loading}>Loading page...</div>}
       >
-        <div className={styles.pageContainer}>
+        <div className={styles.ledger_pageContainer}>
           <DashboardNavbar user={user} onLogout={logout} />
-          <div className={styles.contentWrapper}>
+          <div className={styles.ledger_contentWrapper}>
             {/* <DashboardSidebar /> */}
-            <main className={styles.mainContent}>
+            <main className={styles.ledger_mainContent}>
               {/* Pass wallet type as prop */}
               <LedgerPageContent walletType={walletType} />
             </main>

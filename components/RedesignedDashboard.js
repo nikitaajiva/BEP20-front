@@ -28,6 +28,7 @@ const RedesignedDashboard = ({
   phantomLoading,
   phantomErrorCode,
   shortAddress: shortAddressProp,
+  nftTierLabel,
   children
 }) => {
   const lpWallet = ledgerDetails?.lpWallet || {};
@@ -103,90 +104,150 @@ const RedesignedDashboard = ({
   const [isNftModalOpen, setIsNftModalOpen] = React.useState(false);
 
   return (
-    <div className={styles.hubContentWrapper}>
+    <div className="min-h-screen bg-black text-white relative font-inter overflow-x-hidden">
       {/* Unified Top Header Actions */}
       <div className={styles.dashboardTopHeader}>
-        {/* Vault Pass (Invitation Link) - Left */}
-        <div
-          className={styles.vaultPassCard}
-          onClick={handleCopyLink}
-          style={{ cursor: 'pointer' }}
-          title="Click to copy invitation link"
-        >
-          <div className={styles.passHeader}>
-            <span className={styles.passLabel}>INVITE FRIENDS & EARN REWARDS</span>
-            <div className={styles.inviteCodeBadge} onClick={handleCopyCode} title="Click to copy invite code">
-              CODE: {user?.username || "---"}
+        {/* LEFT: Vault Pass (Invitation Link) */}
+        <div className="flex-shrink-0">
+          <div
+            className={styles.vaultPassCard}
+            onClick={handleCopyLink}
+            style={{ cursor: 'pointer', minWidth: '280px' }}
+            title="Click to copy invitation link"
+          >
+            <div className={styles.passHeader}>
+              <span className={styles.passLabel}>INVITE FRIENDS & EARN REWARDS</span>
+              <div className={styles.inviteCodeBadge} onClick={handleCopyCode} title="Click to copy invite code">
+                CODE: {user?.username || "---"}
+              </div>
             </div>
-          </div>
-          <div className={styles.passLinkWrapper}>
-            <span className={styles.passUrl}>
-              {copySuccess === "code"
-                ? "CODE COPIED!"
-                : copySuccess
-                  ? "LINK COPIED! SHARE WITH TEAM"
-                  : "TAP TO COPY REFERRAL LINK"}
-            </span>
-            <button
-              className={styles.passCopyBtn}
-              onClick={handleCopyLink}
-              title="Copy Invitation Link"
-            >
-              {copySuccess && copySuccess !== "code" ? <Activity size={12} color="#FFB800" /> : <Copy size={12} />}
-            </button>
+            <div className={styles.passLinkWrapper}>
+              <span className={styles.passUrl}>
+                {copySuccess === "code" 
+                  ? "CODE COPIED!" 
+                  : copySuccess 
+                    ? "LINK COPIED! SHARE WITH TEAM" 
+                    : "TAP TO COPY REFERRAL LINK"}
+              </span>
+              <button
+                className={styles.passCopyBtn}
+                onClick={handleCopyLink}
+                title="Copy Invitation Link"
+              >
+                {copySuccess && copySuccess !== "code" ? <Activity size={12} color="#FFB800" /> : <Copy size={12} />}
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Action Group - Right */}
+        {/* MIDDLE: Primary Wallet (Horizontal Card) */}
+        <div style={{ flex: 1, display: 'flex', justifyContent: 'center', padding: '0 20px', minWidth: 0 }}>
+          <div style={{ width: '100%', maxWidth: '680px' }}>
+            {orbitCard1}
+          </div>
+        </div>
+
+        {/* RIGHT: Action Group */}
         <div className={styles.topRightActions}>
           <div className={styles.headerBalanceWrapper}>
-            <span className={styles.headerBalanceLabel}>Redeemable Balance:</span>
+            <span className={styles.headerBalanceLabel}>REDEEMABLE BALANCE:</span>
             <span className={styles.headerBalanceValue}>
               {parseFloat(ledgerDetails?.communityRewards?.balance || "0").toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USDT
             </span>
           </div>
-          {user?.userType === "superadmin" && (
-            <Link href="/support/dashboard" className={styles.supportAdminBtn}>
-              <Shield size={14} />
-              Support
-            </Link>
-          )}
-          <button
-            className={styles.redeemBtnTop}
-            onClick={onRedeem}
-          >
-            <Gift size={14} />
-            Redeem
-          </button>
-          <button
-            type="button"
-            className={styles.connectBtn}
-            disabled={phantomLoading || Boolean(user?.phantomWalletAddress)}
-            onClick={user?.phantomWalletAddress || phantomLoading ? undefined : onConnectPhantom}
-            title={user?.phantomWalletAddress ? "Phantom Connected" : "Connect Wallet"}
-          >
-            <Wallet size={14} />
-            {user?.phantomWalletAddress
-              ? `SOL: ${user.phantomWalletAddress.slice(0, 4)}...${user.phantomWalletAddress.slice(-4)}`
-              : phantomLoading
-                ? "Connecting..."
-                : "Connect Wallet"}
-          </button>
+          
+          <div className="flex items-center gap-3">
+            {user?.userType === "superadmin" && (
+              <Link href="/support/dashboard" className={styles.supportAdminBtn}>
+                <Shield size={14} />
+                Support
+              </Link>
+            )}
+            
+            <button
+              className={styles.redeemBtnTop}
+              onClick={onRedeem}
+            >
+              <Gift size={14} />
+              Redeem
+            </button>
 
-          {phantomStatus && !user?.phantomWalletAddress && (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', marginTop: '8px' }}>
-              <span style={{ fontSize: '10px', color: phantomErrorCode ? "#ff6666" : "#7FFF4C", textAlign: 'center', maxWidth: '200px' }}>
-                {phantomStatus}
-              </span>
-              {phantomErrorCode && (
-                <span style={{ fontSize: '9px', color: '#ffaaaa', textAlign: 'center', maxWidth: '200px', lineHeight: '1.2' }}>
-                  Open Phantom, unlock or set up your wallet, then try again.
-                  <br />
-                  If Phantom keeps failing, check "Connected Apps" in Phantom settings and remove localhost.
+            {/* BSC / BEP20 Wallet */}
+            <button
+              className={styles.connectBtn}
+              onClick={onWalletConnect}
+              title={hasWallet ? "Wallet Connected" : "Connect Wallet"}
+            >
+              <Wallet size={14} />
+              <span className="whitespace-nowrap">{hasWallet ? shortAddress : "Connect Wallet"}</span>
+              {hasWallet && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '8px' }}>
+                  <span
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigator.clipboard.writeText(walletAccount);
+                    }}
+                    style={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer', color: '#888' }}
+                    title="Copy Address"
+                  >
+                    <Copy size={12} />
+                  </span>
+                  <span
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (onWalletDisconnect) onWalletDisconnect();
+                    }}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      cursor: 'pointer',
+                      backgroundColor: 'rgba(255,100,100,0.15)',
+                      color: '#ff6666',
+                      padding: '3px',
+                      borderRadius: '4px'
+                    }}
+                    title="Disconnect Wallet"
+                  >
+                    <Activity size={12} style={{ transform: 'rotate(90deg)' }} />
+                  </span>
+                </div>
+              )}
+            </button>
+
+            {/* Phantom Wallet (Solana) */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <button
+                type="button"
+                className={styles.connectBtn}
+                disabled={phantomLoading || Boolean(user?.phantomWalletAddress)}
+                onClick={user?.phantomWalletAddress || phantomLoading ? undefined : onConnectPhantom}
+                title={user?.phantomWalletAddress ? "Phantom Connected" : "Connect Phantom Wallet"}
+                style={{ 
+                  backgroundColor: user?.phantomWalletAddress ? "rgba(171, 159, 242, 0.2)" : "#AB9FF2",
+                  color: user?.phantomWalletAddress ? "#AB9FF2" : "#fff",
+                  border: user?.phantomWalletAddress ? "1px solid rgba(171, 159, 242, 0.4)" : "none"
+                }}
+              >
+                <Wallet size={14} />
+                <span className="whitespace-nowrap">
+                  {user?.phantomWalletAddress
+                    ? `SOL: ${user.phantomWalletAddress.slice(0, 4)}...${user.phantomWalletAddress.slice(-4)}`
+                    : phantomLoading
+                      ? "Connecting..."
+                      : "Connect Phantom"}
                 </span>
+              </button>
+
+              {phantomStatus && !user?.phantomWalletAddress && (
+                <div style={{ position: 'absolute', top: '100%', marginTop: '4px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', zIndex: 10 }}>
+                  <span style={{ fontSize: '10px', color: phantomErrorCode ? "#ff6666" : "#7FFF4C", textAlign: 'center', maxWidth: '180px', backgroundColor: 'rgba(0,0,0,0.8)', padding: '2px 6px', borderRadius: '4px' }}>
+                    {phantomStatus}
+                  </span>
+                </div>
               )}
             </div>
-          )}
+          </div>
         </div>
       </div>
 
@@ -217,161 +278,81 @@ const RedesignedDashboard = ({
         ))}
       </div>
 
-      {/* Actions moved to Header */}
-
-      <div className={styles.absoluteTop}>
-        {orbitCard1} {/* Primary Wallet */}
-      </div>
-
-      <div className={styles.staticFloatTop}>
-        {bottomCards}
-      </div>
-      <div className={styles.staticFloatLeft}>
-        <div className={styles.orbitCardLeftTop}>
-          {orbitCard2} {/* Stable Pool */}
-        </div>
-        <div className={styles.orbitCardLeftBottom}>
-          {orbitCard3} {/* Community Wallet */}
-        </div>
-      </div>
-      <div className={styles.staticFloatRight}>
-        <div className={styles.orbitCardRightTop}>
-          {orbitCard4} {/* Boost Wallet & Analytics */}
-        </div>
-        <div className={styles.orbitCardRightBottom}>
-          {extraHubCard} {/* Community Growth */}
-        </div>
-      </div>
-
-
-      {/* Central Hub */}
-      <div className={styles.centralDashboard}>
-        {/* Animated Fire Horse Background */}
-        <div style={{
-          position: 'absolute', top: '50%', left: '50%',
-          transform: 'translate(-50%, -60%)',
-          width: 420, height: 340, pointerEvents: 'none',
-          opacity: 0.08, zIndex: 2,
-          animation: 'horseFloat 6s ease-in-out infinite',
-          color: '#ff6600',
-          filter: 'drop-shadow(0 0 30px #ff6600)',
-        }}>
-          <svg viewBox="0 0 200 160" style={{ width: '100%', height: '100%', fill: 'currentColor' }}>
-            {/* Body */}
-            <ellipse cx="100" cy="95" rx="48" ry="30"/>
-            {/* Neck */}
-            <path d="M130,80 C136,63 140,50 132,38 C125,28 113,27 109,33 C105,40 109,55 112,65 C116,72 124,76 130,80Z"/>
-            {/* Head */}
-            <path d="M122,44 C120,36 116,27 110,23 C104,18 98,19 95,24 C92,29 94,37 97,43 C101,49 109,50 115,47Z"/>
-            {/* Ear */}
-            <path d="M107,21 C105,15 102,12 104,10 C106,8 110,11 109,16Z"/>
-            {/* Eye */}
-            <circle cx="105" cy="32" r="2.5"/>
-            {/* Nostril */}
-            <ellipse cx="96" cy="40" rx="2" ry="1.5"/>
-            {/* Front Legs */}
-            <rect x="93" y="118" width="11" height="36" rx="5"/>
-            <rect x="110" y="116" width="11" height="38" rx="5"/>
-            {/* Back Legs */}
-            <rect x="72" y="118" width="11" height="36" rx="5"/>
-            <rect x="55" y="116" width="11" height="38" rx="5"/>
-            {/* Tail */}
-            <path d="M55,92 C44,98 33,110 30,122 C28,130 34,136 41,133 C46,116 52,104 55,92Z"/>
-            {/* Mane streaks */}
-            <path d="M112,65 C120,57 125,45 122,34 C128,40 131,52 128,64 C124,72 117,74 112,72Z" style={{ opacity: 0.6 }}/>
-          </svg>
-        </div>
-        <style>{`
-          @keyframes horseFloat {
-            0%, 100% { transform: translate(-50%, -60%) translateY(0px) scaleX(1); }
-            25% { transform: translate(-50%, -60%) translateY(-12px) scaleX(1.01); }
-            50% { transform: translate(-50%, -60%) translateY(-5px) scaleX(0.99); }
-            75% { transform: translate(-50%, -60%) translateY(-15px) scaleX(1.01); }
-          }
-        `}</style>
-        {/* Orbital Motion Background Nodes */}
-        <div className={styles.orbitArea}>
-          <div className={styles.orbitDot + " " + styles.largeDot}></div>
-          <div className={styles.orbitDot + " " + styles.smallDot}></div>
-        </div>
-
-        <div className={styles.orbitPath + " " + styles.orbitPath1}></div>
-        <div className={styles.orbitPath + " " + styles.orbitPath2}></div>
-        <div className={styles.orbitPath + " " + styles.orbitPath3}></div>
-
-        {/* Focused Single Core Engine Wrapper */}
-        <div className={styles.dualCoreWrapper} style={{ gap: 0 }}>
+      {/* Main Content Grid */}
+      <div className={styles.mainContentWrapper}>
+        
+        {/* ===== ROW 1: Horse NFT | Staking Engine | Community Wallet ===== */}
+        <div className={styles.dashboardRow1}>
           
-          {/* CENTER CORE: STAKING ENGINE */}
-          <div className={`${styles.hubWrapper} ${styles.stakingCore}`}>
-            <div className={styles.techRing + " " + styles.ringStaking}></div>
-            <div className={`${styles.mainCircle} ${styles.stakingCircle}`}>
-              <div className={styles.hubLabelOuter} style={{ color: "#00f2ff", borderColor: "rgba(0,242,255,0.3)" }}>
-                <Activity size={13} />
-                STAKING ENGINE
-              </div>
-              
-              {user?.stakingPlan?.days ? (
-                <div className={styles.stakingHubCore}>
-                  {/* Primary Balance Header */}
-                  <div className={styles.primaryBalanceWrap}>
-                    <div className={styles.hubAmount} style={{ color: "#00f2ff", fontSize: 38, marginBottom: -5 }}>
-                      {parseFloat(user.stakingPlan.amount).toLocaleString()}
-                    </div>
-                    <div className={styles.hubCurrency} style={{ letterSpacing: 4 }}>TOKING</div>
-                  </div>
-                  
-                  <div className={styles.hubSeparator}></div>
+          {/* LEFT: Horse NFT Card */}
+          <div className={styles.row1Card}>
+            {orbitCard2}
+          </div>
 
-                  {/* Growth Analytics Grid */}
-                  <div className={styles.stakingStatsDetail}>
-                    <div className={styles.statDetailItem}>
-                      <span className={styles.statDetailLabel}>EST. REWARDS</span>
-                      <span className={styles.statDetailValue} style={{ color: "#00f2ff" }}>+{(user.stakingPlan.amount * 0.28).toFixed(2)}</span>
-                    </div>
-                    <div className={styles.statDetailItem}>
-                      <span className={styles.statDetailLabel}>UNLOCKS ON</span>
-                      <span className={styles.statDetailValue}>
-                        {new Date(new Date(user.stakingPlan.startDate).getTime() + user.stakingPlan.days * 86400000).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Progressive Lock Bar */}
-                  <div className={styles.stakingProgressBox}>
-                    <div className={styles.miniChart}>
-                      <div className={styles.miniChartFill} style={{ width: '35%' }}></div>
-                    </div>
-                    <div className={styles.stakingDaysRemaining}>
-                      {user.stakingPlan.days} DAY LOCK ENGINE
-                    </div>
-                  </div>
-
-                  {/* Market Insights Footer */}
-                  <div className={styles.marketStatsRow}>
-                    <div className={styles.marketStat}>
-                      <span className={styles.marketLabel}>TODAY</span>
-                      <span className={styles.marketValue} style={{ color: "#00f2ff" }}>+{(user.stakingPlan.amount * 0.28 / 365).toFixed(4)}</span>
-                    </div>
-                    <div className={styles.marketStat}>
-                      <span className={styles.marketLabel}>TOKEN VALUE</span>
-                      <span className={styles.marketValue} style={{ color: "#00ff00" }}>
-                        $0.124 <TrendingUp size={10} style={{ marginBottom: -2 }} />
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className={styles.noStakeWrapper}>
-                  <div className={styles.hubAmount} style={{ fontSize: 24, color: "#444" }}>INACTIVE</div>
-                  <div className={styles.inactiveNote}>ENGINE READY</div>
-                </div>
-              )}
+          {/* CENTER: Staking Engine Hub (Blue circle, black bg) */}
+          <div className={styles.stakingHubWrapper}>
+            {/* Label */}
+            <div className={styles.hubLabelOuter} style={{ color: "#00f2ff", borderColor: "rgba(0,242,255,0.3)", position: 'relative', top: 'auto', left: 'auto', transform: 'none', marginBottom: 24 }}>
+              <Activity size={13} />
+              STAKING ENGINE
             </div>
 
-            {/* NEW INVEST NOW SECTION */}
-            <div className={styles.investNowContainer}>
-              <motion.button 
+            {/* The Blue Circle */}
+            <div className={styles.stakingBlueCircle}>
+              {/* Animated rings */}
+              <div className={styles.blueRing1}></div>
+              <div className={styles.blueRing2}></div>
+
+              {/* Inner Content */}
+              <div className={styles.stakingCircleInner}>
+                {user?.stakingPlan?.days ? (
+                  <>
+                    <div className={styles.hubAmount} style={{ color: "#00f2ff", fontSize: 36 }}>
+                      {parseFloat(user.stakingPlan.amount).toLocaleString()}
+                    </div>
+                    <div className={styles.hubCurrency} style={{ letterSpacing: 4, marginBottom: 12 }}>TOKING</div>
+                    <div className={styles.hubSeparator}></div>
+                    <div className={styles.stakingStatsDetail} style={{ marginTop: 12 }}>
+                      <div className={styles.statDetailItem}>
+                        <span className={styles.statDetailLabel}>EST. REWARDS</span>
+                        <span className={styles.statDetailValue} style={{ color: "#00f2ff" }}>+{(user.stakingPlan.amount * 0.28).toFixed(2)}</span>
+                      </div>
+                      <div className={styles.statDetailItem}>
+                        <span className={styles.statDetailLabel}>UNLOCKS ON</span>
+                        <span className={styles.statDetailValue}>
+                          {new Date(new Date(user.stakingPlan.startDate).getTime() + user.stakingPlan.days * 86400000).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                        </span>
+                      </div>
+                    </div>
+                    <div className={styles.stakingProgressBox} style={{ marginTop: 12 }}>
+                      <div className={styles.miniChart}>
+                        <div className={styles.miniChartFill} style={{ width: '35%' }}></div>
+                      </div>
+                      <div className={styles.stakingDaysRemaining}>{user.stakingPlan.days} DAY LOCK</div>
+                    </div>
+                    <div className={styles.marketStatsRow} style={{ marginTop: 10 }}>
+                      <div className={styles.marketStat}>
+                        <span className={styles.marketLabel}>TODAY</span>
+                        <span className={styles.marketValue} style={{ color: "#00f2ff" }}>+{(user.stakingPlan.amount * 0.28 / 365).toFixed(4)}</span>
+                      </div>
+                      <div className={styles.marketStat}>
+                        <span className={styles.marketLabel}>TOKEN</span>
+                        <span className={styles.marketValue} style={{ color: "#00ff00" }}>$0.124 <TrendingUp size={10} /></span>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className={styles.hubAmount} style={{ fontSize: 22, color: "#444" }}>INACTIVE</div>
+                    <div className={styles.inactiveNote}>ENGINE READY</div>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Invest Button below circle */}
+            <div className={styles.investNowContainer} style={{ position: 'relative', top: 'auto', left: 'auto', transform: 'none', marginTop: 32, width: '100%' }}>
+              <motion.button
                 className={styles.mainInvestBtn}
                 onClick={() => setShowInvestMenu(!showInvestMenu)}
                 whileHover={{ scale: 1.05 }}
@@ -379,59 +360,78 @@ const RedesignedDashboard = ({
               >
                 {showInvestMenu ? "CLOSE MENU" : "INVEST NOW"}
               </motion.button>
-
               {showInvestMenu && (
-                <motion.div 
+                <motion.div
                   className={styles.investSubMenu}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                 >
-                  <div 
-                    onClick={() => setIsStakingModalOpen(true)} 
-                    className={styles.subMenuBtn}
-                    style={{ cursor: 'pointer' }}
-                  >
+                  <div onClick={() => setIsStakingModalOpen(true)} className={styles.subMenuBtn} style={{ cursor: 'pointer' }}>
                     <TrendingUp size={16} />
                     <span>TOKEN STAKING</span>
-                    {user?.stakingPlan?.days && <span className={styles.miniUpgrade}>UPGRADE</span>}
                   </div>
-                  <div 
-                    onClick={() => setIsNftModalOpen(true)} 
-                    className={styles.subMenuBtn + " " + styles.subMenuBtnNft}
-                    style={{ cursor: 'pointer' }}
-                  >
+                  <div onClick={() => setIsNftModalOpen(true)} className={styles.subMenuBtn + " " + styles.subMenuBtnNft} style={{ cursor: 'pointer' }}>
                     <FaHorse size={16} />
                     <span>HORSE NFT</span>
-                    {user?.nftPackage && <span className={styles.miniUpgrade}>UPGRADE</span>}
                   </div>
                 </motion.div>
               )}
             </div>
           </div>
 
+          {/* RIGHT: Community Wallet Card */}
+          <div className={styles.row1Card}>
+            {orbitCard3}
+          </div>
+        </div>
+
+        {/* ===== ROW 2: Community Growth | Boost Wallet ===== */}
+        <div className={styles.dashboardRow2}>
+          <div className={styles.row2Card}>
+            {extraHubCard} {/* Community Growth */}
+          </div>
+          <div className={styles.row2Card}>
+            {orbitCard4} {/* Boost Wallet */}
+          </div>
+        </div>
+
+        {/* Bottom Section: Bonus Cards */}
+        <div className={styles.bottomCardsSection}>
+          <div className={styles.staticFloatBottom}>
+            {bottomCards}
+          </div>
         </div>
       </div>
 
-      <StakingModal 
-        isOpen={isStakingModalOpen} 
-        onClose={() => setIsStakingModalOpen(false)} 
+      <StakingModal
+        isOpen={isStakingModalOpen}
+        onClose={() => setIsStakingModalOpen(false)}
       />
-      <NFTModal 
-        isOpen={isNftModalOpen} 
-        onClose={() => setIsNftModalOpen(false)} 
+      <NFTModal
+        isOpen={isNftModalOpen}
+        onClose={() => setIsNftModalOpen(false)}
       />
 
       {/* NFT Tier Footer Info */}
-      <div className={styles.nftStatusBar}>
+      {/* <div className={styles.nftStatusBar}>
         <div className={styles.nftStatusItem}>
-          <Shield size={16} color="#ffd700" />
+          <Shield size={16} color={nftTierLabel && nftTierLabel !== 'NO ACTIVE PACKAGE' ? '#ffd700' : '#555'} />
           <span className={styles.nftStatusLabel}>ACTIVE NFT TIER:</span>
-          <span className={styles.nftStatusValue}>
-            {user?.stakingPlan?.days ? "GOLD ELITE" : "BRONZE BASIC"}
+          <span
+            className={styles.nftStatusValue}
+            style={{
+              color: nftTierLabel === 'PREMIUM PACK'  ? '#ffd700'
+                   : nftTierLabel === 'GROWTH PACK'   ? '#00ff88'
+                   : nftTierLabel === 'STARTER PACK'  ? '#4cc9f0'
+                   : nftTierLabel === 'STAKING ACTIVE' ? '#f038ff'
+                   : '#555'
+            }}
+          >
+            {nftTierLabel || 'NO ACTIVE PACKAGE'}
           </span>
         </div>
         <div className={styles.statusGlowLine}></div>
-      </div>
+      </div> */}
       {children}
     </div>
   );

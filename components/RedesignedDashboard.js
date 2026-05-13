@@ -2,7 +2,7 @@
 import React from "react";
 import styles from "./RedesignedDashboard.module.css";
 import { motion } from "framer-motion";
-import { Wallet, Droplets, TrendingUp, Activity, Plus, History, Shield, Eye, Gift, Copy } from "lucide-react";
+import { Wallet, Droplets, TrendingUp, Activity, Plus, History, Shield, Eye, Gift, Copy, LogOut } from "lucide-react";
 import { FaHorse } from "react-icons/fa";
 import Link from "next/link";
 import StakingModal from "./StakingModal";

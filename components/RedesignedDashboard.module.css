@@ -947,19 +947,65 @@
   left: 260px;
   right: 0;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   z-index: 2000;
-  gap: 16px;
-  padding: 0 32px;
-  background: rgba(5, 5, 5, 0.92);
-  backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(30px);
-  border-bottom: 1px solid rgba(255, 215, 0, 0.12);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.7);
+  gap: 20px;
+  padding: 0 28px;
+  background: rgba(6, 6, 6, 0.95);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid rgba(255, 215, 0, 0.1);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.6);
   height: 72px;
-  padding: 20px 20px;
 }
+
+/* Header left section — Referral card */
+.headerLeft {
+  flex-shrink: 0;
+}
+
+/* Header center section — Wallet card */
+.headerCenter {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 16px;
+  min-width: 0;
+}
+
+.headerWalletCard {
+  width: 100%;
+  max-width: 780px;
+}
+
+/* Wallet inline copy/disconnect actions */
+.walletActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 8px;
+  padding-left: 8px;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.walletActions span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255,255,255,0.4);
+  cursor: pointer;
+  padding: 3px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.walletActions span:hover {
+  color: #fff;
+  background: rgba(255,255,255,0.08);
+}
+
 
 .mainContentWrapper {
   padding-top: 132px;

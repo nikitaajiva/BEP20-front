@@ -140,42 +140,41 @@ export const ActionableWalletCard = ({
   if (layout === "horizontal") {
     return (
       <div className={styles.cardContainerHorizontal}>
+        {/* LEFT: Icon + Title */}
         <div className={styles.horizontalLeft}>
-          <div className={styles.iconBox} style={{ background: "transparent", border: "1px solid rgba(255, 215, 0, 0.3)", width: "42px", height: "42px" }}>
+          <div className={styles.iconBox} style={{
+            background: "rgba(255, 215, 0, 0.08)",
+            border: "1px solid rgba(255, 215, 0, 0.2)",
+            width: "40px",
+            height: "40px",
+            borderRadius: "10px",
+            flexShrink: 0
+          }}>
             {getIcon(type)}
-            {type === 'boost' && <div style={{ position: "absolute", top: -4, right: -4, width: 8, height: 8, background: "#00ff00", borderRadius: "50%", border: '1px solid #000' }}></div>}
           </div>
           <div className={styles.titleSection}>
-            <h3 style={{ fontSize: "16px", whiteSpace: "nowrap" }}>{title}</h3>
-            <p style={{ fontSize: "11px", whiteSpace: "nowrap" }}>{subtitle}</p>
+            <h3 style={{ fontSize: "15px", fontWeight: 800, margin: 0, whiteSpace: "nowrap", color: "#fff" }}>{title}</h3>
+            <p style={{ fontSize: "10px", margin: 0, whiteSpace: "nowrap", color: "rgba(255,255,255,0.4)", letterSpacing: "0.5px", textTransform: "uppercase" }}>{subtitle}</p>
           </div>
         </div>
 
+        {/* CENTER: Balance */}
         <div className={styles.horizontalCenter}>
-          <div className={styles.mainBalance} style={{ fontSize: "22px" }}>
-            {balance} <span style={{ fontSize: "13px", color: "#FFB800" }}>{displayCurrency}</span>
+          <div className={styles.mainBalance} style={{ fontSize: "20px", fontWeight: 700, lineHeight: 1 }}>
+            {balance}
           </div>
-          {limit && limit !== "N/A" && (
-            <div className={styles.limitText} style={{ fontSize: "11px" }}>
-              Limit: <span>{limit} {displayCurrency}</span>
-            </div>
-          )}
-          {earningRate && <div className={styles.earningBannerLeft} style={{ marginTop: "5px", color: "#FFB800", fontSize: "12px" }}><TrendingUp size={12} /> Daily Earning: {earningRate}</div>}
+          <span style={{ fontSize: "12px", color: "#FFB800", fontWeight: 700, marginTop: "2px" }}>{displayCurrency}</span>
         </div>
 
+        {/* RIGHT: Action Buttons */}
         <div className={styles.horizontalRight}>
           <button type="button" className={styles.glassBtnPrimary} onClick={onDeposit}>
             + {finalDepositLabel}
           </button>
-          <button type="button" className={styles.glassBtnSecondary} onClick={onViewHistory}>
-            <History size={15} />
+          <button className={styles.glassBtnSecondary} onClick={onViewHistory}>
+            <History size={14} />
             View History
           </button>
-          {showPlusBtn && (
-            <div className={styles.glassPlusBtn} onClick={onDeposit}>
-              <Plus size={18} />
-            </div>
-          )}
         </div>
       </div>
     );

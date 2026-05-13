@@ -2,7 +2,7 @@
 import React from "react";
 import styles from "./RedesignedDashboard.module.css";
 import { motion } from "framer-motion";
-import { Wallet, Droplets, TrendingUp, Activity, Plus, History, Shield, Eye, Gift, Copy } from "lucide-react";
+import { Wallet, Droplets, TrendingUp, Activity, Plus, History, Shield, Eye, Gift, Copy, LogOut } from "lucide-react";
 import { FaHorse } from "react-icons/fa";
 import Link from "next/link";
 import StakingModal from "./StakingModal";
@@ -29,13 +29,13 @@ const RedesignedDashboard = ({
   phantomErrorCode,
   shortAddress: shortAddressProp,
   nftTierLabel,
+  onLogout,
   children
 }) => {
   const lpWallet = ledgerDetails?.lpWallet || {};
   const lpBalance = parseFloat(lpWallet?.balance || "0").toLocaleString(undefined, { minimumFractionDigits: 2 });
   const lpAutopositioning = parseFloat(lpWallet?.autopositioning || "0").toLocaleString(undefined, { minimumFractionDigits: 2 });
   const lpPending = parseFloat(lpWallet?.pending || "0").toLocaleString(undefined, { minimumFractionDigits: 2 });
-
 
   const getRoi = (b) => {
     const val = parseFloat(b || 0);
@@ -66,10 +66,17 @@ const RedesignedDashboard = ({
     delay: `${Math.random() * 5}s`,
     size: `${1 + Math.random() * 2}px`
   })), []);
-  const hasWallet = walletAccount && walletAccount.trim().length > 0;
-  const shortAddress = hasWallet
-    ? `${walletAccount.slice(0, 6)}...${walletAccount.slice(-4)}`
+
+  const phantomWalletAddress = `${user?.phantomWalletAddress || ""}`.trim();
+  const hasPhantomWallet = phantomWalletAddress.length > 0;
+  const phantomShortAddress = hasPhantomWallet
+    ? `SOL: ${phantomWalletAddress.slice(0, 4)}...${phantomWalletAddress.slice(-4)}`
     : "";
+
+  const hasWallet = walletAccount && walletAccount.trim().length > 0;
+  const shortAddress = shortAddressProp || (hasWallet
+    ? `${walletAccount.slice(0, 6)}...${walletAccount.slice(-4)}`
+    : "");
 
   const [mounted, setMounted] = React.useState(false);
   const [copySuccess, setCopySuccess] = React.useState(false);
@@ -99,6 +106,12 @@ const RedesignedDashboard = ({
     });
   };
 
+  const handleCopyPhantomWallet = (e) => {
+    e.stopPropagation();
+    if (!phantomWalletAddress) return;
+    navigator.clipboard.writeText(phantomWalletAddress);
+  };
+
   const [showInvestMenu, setShowInvestMenu] = React.useState(false);
   const [isStakingModalOpen, setIsStakingModalOpen] = React.useState(false);
   const [isNftModalOpen, setIsNftModalOpen] = React.useState(false);
@@ -108,11 +121,10 @@ const RedesignedDashboard = ({
       {/* Unified Top Header Actions */}
       <div className={styles.dashboardTopHeader}>
         {/* LEFT: Vault Pass (Invitation Link) */}
-        <div className="flex-shrink-0">
+        <div className={styles.headerLeft}>
           <div
             className={styles.vaultPassCard}
             onClick={handleCopyLink}
-            style={{ cursor: 'pointer', minWidth: '280px' }}
             title="Click to copy invitation link"
           >
             <div className={styles.passHeader}>
@@ -124,9 +136,9 @@ const RedesignedDashboard = ({
             <div className={styles.passLinkWrapper}>
               <span className={styles.passUrl}>
                 {copySuccess === "code" 
-                  ? "CODE COPIED!" 
+                  ? "✓ CODE COPIED!" 
                   : copySuccess 
-                    ? "LINK COPIED! SHARE WITH TEAM" 
+                    ? "✓ LINK COPIED! SHARE WITH TEAM" 
                     : "TAP TO COPY REFERRAL LINK"}
               </span>
               <button
@@ -140,14 +152,14 @@ const RedesignedDashboard = ({
           </div>
         </div>
 
-        {/* MIDDLE: Primary Wallet (Horizontal Card) */}
-        <div style={{ flex: 1, display: 'flex', justifyContent: 'center', padding: '0 20px', minWidth: 0 }}>
-          <div style={{ width: '100%', maxWidth: '680px' }}>
+        {/* MIDDLE: Primary Wallet */}
+        <div className={styles.headerCenter}>
+          <div className={styles.headerWalletCard}>
             {orbitCard1}
           </div>
         </div>
 
-        {/* RIGHT: Action Group */}
+        {/* RIGHT: Action Buttons */}
         <div className={styles.topRightActions}>
           <div className={styles.headerBalanceWrapper}>
             <span className={styles.headerBalanceLabel}>REDEEMABLE BALANCE:</span>
@@ -156,7 +168,7 @@ const RedesignedDashboard = ({
             </span>
           </div>
           
-          <div className="flex items-center gap-3">
+          <div className={styles.headerActionsRow}>
             {user?.userType === "superadmin" && (
               <Link href="/support/dashboard" className={styles.supportAdminBtn}>
                 <Shield size={14} />
@@ -174,79 +186,77 @@ const RedesignedDashboard = ({
 
             {/* BSC / BEP20 Wallet */}
             <button
-              className={styles.connectBtn}
+              className={`${styles.connectBtn} ${hasWallet ? styles.connectBtnConnected : ""}`}
               onClick={onWalletConnect}
               title={hasWallet ? "Wallet Connected" : "Connect Wallet"}
             >
               <Wallet size={14} />
-              <span className="whitespace-nowrap">{hasWallet ? shortAddress : "Connect Wallet"}</span>
+              <span className={styles.buttonLabel}>{hasWallet ? shortAddress : "Connect Wallet"}</span>
               {hasWallet && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '8px' }}>
+                <div className={styles.walletActions}>
                   <span
                     onClick={(e) => {
                       e.stopPropagation();
                       navigator.clipboard.writeText(walletAccount);
                     }}
-                    style={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer', color: '#888' }}
                     title="Copy Address"
                   >
-                    <Copy size={12} />
+                    <Copy size={11} />
                   </span>
                   <span
                     onClick={(e) => {
                       e.stopPropagation();
                       if (onWalletDisconnect) onWalletDisconnect();
                     }}
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      cursor: 'pointer',
-                      backgroundColor: 'rgba(255,100,100,0.15)',
-                      color: '#ff6666',
-                      padding: '3px',
-                      borderRadius: '4px'
-                    }}
-                    title="Disconnect Wallet"
+                    title="Disconnect"
                   >
-                    <Activity size={12} style={{ transform: 'rotate(90deg)' }} />
+                    <Activity size={11} style={{ transform: 'rotate(90deg)' }} />
                   </span>
                 </div>
               )}
             </button>
 
             {/* Phantom Wallet (Solana) */}
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div className={styles.phantomWalletGroup}>
               <button
                 type="button"
-                className={styles.connectBtn}
-                disabled={phantomLoading || Boolean(user?.phantomWalletAddress)}
-                onClick={user?.phantomWalletAddress || phantomLoading ? undefined : onConnectPhantom}
-                title={user?.phantomWalletAddress ? "Phantom Connected" : "Connect Phantom Wallet"}
-                style={{ 
-                  backgroundColor: user?.phantomWalletAddress ? "rgba(171, 159, 242, 0.2)" : "#AB9FF2",
-                  color: user?.phantomWalletAddress ? "#AB9FF2" : "#fff",
-                  border: user?.phantomWalletAddress ? "1px solid rgba(171, 159, 242, 0.4)" : "none"
-                }}
+                className={`${styles.connectBtn} ${hasPhantomWallet ? styles.connectBtnConnected : ""}`}
+                onClick={hasPhantomWallet || phantomLoading ? undefined : onConnectPhantom}
+                disabled={phantomLoading}
+                title={hasPhantomWallet ? "Phantom Connected" : "Connect Phantom Wallet"}
               >
                 <Wallet size={14} />
-                <span className="whitespace-nowrap">
-                  {user?.phantomWalletAddress
-                    ? `SOL: ${user.phantomWalletAddress.slice(0, 4)}...${user.phantomWalletAddress.slice(-4)}`
+                <span className={styles.buttonLabel}>
+                  {hasPhantomWallet
+                    ? phantomShortAddress
                     : phantomLoading
                       ? "Connecting..."
                       : "Connect Phantom"}
                 </span>
+                {hasPhantomWallet && (
+                  <div className={styles.walletActions}>
+                    <span onClick={handleCopyPhantomWallet} title="Copy Address">
+                      <Copy size={11} />
+                    </span>
+                  </div>
+                )}
               </button>
 
-              {phantomStatus && !user?.phantomWalletAddress && (
-                <div style={{ position: 'absolute', top: '100%', marginTop: '4px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', zIndex: 10 }}>
-                  <span style={{ fontSize: '10px', color: phantomErrorCode ? "#ff6666" : "#7FFF4C", textAlign: 'center', maxWidth: '180px', backgroundColor: 'rgba(0,0,0,0.8)', padding: '2px 6px', borderRadius: '4px' }}>
+              {phantomStatus && !hasPhantomWallet && (
+                <div className={styles.phantomStatusWrap}>
+                  <span className={`${styles.phantomStatusText} ${phantomErrorCode ? styles.phantomStatusError : styles.phantomStatusSuccess}`}>
                     {phantomStatus}
                   </span>
                 </div>
               )}
             </div>
+
+            {/* Logout Button */}
+            {onLogout && (
+              <button className={styles.logoutBtn} onClick={onLogout} title="Logout">
+                <LogOut size={14} />
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -412,26 +422,6 @@ const RedesignedDashboard = ({
         onClose={() => setIsNftModalOpen(false)}
       />
 
-      {/* NFT Tier Footer Info */}
-      {/* <div className={styles.nftStatusBar}>
-        <div className={styles.nftStatusItem}>
-          <Shield size={16} color={nftTierLabel && nftTierLabel !== 'NO ACTIVE PACKAGE' ? '#ffd700' : '#555'} />
-          <span className={styles.nftStatusLabel}>ACTIVE NFT TIER:</span>
-          <span
-            className={styles.nftStatusValue}
-            style={{
-              color: nftTierLabel === 'PREMIUM PACK'  ? '#ffd700'
-                   : nftTierLabel === 'GROWTH PACK'   ? '#00ff88'
-                   : nftTierLabel === 'STARTER PACK'  ? '#4cc9f0'
-                   : nftTierLabel === 'STAKING ACTIVE' ? '#f038ff'
-                   : '#555'
-            }}
-          >
-            {nftTierLabel || 'NO ACTIVE PACKAGE'}
-          </span>
-        </div>
-        <div className={styles.statusGlowLine}></div>
-      </div> */}
       {children}
     </div>
   );

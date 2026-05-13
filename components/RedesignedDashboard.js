@@ -101,27 +101,26 @@ const RedesignedDashboard = ({
   return (
     <div className="min-h-screen bg-black text-white relative font-inter overflow-x-hidden">
       {/* Unified Top Header Actions */}
-      <div className={styles.dashboardTopHeader}>
+    <div className={styles.dashboardTopHeader}>
         {/* LEFT: Vault Pass (Invitation Link) */}
-        <div className="flex-shrink-0">
+        <div className={styles.headerLeft}>
           <div
             className={styles.vaultPassCard}
             onClick={handleCopyLink}
-            style={{ cursor: 'pointer', minWidth: '280px' }}
             title="Click to copy invitation link"
           >
             <div className={styles.passHeader}>
-              <span className={styles.passLabel}>INVITE FRIENDS & EARN REWARDS</span>
+              <span className={styles.passLabel}>INVITE FRIENDS &amp; EARN REWARDS</span>
               <div className={styles.inviteCodeBadge} onClick={handleCopyCode} title="Click to copy invite code">
                 CODE: {user?.username || "---"}
               </div>
             </div>
             <div className={styles.passLinkWrapper}>
               <span className={styles.passUrl}>
-                {copySuccess === "code" 
-                  ? "CODE COPIED!" 
-                  : copySuccess 
-                    ? "LINK COPIED! SHARE WITH TEAM" 
+                {copySuccess === "code"
+                  ? "✓ CODE COPIED!"
+                  : copySuccess
+                    ? "✓ LINK COPIED! SHARE WITH TEAM"
                     : "TAP TO COPY REFERRAL LINK"}
               </span>
               <button
@@ -135,68 +134,52 @@ const RedesignedDashboard = ({
           </div>
         </div>
 
-        {/* MIDDLE: Primary Wallet (Horizontal Card) */}
-        <div style={{ flex: 1, display: 'flex', justifyContent: 'center', padding: '0 20px', minWidth: 0 }}>
-          <div style={{ width: '100%', maxWidth: '680px' }}>
+        {/* MIDDLE: Primary Wallet */}
+        <div className={styles.headerCenter}>
+          <div className={styles.headerWalletCard}>
             {orbitCard1}
           </div>
         </div>
 
-        {/* RIGHT: Action Group */}
+        {/* RIGHT: Action Buttons */}
         <div className={styles.topRightActions}>
-          <div className={styles.headerBalanceWrapper}>
-            <span className={styles.headerBalanceLabel}>REDEEMABLE BALANCE:</span>
-            <span className={styles.headerBalanceValue}>
-              {parseFloat(ledgerDetails?.communityRewards?.balance || "0").toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USDT
-            </span>
-          </div>
-          <div className="flex items-center gap-3">
-            {user?.userType === "superadmin" && (
-              <Link href="/support/dashboard" className={styles.supportAdminBtn}>
-                <Shield size={14} />
-                Support
-              </Link>
+          <button
+            className={styles.redeemBtnTop}
+            onClick={onRedeem}
+          >
+            <Gift size={14} />
+            Redeem
+          </button>
+          <button
+            className={styles.connectBtn}
+            onClick={onWalletConnect}
+            title={hasWallet ? "Wallet Connected" : "Connect Wallet"}
+          >
+            <Wallet size={14} />
+            <span>{hasWallet ? shortAddress : "Connect Wallet"}</span>
+            {hasWallet && (
+              <div className={styles.walletActions}>
+                <span
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigator.clipboard.writeText(walletAccount);
+                  }}
+                  title="Copy Address"
+                >
+                  <Copy size={11} />
+                </span>
+                <span
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (onWalletDisconnect) onWalletDisconnect();
+                  }}
+                  title="Disconnect"
+                >
+                  <Activity size={11} />
+                </span>
+              </div>
             )}
-            <button
-              className={styles.redeemBtnTop}
-              onClick={onRedeem}
-            >
-              <Gift size={14} />
-              Redeem
-            </button>
-            <button
-              className={styles.connectBtn}
-              onClick={onWalletConnect}
-              title={hasWallet ? "Wallet Connected" : "Connect Wallet"}
-            >
-              <Wallet size={14} />
-              <span className="whitespace-nowrap">{hasWallet ? shortAddress : "Connect Wallet"}</span>
-              {hasWallet && (
-                <div className="flex items-center gap-2 ml-2">
-                  <span
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      navigator.clipboard.writeText(walletAccount);
-                    }}
-                    className="inline-flex items-center cursor-pointer text-gray-400 hover:text-gold transition-colors"
-                    title="Copy Address"
-                  >
-                    <Copy size={12} />
-                  </span>
-                  <span
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (onWalletDisconnect) onWalletDisconnect();
-                    }}
-                    className="inline-flex items-center justify-center cursor-pointer bg-red-500/10 text-red-500 p-1 rounded hover:bg-red-500/20 transition-colors"
-                    title="Disconnect Wallet"
-                  >
-                    <Activity size={12} className="rotate-90" />
-                  </span>
-                </div>
-              )}
-            </button>
-          </div>
+          </button>
         </div>
       </div>
 

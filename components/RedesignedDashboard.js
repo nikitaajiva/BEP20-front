@@ -23,6 +23,7 @@ const RedesignedDashboard = ({
   orbitCard4,
   bottomCards,
   extraHubCard,
+  nftTierLabel,
   children
 }) => {
   const lpWallet = ledgerDetails?.lpWallet || {};
@@ -116,10 +117,10 @@ const RedesignedDashboard = ({
           </div>
           <div className={styles.passLinkWrapper}>
             <span className={styles.passUrl}>
-              {copySuccess === "code" 
-                ? "CODE COPIED!" 
-                : copySuccess 
-                  ? "LINK COPIED! SHARE WITH TEAM" 
+              {copySuccess === "code"
+                ? "CODE COPIED!"
+                : copySuccess
+                  ? "LINK COPIED! SHARE WITH TEAM"
                   : "TAP TO COPY REFERRAL LINK"}
             </span>
             <button
@@ -264,27 +265,27 @@ const RedesignedDashboard = ({
         }}>
           <svg viewBox="0 0 200 160" style={{ width: '100%', height: '100%', fill: 'currentColor' }}>
             {/* Body */}
-            <ellipse cx="100" cy="95" rx="48" ry="30"/>
+            <ellipse cx="100" cy="95" rx="48" ry="30" />
             {/* Neck */}
-            <path d="M130,80 C136,63 140,50 132,38 C125,28 113,27 109,33 C105,40 109,55 112,65 C116,72 124,76 130,80Z"/>
+            <path d="M130,80 C136,63 140,50 132,38 C125,28 113,27 109,33 C105,40 109,55 112,65 C116,72 124,76 130,80Z" />
             {/* Head */}
-            <path d="M122,44 C120,36 116,27 110,23 C104,18 98,19 95,24 C92,29 94,37 97,43 C101,49 109,50 115,47Z"/>
+            <path d="M122,44 C120,36 116,27 110,23 C104,18 98,19 95,24 C92,29 94,37 97,43 C101,49 109,50 115,47Z" />
             {/* Ear */}
-            <path d="M107,21 C105,15 102,12 104,10 C106,8 110,11 109,16Z"/>
+            <path d="M107,21 C105,15 102,12 104,10 C106,8 110,11 109,16Z" />
             {/* Eye */}
-            <circle cx="105" cy="32" r="2.5"/>
+            <circle cx="105" cy="32" r="2.5" />
             {/* Nostril */}
-            <ellipse cx="96" cy="40" rx="2" ry="1.5"/>
+            <ellipse cx="96" cy="40" rx="2" ry="1.5" />
             {/* Front Legs */}
-            <rect x="93" y="118" width="11" height="36" rx="5"/>
-            <rect x="110" y="116" width="11" height="38" rx="5"/>
+            <rect x="93" y="118" width="11" height="36" rx="5" />
+            <rect x="110" y="116" width="11" height="38" rx="5" />
             {/* Back Legs */}
-            <rect x="72" y="118" width="11" height="36" rx="5"/>
-            <rect x="55" y="116" width="11" height="38" rx="5"/>
+            <rect x="72" y="118" width="11" height="36" rx="5" />
+            <rect x="55" y="116" width="11" height="38" rx="5" />
             {/* Tail */}
-            <path d="M55,92 C44,98 33,110 30,122 C28,130 34,136 41,133 C46,116 52,104 55,92Z"/>
+            <path d="M55,92 C44,98 33,110 30,122 C28,130 34,136 41,133 C46,116 52,104 55,92Z" />
             {/* Mane streaks */}
-            <path d="M112,65 C120,57 125,45 122,34 C128,40 131,52 128,64 C124,72 117,74 112,72Z" style={{ opacity: 0.6 }}/>
+            <path d="M112,65 C120,57 125,45 122,34 C128,40 131,52 128,64 C124,72 117,74 112,72Z" style={{ opacity: 0.6 }} />
           </svg>
         </div>
         <style>{`
@@ -307,7 +308,7 @@ const RedesignedDashboard = ({
 
         {/* Focused Single Core Engine Wrapper */}
         <div className={styles.dualCoreWrapper} style={{ gap: 0 }}>
-          
+
           {/* CENTER CORE: STAKING ENGINE */}
           <div className={`${styles.hubWrapper} ${styles.stakingCore}`}>
             <div className={styles.techRing + " " + styles.ringStaking}></div>
@@ -316,7 +317,7 @@ const RedesignedDashboard = ({
                 <Activity size={13} />
                 STAKING ENGINE
               </div>
-              
+
               {user?.stakingPlan?.days ? (
                 <div className={styles.stakingHubCore}>
                   {/* Primary Balance Header */}
@@ -326,7 +327,7 @@ const RedesignedDashboard = ({
                     </div>
                     <div className={styles.hubCurrency} style={{ letterSpacing: 4 }}>TOKING</div>
                   </div>
-                  
+
                   <div className={styles.hubSeparator}></div>
 
                   {/* Growth Analytics Grid */}
@@ -377,7 +378,7 @@ const RedesignedDashboard = ({
 
             {/* NEW INVEST NOW SECTION */}
             <div className={styles.investNowContainer}>
-              <motion.button 
+              <motion.button
                 className={styles.mainInvestBtn}
                 onClick={() => setShowInvestMenu(!showInvestMenu)}
                 whileHover={{ scale: 1.05 }}
@@ -387,13 +388,13 @@ const RedesignedDashboard = ({
               </motion.button>
 
               {showInvestMenu && (
-                <motion.div 
+                <motion.div
                   className={styles.investSubMenu}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                 >
-                  <div 
-                    onClick={() => setIsStakingModalOpen(true)} 
+                  <div
+                    onClick={() => setIsStakingModalOpen(true)}
                     className={styles.subMenuBtn}
                     style={{ cursor: 'pointer' }}
                   >
@@ -401,8 +402,8 @@ const RedesignedDashboard = ({
                     <span>TOKEN STAKING</span>
                     {user?.stakingPlan?.days && <span className={styles.miniUpgrade}>UPGRADE</span>}
                   </div>
-                  <div 
-                    onClick={() => setIsNftModalOpen(true)} 
+                  <div
+                    onClick={() => setIsNftModalOpen(true)}
                     className={styles.subMenuBtn + " " + styles.subMenuBtnNft}
                     style={{ cursor: 'pointer' }}
                   >
@@ -418,26 +419,35 @@ const RedesignedDashboard = ({
         </div>
       </div>
 
-      <StakingModal 
-        isOpen={isStakingModalOpen} 
-        onClose={() => setIsStakingModalOpen(false)} 
+      {/* <StakingModal
+        isOpen={isStakingModalOpen}
+        onClose={() => setIsStakingModalOpen(false)}
       />
-      <NFTModal 
-        isOpen={isNftModalOpen} 
-        onClose={() => setIsNftModalOpen(false)} 
-      />
+      <NFTModal
+        isOpen={isNftModalOpen}
+        onClose={() => setIsNftModalOpen(false)}
+      /> */}
 
       {/* NFT Tier Footer Info */}
-      <div className={styles.nftStatusBar}>
+      {/* <div className={styles.nftStatusBar}>
         <div className={styles.nftStatusItem}>
-          <Shield size={16} color="#ffd700" />
+          <Shield size={16} color={nftTierLabel && nftTierLabel !== 'NO ACTIVE PACKAGE' ? '#ffd700' : '#555'} />
           <span className={styles.nftStatusLabel}>ACTIVE NFT TIER:</span>
-          <span className={styles.nftStatusValue}>
-            {user?.stakingPlan?.days ? "GOLD ELITE" : "BRONZE BASIC"}
+          <span
+            className={styles.nftStatusValue}
+            style={{
+              color: nftTierLabel === 'PREMIUM PACK'  ? '#ffd700'
+                   : nftTierLabel === 'GROWTH PACK'   ? '#00ff88'
+                   : nftTierLabel === 'STARTER PACK'  ? '#4cc9f0'
+                   : nftTierLabel === 'STAKING ACTIVE' ? '#f038ff'
+                   : '#555'
+            }}
+          >
+            {nftTierLabel || 'NO ACTIVE PACKAGE'}
           </span>
         </div>
         <div className={styles.statusGlowLine}></div>
-      </div>
+      </div> */}
       {children}
     </div>
   );

@@ -1348,6 +1348,43 @@ export default function DashboardLayout({
     setIsSocialAlertOpen(false);
   };
 
+  // ── NFT Package Helpers ──────────────────────────────────────────────────────
+  // DB values: starter | growth | premium  →  display tiers: bronze | silver | gold
+  const nftRoiMap   = { starter: 45, growth: 55, premium: 65 };
+  const nftRateMap  = { starter: 0.003, growth: 0.004, premium: 0.005 };
+  const nftLabelMap = {
+    starter: "STARTER PACK",
+    growth:  "GROWTH PACK",
+    premium: "PREMIUM PACK",
+  };
+
+  const nftPackageRaw  = user?.nftPackage || null;          // e.g. "starter"
+  const nftRoiProgress = nftRoiMap[nftPackageRaw]  || 0;   // 45 / 55 / 65
+  const nftDailyRate   = nftRateMap[nftPackageRaw] || 0;   // 0.3% / 0.4% / 0.5%
+
+  const zeroRiskBal    = parseFloat(ledgerDetails?.zeroRisk?.balance || "0");
+  const nftDailyYield  = (zeroRiskBal * nftDailyRate).toFixed(4);
+  const nftEstPayout   = (zeroRiskBal * (nftRoiProgress / 100)).toFixed(2);
+  const nftNextPayout  = nftDailyYield;
+
+  // Real countdown to next daily payout (rolls over at UTC midnight)
+  const _now          = new Date();
+  const _nextMidnight = new Date(Date.UTC(
+    _now.getUTCFullYear(), _now.getUTCMonth(), _now.getUTCDate() + 1
+  ));
+  const _diffMs  = _nextMidnight - _now;
+  const _diffH   = Math.floor(_diffMs / 3600000);
+  const _diffM   = Math.floor((_diffMs % 3600000) / 60000);
+  const nftTimeLeft = `${_diffH}h ${String(_diffM).padStart(2, '0')}m`;
+
+  // Display label for the bottom status bar
+  const nftTierLabel = nftPackageRaw
+    ? nftLabelMap[nftPackageRaw] || nftPackageRaw.toUpperCase()
+    : user?.stakingPlan?.days
+      ? "STAKING ACTIVE"
+      : "NO ACTIVE PACKAGE";
+  // ────────────────────────────────────────────────────────────────────────────
+
   const rawBalance =
     Number(ledgerDetails?.lpWallet?.balance || 0) -
     Number(ledgerDetails?.lpWallet?.autopositioning || 0);
@@ -1508,11 +1545,13 @@ export default function DashboardLayout({
         }
         orbitCard2={
           <HorseNFTCard
-            packageType={user?.nftPackage || "bronze"}
-            balance={parseFloat(ledgerDetails?.zeroRisk?.balance || "0.0").toLocaleString(undefined, { minimumFractionDigits: 2 })}
-            dailyYield={(parseFloat(ledgerDetails?.zeroRisk?.balance || "0") * 0.005).toFixed(4)}
-            estPayout={(parseFloat(ledgerDetails?.zeroRisk?.balance || "0") * 0.35).toFixed(2)}
-            nextPayout={(parseFloat(ledgerDetails?.zeroRisk?.balance || "0") * 0.005).toFixed(2)}
+            packageType={nftPackageRaw}
+            balance={zeroRiskBal.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+            roiProgress={nftRoiProgress}
+            dailyYield={nftDailyYield}
+            estPayout={nftEstPayout}
+            nextPayout={nftNextPayout}
+            timeLeft={nftTimeLeft}
             onWithdraw={() => setShowZeroRiskWarningModal(true)}
             onViewHistory={() => window.location.href = "/dashboard/history/zero-risk"}
           />
@@ -1549,6 +1588,7 @@ export default function DashboardLayout({
             onViewHistory={() => window.location.href = "/dashboard/history/boost"}
           />
         }
+        nftTierLabel={nftTierLabel}
         extraHubCard={<Communitybooster />}
         bottomCards={
           <div style={{ width: '100%', maxWidth: '1400px', margin: '0 auto' }}>

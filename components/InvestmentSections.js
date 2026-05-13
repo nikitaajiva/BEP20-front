@@ -91,27 +91,27 @@ export default function InvestmentSections() {
           <svg viewBox="0 0 200 160" className={styles.horseSilhouette}>
             <g className={styles.horseBody}>
               {/* Body */}
-              <ellipse cx="100" cy="90" rx="45" ry="28" fill="currentColor"/>
+              <ellipse cx="100" cy="90" rx="45" ry="28" fill="currentColor" />
               {/* Neck */}
-              <path d="M125,75 C130,60 135,50 128,40 C122,32 112,30 108,35 C104,40 108,52 110,62 C113,68 120,72 125,75Z" fill="currentColor"/>
+              <path d="M125,75 C130,60 135,50 128,40 C122,32 112,30 108,35 C104,40 108,52 110,62 C113,68 120,72 125,75Z" fill="currentColor" />
               {/* Head */}
-              <path d="M120,42 C118,35 115,28 110,24 C105,20 100,20 97,24 C94,28 95,35 98,40 C101,45 107,46 112,44 Z" fill="currentColor"/>
+              <path d="M120,42 C118,35 115,28 110,24 C105,20 100,20 97,24 C94,28 95,35 98,40 C101,45 107,46 112,44 Z" fill="currentColor" />
               {/* Ear */}
-              <path d="M105,22 C103,17 101,14 103,12 C105,10 108,12 108,16 Z" fill="currentColor"/>
+              <path d="M105,22 C103,17 101,14 103,12 C105,10 108,12 108,16 Z" fill="currentColor" />
               {/* Nostril */}
-              <ellipse cx="97" cy="38" rx="2.5" ry="1.5" fill="rgba(0,0,0,0.4)"/>
+              <ellipse cx="97" cy="38" rx="2.5" ry="1.5" fill="rgba(0,0,0,0.4)" />
               {/* Eye */}
-              <circle cx="105" cy="30" r="2" fill="rgba(0,0,0,0.5)"/>
+              <circle cx="105" cy="30" r="2" fill="rgba(0,0,0,0.5)" />
               {/* Front Legs */}
-              <rect x="88" y="112" width="10" height="35" rx="4" fill="currentColor" className={styles.leg1}/>
-              <rect x="104" y="112" width="10" height="35" rx="4" fill="currentColor" className={styles.leg2}/>
+              <rect x="88" y="112" width="10" height="35" rx="4" fill="currentColor" className={styles.leg1} />
+              <rect x="104" y="112" width="10" height="35" rx="4" fill="currentColor" className={styles.leg2} />
               {/* Back Legs */}
-              <rect x="68" y="112" width="10" height="35" rx="4" fill="currentColor" className={styles.leg3}/>
-              <rect x="54" y="112" width="10" height="35" rx="4" fill="currentColor" className={styles.leg4}/>
+              <rect x="68" y="112" width="10" height="35" rx="4" fill="currentColor" className={styles.leg3} />
+              <rect x="54" y="112" width="10" height="35" rx="4" fill="currentColor" className={styles.leg4} />
               {/* Tail */}
-              <path d="M58,90 C48,95 38,105 35,115 C33,122 38,128 45,125 C50,110 55,100 58,90Z" fill="currentColor"/>
+              <path d="M58,90 C48,95 38,105 35,115 C33,122 38,128 45,125 C50,110 55,100 58,90Z" fill="currentColor" />
               {/* Mane */}
-              <path d="M110,62 C118,55 122,45 120,35 C125,40 128,50 126,60 C122,68 116,70 110,68Z" fill="rgba(255,140,0,0.7)"/>
+              <path d="M110,62 C118,55 122,45 120,35 C125,40 128,50 126,60 C122,68 116,70 110,68Z" fill="rgba(255,140,0,0.7)" />
             </g>
           </svg>
           {/* Fire particles around horse */}
@@ -130,7 +130,7 @@ export default function InvestmentSections() {
       </div>
 
       {/* ===== SECTION 1: TOKEN STAKING ===== */}
-      <section className={styles.section} id="token-staking">
+      {/* <section className={styles.section} id="token-staking">
         <div className={styles.sectionHeader}>
           <div className={styles.sectionBadge}>Investment Model 1</div>
           <h2 className={styles.sectionTitle}>
@@ -140,10 +140,10 @@ export default function InvestmentSections() {
             Purchase Toking Tokens and lock them in our staking protocol to earn competitive yields
             benchmarked against leading DeFi platforms.
           </p>
-        </div>
+        </div> */}
 
-        {/* Staking Mechanics */}
-        <div className={styles.mechanicsGrid}>
+      {/* Staking Mechanics */}
+      {/* <div className={styles.mechanicsGrid}>
           {[
             { icon: "⏱️", text: "Flexible lock-up periods: 30, 90, 180, or 365 days" },
             { icon: "⚡", text: "Automatic reward distribution every 24 hours" },
@@ -155,10 +155,10 @@ export default function InvestmentSections() {
               <span className={styles.mechanicText}>{m.text}</span>
             </div>
           ))}
-        </div>
+        </div> */}
 
-        {/* APY Tiers */}
-        <div className={styles.stakingTiersGrid}>
+      {/* APY Tiers */}
+      {/* <div className={styles.stakingTiersGrid}>
           {stakingTiers.map((tier, i) => (
             <div
               key={tier.days}
@@ -193,19 +193,19 @@ export default function InvestmentSections() {
           🔥 Returns generated through platform revenue sharing, trading fees, and NFT marketplace activity.
           APY rates adjust dynamically based on total value locked and platform performance.
         </p>
-      </section>
+      </section> */}
 
       {/* Divider with horse */}
-      <div className={styles.sectionDivider}>
+      {/* <div className={styles.sectionDivider}>
         <div className={styles.dividerLine} />
         <div className={styles.dividerHorse}>
           <HorseIcon />
         </div>
         <div className={styles.dividerLine} />
-      </div>
+      </div> */}
 
       {/* ===== SECTION 2: HORSE NFT PACKAGES ===== */}
-      <section className={styles.section} id="nft-packages">
+      {/* <section className={styles.section} id="nft-packages">
         <div className={styles.sectionHeader}>
           <div className={styles.sectionBadge}>Investment Model 2</div>
           <h2 className={styles.sectionTitle}>
@@ -215,37 +215,37 @@ export default function InvestmentSections() {
             Fractional interests in real, registered horses. Each NFT is backed by legal ownership
             documentation, insurance, and professional management agreements.
           </p>
-        </div>
+        </div> */}
 
-        {/* NFT Package Cards */}
-        <div className={styles.nftPackagesGrid}>
+      {/* NFT Package Cards */}
+      {/* <div className={styles.nftPackagesGrid}>
           {nftPackages.map((pkg) => (
             <div
               key={pkg.id}
               className={`${styles.nftCard} ${pkg.popular ? styles.nftCardPopular : ""} ${activePackage === pkg.id ? styles.nftCardActive : ""}`}
               onClick={() => setActivePackage(activePackage === pkg.id ? null : pkg.id)}
             >
-              {pkg.popular && <div className={styles.popularBadge}>⭐ Most Popular</div>}
+              {pkg.popular && <div className={styles.popularBadge}>⭐ Most Popular</div>} */}
 
-              {/* Glow bg */}
-              <div className={styles.nftCardGlow} style={{ background: `radial-gradient(circle at 50% 30%, ${pkg.glow} 0%, transparent 70%)` }} />
+      {/* Glow bg */}
+      {/* <div className={styles.nftCardGlow} style={{ background: `radial-gradient(circle at 50% 30%, ${pkg.glow} 0%, transparent 70%)` }} /> */}
 
-              {/* Tier Header */}
-              <div className={styles.nftTierHeader} style={{ background: pkg.gradient }}>
+      {/* Tier Header */}
+      {/* <div className={styles.nftTierHeader} style={{ background: pkg.gradient }}>
                 <span className={styles.nftTierIcon}>{pkg.icon}</span>
                 <div>
                   <div className={styles.nftTierName}>{pkg.tier} Tier</div>
                   <div className={styles.nftPackageName}>{pkg.name}</div>
                 </div>
-              </div>
+              </div> */}
 
-              {/* Price */}
-              <div className={styles.nftPrice} style={{ color: pkg.tierColor }}>
+      {/* Price */}
+      {/* <div className={styles.nftPrice} style={{ color: pkg.tierColor }}>
                 {pkg.price}
-              </div>
+              </div> */}
 
-              {/* Features */}
-              <ul className={styles.nftFeatures}>
+      {/* Features */}
+      {/* <ul className={styles.nftFeatures}>
                 <li className={styles.nftFeatureItem}>
                   <span className={styles.featureCheck} style={{ color: pkg.tierColor }}>🐴</span>
                   {pkg.nft}
@@ -268,10 +268,10 @@ export default function InvestmentSections() {
                     {extra}
                   </li>
                 ))}
-              </ul>
+              </ul> */}
 
-              {/* Legal backing */}
-              <div className={styles.nftLegal}>
+      {/* Legal backing */}
+      {/* <div className={styles.nftLegal}>
                 <span>🔒 Legally backed ownership</span>
               </div>
 
@@ -287,10 +287,10 @@ export default function InvestmentSections() {
               </Link>
             </div>
           ))}
-        </div>
+        </div> */}
 
-        {/* Legal Documentation */}
-        <div className={styles.legalDocs}>
+      {/* Legal Documentation */}
+      {/* <div className={styles.legalDocs}>
           <div className={styles.legalTitle}>📋 Documentation Included With Every NFT</div>
           <div className={styles.legalGrid}>
             {[
@@ -306,8 +306,8 @@ export default function InvestmentSections() {
               </div>
             ))}
           </div>
-        </div>
-      </section>
-    </div>
+        </div> */}
+      {/* </section> */}
+    </div >
   );
 }

@@ -14,15 +14,16 @@ const AppLayout = ({ children }) => {
 
   const navLinks = [
     { href: "/dashboard", label: "Dashboard", icon: "ri-dashboard-3-fill" },
-    { href: "/dashboard/staking", label: "Token Staking", icon: "ri-fire-fill" },
-    { href: "/dashboard/nft-packages", label: "Horse NFT Packages", icon: "ri-nft-fill" },
+    // { href: "/dashboard/staking", label: "Token Staking", icon: "ri-fire-fill" },
+    // { href: "/dashboard/nft-packages", label: "Horse NFT Packages", icon: "ri-nft-fill" },
     { href: "/team-referrals", label: "Community", icon: "ri-group-2-fill" },
     { href: "/dashboard/ledger", label: "Ledger History", icon: "ri-file-list-3-fill" },
   ];
 
-  if (user?.userType === "superadmin") {
-    navLinks.push({ href: "/admin/dashboard", label: "Super Admin Dashboard", icon: "ri-admin-fill" });
-  }
+  // Super Admin link moved to footer next to logout
+  // if (user?.userType === "superadmin") {
+  //   navLinks.push({ href: "/admin/dashboard", label: "Super Admin Dashboard", icon: "ri-admin-fill" });
+  // }
 
   navLinks.push({ href: "https://t.me/TokingHoofbornSupportBot", label: "Help", icon: "ri-customer-service-2-fill" });
 
@@ -112,14 +113,26 @@ const AppLayout = ({ children }) => {
             </div>
           </div>
 
-          <button
-            onClick={logout}
-            className={styles.navLink}
-            style={{ width: "100%", background: "transparent", border: "none", cursor: "pointer" }}
-          >
-            <LogOut size={20} />
-            Logout
-          </button>
+          <div style={{ display: "flex", gap: "8px", width: "100%" }}>
+            <button
+              onClick={logout}
+              className={styles.navLink}
+              style={{ flex: 1, background: "transparent", border: "none", cursor: "pointer", display: "flex", justifyContent: "center" }}
+            >
+              <LogOut size={20} />
+              Logout
+            </button>
+            {user?.userType === "superadmin" && (
+              <Link
+                href="/admin/dashboard"
+                className={styles.navLink}
+                title="Super Admin Dashboard"
+                style={{ padding: "0 15px", background: "rgba(255, 102, 0, 0.1)", border: "1px solid rgba(255, 102, 0, 0.2)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "12px" }}
+              >
+                <i className="ri-admin-fill" style={{ fontSize: "20px", color: "#ff6600", margin: 0 }}></i>
+              </Link>
+            )}
+          </div>
         </div>
       </aside>
 

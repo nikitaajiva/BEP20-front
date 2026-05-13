@@ -306,15 +306,26 @@ export const BoostWalletCard = ({
 };
 export const HorseNFTCard = ({
   title = "Horse NFT",
-  packageType = "bronze",
+  packageType = null,
   balance,
-  roiProgress = 45,
+  roiProgress = 0,
   dailyYield = "0.00",
   estPayout = "0.00",
   nextPayout = "0.00",
-  timeLeft = "14h 22m",
+  timeLeft = "--h --m",
   onViewHistory
 }) => {
+  // Normalize DB values (starter/growth/premium) to display tier (bronze/silver/gold)
+  const tierNormalize = {
+    starter: "bronze",
+    growth: "silver",
+    premium: "gold",
+    bronze: "bronze",
+    silver: "silver",
+    gold: "gold",
+  };
+  const tier = tierNormalize[packageType] || null;
+
   const nftImages = {
     bronze: "🥉",
     silver: "🥈",
@@ -325,57 +336,106 @@ export const HorseNFTCard = ({
     bronze: "Bronze Tier",
     silver: "Silver Tier",
     gold: "Gold Tier",
+    starter: "Starter Pack",
+    growth: "Growth Pack",
+    premium: "Premium Pack",
   };
+
+  // Live countdown to next UTC midnight (ticks every minute)
+  const calcTimeLeft = () => {
+    const now = new Date();
+    const nextMid = new Date(Date.UTC(
+      now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1
+    ));
+    const diff = nextMid - now;
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    return `${h}h ${String(m).padStart(2, '0')}m`;
+  };
+
+  const [liveTimeLeft, setLiveTimeLeft] = React.useState(
+    timeLeft !== "--h --m" ? timeLeft : calcTimeLeft()
+  );
+
+  React.useEffect(() => {
+    const id = setInterval(() => setLiveTimeLeft(calcTimeLeft()), 60000);
+    return () => clearInterval(id);
+  }, []);
+
+  const isActive = !!tier;
 
   return (
     <div className={styles.nftCardWrapper}>
       <div className={styles.nftHeader}>
         <div className={styles.headerLeft}>
           <div className={styles.nftIconBox}>
-             <FaHorse size={20} color="#ffd700" />
+             <FaHorse size={20} color={isActive ? "#ffd700" : "#555"} />
           </div>
           <div className={styles.titleSection}>
             <h3>{title}</h3>
-            <p>{packageNames[packageType] || "No Active Package"}</p>
+            <p style={{ color: isActive ? undefined : '#555' }}>
+              {packageNames[packageType] || "No Active Package"}
+            </p>
           </div>
         </div>
         
         {/* Compact Tier Image - Top Right */}
         <div className={styles.nftImageSmall}>
-           <span>{nftImages[packageType] || "🐎"}</span>
+           <span style={{ opacity: isActive ? 1 : 0.3 }}>
+             {nftImages[tier] || "🐎"}
+           </span>
            <div className={styles.nftGlowSmall}></div>
         </div>
       </div>
 
-      <div className={styles.nftMainBalanceLarge}>
+      <div className={styles.nftMainBalanceLarge} style={{ color: isActive ? undefined : '#555' }}>
          {balance} <span>USDT</span>
       </div>
 
       <div className={styles.roiProgressSection}>
         <div className={styles.roiLabelRow}>
            <span>Annual ROI Target</span>
-           <span>{roiProgress}%</span>
+           <span style={{ color: roiProgress > 0 ? '#00ff00' : '#555' }}>
+             {roiProgress > 0 ? `${roiProgress}%` : 'N/A'}
+           </span>
         </div>
         <div className={styles.roiProgressBar}>
-           <div className={styles.roiProgressFill} style={{ width: `${roiProgress}%` }}></div>
+           <div
+             className={styles.roiProgressFill}
+             style={{
+               width: roiProgress > 0 ? `${Math.min(roiProgress, 100)}%` : '0%',
+               background: roiProgress >= 60 ? 'linear-gradient(90deg,#ffd700,#ff8c00)'
+                         : roiProgress >= 50 ? 'linear-gradient(90deg,#00ff88,#00d2ff)'
+                         : roiProgress > 0  ? 'linear-gradient(90deg,#7fff4c,#00ff88)'
+                         : 'rgba(255,255,255,0.05)'
+             }}
+           ></div>
         </div>
       </div>
 
       <div className={styles.nftStatsGrid}>
         <div className={styles.nftStatItem}>
            <span className={styles.nftStatLabel}>Daily Yield</span>
-           <span className={styles.nftStatValue} style={{ color: "#00ff00" }}>{dailyYield} USDT</span>
+           <span className={styles.nftStatValue} style={{ color: isActive ? "#00ff00" : "#555" }}>
+             {dailyYield} USDT
+           </span>
         </div>
         <div className={styles.nftStatItem}>
            <span className={styles.nftStatLabel}>Est. Payout</span>
-           <span className={styles.nftStatValue}>{estPayout} USDT</span>
+           <span className={styles.nftStatValue} style={{ color: isActive ? undefined : '#555' }}>
+             {estPayout} USDT
+           </span>
         </div>
         <div className={styles.nftStatItem} style={{ border: 'none' }}>
            <div className={styles.nftStatLabelGroup}>
              <span className={styles.nftStatLabel}>Next Payout</span>
-             <span className={styles.nftTimeLeft}>{timeLeft} LEFT</span>
+             <span className={styles.nftTimeLeft} style={{ color: isActive ? undefined : '#555' }}>
+               {isActive ? `${liveTimeLeft} LEFT` : '--'}
+             </span>
            </div>
-           <span className={styles.nftStatValue}>{nextPayout} USDT</span>
+           <span className={styles.nftStatValue} style={{ color: isActive ? undefined : '#555' }}>
+             {nextPayout} USDT
+           </span>
         </div>
       </div>
 
@@ -386,7 +446,7 @@ export const HorseNFTCard = ({
         </button>
         <button className={styles.nftShowMoreBtn} onClick={() => window.location.href = "/dashboard/nft-packages"}>
           <Plus size={14} />
-          <span>SHOW MORE</span>
+          <span>{isActive ? 'UPGRADE' : 'GET PACKAGE'}</span>
         </button>
       </div>
     </div>

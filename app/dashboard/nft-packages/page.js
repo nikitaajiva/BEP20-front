@@ -1,5 +1,5 @@
 "use client";
-export const dynamic = "force-dynamic";
+import { Suspense } from "react";
 import React, { useState } from "react";
 import AuthGuard from "@/components/auth/AuthGuard";
 import Link from "next/link";
@@ -63,7 +63,7 @@ const packages = [
 
 const docs = ["Horse registration papers","Veterinary health records","Insurance documentation","Training facility contracts","Racing/breeding performance data"];
 
-export default function NFTPackagesPage() {
+function NFTPackagesContent() {
   const { user, setUser, API_URL } = useAuth();
   const searchParams = useSearchParams();
   const defaultTier = searchParams.get("tier") || null;
@@ -598,3 +598,10 @@ export default function NFTPackagesPage() {
   );
 }
 
+export default function NFTPackagesPage() {
+  return (
+    <Suspense fallback={<div style={{ minHeight: '100vh', background: '#000', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>Loading...</div>}>
+      <NFTPackagesContent />
+    </Suspense>
+  );
+}

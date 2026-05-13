@@ -1944,9 +1944,7 @@
   .mobileBottomNav {
     display: flex !important;
   }
-}
-
-@media (max-width: 480px) {
+}@media (max-width: 480px) {
   .hubWrapper, .mainCircle {
     width: 280px;
     height: 280px;
@@ -1998,7 +1996,7 @@
   display: flex !important;
   justify-content: space-between;
   align-items: center;
-  padding: 0; /* Remove side padding for equal distribution */
+  padding: 0;
 }
 
 @media (min-width: 901px) {
@@ -2008,7 +2006,7 @@
 }
 
 .mobileNavItem {
-  flex: 1; /* Stretch items equally */
+  flex: 1;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -2017,12 +2015,12 @@
   gap: 2px;
   color: rgba(255, 255, 255, 0.6);
   text-decoration: none;
-  font-size: 8px; /* Slightly smaller for 6 items */
+  font-size: 8px;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.2px;
   transition: all 0.2s ease;
-  min-width: 0; /* Prevent flex-item overflow */
+  min-width: 0;
 }
 
 .mobileNavItem svg,
@@ -2076,15 +2074,198 @@
 }
 
 @keyframes floatStaticCardTopRel {
-  0% {
-    transform: translateX(-50%) translateY(0);
-  }
+  0% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(10px); }
+  100% { transform: translateX(-50%) translateY(0); }
+}
 
-  50% {
-    transform: translateX(-50%) translateY(10px);
-  }
+/* Investment Selection Modal */
+.investModalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(15px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
 
-  100% {
-    transform: translateX(-50%) translateY(0);
+.investModalContent {
+  background: rgba(10, 10, 10, 0.95);
+  border: 1px solid rgba(255, 184, 0, 0.3);
+  border-radius: 32px;
+  width: 100%;
+  max-width: 620px; /* Made smaller */
+  padding: 40px 30px; /* Reduced padding */
+  position: relative;
+  box-shadow: 0 0 100px rgba(255, 184, 0, 0.15);
+}
+
+.investModalClose {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.investModalClose:hover {
+  color: #fff;
+  transform: scale(1.1);
+}
+
+.investModalTitle {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #fff;
+  text-align: center;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+
+.investModalSubtitle {
+  color: rgba(255, 255, 255, 0.5);
+  text-align: center;
+  font-size: 0.85rem;
+  margin-bottom: 35px;
+}
+
+.investCardsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.investSelectionCard {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 28px;
+  padding: 25px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.investSelectionCard h4 {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 0;
+  letter-spacing: 1px;
+}
+
+.investSelectionCard p {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.investCardIcon {
+  width: 90px;
+  height: 90px;
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.iconStaking {
+  background: rgba(0, 242, 255, 0.05);
+  color: #00f2ff;
+  border: 1px solid rgba(0, 242, 255, 0.2);
+  box-shadow: 
+    0 0 20px rgba(0, 242, 255, 0.1),
+    inset 0 0 15px rgba(0, 242, 255, 0.05);
+}
+
+.iconNft {
+  background: rgba(255, 184, 0, 0.05);
+  color: #FFB800;
+  border: 1px solid rgba(255, 184, 0, 0.2);
+  box-shadow: 
+    0 0 20px rgba(255, 184, 0, 0.1),
+    inset 0 0 15px rgba(255, 184, 0, 0.05);
+}
+
+.investSelectionCard:hover .iconStaking {
+  background: rgba(0, 242, 255, 0.15);
+  box-shadow: 
+    0 0 30px rgba(0, 242, 255, 0.3),
+    inset 0 0 20px rgba(0, 242, 255, 0.1);
+  transform: scale(1.05);
+}
+
+.investSelectionCard:hover .iconNft {
+  background: rgba(255, 184, 0, 0.15);
+  box-shadow: 
+    0 0 30px rgba(255, 184, 0, 0.3),
+    inset 0 0 20px rgba(255, 184, 0, 0.1);
+  transform: scale(1.05);
+}
+
+.investSelectBtn {
+  margin-top: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  padding: 8px 24px;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  transition: all 0.3s;
+}
+
+.investSelectionCard:hover {
+  background: rgba(255, 255, 255, 0.07);
+  transform: translateY(-8px);
+}
+
+.investSelectionCard:hover:first-child {
+  border-color: #00f2ff;
+  box-shadow: 0 15px 45px rgba(0, 242, 255, 0.15);
+}
+
+.investSelectionCard:hover:last-child {
+  border-color: #FFB800;
+  box-shadow: 0 15px 45px rgba(255, 184, 0, 0.15);
+}
+
+.investSelectionCard:hover .investSelectBtn {
+  background: #00f2ff;
+  color: #000;
+  border-color: #00f2ff;
+  box-shadow: 0 0 25px rgba(0, 242, 255, 0.5);
+}
+
+.investSelectionCard:hover:last-child .investSelectBtn {
+  background: #FFB800;
+  color: #000;
+  border-color: #FFB800;
+  box-shadow: 0 0 25px rgba(255, 184, 0, 0.5);
+}
+
+@media (max-width: 600px) {
+  .investCardsGrid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .investModalContent {
+    padding: 40px 25px;
+    margin: 15px;
   }
 }

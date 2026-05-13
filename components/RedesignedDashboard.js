@@ -290,10 +290,20 @@ const RedesignedDashboard = ({
                     </div>
                   </>
                 ) : (
-                  <>
-                    <div className={styles.hubAmount} style={{ fontSize: 22, color: "#444" }}>INACTIVE</div>
-                    <div className={styles.inactiveNote}>ENGINE READY</div>
-                  </>
+                  <div className={styles.stakingInactiveHub}>
+                    <div className={styles.hubAmount} style={{ color: "rgba(0, 242, 255, 0.4)", fontSize: 36 }}>0.00</div>
+                    <div className={styles.hubCurrency} style={{ letterSpacing: 4, marginBottom: 20 }}>TOKING</div>
+                    
+                    <button 
+                      className={styles.hubStartStakingBtn}
+                      onClick={() => setIsStakingModalOpen(true)}
+                    >
+                      <Plus size={14} />
+                      START STAKING
+                    </button>
+                    
+                    <p className={styles.hubInactiveNote}>ENGINE READY TO DEPLOY</p>
+                  </div>
                 )}
               </div>
             </div>
@@ -302,29 +312,63 @@ const RedesignedDashboard = ({
             <div className={styles.investNowContainer} style={{ position: 'relative', top: 'auto', left: 'auto', transform: 'none', marginTop: 32, width: '100%' }}>
               <motion.button
                 className={styles.mainInvestBtn}
-                onClick={() => setShowInvestMenu(!showInvestMenu)}
+                onClick={() => setShowInvestMenu(true)}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                {showInvestMenu ? "CLOSE MENU" : "INVEST NOW"}
+                INVEST NOW
               </motion.button>
-              {showInvestMenu && (
-                <motion.div
-                  className={styles.investSubMenu}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
+            </div>
+
+            {/* Investment Selection Modal */}
+            {showInvestMenu && (
+              <div className={styles.investModalOverlay} onClick={() => setShowInvestMenu(false)}>
+                <motion.div 
+                  className={styles.investModalContent}
+                  onClick={(e) => e.stopPropagation()}
+                  initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
                 >
-                  <div onClick={() => setIsStakingModalOpen(true)} className={styles.subMenuBtn} style={{ cursor: 'pointer' }}>
-                    <TrendingUp size={16} />
-                    <span>TOKEN STAKING</span>
-                  </div>
-                  <div onClick={() => setIsNftModalOpen(true)} className={styles.subMenuBtn + " " + styles.subMenuBtnNft} style={{ cursor: 'pointer' }}>
-                    <FaHorse size={16} />
-                    <span>HORSE NFT</span>
+                  <button className={styles.investModalClose} onClick={() => setShowInvestMenu(false)}>✖</button>
+                  <h3 className={styles.investModalTitle}>CHOOSE INVESTMENT TYPE</h3>
+                  <p className={styles.investModalSubtitle}>Select a vehicle to start earning rewards</p>
+                  
+                  <div className={styles.investCardsGrid}>
+                    <motion.div 
+                      className={styles.investSelectionCard}
+                      onClick={() => {
+                        setIsStakingModalOpen(true);
+                        setShowInvestMenu(false);
+                      }}
+                      whileHover={{ y: -5, borderColor: '#00f2ff' }}
+                    >
+                      <div className={`${styles.investCardIcon} ${styles.iconStaking}`}>
+                        <TrendingUp size={40} />
+                      </div>
+                      <h4>TOKEN STAKING</h4>
+                      <p>Lock tokens to earn daily yields up to 28% APY.</p>
+                      <button className={styles.investSelectBtn}>SELECT</button>
+                    </motion.div>
+
+                    <motion.div 
+                      className={styles.investSelectionCard}
+                      onClick={() => {
+                        setIsNftModalOpen(true);
+                        setShowInvestMenu(false);
+                      }}
+                      whileHover={{ y: -5, borderColor: '#ffd700' }}
+                    >
+                      <div className={`${styles.investCardIcon} ${styles.iconNft}`}>
+                        <FaHorse size={40} />
+                      </div>
+                      <h4>HORSE NFT</h4>
+                      <p>Own premium Horse NFTs with fractional rewards.</p>
+                      <button className={`${styles.investSelectBtn} ${styles.btnNft}`}>SELECT</button>
+                    </motion.div>
                   </div>
                 </motion.div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
 
           {/* RIGHT: Community Wallet Card */}

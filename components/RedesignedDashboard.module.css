@@ -950,8 +950,8 @@
   align-items: center;
   justify-content: space-between;
   z-index: 2000;
-  gap: 20px;
-  padding: 0 28px;
+  gap: 12px;
+  padding: 0 20px;
   background: rgba(6, 6, 6, 0.95);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
@@ -971,8 +971,9 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 0 16px;
+  padding: 0 10px;
   min-width: 0;
+  flex-shrink: 1;
 }
 
 .headerWalletCard {
@@ -1146,7 +1147,7 @@
 .topRightActions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   flex-shrink: 0;
 }
 
@@ -1155,7 +1156,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  margin-right: 4px;
+  margin-right: 2px;
 }
 
 .headerBalanceLabel {
@@ -1171,6 +1172,14 @@
   font-weight: 900;
   color: #ffd700;
   letter-spacing: 0.5px;
+}
+
+.headerActionsRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  justify-content: flex-end;
 }
 
 /* Header Buttons */
@@ -1219,6 +1228,66 @@
   background: linear-gradient(135deg, #ffaa00 0%, #ff6600 100%);
   box-shadow: 0 4px 18px rgba(255, 102, 0, 0.5);
   transform: translateY(-1px);
+}
+
+.connectBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.85;
+  transform: none;
+}
+
+.connectBtnConnected {
+  background: rgba(171, 159, 242, 0.18);
+  border: 1px solid rgba(171, 159, 242, 0.35);
+  color: #d6ccff;
+  box-shadow: 0 2px 12px rgba(171, 159, 242, 0.18);
+}
+
+.connectBtnConnected:hover {
+  background: rgba(171, 159, 242, 0.24);
+  box-shadow: 0 4px 16px rgba(171, 159, 242, 0.24);
+}
+
+.buttonLabel {
+  white-space: nowrap;
+}
+
+.phantomWalletGroup {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.phantomStatusWrap {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+  width: max-content;
+  max-width: 220px;
+}
+
+.phantomStatusText {
+  font-size: 10px;
+  line-height: 1.3;
+  text-align: center;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.phantomStatusSuccess {
+  color: #7FFF4C;
+}
+
+.phantomStatusError {
+  color: #ff6666;
 }
 
 .supportAdminBtn {
@@ -2087,4 +2156,24 @@
   100% {
     transform: translateX(-50%) translateY(0);
   }
+}
+.logoutBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.logoutBtn:hover {
+  background: rgba(255, 68, 68, 0.1);
+  border-color: rgba(255, 68, 68, 0.3);
+  color: #ff4444;
+  transform: translateY(-1px);
 }

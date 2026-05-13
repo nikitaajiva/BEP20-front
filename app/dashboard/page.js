@@ -13,14 +13,14 @@ import {
   requestAccounts,
   switchToBsc,
 } from "@/utils/bscWallet";
+import safeStorage from "@/utils/safeStorage";
 
 export default function DashboardPage() {
-  const { user, API_URL } = useAuth();
+  const { user, loading, logout, API_URL, connectPhantomWallet } = useAuth();
   const usdtDecimals = Number(process.env.NEXT_PUBLIC_USDT_DECIMALS || "18");
   const bscChainId = 56;
   const PENDING_DEPOSIT_KEY = "bep_pending_deposit";
   const [walletAccount, setWalletAccount] = useState("");
-  const [primaryVaultBalance, setPrimaryVaultBalance] = useState("0");
   const [isAmountModalOpen, setIsAmountModalOpen] = useState(false);
   const [transactionStatus, setTransactionStatus] = useState("");
   const [debugMessage, setDebugMessage] = useState("");
@@ -41,6 +41,17 @@ export default function DashboardPage() {
   const [isManualDisconnect, setIsManualDisconnect] = useState(false);
   const [, setPendingDeposit] = useState(null);
   const [successModalTrigger, setSuccessModalTrigger] = useState(null);
+  const [activeTab, setActiveTab] = useState("zeroRisk");
+  const [phantomStatus, setPhantomStatus] = useState("");
+  const [phantomLoading, setPhantomLoading] = useState(false);
+  const [phantomErrorCode, setPhantomErrorCode] = useState("");
+  const [phantomBalance, setPhantomBalance] = useState("0.000000");
+  const [phantomBalanceLoading, setPhantomBalanceLoading] = useState(false);
+
+  const shortAddress = (address) => {
+    if (!address) return "";
+    return `${address.slice(0, 4)}...${address.slice(-4)}`;
+  };
 
   const [ledgerDetails, setLedgerDetails] = useState(null);
   const [loadingLedger, setLoadingLedger] = useState(true);
@@ -50,7 +61,7 @@ export default function DashboardPage() {
     if (!user) return;
     setLoadingLedger(true);
     setLedgerError("");
-    const token = localStorage.getItem("token");
+    const token = safeStorage.getItem("token");
     if (!token) {
       setLedgerError("Authentication token not found.");
       setLoadingLedger(false);
@@ -69,9 +80,6 @@ export default function DashboardPage() {
 
       if (response.ok && data.success) {
         setLedgerDetails(data.data);
-        if (data?.data?.bnbWallet?.balance) {
-          setPrimaryVaultBalance(data.data.bnbWallet.balance);
-        }
       } else {
         console.error("[DashboardPage] Ledger Fetch Error:", data.message);
         throw new Error(data.message || "Failed to fetch ledger details");
@@ -85,6 +93,60 @@ export default function DashboardPage() {
     }
   }, [user, API_URL]);
 
+  const fetchPhantomBalance = useCallback(async (walletAddressOverride = "") => {
+    const phantomWalletAddress = `${walletAddressOverride || user?.phantomWalletAddress || ""}`.trim();
+    const token = safeStorage.getItem("token");
+
+    if (!phantomWalletAddress) {
+      setPhantomBalance("0.000000");
+      setPhantomBalanceLoading(false);
+      return {
+        success: false,
+        code: "PHANTOM_WALLET_NOT_CONNECTED",
+      };
+    }
+
+    if (!token) {
+      setPhantomBalance("0.000000");
+      setPhantomBalanceLoading(false);
+      return {
+        success: false,
+        code: "AUTH_REQUIRED",
+      };
+    }
+
+    setPhantomBalanceLoading(true);
+
+    try {
+      const response = await fetch(`${API_URL}/auth/phantom/balance`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Failed to fetch Phantom balance.");
+      }
+
+      setPhantomBalance(data.balanceSol || "0.000000");
+      return {
+        success: true,
+        balanceSol: data.balanceSol || "0.000000",
+      };
+    } catch (error) {
+      console.error("Failed to fetch Phantom balance:", error);
+      setPhantomBalance("0.000000");
+      return {
+        success: false,
+        code: "PHANTOM_BALANCE_FETCH_FAILED",
+        error: error.message || "Failed to fetch Phantom balance.",
+      };
+    } finally {
+      setPhantomBalanceLoading(false);
+    }
+  }, [API_URL, user?.phantomWalletAddress]);
+
   const savePendingDeposit = useCallback((intent, updates = {}) => {
     if (!intent) return null;
     const next = { ...intent, ...updates };
@@ -92,7 +154,7 @@ export default function DashboardPage() {
     pendingDepositRef.current = next;
     setPendingDeposit(next);
     if (typeof window !== "undefined") {
-      localStorage.setItem(PENDING_DEPOSIT_KEY, JSON.stringify(next));
+      safeStorage.setItem(PENDING_DEPOSIT_KEY, JSON.stringify(next));
     }
     return next;
   }, []);
@@ -101,7 +163,7 @@ export default function DashboardPage() {
     pendingDepositRef.current = null;
     setPendingDeposit(null);
     if (typeof window !== "undefined") {
-      localStorage.removeItem(PENDING_DEPOSIT_KEY);
+      safeStorage.removeItem(PENDING_DEPOSIT_KEY);
     }
   }, []);
 
@@ -158,7 +220,7 @@ export default function DashboardPage() {
   const fetchDepositVerification = useCallback(
     async (referenceId) => {
       if (!referenceId) return null;
-      const token = localStorage.getItem("token");
+      const token = safeStorage.getItem("token");
       if (!token) {
         setTransactionStatus("Authentication required. Please re-login.");
         return null;
@@ -211,7 +273,7 @@ export default function DashboardPage() {
 
   const createDepositIntent = useCallback(
     async (amount, fallbackWallet, asset) => {
-      const token = localStorage.getItem("token");
+      const token = safeStorage.getItem("token");
       if (!token) {
         throw new Error("Authentication error: No token found. Please re-login.");
       }
@@ -262,8 +324,9 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!user) {
       setWalletAccount("");
-      setPrimaryVaultBalance("0");
       setNativeBnbBalance("0");
+      setPhantomBalance("0.000000");
+      setPhantomBalanceLoading(false);
       setTransactionStatus("");
       setLedgerDetails(null);
       setLoadingLedger(true);
@@ -276,6 +339,12 @@ export default function DashboardPage() {
 
     // Always fetch ledger details if user exists
     fetchLedgerDetails();
+    if (user?.phantomWalletAddress) {
+      fetchPhantomBalance();
+    } else {
+      setPhantomBalance("0.000000");
+      setPhantomBalanceLoading(false);
+    }
 
     // Fallback to database registered wallet if available (unless manually disconnected)
     if (user?.wallet_address && !walletAccount && !isManualDisconnect) {
@@ -316,17 +385,13 @@ export default function DashboardPage() {
     API_URL,
     clearPendingDeposit,
     fetchLedgerDetails,
+    fetchPhantomBalance,
     fetchNativeBalance,
     isManualDisconnect,
     stopDepositPolling,
     stopQrPolling,
     walletAccount,
   ]);
-
-  useEffect(() => {
-    if (!ledgerDetails?.bnbWallet?.balance) return;
-    setPrimaryVaultBalance(ledgerDetails.bnbWallet.balance);
-  }, [ledgerDetails]);
 
   useEffect(() => {
     return () => {
@@ -356,6 +421,33 @@ export default function DashboardPage() {
     } catch (err) {
       console.error("[connectWallet] Connection failed error details:", err);
       setTransactionStatus(err.message || "Failed to connect wallet.");
+    }
+  };
+
+  const handleConnectPhantom = async () => {
+    if (phantomLoading) return;
+
+    setPhantomLoading(true);
+    setPhantomStatus("");
+    setPhantomErrorCode("");
+
+    try {
+      const result = await connectPhantomWallet();
+
+      if (result.success) {
+        await fetchPhantomBalance(result.walletAddress);
+        setPhantomStatus(`Connected: ${result.walletAddress}`);
+        setPhantomErrorCode("");
+      } else {
+        setPhantomStatus(result.error || "Failed to connect wallet.");
+        setPhantomErrorCode(result.code || "PHANTOM_CONNECT_FAILED");
+      }
+    } catch (error) {
+      console.error("Dashboard Phantom connect error:", error);
+      setPhantomStatus(error?.message || "Failed to connect wallet.");
+      setPhantomErrorCode("PHANTOM_CONNECT_FAILED");
+    } finally {
+      setPhantomLoading(false);
     }
   };
 
@@ -397,13 +489,13 @@ export default function DashboardPage() {
       const finalIntent = intentData.intent || intentData;
       const depositAddress = finalIntent.deposit_address;
       const referenceId = finalIntent.referenceId;
-      
+
       if (!depositAddress || !referenceId) {
-         if (finalIntent.referenceId) {
-            beginQrTracking(finalIntent, "Scan QR to complete your existing deposit.");
-            return;
-         }
-         throw new Error("Invalid response from server.");
+        if (finalIntent.referenceId) {
+          beginQrTracking(finalIntent, "Scan QR to complete your existing deposit.");
+          return;
+        }
+        throw new Error("Invalid response from server.");
       }
 
       const existingSource =
@@ -480,7 +572,7 @@ export default function DashboardPage() {
         setQrTxHashStatus("Missing reference ID.");
         return;
       }
-      const token = localStorage.getItem("token");
+      const token = safeStorage.getItem("token");
       if (!token) {
         setQrTxHashStatus("Authentication required.");
         return;
@@ -678,7 +770,7 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!user || typeof window === "undefined") return;
     if (pendingDepositRef.current) return;
-    const raw = localStorage.getItem(PENDING_DEPOSIT_KEY);
+    const raw = safeStorage.getItem(PENDING_DEPOSIT_KEY);
     if (!raw) return;
     let saved;
     try {
@@ -689,7 +781,7 @@ export default function DashboardPage() {
     if (!saved?.referenceId) return;
     pendingDepositRef.current = saved;
     setPendingDeposit(saved);
-    const token = localStorage.getItem("token");
+    const token = safeStorage.getItem("token");
     if (!token) return;
 
     const resume = async () => {
@@ -761,6 +853,7 @@ export default function DashboardPage() {
   const disconnectWallet = () => {
     setIsManualDisconnect(true);
     setWalletAccount("");
+    setPhantomStatus("");
     setTransactionStatus("Wallet disconnected.");
     setNativeBnbBalance("0");
   };
@@ -768,24 +861,43 @@ export default function DashboardPage() {
   return (
     <AuthGuard>
       <DashboardLayout
+        user={user}
+        loading={loading}
         walletAccount={walletAccount}
-        walletBalance={nativeBnbBalance}
         walletTransactionStatus={transactionStatus}
         walletDebugMessage={debugMessage}
-        onWalletConnect={connectWallet}
+        onWalletConnect={handleConnectPhantom}
+        onConnectPhantom={handleConnectPhantom}
         onWalletDisconnect={disconnectWallet}
         onOpenAmountModal={handleOpenAmountModal}
+        phantomWalletAddress={user?.phantomWalletAddress || ""}
+        phantomBalance={phantomBalance}
+        phantomBalanceLoading={phantomBalanceLoading}
+        refreshPhantomBalance={fetchPhantomBalance}
+        phantomStatus={phantomStatus}
+        phantomLoading={phantomLoading}
+        phantomErrorCode={phantomErrorCode}
+        shortAddress={shortAddress(user?.phantomWalletAddress)}
+        onLogout={logout}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
         ledgerDetails={ledgerDetails}
         loadingLedger={loadingLedger}
         ledgerError={ledgerError}
         refreshLedgerDetails={fetchLedgerDetails}
         successModalTrigger={successModalTrigger}
-      ></DashboardLayout>
+      >
+        <div style={{ display: 'none' }}>
+          {/* Internal state pass-through if needed, otherwise this can be empty children */}
+        </div>
+      </DashboardLayout>
+
       <AmountEntryModal
         isOpen={isAmountModalOpen}
         onClose={() => setIsAmountModalOpen(false)}
         onSubmit={createPayload}
       />
+
       <QrDepositModal
         isOpen={qrModalOpen}
         onClose={() => {

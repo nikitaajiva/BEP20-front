@@ -4,8 +4,21 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import styles from "./profile.module.css";
 import Link from "next/link";
+
+const shortenWalletAddress = (walletAddress) => {
+  if (!walletAddress) {
+    return "";
+  }
+
+  return `SOL: ${walletAddress.slice(0, 4)}...${walletAddress.slice(-4)}`;
+};
+
 export default function ProfilePage() {
-  const { user, loading, updateUser, API_URL } = useAuth();
+  const { user, loading, updateUser, API_URL, connectPhantomWallet } = useAuth();
+
+  const [phantomStatus, setPhantomStatus] = useState("");
+  const [phantomErrorCode, setPhantomErrorCode] = useState("");
+  const [phantomLoading, setPhantomLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     username: "",
@@ -13,7 +26,7 @@ export default function ProfilePage() {
     countryCode: "",
     whatsappContact: "",
   });
-  
+
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -51,8 +64,8 @@ export default function ProfilePage() {
       setInitialFormData(baseData);
 
       // Log old values (from DB)
-      
-      
+
+
 
       fetch("https://ipapi.co/json/")
         .then((res) => res.json())
@@ -61,8 +74,8 @@ export default function ProfilePage() {
           const ipCode = data.country_calling_code || "";
 
           // Log new values (from IP)
-          
-          
+
+
 
           setFormData((prev) => {
             let updated = {
@@ -108,6 +121,33 @@ export default function ProfilePage() {
 
     return val;
   }
+
+  const handleConnectPhantom = async () => {
+    if (phantomLoading) return;
+
+    setPhantomLoading(true);
+    setPhantomStatus("");
+    setPhantomErrorCode("");
+
+    try {
+      const result = await connectPhantomWallet();
+
+      if (result.success) {
+        setPhantomStatus(`Connected: ${result.walletAddress}`);
+        setPhantomErrorCode("");
+      } else {
+        setPhantomStatus(result.error || "Failed to connect wallet.");
+        setPhantomErrorCode(result.code || "PHANTOM_CONNECT_FAILED");
+      }
+    } catch (error) {
+      console.error("Profile Phantom connect error:", error);
+      setPhantomStatus(error?.message || "Failed to connect wallet.");
+      setPhantomErrorCode("PHANTOM_CONNECT_FAILED");
+    } finally {
+      setPhantomLoading(false);
+    }
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -257,7 +297,7 @@ export default function ProfilePage() {
       const maybeURL = new URL(text);
       const t = maybeURL.searchParams.get("token");
       if (t) return t.trim();
-    } catch {}
+    } catch { }
     return text.trim();
   };
 
@@ -450,6 +490,31 @@ export default function ProfilePage() {
             <small>
               Connect your wallet on the dashboard to set this address.
             </small>
+          </div>
+
+          {/* Phantom Wallet */}
+          <div className={styles.inputGroup}>
+            <label>Phantom Wallet (Solana)</label>
+            {user?.phantomWalletAddress ? (
+              <div className={styles.inputField} style={{ opacity: 0.8 }}>
+                Connected: {shortenWalletAddress(user.phantomWalletAddress)}
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={handleConnectPhantom}
+                className={styles.submitButton}
+                disabled={phantomLoading}
+                style={{ width: "auto", padding: "10px 20px", marginTop: "10px", backgroundColor: "#AB9FF2" }}
+              >
+                {phantomLoading ? "Connecting..." : "Connect Phantom Wallet"}
+              </button>
+            )}
+            {phantomStatus && (
+              <div style={{ marginTop: "10px", fontSize: "14px", color: phantomErrorCode ? "#ff4d4f" : "limegreen" }}>
+                {phantomStatus}
+              </div>
+            )}
           </div>
 
           {/* Country */}
@@ -736,8 +801,8 @@ export default function ProfilePage() {
                 {verifyProcessing
                   ? "Verifying..."
                   : verifyDone
-                  ? "Verified"
-                  : "Verify"}
+                    ? "Verified"
+                    : "Verify"}
               </button>
             </div>
           </div>
@@ -746,4 +811,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-

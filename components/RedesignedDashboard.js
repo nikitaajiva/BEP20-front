@@ -68,6 +68,21 @@ const RedesignedDashboard = ({
 
   const [mounted, setMounted] = React.useState(false);
   const [copySuccess, setCopySuccess] = React.useState(false);
+  const [randomCode, setRandomCode] = React.useState("");
+
+  const generateRandomCode = () => {
+    const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const lower = "abcdefghijklmnopqrstuvwxyz";
+    const digits = "0123456789";
+    const all = upper + lower + digits;
+    const rand = (set) => set[Math.floor(Math.random() * set.length)];
+    return [
+      rand(upper), rand(upper),
+      rand(digits), rand(digits),
+      rand(all), rand(all), rand(all), rand(all),
+      rand(lower), rand(lower)
+    ].join("");
+  };
 
   const referralLink = (mounted && user?.username)
     ? `${window.location.origin}/sign-up?sponsorId=${user.username}`
@@ -78,8 +93,9 @@ const RedesignedDashboard = ({
   }, []);
 
   const handleCopyLink = () => {
-    if (!referralLink) return;
-    navigator.clipboard.writeText(referralLink).then(() => {
+    const code = generateRandomCode();
+    setRandomCode(code);
+    navigator.clipboard.writeText(code).then(() => {
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 2000);
     });
@@ -120,7 +136,7 @@ const RedesignedDashboard = ({
                 {copySuccess === "code"
                   ? "✓ CODE COPIED!"
                   : copySuccess
-                    ? "✓ LINK COPIED! SHARE WITH TEAM"
+                    ? `✓ COPIED: ${randomCode}`
                     : "TAP TO COPY REFERRAL LINK"}
               </span>
               <button

@@ -105,7 +105,7 @@ export default function SignInPage() {
               <div className="visualSide">
                 <div className="imageFrame">
                   <Image
-                    src="/IMG/login-visual.png"
+                    src="/img/login-visual.png"
                     alt="Authentic Racing"
                     fill
                     className="visualImage"

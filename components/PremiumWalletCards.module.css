@@ -1079,3 +1079,43 @@
   border-color: #ffd700;
   transform: translateY(-2px);
 }
+
+.nftEmptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 15px 0;
+  gap: 12px;
+}
+
+.nftGetStartedBtn {
+  background: rgba(255, 215, 0, 0.1);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  color: #ffd700;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.nftGetStartedBtn:hover {
+  background: #ffd700;
+  color: #000;
+  transform: scale(1.05);
+  box-shadow: 0 0 25px rgba(255, 215, 0, 0.4);
+}
+
+.nftEmptySubtext {
+  font-size: 8px;
+  color: rgba(255, 215, 0, 0.5);
+  letter-spacing: 1px;
+  font-weight: 700;
+  text-transform: uppercase;
+}

@@ -95,7 +95,7 @@ export default function StakingModal({ isOpen, onClose }) {
 
             {step === 1 && (
               <motion.div initial={{ x: 10, opacity: 0 }} animate={{ x: 0, opacity: 1 }}>
-                <h3 style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.5)", marginBottom: 16, textTransform: "uppercase", letterSpacing: 0.5 }}>1. Select Staking Duration</h3>
+                <h3 style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.5)", marginBottom: 16, textTransform: "uppercase", letterSpacing: 0.5 }}>Select Staking Duration</h3>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
                   {tiers.map((t) => (
                     <div key={t.days} onClick={() => setSelectedTier(t.days)} style={{
@@ -129,7 +129,7 @@ export default function StakingModal({ isOpen, onClose }) {
 
             {step === 2 && (
               <motion.div initial={{ x: 10, opacity: 0 }} animate={{ x: 0, opacity: 1 }}>
-                <h3 style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.5)", marginBottom: 16, textTransform: "uppercase" }}>2. Stake Amount</h3>
+                <h3 style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.5)", marginBottom: 16, textTransform: "uppercase" }}>Stake Amount</h3>
                 <div style={{ position: "relative", marginBottom: 20 }}>
                   <input 
                     type="number" 

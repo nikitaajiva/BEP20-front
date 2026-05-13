@@ -23,6 +23,7 @@ const RedesignedDashboard = ({
   orbitCard4,
   bottomCards,
   extraHubCard,
+  nftTierLabel,
   children
 }) => {
   const lpWallet = ledgerDetails?.lpWallet || {};
@@ -351,26 +352,35 @@ const RedesignedDashboard = ({
         </div>
       </div>
 
-      <StakingModal 
-        isOpen={isStakingModalOpen} 
-        onClose={() => setIsStakingModalOpen(false)} 
+      {/* <StakingModal
+        isOpen={isStakingModalOpen}
+        onClose={() => setIsStakingModalOpen(false)}
       />
-      <NFTModal 
-        isOpen={isNftModalOpen} 
-        onClose={() => setIsNftModalOpen(false)} 
-      />
+      <NFTModal
+        isOpen={isNftModalOpen}
+        onClose={() => setIsNftModalOpen(false)}
+      /> */}
 
       {/* NFT Tier Footer Info */}
-      <div className={styles.nftStatusBar}>
+      {/* <div className={styles.nftStatusBar}>
         <div className={styles.nftStatusItem}>
-          <Shield size={16} color="#ffd700" />
+          <Shield size={16} color={nftTierLabel && nftTierLabel !== 'NO ACTIVE PACKAGE' ? '#ffd700' : '#555'} />
           <span className={styles.nftStatusLabel}>ACTIVE NFT TIER:</span>
-          <span className={styles.nftStatusValue}>
-            {user?.stakingPlan?.days ? "GOLD ELITE" : "BRONZE BASIC"}
+          <span
+            className={styles.nftStatusValue}
+            style={{
+              color: nftTierLabel === 'PREMIUM PACK'  ? '#ffd700'
+                   : nftTierLabel === 'GROWTH PACK'   ? '#00ff88'
+                   : nftTierLabel === 'STARTER PACK'  ? '#4cc9f0'
+                   : nftTierLabel === 'STAKING ACTIVE' ? '#f038ff'
+                   : '#555'
+            }}
+          >
+            {nftTierLabel || 'NO ACTIVE PACKAGE'}
           </span>
         </div>
         <div className={styles.statusGlowLine}></div>
-      </div>
+      </div> */}
       {children}
     </div>
   );

@@ -16,7 +16,7 @@ import {
 import safeStorage from "@/utils/safeStorage";
 
 export default function DashboardPage() {
-  const { user, loading, logout, API_URL, connectPhantomWallet } = useAuth();
+  const { user, loading, logout, API_URL, connectPhantomWallet, disconnectPhantomWallet } = useAuth();
   const usdtDecimals = Number(process.env.NEXT_PUBLIC_USDT_DECIMALS || "18");
   const bscChainId = 56;
   const PENDING_DEPOSIT_KEY = "bep_pending_deposit";
@@ -44,10 +44,55 @@ export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState("zeroRisk");
   const [phantomStatus, setPhantomStatus] = useState("");
   const [phantomLoading, setPhantomLoading] = useState(false);
+  const [phantomDisconnectLoading, setPhantomDisconnectLoading] = useState(false);
   const [phantomErrorCode, setPhantomErrorCode] = useState("");
   const [phantomBalance, setPhantomBalance] = useState("0.000000");
   const [phantomBalanceLoading, setPhantomBalanceLoading] = useState(false);
   const [phantomBalanceError, setPhantomBalanceError] = useState("");
+
+  const handleDisconnectPhantom = async () => {
+    if (phantomDisconnectLoading) return;
+
+    const confirmDisconnect = window.confirm(
+      "Are you sure you want to disconnect your Phantom wallet?"
+    );
+
+    if (!confirmDisconnect) return;
+
+    setPhantomDisconnectLoading(true);
+
+    try {
+      const result = await disconnectPhantomWallet();
+
+      if (!result?.success) {
+        setPhantomStatus(
+          result?.error || "Failed to disconnect Phantom wallet."
+        );
+        setPhantomErrorCode(
+          result?.code || "PHANTOM_DISCONNECT_FAILED"
+        );
+        return;
+      }
+
+      setPhantomStatus("Phantom wallet disconnected successfully.");
+      setPhantomErrorCode("");
+
+      if (typeof setPhantomBalance === "function") {
+        setPhantomBalance("0.000000");
+      }
+
+      if (typeof setPhantomBalanceError === "function") {
+        setPhantomBalanceError("");
+      }
+    } catch (error) {
+      console.error("Dashboard Phantom disconnect error:", error);
+
+      setPhantomStatus("Failed to disconnect Phantom wallet.");
+      setPhantomErrorCode("PHANTOM_DISCONNECT_FAILED");
+    } finally {
+      setPhantomDisconnectLoading(false);
+    }
+  };
 
   const shortAddress = (address) => {
     if (!address) return "";
@@ -862,6 +907,7 @@ export default function DashboardPage() {
         walletDebugMessage={debugMessage}
         onWalletConnect={handleConnectPhantom}
         onConnectPhantom={handleConnectPhantom}
+        onDisconnectPhantom={handleDisconnectPhantom}
         onWalletDisconnect={disconnectWallet}
         onOpenAmountModal={handleOpenAmountModal}
         phantomWalletAddress={user?.phantomWalletAddress || ""}
@@ -870,7 +916,7 @@ export default function DashboardPage() {
         phantomBalanceError={phantomBalanceError}
         refreshPhantomBalance={fetchPhantomBalance}
         phantomStatus={phantomStatus}
-        phantomLoading={phantomLoading}
+        phantomLoading={phantomLoading || phantomDisconnectLoading}
         phantomErrorCode={phantomErrorCode}
         shortAddress={shortAddress(user?.phantomWalletAddress)}
         onLogout={logout}

@@ -14,6 +14,7 @@ const RedesignedDashboard = ({
   user,
   onLogout,
   onConnectPhantom,
+  onDisconnectPhantom,
   phantomStatus,
   phantomLoading,
   phantomErrorCode,
@@ -205,6 +206,18 @@ const RedesignedDashboard = ({
                     <span onClick={handleCopyPhantomWallet} title="Copy Address">
                       <Copy size={11} />
                     </span>
+
+                    {onDisconnectPhantom && (
+                      <span
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDisconnectPhantom?.();
+                        }}
+                        title="Disconnect Phantom Wallet"
+                      >
+                        <LogOut size={11} />
+                      </span>
+                    )}
                   </div>
                 )}
               </button>

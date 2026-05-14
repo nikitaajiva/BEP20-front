@@ -1491,13 +1491,14 @@ export default function DashboardLayout({
         ledgerDetails={ledgerDetails}
         orbitCard1={
           <ActionableWalletCard
-            title="Primary Wallet"
-            type="system"
-            subtitle={
-              phantomWalletAddress
-                ? `CONNECTED • ${shortPhantomAddress}`
-                : "CONNECT WALLET"
+            title={
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span>Wallet</span>
+                <div style={{ width: '8px', height: '8px', background: '#00ff00', borderRadius: '50%', boxShadow: '0 0 10px #00ff00' }}></div>
+              </div>
             }
+            type="system"
+            subtitle=""
             layout="horizontal"
             showPlusBtn={false}
             balance={

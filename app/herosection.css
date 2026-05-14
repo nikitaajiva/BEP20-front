@@ -5371,6 +5371,7 @@ input[type=search]::-webkit-search-results-decoration {
   background: -webkit-gradient(linear, left bottom, left top, from(#4E47A6), to(#101122));
   background: linear-gradient(0deg, #4E47A6, #101122);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
@@ -7206,6 +7207,7 @@ input[type=search]::-webkit-search-results-decoration {
   font-size: 36px;
   background: -webkit-linear-gradient(-45deg, var(--bs-primary), var(--bs-secondary));
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 

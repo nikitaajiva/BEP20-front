@@ -109,7 +109,7 @@ export default function LedgerPageContent() {
       {/* ── CINEMATIC HERO BANNER ── */}
       <div className={styles.ledger_hero}>
         <Image 
-          src="/IMG/ledger-hero.png" 
+          src="/img/ledger-hero.png" 
           alt="Ledger Vault" 
           fill 
           className={styles.ledger_heroImage} 

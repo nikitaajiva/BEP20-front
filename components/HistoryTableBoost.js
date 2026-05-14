@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { getTxUrl } from "@/utils/explorer";
+import { copyToClipboard } from "@/utils/clipboard";
 
 export function RefIdDisplay({ refId }) {
   const [copied, setCopied] = useState(false);
@@ -11,9 +12,10 @@ export function RefIdDisplay({ refId }) {
   }
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(refId);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1000);
+    copyToClipboard(refId).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1000);
+    });
   };
 
   const shortRefId = `${refId.substring(0, 8)}...${refId.substring(

@@ -8,6 +8,7 @@ import Link from "next/link";
 import StakingModal from "./StakingModal";
 import NFTModal from "./NFTModal";
 import PortfolioModal from "./PortfolioModal";
+import { copyToClipboard } from "@/utils/clipboard";
 
 
 const RedesignedDashboard = ({
@@ -91,7 +92,7 @@ const RedesignedDashboard = ({
 
   const handleCopyLink = () => {
     if (!referralLink) return;
-    navigator.clipboard.writeText(referralLink).then(() => {
+    copyToClipboard(referralLink).then(() => {
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 2000);
     });
@@ -100,7 +101,7 @@ const RedesignedDashboard = ({
   const handleCopyCode = (e) => {
     e.stopPropagation();
     if (!user?.username) return;
-    navigator.clipboard.writeText(user.username).then(() => {
+    copyToClipboard(user.username).then(() => {
       setCopySuccess("code");
       setTimeout(() => setCopySuccess(false), 2000);
     });
@@ -109,7 +110,7 @@ const RedesignedDashboard = ({
   const handleCopyPhantomWallet = (e) => {
     e.stopPropagation();
     if (!phantomWalletAddress) return;
-    navigator.clipboard.writeText(phantomWalletAddress);
+    copyToClipboard(phantomWalletAddress);
   };
 
   const [showInvestMenu, setShowInvestMenu] = React.useState(false);

@@ -156,7 +156,7 @@ export default function TeamReferralsPage() {
             
             {/* Box 1: Hero & Primary Stats (Large) */}
             <div className={`${styles.bentoBox} ${styles.bentoHero}`}>
-              <Image src="/IMG/community-hero.png" alt="Stallions" fill className={styles.heroImage} priority />
+              <Image src="/img/community-hero.png" alt="Stallions" fill className={styles.heroImage} priority />
               <div className={styles.heroOverlay}>
                 <div className={styles.heroHeader}>
                   <div className={styles.liveBadge}><span className={styles.pulseDot} /> CONNECTED</div>

@@ -27,7 +27,7 @@ export default function ForgotPasswordPage() {
       
       {/* ── BACKGROUND ── */}
       <div className={styles.backgroundHero}>
-        <Image src="/IMG/reset-hero.png" alt="Recovery" fill className={styles.heroImage} priority />
+        <Image src="/img/reset-hero.png" alt="Recovery" fill className={styles.heroImage} priority />
         <div className={styles.heroOverlay} />
       </div>
 

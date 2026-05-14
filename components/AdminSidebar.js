@@ -21,6 +21,7 @@ const mainNavLinks = [
   { name: "Ledger Rows", href: "/admin/dashboard/ledger-rows", icon: Activity },
   { name: "Recent Transactions", href: "/admin/dashboard/usdt-deposits", icon: Zap },
   { name: "Users Summary", href: "/admin/dashboard/users-summary", icon: FileText },
+  { name: "Global Config", href: "/admin/dashboard/config", icon: Settings },
 ];
 
 export default function AdminSidebar() {

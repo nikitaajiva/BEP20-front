@@ -163,15 +163,15 @@ function SignUpForm() {
         </div>
 
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 1, ease: "circOut" }}
           className="mainContainer"
         >
           {/* Top Branding Section */}
           <div className="brandHeader">
             <div className="logoCircle">
-              <Image src="/img/toking_hoofborn_logo.png" alt="Toking Hoofborn Logo" width={220} height={55} className="object-contain" />
+              <Image src="/img/main-logo.avif" alt="Toking Hoofborn Logo" width={60} height={60} className="object-contain" />
               <div className="logoGlowPulse" />
             </div>
             <h1 className="brandTitle">
@@ -187,8 +187,8 @@ function SignUpForm() {
               <div className="visualSide">
                 <div className="imageFrame">
                   <Image
-                    src="/IMG/signup-visual.png"
-                    alt="Majestic White Stallion"
+                    src="/img/signup-visual-premium.png"
+                    alt="Majestic Cyber Stallion"
                     fill
                     className="visualImage"
                     priority
@@ -196,7 +196,7 @@ function SignUpForm() {
                   <div className="imageOverlay" />
                   <div className="imageTag">
                     <span className="tagDot" />
-                    NEW RECRUIT
+                    ELITE RECRUITMENT
                   </div>
                 </div>
               </div>
@@ -204,64 +204,109 @@ function SignUpForm() {
               {/* Right Side: Sign Up Form */}
               <div className="formSide">
                 <div className="formHeader">
-                  <h2 className="formTitle">Join the Elite</h2>
-                  <p className="formSubtitle">Secure access to your administrative command center</p>
+                  <motion.h2 
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="formTitle"
+                  >
+                    Join the Elite
+                  </motion.h2>
+                  <motion.p 
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="formSubtitle"
+                  >
+                    Establish your legacy in the next generation of racing
+                  </motion.p>
                 </div>
 
                 {error && (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="errorMessage">
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }} 
+                    animate={{ opacity: 1, scale: 1 }} 
+                    className="errorMessage"
+                  >
                     <i className="ri-error-warning-fill" /> {error}
                   </motion.div>
                 )}
 
                 {message ? (
-                  <div className="successMessage">
-                    <i className="ri-checkbox-circle-fill" style={{ fontSize: '48px' }} />
-                    <h3>Welcome Aboard!</h3>
-                    <p>{message}</p>
-                    <Link href="/login" className="signInButton" style={{ textDecoration: 'none' }}>
-                      PROCEED TO LOGIN
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="successMessage"
+                  >
+                    <i className="ri-checkbox-circle-fill" style={{ fontSize: '64px', color: '#FFB800' }} />
+                    <h3 style={{ fontSize: '24px', fontWeight: '900' }}>Legion Established</h3>
+                    <p style={{ opacity: 0.8 }}>{message}</p>
+                    <Link href="/login" className="signInButton" style={{ textDecoration: 'none', width: '100%' }}>
+                      PROCEED TO COMMAND CENTER
                     </Link>
-                  </div>
+                  </motion.div>
                 ) : (
                   <form onSubmit={handleSubmit} className="authForm">
-                    <div className="fieldGroup">
-                      <label>EMAIL ADDRESS</label>
-                      <div className="inputWrapper">
-                        <i className="ri-mail-line" />
-                        <input
-                          type="email"
-                          name="email"
-                          placeholder="Enter Your Email Address"
-                          value={formData.email}
-                          onChange={handleChange}
-                          required
-                        />
-                      </div>
-                    </div>
+                    {[
+                      {
+                        label: "IDENTITY EMAIL",
+                        icon: "ri-mail-fill",
+                        name: "email",
+                        type: "email",
+                        placeholder: "your@legacy.com",
+                        value: formData.email,
+                        onChange: handleChange,
+                        required: true
+                      },
+                      {
+                        label: "COMMANDER SPONSOR",
+                        icon: "ri-shield-user-fill",
+                        name: "sponsorId",
+                        type: "text",
+                        placeholder: "No sponsor detected",
+                        value: sponsorId || "",
+                        disabled: true,
+                        style: { opacity: 0.6 }
+                      }
+                    ].map((field, idx) => (
+                      <motion.div 
+                        key={field.name}
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.5 + (idx * 0.1) }}
+                        className="fieldGroup"
+                      >
+                        <label>{field.label}</label>
+                        <div className="inputWrapper">
+                          <i className={field.icon} />
+                          <input
+                            type={field.type}
+                            name={field.name}
+                            placeholder={field.placeholder}
+                            value={field.value}
+                            onChange={field.onChange}
+                            disabled={field.disabled}
+                            required={field.required}
+                            style={field.style}
+                          />
+                        </div>
+                      </motion.div>
+                    ))}
 
-                    <div className="fieldGroup">
-                      <label>REFERRED BY</label>
-                      <div className="inputWrapper">
-                        <i className="ri-user-follow-line" />
-                        <input
-                          type="text"
-                          value={sponsorId || ""}
-                          placeholder="No referral code detected"
-                          disabled
-                          style={{ opacity: 0.6 }}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="fieldGroup" ref={dropdownRef}>
-                      <label>SELECT COUNTRY</label>
+                    <motion.div 
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.7 }}
+                      className="fieldGroup" 
+                      ref={dropdownRef}
+                    >
+                      <label>TERRITORY ORIGIN</label>
                       <div className="countryInputWrapper">
                         <div className="inputWrapper" style={{ width: '100%' }}>
-                          <i className="ri-earth-line" />
+                          <i className="ri-global-fill" />
                           <input
                             type="text"
-                            placeholder="Select Country"
+                            placeholder="Select Territory"
                             value={countrySearch}
                             onChange={handleCountryInputChange}
                             onFocus={handleCountryInputFocus}
@@ -279,21 +324,26 @@ function SignUpForm() {
                                 </li>
                               ))
                             ) : (
-                              <div className="countryDropdownNoResults">No countries found</div>
+                              <div className="countryDropdownNoResults">No territories found</div>
                             )}
                           </ul>
                         )}
                       </div>
-                    </div>
+                    </motion.div>
 
-                    <div className="fieldGroup">
-                      <label>WHATSAPP CONTACT</label>
+                    <motion.div 
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.8 }}
+                      className="fieldGroup"
+                    >
+                      <label>WHATSAPP SECURE CONTACT</label>
                       <div style={{ display: 'flex', gap: '12px' }}>
-                        <div className="inputWrapper countryCodeBox">
+                        <div className="inputWrapper countryCodeBox" style={{ height: '54px' }}>
                           {formData.countryCode || "--"}
                         </div>
                         <div className="inputWrapper" style={{ flex: 1 }}>
-                          <i className="ri-whatsapp-line" />
+                          <i className="ri-whatsapp-fill" />
                           <input
                             type="tel"
                             name="whatsappContact"
@@ -305,9 +355,12 @@ function SignUpForm() {
                           />
                         </div>
                       </div>
-                    </div>
+                    </motion.div>
 
-                    <button
+                    <motion.button
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.9 }}
                       type="submit"
                       className="signInButton"
                       disabled={loading || !sponsorId}
@@ -316,16 +369,21 @@ function SignUpForm() {
                         <div className="loader" />
                       ) : (
                         <>
-                          SIGN UP NOW
-                          <i className="ri-arrow-right-line" />
+                          ESTABLISH ACCOUNT
+                          <i className="ri-arrow-right-up-line" />
                         </>
                       )}
-                    </button>
+                    </motion.button>
 
-                    <p className="signInRedirect">
-                      Already have an account?{" "}
-                      <Link href="/login" className="signInLink">Sign in now!</Link>
-                    </p>
+                    <motion.p 
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 1.1 }}
+                      className="signInRedirect"
+                    >
+                      Already a commander?{" "}
+                      <Link href="/login" className="signInLink">Sign in here!</Link>
+                    </motion.p>
                   </form>
                 )}
               </div>

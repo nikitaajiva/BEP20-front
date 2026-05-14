@@ -5,6 +5,8 @@ import {
   FaInstagram,
   FaXTwitter,
 } from "react-icons/fa6";
+import { copyToClipboard } from "@/utils/clipboard";
+
 export default function InvitationLinkCard({ user }) {
   const [copySuccess, setCopySuccess] = useState(false);
 
@@ -14,18 +16,13 @@ export default function InvitationLinkCard({ user }) {
     : "";
 
   const handleCopy = () => {
-    if (!referralLink) return; // Do nothing if link is empty
-    navigator.clipboard
-      .writeText(referralLink)
-      .then(() => {
-        setCopySuccess(true);
-        setTimeout(() => {
-          setCopySuccess(false);
-        }, 2500);
-      })
-      .catch((err) => {
-        console.error("Failed to copy: ", err);
-      });
+    if (!referralLink) return;
+    copyToClipboard(referralLink).then(() => {
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2500);
+    }).catch(err => {
+      console.error("Failed to copy:", err);
+    });
   };
 
   const cardBaseStyle = {

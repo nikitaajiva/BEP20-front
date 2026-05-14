@@ -510,79 +510,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const disconnectPhantomWallet = async () => {
-    try {
-      const currentToken =
-        token ||
-        (typeof window !== "undefined" ? localStorage.getItem("token") : null);
-
-      if (!currentToken) {
-        return {
-          success: false,
-          code: "AUTH_REQUIRED",
-          error: "Please log in before disconnecting your Phantom wallet.",
-        };
-      }
-
-      const response = await fetch(`${API_URL}/auth/phantom/disconnect`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${currentToken}`,
-        },
-      });
-
-      const data = await readJsonSafely(response);
-
-      if (!response.ok || !data.success) {
-        return {
-          success: false,
-          code: data?.errorCode || "PHANTOM_DISCONNECT_FAILED",
-          error:
-            data?.message ||
-            "Unable to disconnect Phantom wallet right now.",
-        };
-      }
-
-      // Optional browser-provider disconnect.
-      try {
-        const provider = getPhantomProvider();
-
-        if (provider?.disconnect) {
-          await provider.disconnect();
-        }
-      } catch (providerError) {
-        if (process.env.NODE_ENV !== "production") {
-          console.warn("Phantom provider disconnect warning:", providerError);
-        }
-      }
-
-      setUser((prev) => ({
-        ...(prev || {}),
-        ...(data.user || {}),
-        phantomWalletAddress: null,
-        phantomWalletConnectedAt: null,
-        walletAuthNonce: null,
-        walletAuthNonceExpiresAt: null,
-      }));
-
-      return {
-        success: true,
-        message:
-          data?.message || "Phantom wallet disconnected successfully.",
-      };
-    } catch (error) {
-      if (process.env.NODE_ENV !== "production") {
-        console.error("Disconnect Phantom wallet error:", error);
-      }
-
-      return {
-        success: false,
-        code: "PHANTOM_NETWORK_ERROR",
-        error: "Network error while disconnecting Phantom wallet.",
-      };
-    }
-  };
-
   return (
     <AuthContext.Provider
       value={{
@@ -607,7 +534,6 @@ export const AuthProvider = ({ children }) => {
         updateMe,
         updateUser,
         connectPhantomWallet,
-        disconnectPhantomWallet,
       }}
     >
       {children}

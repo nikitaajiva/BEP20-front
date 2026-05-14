@@ -641,7 +641,6 @@ export default function DashboardLayout({
   phantomLoading,
   phantomErrorCode,
   onConnectPhantom,
-  onDisconnectPhantom,
   onWalletConnect,
   onWalletDisconnect,
   onOpenAmountModal,
@@ -789,6 +788,83 @@ export default function DashboardLayout({
     });
     setIsSuccessModalOpen(true);
   }, [successModalTrigger]);
+
+  /* Unnecessary initial call for airdrop config
+  useEffect(() => {
+    const fetchAirdropConfig = async () => {
+      try {
+        const token = safeStorage.getItem("token");
+        if (!token) return;
+
+        const response = await fetch(`${API_URL}/promotions/airdrop-config`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const config = await response.json();
+          setAirdropConfig(config);
+          
+        } else {
+          console.error("Failed to fetch airdrop config");
+        }
+      } catch (error) {
+        console.error("Error fetching airdrop config:", error);
+      }
+    };
+
+    fetchAirdropConfig();
+  }, [API_URL]);
+  */
+
+  /* Crashing API call - endpoint /ledger/social-visibility is missing in backend
+  useEffect(() => {
+    const fetchSocialAlertVisibility = async () => {
+      try {
+        // Already acknowledged → skip API
+        if (safeStorage.getItem("bepvault_upgrade_ack") === "true") {
+          setSocialAlertLoading(false);
+          return;
+        }
+
+        const token = safeStorage.getItem("token");
+        if (!token) {
+          setSocialAlertLoading(false);
+          return;
+        }
+
+        const response = await fetch(
+          `${API_URL}/ledger/social-visibility`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          setSocialAlertLoading(false);
+          return;
+        }
+
+        const data = await response.json();
+
+        if (data?.success) {
+          setIsSocialAlertOpen(Boolean(data.visible));
+        }
+      } catch (error) {
+        console.error("Error fetching social alert visibility:", error);
+      } finally {
+        setSocialAlertLoading(false);
+      }
+    };
+
+    fetchSocialAlertVisibility();
+  }, [API_URL]);
+  */
+
+
 
   useEffect(() => {
     const handleWalletConnection = async () => {
@@ -1221,6 +1297,10 @@ export default function DashboardLayout({
     }
   };
 
+  // Cleaned up dangling logic that was previously outside the component.
+
+
+
   const handleClosePopup = () => {
     safeStorage.setItem("bepvault_upgrade_ack", "true");
     setIsSocialAlertOpen(false);
@@ -1402,7 +1482,6 @@ export default function DashboardLayout({
         user={user}
         onLogout={logout}
         onConnectPhantom={onConnectPhantom}
-        onDisconnectPhantom={onDisconnectPhantom}
         phantomStatus={phantomStatus}
         phantomLoading={phantomLoading}
         phantomErrorCode={phantomErrorCode}
@@ -1423,11 +1502,9 @@ export default function DashboardLayout({
             layout="horizontal"
             showPlusBtn={false}
             balance={
-              phantomWalletAddress
-                ? phantomBalanceLoading
-                  ? "..."
-                  : formatPrimaryBalance(phantomBalance || "0")
-                : "0.000000"
+              phantomBalanceLoading
+                ? "..."
+                : formatPrimaryBalance(phantomBalance || "0")
             }
             currency="SOL"
             onDeposit={() => {

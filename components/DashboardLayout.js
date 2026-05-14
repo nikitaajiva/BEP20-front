@@ -1540,7 +1540,6 @@ export default function DashboardLayout({
             type="system"
             subtitle=""
             layout="horizontal"
-            showPlusBtn={false}
             balance={
               phantomBalanceLoading
                 ? "..."

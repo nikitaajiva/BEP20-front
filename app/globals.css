@@ -1,12 +1,9 @@
 @import "tailwindcss";
 
-@theme {
+:root {
   --color-primary: #ffd700;
   --color-secondary: #ff8c00;
   --color-track: #00e676;
-}
-
-:root {
   --background: #000000;
   --foreground: #ffffff;
   --primary-gold: #ffd700;
@@ -717,13 +714,9 @@ h6,
 
 /* --- LandingNavbar Responsive Styles --- */
 
-.landing-navbar {
-  /* Base styles are mostly inline in the component for now */
-}
 
-.navbar-logo {
-  /* No specific styles needed here for now */
-}
+
+
 
 /* Desktop Navigation Links */
 .nav-links-desktop {
@@ -804,9 +797,7 @@ h6,
     display: block !important;
   }
 
-  .nav-actions-group {
-    /* This group now exists. It should align to the right due to space-between on parent nav */
-  }
+
 
   .nav-buttons a button {
     padding: 0.6rem 1.2rem !important;
@@ -6699,6 +6690,7 @@ input[type="search"]::-webkit-search-results-decoration {
       to(#101122));
   background: linear-gradient(0deg, #4e47a6, #101122);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
@@ -8607,6 +8599,7 @@ input[type="search"]::-webkit-search-results-decoration {
       var(--bs-primary),
       var(--bs-secondary));
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
@@ -11971,7 +11964,7 @@ select option {
   font-weight: 600;
 }
 
-.ProgressBardiv_inner {}
+
 
 .main-model-custom-scroll {
   margin-top: 1rem;
@@ -12108,6 +12101,7 @@ select option {
   -webkit-text-stroke: 1px #fff;
   text-shadow: 6px 6px 20px #3b82f699;
   -webkit-background-clip: text;
+  background-clip: text;
   font-family: sans-serif !important;
   font-weight: 900;
 
@@ -12520,6 +12514,7 @@ select option {
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   color: #fff;
@@ -12952,5 +12947,6 @@ canvas {
 
 .no-spinner {
   -moz-appearance: textfield;
+  appearance: textfield;
 }
 

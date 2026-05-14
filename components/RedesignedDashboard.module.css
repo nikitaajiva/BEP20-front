@@ -2481,3 +2481,57 @@
   color: #ff4444;
   transform: translateY(-1px);
 }
+
+.viewAllBtn {
+  background: rgba(255, 85, 0, 0.1);
+  border: 1px solid rgba(255, 85, 0, 0.2);
+  color: #ff5500;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.viewAllBtn:hover {
+  background: #ff5500;
+  color: #000;
+  border-color: transparent;
+  transform: scale(1.05);
+}
+
+.hubPortfolioBtn {
+  margin-top: 15px;
+  background: rgba(255, 85, 0, 0.05);
+  border: 1px solid rgba(255, 85, 0, 0.2);
+  color: #ff5500;
+  padding: 5px 12px;
+  border-radius: 50px;
+  font-size: 0.6rem;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+}
+
+.hubPortfolioBtn:hover {
+  background: #ff5500;
+  color: #000;
+  border-color: transparent;
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(255, 85, 0, 0.3);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}

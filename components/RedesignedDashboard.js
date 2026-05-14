@@ -7,6 +7,8 @@ import { FaHorse } from "react-icons/fa";
 import Link from "next/link";
 import StakingModal from "./StakingModal";
 import NFTModal from "./NFTModal";
+import PortfolioModal from "./PortfolioModal";
+
 
 const RedesignedDashboard = ({
   user,
@@ -127,6 +129,7 @@ const RedesignedDashboard = ({
   const [showInvestMenu, setShowInvestMenu] = React.useState(false);
   const [isStakingModalOpen, setIsStakingModalOpen] = React.useState(false);
   const [isNftModalOpen, setIsNftModalOpen] = React.useState(false);
+  const [isPortfolioModalOpen, setIsPortfolioModalOpen] = React.useState(false);
   const hasActiveInvestment = Boolean(user?.nftPackage || user?.stakingPlan?.days || parseFloat(user?.stakingPlan?.amount || "0") > 0);
 
   return (
@@ -344,6 +347,13 @@ const RedesignedDashboard = ({
                       <span className={styles.marketValue} style={{ color: "#00ff00" }}>$0.124 <TrendingUp size={10} /></span>
                     </div>
                   </div>
+
+                  <button
+                    className={styles.hubPortfolioBtn}
+                    onClick={() => setIsPortfolioModalOpen(true)}
+                  >
+                    <History size={12} /> MY STAKES
+                  </button>
                 </>
               </div>
             </div>
@@ -481,6 +491,13 @@ const RedesignedDashboard = ({
         <NFTModal
           isOpen={isNftModalOpen}
           onClose={() => setIsNftModalOpen(false)}
+        />
+      )}
+      {isPortfolioModalOpen && (
+        <PortfolioModal
+          isOpen={isPortfolioModalOpen}
+          onClose={() => setIsPortfolioModalOpen(false)}
+          user={user}
         />
       )}
 

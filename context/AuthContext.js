@@ -1,5 +1,5 @@
 "use client";
-import React, { createContext, useState, useContext, useEffect, useRef } from "react";
+import React, { createContext, useState, useContext, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
 import safeStorage from "../utils/safeStorage";
@@ -94,7 +94,7 @@ export const AuthProvider = ({ children }) => {
     }));
   };
 
-  const fetchUser = async () => {
+  const fetchUser = useCallback(async () => {
     setLoading(true);
     const localToken = safeStorage.getItem("token");
 
@@ -126,7 +126,7 @@ export const AuthProvider = ({ children }) => {
       }
     }
     setLoading(false);
-  };
+  }, []);
 
   useEffect(() => {
     fetchUser();
@@ -248,7 +248,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const updateMe = async (updatedData) => {
+  const updateMe = useCallback(async (updatedData) => {
     setLoading(true);
     try {
       const localToken = safeStorage.getItem("token");
@@ -274,9 +274,9 @@ export const AuthProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [API_URL]);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     setLoading(true);
     try {
       const token = safeStorage.getItem("token");
@@ -301,7 +301,7 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
       router.push("/login");
     }
-  };
+  }, [API_URL, router]);
 
   const connectPhantomWallet = async () => {
     if (phantomConnectInProgressRef.current) {

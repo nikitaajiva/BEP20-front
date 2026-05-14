@@ -29,6 +29,9 @@ const RedesignedDashboard = ({
   onOpenAddLPModal,
   onOpenZeroRiskModal,
   onRedeem,
+  ecosystemTotalBalance = 0,
+  ecosystemDailyRewards = 0,
+  ecosystemYieldPercent = "0.00",
   children
 }) => {
   const lpWallet = ledgerDetails?.lpWallet || {};
@@ -78,22 +81,6 @@ const RedesignedDashboard = ({
 
   const [mounted, setMounted] = React.useState(false);
   const [copySuccess, setCopySuccess] = React.useState(false);
-  const [randomCode, setRandomCode] = React.useState("");
-
-  const generateRandomCode = () => {
-    const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    const lower = "abcdefghijklmnopqrstuvwxyz";
-    const digits = "0123456789";
-    const all = upper + lower + digits;
-    const rand = (set) => set[Math.floor(Math.random() * set.length)];
-    return [
-      rand(upper), rand(upper),
-      rand(digits), rand(digits),
-      rand(all), rand(all), rand(all), rand(all),
-      rand(lower), rand(lower)
-    ].join("");
-  };
-
   const referralLink = (mounted && user?.username)
     ? `${window.location.origin}/sign-up?sponsorId=${user.username}`
     : "";
@@ -103,9 +90,8 @@ const RedesignedDashboard = ({
   }, []);
 
   const handleCopyLink = () => {
-    const code = generateRandomCode();
-    setRandomCode(code);
-    navigator.clipboard.writeText(code).then(() => {
+    if (!referralLink) return;
+    navigator.clipboard.writeText(referralLink).then(() => {
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 2000);
     });
@@ -130,8 +116,32 @@ const RedesignedDashboard = ({
   const [isStakingModalOpen, setIsStakingModalOpen] = React.useState(false);
   const [isNftModalOpen, setIsNftModalOpen] = React.useState(false);
   const [isPortfolioModalOpen, setIsPortfolioModalOpen] = React.useState(false);
-  const hasActiveInvestment = Boolean(user?.nftPackage || user?.stakingPlan?.days || parseFloat(user?.stakingPlan?.amount || "0") > 0);
+  const stakingPlans = user?.stakingPlans || [];
+  const totalStaked = stakingPlans.reduce((acc, p) => acc + (parseFloat(p.amount) || 0), 0);
+  
+  const calculateTotalRewards = () => {
+    return stakingPlans.reduce((acc, p) => {
+      const amt = parseFloat(p.amount || "0");
+      const days = p.days || 0;
+      let apy = 0;
+      if (days >= 365) apy = 0.28;
+      else if (days >= 180) apy = 0.22;
+      else if (days >= 90) apy = 0.18;
+      else if (days >= 30) apy = 0.10;
+      return acc + (amt * apy * days / 365);
+    }, 0);
+  };
 
+  const getEarliestUnlock = () => {
+    if (stakingPlans.length === 0) return "--";
+    const unlocks = stakingPlans.map(p => new Date(new Date(p.startDate).getTime() + (p.days || 0) * 86400000));
+    const earliest = new Date(Math.min(...unlocks));
+    return earliest.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  };
+
+  const nftPackages = user?.nftPackages || [];
+  const hasNft = Boolean(nftPackages.length > 0 || user?.nftPackage);
+  const hasActiveInvestment = Boolean(hasNft || totalStaked > 0);
   return (
     <div className="min-h-screen bg-black text-white relative font-inter overflow-x-hidden">
       {/* Unified Top Header Actions */}
@@ -151,7 +161,7 @@ const RedesignedDashboard = ({
                 {copySuccess === "code"
                   ? "✓ CODE COPIED!"
                   : copySuccess
-                    ? `✓ COPIED: ${randomCode}`
+                    ? "✓ LINK COPIED!"
                     : "TAP TO COPY REFERRAL LINK"}
               </span>
               <button
@@ -269,24 +279,28 @@ const RedesignedDashboard = ({
         {/* ===== ROW 1: Horse NFT | Staking Engine | Community Wallet ===== */}
         <div className={styles.dashboardRow1}>
 
-          {/* LEFT: Horse NFT Card / Staking Starter */}
+          {/* LEFT: Horse NFT Card / NFT Starter */}
           <div className={styles.row1Card}>
-            {hasActiveInvestment ? orbitCard2 : (
+            {hasNft ? orbitCard2 : (
               <motion.div
-                className={`${styles.investSelectionCard} ${styles.stakingCard}`}
-                onClick={() => setIsStakingModalOpen(true)}
+                className={`${styles.investSelectionCard} ${styles.nftCard}`}
+                onClick={() => setIsNftModalOpen(true)}
               >
-                <div className={styles.watermarkIcon}><TrendingUp /></div>
+                <div className={styles.watermarkIcon}><FaHorse /></div>
                 <div className={styles.investCardContent}>
                   <div className={styles.investCardHeader}>
                     <div className={styles.investCardIcon}>
-                      <TrendingUp size={28} />
+                      <FaHorse size={28} />
                     </div>
                   </div>
-                  <h4>TOKEN STAKING</h4>
-                  <p>Lock tokens to earn daily yields up to 28% APY.</p>
+                  <h4>HORSE NFT</h4>
+                  <p>Own premium Horse NFTs with fractional rewards. Secure your spot in the elite racing legacy with tiered assets.</p>
+                  <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
+                    <div style={{ background: 'rgba(255,184,0,0.1)', padding: '4px 8px', borderRadius: '6px', fontSize: '10px', fontWeight: 800, color: '#FFB800' }}>ELITE ASSETS</div>
+                    <div style={{ background: 'rgba(255,255,255,0.05)', padding: '4px 8px', borderRadius: '6px', fontSize: '10px', fontWeight: 800, color: '#888' }}>DAILY ROI</div>
+                  </div>
                   <button className={styles.investSelectBtn}>
-                    <span>START STAKING</span>
+                    <span>EXPLORE NFTs</span>
                     <span className={styles.btnArrow}>&rarr;</span>
                   </button>
                 </div>
@@ -311,35 +325,35 @@ const RedesignedDashboard = ({
               <div className={styles.stakingCircleInner}>
                 <>
                   <div className={styles.hubAmount} style={{ color: "#ff5500", fontSize: 36 }}>
-                    {parseFloat(user?.stakingPlan?.amount || "0") > 0 ? parseFloat(user.stakingPlan.amount).toLocaleString() : "0.00"}
+                    {ecosystemTotalBalance > 0 ? ecosystemTotalBalance.toLocaleString() : "0.00"}
                   </div>
-                  <div className={styles.hubCurrency} style={{ letterSpacing: 4, marginBottom: 12 }}>TOKING</div>
+                  <div className={styles.hubCurrency} style={{ letterSpacing: 4, marginBottom: 12 }}>ECOSYSTEM ASSETS</div>
                   <div className={styles.hubSeparator}></div>
                   <div className={styles.stakingStatsDetail} style={{ marginTop: 12 }}>
                     <div className={styles.statDetailItem}>
-                      <span className={styles.statDetailLabel}>EST. REWARDS</span>
+                      <span className={styles.statDetailLabel}>AVG. DAILY YIELD</span>
                       <span className={styles.statDetailValue} style={{ color: "#ff5500" }}>
-                        +{(parseFloat(user?.stakingPlan?.amount || "0") * 0.28).toFixed(2)}
+                        {ecosystemYieldPercent}%
                       </span>
                     </div>
                     <div className={styles.statDetailItem}>
-                      <span className={styles.statDetailLabel}>UNLOCKS ON</span>
+                      <span className={styles.statDetailLabel}>ACTIVE VEHICLES</span>
                       <span className={styles.statDetailValue}>
-                        {user?.stakingPlan?.startDate ? new Date(new Date(user.stakingPlan.startDate).getTime() + (user.stakingPlan.days || 0) * 86400000).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : "--"}
+                        {stakingPlans.length + (user?.nftPackages?.length || 0)}
                       </span>
                     </div>
                   </div>
                   <div className={styles.stakingProgressBox} style={{ marginTop: 12 }}>
                     <div className={styles.miniChart}>
-                      <div className={styles.miniChartFill} style={{ width: user?.stakingPlan?.days ? '35%' : '0%' }}></div>
+                      <div className={styles.miniChartFill} style={{ width: ecosystemTotalBalance > 0 ? '65%' : '0%' }}></div>
                     </div>
-                    <div className={styles.stakingDaysRemaining}>{user?.stakingPlan?.days || 0} DAY LOCK</div>
+                    <div className={styles.stakingDaysRemaining}>DIVERSIFIED PORTFOLIO</div>
                   </div>
                   <div className={styles.marketStatsRow} style={{ marginTop: 10 }}>
                     <div className={styles.marketStat}>
                       <span className={styles.marketLabel}>TODAY</span>
                       <span className={styles.marketValue} style={{ color: "#ff5500" }}>
-                        +{(parseFloat(user?.stakingPlan?.amount || "0") * 0.28 / 365).toFixed(4)}
+                        +{ecosystemDailyRewards.toFixed(4)}
                       </span>
                     </div>
                     <div className={styles.marketStat}>
@@ -437,24 +451,28 @@ const RedesignedDashboard = ({
             )}
           </div>
 
-          {/* RIGHT: Community Wallet Card / NFT Starter */}
+          {/* RIGHT: Community Wallet Card / Staking Starter */}
           <div className={styles.row1Card}>
-            {hasActiveInvestment ? orbitCard3 : (
+            {totalStaked > 0 ? orbitCard3 : (
               <motion.div
-                className={`${styles.investSelectionCard} ${styles.nftCard}`}
-                onClick={() => setIsNftModalOpen(true)}
+                className={`${styles.investSelectionCard} ${styles.stakingCard}`}
+                onClick={() => setIsStakingModalOpen(true)}
               >
-                <div className={styles.watermarkIcon}><FaHorse /></div>
+                <div className={styles.watermarkIcon}><TrendingUp /></div>
                 <div className={styles.investCardContent}>
                   <div className={styles.investCardHeader}>
                     <div className={styles.investCardIcon}>
-                      <FaHorse size={28} />
+                      <TrendingUp size={28} />
                     </div>
                   </div>
-                  <h4>HORSE NFT</h4>
-                  <p>Own premium Horse NFTs with fractional rewards.</p>
+                  <h4>TOKEN STAKING</h4>
+                  <p>Lock tokens to earn daily yields up to 28% APY. Experience sustainable growth with our elite staking engine.</p>
+                  <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
+                    <div style={{ background: 'rgba(255,85,0,0.1)', padding: '4px 8px', borderRadius: '6px', fontSize: '10px', fontWeight: 800, color: '#ff5500' }}>28% APY</div>
+                    <div style={{ background: 'rgba(255,255,255,0.05)', padding: '4px 8px', borderRadius: '6px', fontSize: '10px', fontWeight: 800, color: '#888' }}>365 DAYS</div>
+                  </div>
                   <button className={styles.investSelectBtn}>
-                    <span>EXPLORE NFTs</span>
+                    <span>START STAKING</span>
                     <span className={styles.btnArrow}>&rarr;</span>
                   </button>
                 </div>

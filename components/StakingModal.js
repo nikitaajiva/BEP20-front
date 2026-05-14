@@ -13,7 +13,7 @@ const tiers = [
 ];
 
 export default function StakingModal({ isOpen, onClose }) {
-  const { user, updateMe } = useAuth();
+  const { user, stakeTokens } = useAuth();
   const [step, setStep] = useState(0);
   const [selectedTier, setSelectedTier] = useState(null);
   const [amount, setAmount] = useState("");
@@ -31,12 +31,9 @@ export default function StakingModal({ isOpen, onClose }) {
     
     setIsStaking(true);
     try {
-      const result = await updateMe({
-        stakingPlan: {
-          amount: parsedAmount,
-          days: selectedTier,
-          startDate: new Date()
-        }
+      const result = await stakeTokens({
+        amount: parsedAmount,
+        days: selectedTier
       });
       
       if (result.success) {

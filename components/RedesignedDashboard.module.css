@@ -2233,8 +2233,8 @@
   justify-content: space-between;
   text-align: left;
   overflow: hidden;
-  min-height: 220px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  min-height: 250px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   z-index: 1;
@@ -2261,13 +2261,35 @@
 /* Staking Card Variables */
 .stakingCard {
   --card-color: #ff5500;
-  --card-glow: rgba(255, 85, 0, 0.2);
+  --card-glow: rgba(255, 85, 0, 0.3);
+  background-image: 
+    radial-gradient(circle at 100% 100%, rgba(255, 85, 0, 0.08), transparent 50%),
+    url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDQwIDQwIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0yMCAzMGM1LjUyMyAwIDEwLTQuNDc3IDEwLTEwUzI1LjUyMyAxMCAyMCAxMCAxMCAxNC40NzcgMTAgMjBzNC40NzcgMTAgMTAgMTB6IiBzdHJva2U9InJnYmEoMjU1LDg1LDAsMC4wNykiLz48L2c+PC9zdmc+'),
+    linear-gradient(rgba(255, 85, 0, 0.02) 1px, transparent 1px);
+  background-size: cover, 40px 40px, 100% 4px;
+  animation: moveCoins 10s linear infinite;
+}
+
+@keyframes moveCoins {
+  from { background-position: center, 0 0, 0 0; }
+  to { background-position: center, 40px 40px, 0 40px; }
 }
 
 /* NFT Card Variables */
 .nftCard {
   --card-color: #FFB800;
-  --card-glow: rgba(255, 184, 0, 0.2);
+  --card-glow: rgba(255, 184, 0, 0.3);
+  background-image: 
+    radial-gradient(circle at 0% 0%, rgba(255, 184, 0, 0.1), transparent 50%),
+    url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgdmlld0JveD0iMCAwIDYwIDYwIj48cGF0aCBkPSJNMTUgMjBjMi4yMDkgMCA0LTRsMTAgMTBjMi4yMDkgMCA0IDEuNzkxIDQgNHMtMS43OTEtNC00LTRzLTQgMS43OTEtNCA0em0yMCAwYzIuMjA5IDAgNC0xLjc5MSA0LTRzLTEuNzkxLTQtNC00cy00IDEuNzkxLTQgNHMxLjc5MSA0IDQgNHptMjAgMGMyLjIwOSAwIDQtMS43OTEgNC00cy0xLjc5MS00LTQtNHMtNCAxLjc5MS00IDRzMS43OTEgNCA0IDR6IiBmaWxsPSJyZ2JhKDI1NSwyMTUsMCwwLjA0KSIvPjwvc3ZnPg=='),
+    linear-gradient(rgba(255, 184, 0, 0.02) 1px, transparent 1px);
+  background-size: cover, 120px 120px, 100% 4px;
+  animation: moveHorses 15s linear infinite;
+}
+
+@keyframes moveHorses {
+  from { background-position: center, 0 0, 0 0; }
+  to { background-position: center, 120px 120px, 0 40px; }
 }
 
 /* Dynamic Gradient Glow inside the card */
@@ -2290,9 +2312,9 @@
   position: absolute;
   bottom: -15px;
   right: -15px;
-  font-size: 110px;
-  opacity: 0.03;
-  color: #fff;
+  font-size: 130px;
+  opacity: 0.12;
+  color: var(--card-color);
   z-index: -1;
   transform: rotate(-15deg);
   transition: all 0.5s ease;
@@ -2312,8 +2334,7 @@
 }
 
 .investSelectionCard:hover .watermarkIcon {
-  opacity: 0.15;
-  color: var(--card-color);
+  opacity: 0.25;
   transform: rotate(0deg) scale(1.1);
 }
 
@@ -2385,16 +2406,24 @@
   justify-content: center;
   align-items: center;
   gap: 10px;
-  background: rgba(255, 255, 255, 0.03);
-  color: #fff;
+  background: var(--card-color);
+  color: #000;
   padding: 12px 20px;
   border-radius: 12px;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   font-weight: 900;
   letter-spacing: 1.2px;
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   text-transform: uppercase;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: none;
+  box-shadow: 0 4px 15px var(--card-glow);
+  animation: btnPulse 2s infinite ease-in-out;
+}
+
+@keyframes btnPulse {
+  0% { transform: scale(1); box-shadow: 0 4px 15px var(--card-glow); }
+  50% { transform: scale(1.02); box-shadow: 0 8px 25px var(--card-glow); }
+  100% { transform: scale(1); box-shadow: 0 4px 15px var(--card-glow); }
 }
 
 .investSelectionCard:hover .investSelectBtn {

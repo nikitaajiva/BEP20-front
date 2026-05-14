@@ -31,12 +31,12 @@ const geistMono = Geist_Mono({
 import AppLayout from "@/components/AppLayout";
 
 export const metadata = {
-  title: "BEPVault | Premium BEP20 Liquidity Dashboard",
-  description: "Join BEPVault - The most advanced BEP20 liquidity and rewards dashboard. Stake, earn, and build your community with ease.",
+  title: "Toking Hoofborn | Elite Racing Ecosystem",
+  description: "Experience the next generation of digital horse racing and liquidity management with Toking Hoofborn. The premium ecosystem for BEP20 rewards, staking, and elite circuit access.",
   icons: {
-    icon: "/bepvault_logo.png",
-    shortcut: "/bepvault_logo.png",
-    apple: "/bepvault_logo.png",
+    icon: "/favicon.png",
+    shortcut: "/favicon.png",
+    apple: "/favicon.png",
   },
 };
 

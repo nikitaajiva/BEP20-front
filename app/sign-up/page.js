@@ -171,7 +171,7 @@ function SignUpForm() {
           {/* Top Branding Section */}
           <div className="brandHeader">
             <div className="logoCircle">
-              <Image src="/img/main-logo.avif" alt="Logo" width={60} height={60} className="object-contain" />
+              <Image src="/img/toking_hoofborn_logo.png" alt="Toking Hoofborn Logo" width={220} height={55} className="object-contain" />
               <div className="logoGlowPulse" />
             </div>
             <h1 className="brandTitle">

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -30,18 +30,18 @@ const LandingFooter = () => {
           <div className="footer-brand-col">
             <Link href="/" className="footer-logo-link">
               <div className="relative w-40 h-[50px]">
-                <Image src="/img/main-logo.avif" alt="Horse Racing" fill className="object-contain object-left" />
+                <Image src="/img/toking_hoofborn_logo.png" alt="Toking Hoofborn Logo" fill className="object-contain object-left" />
               </div>
             </Link>
             <p className="footer-brand-desc">
               The premier elite horse racing community platform. Participate in global pools, grow your racing stable, and experience the thrill of the track.
             </p>
             <div className="footer-socials">
-              <SocialIcon icon="ri-telegram-line" href="https://t.me/BEPVaultOfficial" />
-              <SocialIcon icon="ri-twitter-x-line" href="https://twitter.com/BEPVault" />
-              <SocialIcon icon="ri-youtube-line" href="https://youtube.com/@BEPVault" />
-              <SocialIcon icon="ri-facebook-circle-line" href="https://facebook.com/BEPVault" />
-              <SocialIcon icon="ri-instagram-line" href="https://instagram.com/BEPVault" />
+              <SocialIcon icon="ri-telegram-line" href="https://t.me/TokingHoofbornOfficial" />
+              <SocialIcon icon="ri-twitter-x-line" href="https://twitter.com/TokingHoofborn" />
+              <SocialIcon icon="ri-youtube-line" href="https://youtube.com/@TokingHoofborn" />
+              <SocialIcon icon="ri-facebook-circle-line" href="https://facebook.com/TokingHoofborn" />
+              <SocialIcon icon="ri-instagram-line" href="https://instagram.com/TokingHoofborn" />
             </div>
           </div>
 
@@ -61,7 +61,7 @@ const LandingFooter = () => {
             <FooterLink href="/login" label="Member Login" />
             <FooterLink href="/sign-up" label="Get Started" />
             <FooterLink href="/support/dashboard" label="Dashboard" />
-            <FooterLink href="https://linktr.ee/BEPVaultOfficial" label="Community Hub" />
+            <FooterLink href="https://linktr.ee/TokingHoofbornOfficial" label="Community Hub" />
           </div>
 
           {/* Legal + Newsletter */}
@@ -88,7 +88,7 @@ const LandingFooter = () => {
       {/* Bottom Bar */}
       <div className="footer-bottom-bar">
         <div className="footer-bottom-inner">
-          <p className="footer-copyright">© {currentYear} The Elite Track. All rights reserved.</p>
+          <p className="footer-copyright">© {currentYear} Toking Hoofborn. All rights reserved.</p>
           <div className="footer-status">
             <span className="status-dot" />
             <span className="status-text">All systems operational</span>

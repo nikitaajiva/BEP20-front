@@ -221,7 +221,7 @@ export default function LandingPage() {
                     <Link href="/sign-up" className="no-underline">
                       <button className="btn-primary-fire">GET STARTED NOW</button>
                     </Link>
-                    <Link href="https://linktr.ee/BEPVaultOfficial" target="_blank" className="no-underline">
+                    <Link href="https://linktr.ee/TokingHoofbornOfficial" target="_blank" className="no-underline">
                       <button className="btn-glass-secondary">JOIN COMMUNITY</button>
                     </Link>
                   </div>

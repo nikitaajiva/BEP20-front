@@ -155,7 +155,7 @@ export default function SignInPage() {
       const ethereum = getEthereum();
       if (!ethereum) throw new Error("MetaMask is not available.");
 
-      const message = `BEPVault login ${new Date().toISOString()}`;
+      const message = `Toking Hoofborn login ${new Date().toISOString()}`;
       const signature = await ethereum.request({
         method: "personal_sign",
         params: [message, walletAddress],
@@ -192,8 +192,8 @@ export default function SignInPage() {
   return (
     <>
       <Head>
-        <title>Sign In - BEPVault</title>
-        <meta name="description" content="Sign in to your BEPVault account" />
+        <title>Sign In - Toking Hoofborn</title>
+        <meta name="description" content="Sign in to your Toking Hoofborn account" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
@@ -202,10 +202,10 @@ export default function SignInPage() {
         <div className={styles.logoContainer}>
           <a href="/">
             <Image
-              src="/assets/img/logo-auth-page.png"
-              alt="BEPVault Logo"
-              width={180}
-              height={40}
+              src="/img/toking_hoofborn_logo.png"
+              alt="Toking Hoofborn Logo"
+              width={220}
+              height={50}
               priority
             />
           </a>
@@ -216,7 +216,7 @@ export default function SignInPage() {
           <div className="centerWrappermain">
             <div className={styles.orb}>
               <div className={styles.formContainer}>
-                <h2 className={styles.title}>Welcome to BEPVault! 👋</h2>
+                <h2 className={styles.title}>Welcome to Toking Hoofborn! 👋</h2>
                 <p className={styles.subtitle}>
                   Please sign in to your account and start the adventure
                 </p>

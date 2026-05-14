@@ -900,17 +900,20 @@
 
 /* Horse NFT Card Styles */
 .nftCardWrapper {
-  background: rgba(10, 10, 10, 0.45);
+  position: relative;
+  background-color: #0a0a0a;
+  background-image: radial-gradient(circle at 50% 0%, rgba(255, 215, 0, 0.1) 0%, transparent 75%);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 215, 0, 0.15);
+  border: 1px solid rgba(255, 215, 0, 0.2);
   border-radius: 16px;
-  padding: 12px;
+  padding: 15px;
   color: #fff;
   height: auto;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-  transition: all 0.3s ease;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  overflow: hidden;
 }
 
 .nftCardWrapper:hover {
@@ -1137,19 +1140,28 @@
 }
 
 .nftGetStartedBtn {
-  background: rgba(255, 215, 0, 0.1);
-  border: 1px solid rgba(255, 215, 0, 0.3);
-  color: #ffd700;
+  background: #ffd700;
+  color: #000;
   padding: 12px 24px;
   border-radius: 12px;
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 900;
   letter-spacing: 1.5px;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border: none;
+  box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3);
+  animation: nftBtnPulse 2s infinite ease-in-out;
+  transition: all 0.3s ease;
+}
+
+@keyframes nftBtnPulse {
+  0% { transform: scale(1); box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3); }
+  50% { transform: scale(1.03); box-shadow: 0 8px 30px rgba(255, 215, 0, 0.5); }
+  100% { transform: scale(1); box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3); }
 }
 
 .nftGetStartedBtn:hover {
@@ -1166,3 +1178,82 @@
   font-weight: 700;
   text-transform: uppercase;
 }
+/* Multi-Asset NFT List Styles */
+.nftListGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.compactNftCard {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 10px 15px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.compactNftCard:hover {
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateX(5px);
+  border-color: rgba(255, 215, 0, 0.2);
+}
+
+.compactNftIcon {
+  font-size: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+}
+
+.compactNftInfo {
+  flex: 1;
+}
+
+.compactNftTier {
+  color: #fff;
+  font-weight: 800;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.compactNftDate {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 9px;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.nftBackBtn {
+  transition: transform 0.2s ease;
+  z-index: 10;
+}
+
+.nftBackBtn:hover {
+  transform: scale(1.2);
+  color: #ffd700 !important;
+}
+
+
+.compactNftArrow {
+  opacity: 0.3;
+  transition: all 0.3s ease;
+}
+
+.compactNftCard:hover .compactNftArrow {
+  opacity: 1;
+  transform: translateX(3px);
+}
+

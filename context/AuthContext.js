@@ -276,6 +276,70 @@ export const AuthProvider = ({ children }) => {
     }
   }, [API_URL]);
 
+  const stakeTokens = useCallback(async (stakingData) => {
+    setLoading(true);
+    try {
+      const localToken = safeStorage.getItem("token");
+      const res = await fetch(`${API_URL}/users/stake`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${localToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(stakingData),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || "Staking failed");
+      }
+      // Update local user state with the new staking plans array
+      setUser(prev => ({ 
+        ...prev, 
+        stakingPlans: data.stakingPlans 
+      }));
+      return { success: true };
+    } catch (err) {
+      console.error("Staking error:", err);
+      setError(err.message);
+      return { success: false, error: err.message };
+    } finally {
+      setLoading(false);
+    }
+  }, [API_URL]);
+
+  const purchaseNft = useCallback(async (nftData) => {
+    setLoading(true);
+    try {
+      const localToken = safeStorage.getItem("token");
+      const res = await fetch(`${API_URL}/users/purchase-nft`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${localToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(nftData),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || "NFT purchase failed");
+      }
+      // Update local user state with the new nftPackages array
+      setUser(prev => ({ 
+        ...prev, 
+        nftPackages: data.nftPackages 
+      }));
+      return { success: true };
+    } catch (err) {
+      console.error("NFT purchase error:", err);
+      setError(err.message);
+      return { success: false, error: err.message };
+    } finally {
+      setLoading(false);
+    }
+  }, [API_URL]);
+
   const logout = useCallback(async () => {
     setLoading(true);
     try {
@@ -606,6 +670,8 @@ export const AuthProvider = ({ children }) => {
         forgotPasswordMessage,
         updateMe,
         updateUser,
+        stakeTokens,
+        purchaseNft,
         connectPhantomWallet,
         disconnectPhantomWallet,
       }}

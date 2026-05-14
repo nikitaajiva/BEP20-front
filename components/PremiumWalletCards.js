@@ -168,9 +168,11 @@ export const ActionableWalletCard = ({
 
         {/* RIGHT: Action Buttons */}
         <div className={styles.horizontalRight}>
-          <button type="button" className={styles.glassBtnPrimary} onClick={onDeposit}>
-            + {finalDepositLabel}
-          </button>
+          {showPlusBtn && (
+            <button type="button" className={styles.glassBtnPrimary} onClick={onDeposit}>
+              {finalDepositLabel}
+            </button>
+          )}
           <button className={styles.glassBtnSecondary} onClick={onViewHistory}>
             <History size={14} />
             View History
@@ -305,160 +307,182 @@ export const BoostWalletCard = ({
 };
 export const HorseNFTCard = ({
   title = "Horse NFT",
-  packageType = null,
-  balance,
-  roiProgress = 0,
-  dailyYield = "0.00",
-  estPayout = "0.00",
-  nextPayout = "0.00",
-  timeLeft = "--h --m",
+  user,
+  ledgerDetails,
   onViewHistory
 }) => {
-  // Normalize DB values (starter/growth/premium) to display tier (bronze/silver/gold)
+  const nftPackages = user?.nftPackages || [];
+  // Backward compatibility
+  const effectivePackages = nftPackages.length > 0 
+    ? nftPackages 
+    : (user?.nftPackage ? [{ tier: user.nftPackage }] : []);
+
+  const [selectedPkgIndex, setSelectedPkgIndex] = React.useState(
+    effectivePackages.length === 1 ? 0 : null
+  );
+
   const tierNormalize = {
-    starter: "bronze",
-    growth: "silver",
-    premium: "gold",
-    bronze: "bronze",
-    silver: "silver",
-    gold: "gold",
-  };
-  const tier = tierNormalize[packageType] || null;
-
-  const nftImages = {
-    bronze: "🥉",
-    silver: "🥈",
-    gold: "🥇",
+    starter: "bronze", growth: "silver", premium: "gold",
+    bronze: "bronze", silver: "silver", gold: "gold",
   };
 
+  const nftImages = { bronze: "🥉", silver: "🥈", gold: "🥇" };
   const packageNames = {
-    bronze: "Bronze Tier",
-    silver: "Silver Tier",
-    gold: "Gold Tier",
-    starter: "Starter Pack",
-    growth: "Growth Pack",
-    premium: "Premium Pack",
+    bronze: "BRONZE", silver: "SILVER", gold: "GOLD",
+    starter: "BRONZE", growth: "SILVER", premium: "GOLD",
   };
 
-  // Live countdown to next UTC midnight (ticks every minute)
+  const nftRoiMap   = { starter: 45, growth: 55, premium: 65, bronze: 45, silver: 55, gold: 65 };
+  const nftRateMap  = { starter: 0.003, growth: 0.004, premium: 0.005, bronze: 0.003, silver: 0.004, gold: 0.005 };
+
   const calcTimeLeft = () => {
     const now = new Date();
-    const nextMid = new Date(Date.UTC(
-      now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1
-    ));
+    const nextMid = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1));
     const diff = nextMid - now;
     const h = Math.floor(diff / 3600000);
     const m = Math.floor((diff % 3600000) / 60000);
     return `${h}h ${String(m).padStart(2, '0')}m`;
   };
 
-  const [liveTimeLeft, setLiveTimeLeft] = React.useState(
-    timeLeft !== "--h --m" ? timeLeft : calcTimeLeft()
-  );
-
+  const [liveTimeLeft, setLiveTimeLeft] = React.useState(calcTimeLeft());
   React.useEffect(() => {
     const id = setInterval(() => setLiveTimeLeft(calcTimeLeft()), 60000);
     return () => clearInterval(id);
   }, []);
 
-  const isActive = !!tier;
+  const zeroRiskBal = parseFloat(ledgerDetails?.zeroRisk?.balance || "0");
+
+  if (effectivePackages.length === 0) return null;
+
+  // If no package is selected and we have multiple, show the list
+  if (selectedPkgIndex === null && effectivePackages.length > 1) {
+    return (
+      <div className={styles.nftCardWrapper}>
+        <div className={styles.nftHeader}>
+          <div className={styles.headerLeft}>
+            <div className={styles.nftIconBox}><FaHorse size={20} color="#ffd700" /></div>
+            <div className={styles.titleSection}>
+              <h3>MY ASSETS</h3>
+              <p>{effectivePackages.length} ACTIVE NFTs</p>
+            </div>
+          </div>
+        </div>
+        <div className={styles.nftListGrid}>
+          {effectivePackages.map((pkg, idx) => {
+            const tier = tierNormalize[pkg.tier];
+            const tierColor = tier === 'gold' ? '#ffd700' : tier === 'silver' ? '#ffffff' : '#cd7f32';
+            const shadowColor = tier === 'gold' ? 'rgba(255,215,0,0.3)' : tier === 'silver' ? 'rgba(255,255,255,0.3)' : 'rgba(205,127,50,0.3)';
+            return (
+              <div 
+                key={idx} 
+                className={styles.compactNftCard} 
+                onClick={() => setSelectedPkgIndex(idx)}
+                style={{ 
+                  borderLeft: `3px solid ${tierColor}`,
+                  boxShadow: `0 4px 15px ${shadowColor}`
+                }}
+              >
+                <div className={styles.compactNftIcon} style={{ background: `${tierColor}11`, color: tierColor }}>
+                  {nftImages[tier]}
+                </div>
+                <div className={styles.compactNftInfo}>
+                  <div className={styles.compactNftTier} style={{ color: tierColor }}>{packageNames[pkg.tier]}</div>
+                  <div className={styles.compactNftDate}>Purchased: {new Date(pkg.purchaseDate || Date.now()).toLocaleDateString()}</div>
+                </div>
+                <div className={styles.compactNftArrow}>
+                   <ArrowRight size={14} color={tierColor} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
+  // Individual Detailed View
+  const activePkg = effectivePackages[selectedPkgIndex || 0];
+  const tier = tierNormalize[activePkg.tier];
+  const roiProgress = nftRoiMap[activePkg.tier] || 0;
+  const dailyRate = nftRateMap[activePkg.tier] || 0;
+  
+  const dailyYield = (zeroRiskBal * dailyRate).toFixed(4);
+  const estPayout = (zeroRiskBal * (roiProgress / 100)).toFixed(2);
 
   return (
     <div className={styles.nftCardWrapper}>
       <div className={styles.nftHeader}>
         <div className={styles.headerLeft}>
+          {effectivePackages.length > 1 && (
+            <button 
+              className={styles.nftBackBtn} 
+              onClick={() => setSelectedPkgIndex(null)}
+              style={{ background: 'transparent', border: 'none', color: '#fff', marginRight: '10px', cursor: 'pointer', fontSize: '18px' }}
+            >
+              &larr;
+            </button>
+          )}
           <div className={styles.nftIconBox}>
-            <FaHorse size={20} color={isActive ? "#ffd700" : "#555"} />
+            <FaHorse size={20} color="#ffd700" />
           </div>
           <div className={styles.titleSection}>
             <h3>{title}</h3>
-            <p style={{ color: isActive ? undefined : '#555' }}>
-              {packageNames[packageType] || "No Active Package"}
-            </p>
+            <p>{packageNames[activePkg.tier]}</p>
           </div>
         </div>
 
-        {/* Compact Tier Image - Top Right */}
         <div className={styles.nftImageSmall}>
-          <span style={{ opacity: isActive ? 1 : 0.3 }}>
-            {nftImages[tier] || "🐎"}
-          </span>
+          <span>{nftImages[tier] || "🐎"}</span>
           <div className={styles.nftGlowSmall}></div>
         </div>
       </div>
 
-      <div className={styles.nftMainBalanceLarge} style={{ color: isActive ? undefined : '#555' }}>
-        {balance} <span>USDT</span>
+      <div className={styles.nftMainBalanceLarge}>
+        {zeroRiskBal.toLocaleString()} <span>USDT</span>
       </div>
 
-      {!isActive ? (
-        <div className={styles.nftEmptyState}>
-          <button
-            className={styles.nftGetStartedBtn}
-            onClick={() => window.location.href = "/dashboard/nft-packages"}
-          >
-            <Plus size={18} />
-            MINT YOUR NFT
-          </button>
-          <p className={styles.nftEmptySubtext}>OWN A FRACTION OF A RACING LEGEND</p>
+      <div className={styles.roiProgressSection}>
+        <div className={styles.roiLabelRow}>
+          <span>Annual ROI Target</span>
+          <span style={{ color: '#00ff00' }}>{roiProgress}%</span>
         </div>
-      ) : (
-        <>
-          <div className={styles.roiProgressSection}>
-            <div className={styles.roiLabelRow}>
-              <span>Annual ROI Target</span>
-              <span style={{ color: roiProgress > 0 ? '#00ff00' : '#555' }}>
-                {roiProgress > 0 ? `${roiProgress}%` : 'N/A'}
-              </span>
-            </div>
-            <div className={styles.roiProgressBar}>
-              <div
-                className={styles.roiProgressFill}
-                style={{
-                  width: roiProgress > 0 ? `${Math.min(roiProgress, 100)}%` : '0%',
-                  background: roiProgress >= 60 ? 'linear-gradient(90deg,#ffd700,#ff8c00)'
-                    : roiProgress >= 50 ? 'linear-gradient(90deg,#00ff88,#00d2ff)'
-                      : roiProgress > 0 ? 'linear-gradient(90deg,#7fff4c,#00ff88)'
-                        : 'rgba(255,255,255,0.05)'
-                }}
-              ></div>
-            </div>
-          </div>
+        <div className={styles.roiProgressBar}>
+          <div
+            className={styles.roiProgressFill}
+            style={{
+              width: `${Math.min(roiProgress, 100)}%`,
+              background: tier === 'gold' ? 'linear-gradient(90deg,#ffd700,#ff8c00)'
+                         : tier === 'silver' ? 'linear-gradient(90deg,#c0c0c0,#808080)'
+                         : 'linear-gradient(90deg,#cd7f32,#a0522d)'
+            }}
+          ></div>
+        </div>
+      </div>
 
-          <div className={styles.nftStatsGrid}>
-            <div className={styles.nftStatItem}>
-              <span className={styles.nftStatLabel}>Daily Yield</span>
-              <span className={styles.nftStatValue} style={{ color: isActive ? "#00ff00" : "#555" }}>
-                {dailyYield} USDT
-              </span>
-            </div>
-            <div className={styles.nftStatItem}>
-              <span className={styles.nftStatLabel}>Est. Payout</span>
-              <span className={styles.nftStatValue} style={{ color: isActive ? undefined : '#555' }}>
-                {estPayout} USDT
-              </span>
-            </div>
-            <div className={styles.nftStatItem} style={{ border: 'none' }}>
-              <div className={styles.nftStatLabelGroup}>
-                <span className={styles.nftStatLabel}>Next Payout</span>
-                <span className={styles.nftTimeLeft} style={{ color: isActive ? undefined : '#555' }}>
-                  {isActive ? `${liveTimeLeft} LEFT` : '--'}
-                </span>
-              </div>
-              <span className={styles.nftStatValue} style={{ color: isActive ? undefined : '#555' }}>
-                {nextPayout} USDT
-              </span>
-            </div>
+      <div className={styles.nftStatsGrid}>
+        <div className={styles.nftStatItem}>
+          <span className={styles.nftStatLabel}>Daily Yield</span>
+          <span className={styles.nftStatValue} style={{ color: "#00ff00" }}>{dailyYield} USDT</span>
+        </div>
+        <div className={styles.nftStatItem}>
+          <span className={styles.nftStatLabel}>Est. Payout</span>
+          <span className={styles.nftStatValue}>{estPayout} USDT</span>
+        </div>
+        <div className={styles.nftStatItem} style={{ border: 'none' }}>
+          <div className={styles.nftStatLabelGroup}>
+            <span className={styles.nftStatLabel}>Next Payout</span>
+            <span className={styles.nftTimeLeft}>{liveTimeLeft} LEFT</span>
           </div>
+          <span className={styles.nftStatValue}>{dailyYield} USDT</span>
+        </div>
+      </div>
 
-          <div className={styles.nftActionButtonsSimple}>
-            <button className={styles.nftHistoryBtnFull} onClick={onViewHistory}>
-              <History size={16} />
-              <span>VIEW ASSET HISTORY</span>
-            </button>
-          </div>
-        </>
-      )}
+      <div className={styles.nftActionButtonsSimple}>
+        <button className={styles.nftHistoryBtnFull} onClick={onViewHistory}>
+          <History size={16} />
+          <span>VIEW ASSET HISTORY</span>
+        </button>
+      </div>
     </div>
   );
 };

@@ -79,8 +79,8 @@ const LandingNavbar = () => {
             >
               <div className="logo-img-container">
                 <Image 
-                  src="/img/main-logo.avif" 
-                  alt="BEP Vault Logo" 
+                  src="/img/toking_hoofborn_logo.png" 
+                  alt="Toking Hoofborn Logo" 
                   fill 
                   className="object-contain object-left logo-img" 
                   priority 
@@ -152,8 +152,8 @@ const LandingNavbar = () => {
                     <div className="logo-wrapper">
                       <div className="logo-img-container" style={{ width: '40px', height: '40px' }}>
                         <Image 
-                          src="/img/main-logo.avif" 
-                          alt="BEP Vault Logo" 
+                          src="/img/toking_hoofborn_logo.png" 
+                          alt="Toking Hoofborn Logo" 
                           fill 
                           className="object-contain object-left logo-img" 
                         />
@@ -315,9 +315,9 @@ const LandingNavbar = () => {
           text-transform: none;
         }
         .gold-text {
-          background: linear-gradient(90deg, #FFB800 0%, #FF6200 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
+          color: #ff6600;
+          -webkit-background-clip: unset;
+          -webkit-text-fill-color: unset;
         }
         .logo-glint {
           position: absolute;

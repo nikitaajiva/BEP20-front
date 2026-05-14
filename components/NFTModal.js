@@ -24,7 +24,7 @@ const packages = [
 ];
 
 export default function NFTModal({ isOpen, onClose }) {
-  const { user, setUser, API_URL } = useAuth();
+  const { user, purchaseNft } = useAuth();
   const [step, setStep] = useState(0);
   const [selected, setSelected] = useState(null);
   const [isActivating, setIsActivating] = useState(false);
@@ -33,20 +33,12 @@ export default function NFTModal({ isOpen, onClose }) {
   const pkg = packages.find(p => p.id === selected);
 
   const handleActivate = async () => {
+    if (!selected) return;
     setIsActivating(true);
     try {
-      const res = await fetch(`${API_URL}/auth/me`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("token")}`
-        },
-        body: JSON.stringify({ nftPackage: selected })
-      });
+      const result = await purchaseNft({ tier: selected });
       
-      if (res.ok) {
-        const data = await res.json();
-        setUser(data.user);
+      if (result.success) {
         setIsSuccess(true);
       }
     } catch (err) {

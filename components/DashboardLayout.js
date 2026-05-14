@@ -1317,14 +1317,50 @@ export default function DashboardLayout({
     premium: "PREMIUM PACK",
   };
 
-  const nftPackageRaw  = user?.nftPackage || null;          // e.g. "starter"
-  const nftRoiProgress = nftRoiMap[nftPackageRaw]  || 0;   // 45 / 55 / 65
-  const nftDailyRate   = nftRateMap[nftPackageRaw] || 0;   // 0.3% / 0.4% / 0.5%
+  const nftPackagesArr = user?.nftPackages || [];
+  // Backward compatibility
+  const effectiveNftPackages = nftPackagesArr.length > 0 
+    ? nftPackagesArr 
+    : (user?.nftPackage ? [{ tier: user.nftPackage }] : []);
+
+  let totalNftDailyRate = 0;
+  let maxNftRoiProgress = 0;
+  let highestTier = null;
+  const tiersOrder = { starter: 1, growth: 2, premium: 3 };
+
+  effectiveNftPackages.forEach(p => {
+    totalNftDailyRate += (nftRateMap[p.tier] || 0);
+    maxNftRoiProgress = Math.max(maxNftRoiProgress, nftRoiMap[p.tier] || 0);
+    if (!highestTier || tiersOrder[p.tier] > tiersOrder[highestTier]) {
+      highestTier = p.tier;
+    }
+  });
+
+  const nftPackageRaw  = highestTier;
+  const nftRoiProgress = maxNftRoiProgress;
+  const nftDailyRate   = totalNftDailyRate;
 
   const zeroRiskBal    = parseFloat(ledgerDetails?.zeroRisk?.balance || "0");
   const nftDailyYield  = (zeroRiskBal * nftDailyRate).toFixed(4);
   const nftEstPayout   = (zeroRiskBal * (nftRoiProgress / 100)).toFixed(2);
   const nftNextPayout  = nftDailyYield;
+
+  // ── Aggregated Ecosystem Hub Data ──────────────────────────────────────────────
+  const stakingPlans = user?.stakingPlans || [];
+  const totalStaked = stakingPlans.reduce((acc, p) => acc + (parseFloat(p.amount) || 0), 0);
+  const stakingDaily = stakingPlans.reduce((acc, p) => {
+    const amt = parseFloat(p.amount || "0");
+    const days = p.days || 0;
+    const apy = days >= 365 ? 0.28 : days >= 180 ? 0.22 : days >= 90 ? 0.18 : 0.10;
+    return acc + (amt * apy / 365);
+  }, 0);
+
+  const combinedTotalBalance = totalStaked + zeroRiskBal;
+  const combinedDailyRewards = stakingDaily + parseFloat(nftDailyYield);
+  const ecosystemYieldPercent = combinedTotalBalance > 0 
+    ? ((combinedDailyRewards / combinedTotalBalance) * 100).toFixed(4)
+    : "0.00";
+  // ────────────────────────────────────────────────────────────────────────────
 
   // Real countdown to next daily payout (rolls over at UTC midnight)
   const _now          = new Date();
@@ -1337,11 +1373,13 @@ export default function DashboardLayout({
   const nftTimeLeft = `${_diffH}h ${String(_diffM).padStart(2, '0')}m`;
 
   // Display label for the bottom status bar
-  const nftTierLabel = nftPackageRaw
-    ? nftLabelMap[nftPackageRaw] || nftPackageRaw.toUpperCase()
-    : user?.stakingPlan?.days
-      ? "STAKING ACTIVE"
-      : "NO ACTIVE PACKAGE";
+  const nftTierLabel = effectiveNftPackages.length > 1
+    ? "MULTIPLE PACKS"
+    : nftPackageRaw
+      ? nftLabelMap[nftPackageRaw] || nftPackageRaw.toUpperCase()
+      : user?.stakingPlans?.length > 0
+        ? "STAKING ACTIVE"
+        : "NO ACTIVE PACKAGE";
   // ────────────────────────────────────────────────────────────────────────────
 
   const rawBalance =
@@ -1516,7 +1554,8 @@ export default function DashboardLayout({
                 onConnectPhantom?.();
               }
             }}
-            depositLabel={phantomWalletAddress ? "Refresh" : "Connect"}
+            depositLabel={phantomWalletAddress ? "Deposit" : ""}
+            showPlusBtn={!!phantomWalletAddress}
             onViewHistory={() => {
               window.location.href = "/dashboard/ledger";
             }}
@@ -1524,14 +1563,9 @@ export default function DashboardLayout({
         }
         orbitCard2={
           <HorseNFTCard
-            packageType={nftPackageRaw}
-            balance={zeroRiskBal.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-            roiProgress={nftRoiProgress}
-            dailyYield={nftDailyYield}
-            estPayout={nftEstPayout}
-            nextPayout={nftNextPayout}
-            timeLeft={nftTimeLeft}
-            onWithdraw={() => setShowZeroRiskWarningModal(true)}
+            title="Horse NFT"
+            user={user}
+            ledgerDetails={ledgerDetails}
             onViewHistory={() => window.location.href = "/dashboard/history/zero-risk"}
           />
         }
@@ -1569,6 +1603,9 @@ export default function DashboardLayout({
         }
         nftTierLabel={nftTierLabel}
         extraHubCard={<Communitybooster />}
+        ecosystemTotalBalance={combinedTotalBalance}
+        ecosystemDailyRewards={combinedDailyRewards}
+        ecosystemYieldPercent={ecosystemYieldPercent}
         bottomCards={
           <div style={{ width: '100%', maxWidth: '1600px', margin: '0 auto' }}>
             {/* Analytical & Rewards Stack stays below the Hub circle */}

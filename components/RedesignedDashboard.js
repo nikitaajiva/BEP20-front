@@ -127,11 +127,12 @@ const RedesignedDashboard = ({
   const [showInvestMenu, setShowInvestMenu] = React.useState(false);
   const [isStakingModalOpen, setIsStakingModalOpen] = React.useState(false);
   const [isNftModalOpen, setIsNftModalOpen] = React.useState(false);
+  const hasActiveInvestment = Boolean(user?.nftPackage || user?.stakingPlan?.days || parseFloat(user?.stakingPlan?.amount || "0") > 0);
 
   return (
     <div className="min-h-screen bg-black text-white relative font-inter overflow-x-hidden">
       {/* Unified Top Header Actions */}
-    <div className={styles.dashboardTopHeader}>
+      <div className={styles.dashboardTopHeader}>
         {/* LEFT: Vault Pass (Invitation Link) */}
         <div className={styles.headerLeft}>
           <div
@@ -140,10 +141,7 @@ const RedesignedDashboard = ({
             title="Click to copy invitation link"
           >
             <div className={styles.passHeader}>
-              <span className={styles.passLabel}>INVITE FRIENDS &amp; EARN REWARDS</span>
-              <div className={styles.inviteCodeBadge} onClick={handleCopyCode} title="Click to copy invite code">
-                CODE: {user?.username || "---"}
-              </div>
+              <span className={styles.passLabel}>INVITE &amp; EARN </span>
             </div>
             <div className={styles.passLinkWrapper}>
               <span className={styles.passUrl}>
@@ -174,13 +172,8 @@ const RedesignedDashboard = ({
         {/* RIGHT: Action Buttons */}
         <div className={styles.topRightActions}>
           <div className={styles.headerActionsRow}>
-            {user?.userType === "superadmin" && (
-              <Link href="/support/dashboard" className={styles.supportAdminBtn}>
-                <Shield size={14} />
-                Support
-              </Link>
-            )}
-            
+
+
             <button
               className={styles.redeemBtnTop}
               onClick={onRedeem}
@@ -235,12 +228,7 @@ const RedesignedDashboard = ({
               )}
             </div>
 
-            {/* Logout Button */}
-            {onLogout && (
-              <button className={styles.logoutBtn} onClick={onLogout} title="Logout">
-                <LogOut size={14} />
-              </button>
-            )}
+
           </div>
         </div>
       </div>
@@ -274,19 +262,38 @@ const RedesignedDashboard = ({
 
       {/* Main Content Grid */}
       <div className={styles.mainContentWrapper}>
-        
+
         {/* ===== ROW 1: Horse NFT | Staking Engine | Community Wallet ===== */}
         <div className={styles.dashboardRow1}>
-          
-          {/* LEFT: Horse NFT Card */}
+
+          {/* LEFT: Horse NFT Card / Staking Starter */}
           <div className={styles.row1Card}>
-            {orbitCard2}
+            {hasActiveInvestment ? orbitCard2 : (
+              <motion.div
+                className={`${styles.investSelectionCard} ${styles.stakingCard}`}
+                onClick={() => setIsStakingModalOpen(true)}
+              >
+                <div className={styles.watermarkIcon}><TrendingUp /></div>
+                <div className={styles.investCardContent}>
+                  <div className={styles.investCardHeader}>
+                    <div className={styles.investCardIcon}>
+                      <TrendingUp size={28} />
+                    </div>
+                  </div>
+                  <h4>TOKEN STAKING</h4>
+                  <p>Lock tokens to earn daily yields up to 28% APY.</p>
+                  <button className={styles.investSelectBtn}>
+                    <span>START STAKING</span>
+                    <span className={styles.btnArrow}>&rarr;</span>
+                  </button>
+                </div>
+              </motion.div>
+            )}
           </div>
 
           {/* CENTER: Staking Engine Hub (Blue circle, black bg) */}
           <div className={styles.stakingHubWrapper}>
-            {/* Label */}
-            <div className={styles.hubLabelOuter} style={{ color: "#00f2ff", borderColor: "rgba(0,242,255,0.3)", position: 'relative', top: 'auto', left: 'auto', transform: 'none', marginBottom: 24 }}>
+            <div className={styles.hubLabelOuter} style={{ color: "#ff5500", borderColor: "rgba(255,85,0,0.3)", position: 'relative', top: 'auto', left: 'auto', transform: 'none', marginBottom: 24 }}>
               <Activity size={13} />
               STAKING ENGINE
             </div>
@@ -299,77 +306,66 @@ const RedesignedDashboard = ({
 
               {/* Inner Content */}
               <div className={styles.stakingCircleInner}>
-                {user?.stakingPlan?.days ? (
-                  <>
-                    <div className={styles.hubAmount} style={{ color: "#00f2ff", fontSize: 36 }}>
-                      {parseFloat(user.stakingPlan.amount).toLocaleString()}
-                    </div>
-                    <div className={styles.hubCurrency} style={{ letterSpacing: 4, marginBottom: 12 }}>TOKING</div>
-                    <div className={styles.hubSeparator}></div>
-                    <div className={styles.stakingStatsDetail} style={{ marginTop: 12 }}>
-                      <div className={styles.statDetailItem}>
-                        <span className={styles.statDetailLabel}>EST. REWARDS</span>
-                        <span className={styles.statDetailValue} style={{ color: "#00f2ff" }}>+{(user.stakingPlan.amount * 0.28).toFixed(2)}</span>
-                      </div>
-                      <div className={styles.statDetailItem}>
-                        <span className={styles.statDetailLabel}>UNLOCKS ON</span>
-                        <span className={styles.statDetailValue}>
-                          {new Date(new Date(user.stakingPlan.startDate).getTime() + user.stakingPlan.days * 86400000).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                        </span>
-                      </div>
-                    </div>
-                    <div className={styles.stakingProgressBox} style={{ marginTop: 12 }}>
-                      <div className={styles.miniChart}>
-                        <div className={styles.miniChartFill} style={{ width: '35%' }}></div>
-                      </div>
-                      <div className={styles.stakingDaysRemaining}>{user.stakingPlan.days} DAY LOCK</div>
-                    </div>
-                    <div className={styles.marketStatsRow} style={{ marginTop: 10 }}>
-                      <div className={styles.marketStat}>
-                        <span className={styles.marketLabel}>TODAY</span>
-                        <span className={styles.marketValue} style={{ color: "#00f2ff" }}>+{(user.stakingPlan.amount * 0.28 / 365).toFixed(4)}</span>
-                      </div>
-                      <div className={styles.marketStat}>
-                        <span className={styles.marketLabel}>TOKEN</span>
-                        <span className={styles.marketValue} style={{ color: "#00ff00" }}>$0.124 <TrendingUp size={10} /></span>
-                      </div>
-                    </div>
-                  </>
-                ) : (
-                  <div className={styles.stakingInactiveHub}>
-                    <div className={styles.hubAmount} style={{ color: "rgba(0, 242, 255, 0.4)", fontSize: 36 }}>0.00</div>
-                    <div className={styles.hubCurrency} style={{ letterSpacing: 4, marginBottom: 20 }}>TOKING</div>
-                    
-                    <button 
-                      className={styles.hubStartStakingBtn}
-                      onClick={() => setIsStakingModalOpen(true)}
-                    >
-                      <Plus size={14} />
-                      START STAKING
-                    </button>
-                    
-                    <p className={styles.hubInactiveNote}>ENGINE READY TO DEPLOY</p>
+                <>
+                  <div className={styles.hubAmount} style={{ color: "#ff5500", fontSize: 36 }}>
+                    {parseFloat(user?.stakingPlan?.amount || "0") > 0 ? parseFloat(user.stakingPlan.amount).toLocaleString() : "0.00"}
                   </div>
-                )}
+                  <div className={styles.hubCurrency} style={{ letterSpacing: 4, marginBottom: 12 }}>TOKING</div>
+                  <div className={styles.hubSeparator}></div>
+                  <div className={styles.stakingStatsDetail} style={{ marginTop: 12 }}>
+                    <div className={styles.statDetailItem}>
+                      <span className={styles.statDetailLabel}>EST. REWARDS</span>
+                      <span className={styles.statDetailValue} style={{ color: "#ff5500" }}>
+                        +{(parseFloat(user?.stakingPlan?.amount || "0") * 0.28).toFixed(2)}
+                      </span>
+                    </div>
+                    <div className={styles.statDetailItem}>
+                      <span className={styles.statDetailLabel}>UNLOCKS ON</span>
+                      <span className={styles.statDetailValue}>
+                        {user?.stakingPlan?.startDate ? new Date(new Date(user.stakingPlan.startDate).getTime() + (user.stakingPlan.days || 0) * 86400000).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : "--"}
+                      </span>
+                    </div>
+                  </div>
+                  <div className={styles.stakingProgressBox} style={{ marginTop: 12 }}>
+                    <div className={styles.miniChart}>
+                      <div className={styles.miniChartFill} style={{ width: user?.stakingPlan?.days ? '35%' : '0%' }}></div>
+                    </div>
+                    <div className={styles.stakingDaysRemaining}>{user?.stakingPlan?.days || 0} DAY LOCK</div>
+                  </div>
+                  <div className={styles.marketStatsRow} style={{ marginTop: 10 }}>
+                    <div className={styles.marketStat}>
+                      <span className={styles.marketLabel}>TODAY</span>
+                      <span className={styles.marketValue} style={{ color: "#ff5500" }}>
+                        +{(parseFloat(user?.stakingPlan?.amount || "0") * 0.28 / 365).toFixed(4)}
+                      </span>
+                    </div>
+                    <div className={styles.marketStat}>
+                      <span className={styles.marketLabel}>TOKEN</span>
+                      <span className={styles.marketValue} style={{ color: "#00ff00" }}>$0.124 <TrendingUp size={10} /></span>
+                    </div>
+                  </div>
+                </>
               </div>
             </div>
 
             {/* Invest Button below circle */}
-            <div className={styles.investNowContainer} style={{ position: 'relative', top: 'auto', left: 'auto', transform: 'none', marginTop: 32, width: '100%' }}>
-              <motion.button
-                className={styles.mainInvestBtn}
-                onClick={() => setShowInvestMenu(true)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                INVEST NOW
-              </motion.button>
-            </div>
+            {hasActiveInvestment && (
+              <div className={styles.investNowContainer} style={{ position: 'relative', top: 'auto', left: 'auto', transform: 'none', marginTop: 32, width: '100%' }}>
+                <motion.button
+                  className={styles.mainInvestBtn}
+                  onClick={() => setShowInvestMenu(true)}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  UPGRADE INVESTMENT
+                </motion.button>
+              </div>
+            )}
 
             {/* Investment Selection Modal */}
             {showInvestMenu && (
               <div className={styles.investModalOverlay} onClick={() => setShowInvestMenu(false)}>
-                <motion.div 
+                <motion.div
                   className={styles.investModalContent}
                   onClick={(e) => e.stopPropagation()}
                   initial={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -378,38 +374,52 @@ const RedesignedDashboard = ({
                   <button className={styles.investModalClose} onClick={() => setShowInvestMenu(false)}>✖</button>
                   <h3 className={styles.investModalTitle}>CHOOSE INVESTMENT TYPE</h3>
                   <p className={styles.investModalSubtitle}>Select a vehicle to start earning rewards</p>
-                  
+
                   <div className={styles.investCardsGrid}>
-                    <motion.div 
-                      className={styles.investSelectionCard}
+                    <motion.div
+                      className={`${styles.investSelectionCard} ${styles.stakingCard}`}
                       onClick={() => {
                         setIsStakingModalOpen(true);
                         setShowInvestMenu(false);
                       }}
-                      whileHover={{ y: -5, borderColor: '#00f2ff' }}
                     >
-                      <div className={`${styles.investCardIcon} ${styles.iconStaking}`}>
-                        <TrendingUp size={40} />
+                      <div className={styles.watermarkIcon}><TrendingUp /></div>
+                      <div className={styles.investCardContent}>
+                        <div className={styles.investCardHeader}>
+                          <div className={styles.investCardIcon}>
+                            <TrendingUp size={28} />
+                          </div>
+                        </div>
+                        <h4>TOKEN STAKING</h4>
+                        <p>Lock tokens to earn daily yields up to 28% APY.</p>
+                        <button className={styles.investSelectBtn}>
+                          <span>START STAKING</span>
+                          <span className={styles.btnArrow}>&rarr;</span>
+                        </button>
                       </div>
-                      <h4>TOKEN STAKING</h4>
-                      <p>Lock tokens to earn daily yields up to 28% APY.</p>
-                      <button className={styles.investSelectBtn}>SELECT</button>
                     </motion.div>
 
-                    <motion.div 
-                      className={styles.investSelectionCard}
+                    <motion.div
+                      className={`${styles.investSelectionCard} ${styles.nftCard}`}
                       onClick={() => {
                         setIsNftModalOpen(true);
                         setShowInvestMenu(false);
                       }}
-                      whileHover={{ y: -5, borderColor: '#ffd700' }}
                     >
-                      <div className={`${styles.investCardIcon} ${styles.iconNft}`}>
-                        <FaHorse size={40} />
+                      <div className={styles.watermarkIcon}><FaHorse /></div>
+                      <div className={styles.investCardContent}>
+                        <div className={styles.investCardHeader}>
+                          <div className={styles.investCardIcon}>
+                            <FaHorse size={28} />
+                          </div>
+                        </div>
+                        <h4>HORSE NFT</h4>
+                        <p>Own premium Horse NFTs with fractional rewards.</p>
+                        <button className={styles.investSelectBtn}>
+                          <span>EXPLORE NFTs</span>
+                          <span className={styles.btnArrow}>&rarr;</span>
+                        </button>
                       </div>
-                      <h4>HORSE NFT</h4>
-                      <p>Own premium Horse NFTs with fractional rewards.</p>
-                      <button className={`${styles.investSelectBtn} ${styles.btnNft}`}>SELECT</button>
                     </motion.div>
                   </div>
                 </motion.div>
@@ -417,9 +427,29 @@ const RedesignedDashboard = ({
             )}
           </div>
 
-          {/* RIGHT: Community Wallet Card */}
+          {/* RIGHT: Community Wallet Card / NFT Starter */}
           <div className={styles.row1Card}>
-            {orbitCard3}
+            {hasActiveInvestment ? orbitCard3 : (
+              <motion.div
+                className={`${styles.investSelectionCard} ${styles.nftCard}`}
+                onClick={() => setIsNftModalOpen(true)}
+              >
+                <div className={styles.watermarkIcon}><FaHorse /></div>
+                <div className={styles.investCardContent}>
+                  <div className={styles.investCardHeader}>
+                    <div className={styles.investCardIcon}>
+                      <FaHorse size={28} />
+                    </div>
+                  </div>
+                  <h4>HORSE NFT</h4>
+                  <p>Own premium Horse NFTs with fractional rewards.</p>
+                  <button className={styles.investSelectBtn}>
+                    <span>EXPLORE NFTs</span>
+                    <span className={styles.btnArrow}>&rarr;</span>
+                  </button>
+                </div>
+              </motion.div>
+            )}
           </div>
         </div>
 
@@ -441,14 +471,18 @@ const RedesignedDashboard = ({
         </div>
       </div>
 
-      <StakingModal
-        isOpen={isStakingModalOpen}
-        onClose={() => setIsStakingModalOpen(false)}
-      />
-      <NFTModal
-        isOpen={isNftModalOpen}
-        onClose={() => setIsNftModalOpen(false)}
-      />
+      {isStakingModalOpen && (
+        <StakingModal
+          isOpen={isStakingModalOpen}
+          onClose={() => setIsStakingModalOpen(false)}
+        />
+      )}
+      {isNftModalOpen && (
+        <NFTModal
+          isOpen={isNftModalOpen}
+          onClose={() => setIsNftModalOpen(false)}
+        />
+      )}
 
       {/* NFT Tier Footer Info */}
       {/* <div className={styles.nftStatusBar}>

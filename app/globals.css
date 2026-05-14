@@ -12068,9 +12068,9 @@ select option {
 
 .popupbackground {
   background-image: url("/assets/images/banner1.png");
-  background-repeat: no-repeat;        /* ✅ stop tiling */
-  background-position: center center;  /* ✅ proper alignment */
-  background-size: cover;              /* ✅ no stretch */
+  background-repeat: no-repeat;        /* âœ… stop tiling */
+  background-position: center center;  /* âœ… proper alignment */
+  background-size: cover;              /* âœ… no stretch */
 
   min-height: 600px;
   display: flex;
@@ -12245,7 +12245,7 @@ select option {
 }
 
 .custom-style-chackbox input[type="checkbox"]:checked::after {
-  content: "✔";
+  content: "âœ”";
   color: white;
   font-size: 14px;
   position: absolute;
@@ -12853,7 +12853,7 @@ select option {
 }
 
 
-/* ================= TOP → BOTTOM FADE (100% WORKING) ================= */
+/* ================= TOP â†’ BOTTOM FADE (100% WORKING) ================= */
 .centerWrappermainimage::after {
   content: "";
   position: absolute;
@@ -12904,7 +12904,7 @@ canvas {
   z-index: 2;
   pointer-events: none;
 
-  /* 🔥 Bottom-heavy cinematic fade */
+  /* ðŸ”¥ Bottom-heavy cinematic fade */
   /* background:
     radial-gradient(ellipse at center 70%,
       #0d111d 0%,
@@ -12942,3 +12942,15 @@ canvas {
     padding-bottom: 10px !important;
   }
 }
+
+/* Hide number input arrows */
+.no-spinner::-webkit-outer-spin-button,
+.no-spinner::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.no-spinner {
+  -moz-appearance: textfield;
+}
+

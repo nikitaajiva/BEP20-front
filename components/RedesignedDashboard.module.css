@@ -2219,120 +2219,196 @@
 }
 
 .investSelectionCard {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 28px;
+  position: relative;
+  background-color: #08080a;
+  background-image: 
+    radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(rgba(255,255,255,0.01) 1px, transparent 1px);
+  background-size: 15px 15px, 100% 4px;
+  border-radius: 20px;
   padding: 25px 20px;
-  text-align: center;
   cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 12px;
+  justify-content: space-between;
+  text-align: left;
+  overflow: hidden;
+  min-height: 220px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  z-index: 1;
 }
 
-.investSelectionCard h4 {
-  font-size: 1rem;
-  font-weight: 800;
+.investSelectionCard::after {
+  content: '';
+  position: absolute;
+  top: -100%; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--card-color), transparent);
+  opacity: 0.3;
+  box-shadow: 0 0 10px var(--card-color);
+  animation: scanline 6s infinite linear;
+  z-index: 0;
+  pointer-events: none;
+}
+
+@keyframes scanline {
+  0% { top: -20%; }
+  100% { top: 120%; }
+}
+
+/* Staking Card Variables */
+.stakingCard {
+  --card-color: #ff5500;
+  --card-glow: rgba(255, 85, 0, 0.2);
+}
+
+/* NFT Card Variables */
+.nftCard {
+  --card-color: #FFB800;
+  --card-glow: rgba(255, 184, 0, 0.2);
+}
+
+/* Dynamic Gradient Glow inside the card */
+.investSelectionCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 80% -20%, var(--card-color), transparent 60%);
+  opacity: 0.15;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Watermark Icon */
+.watermarkIcon {
+  position: absolute;
+  bottom: -15px;
+  right: -15px;
+  font-size: 110px;
+  opacity: 0.03;
   color: #fff;
-  margin: 0;
-  letter-spacing: 1px;
+  z-index: -1;
+  transform: rotate(-15deg);
+  transition: all 0.5s ease;
+  pointer-events: none;
 }
 
-.investSelectionCard p {
-  font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.5);
-  line-height: 1.5;
-  margin: 0;
+/* Hover effects */
+.investSelectionCard:hover {
+  transform: translateY(-8px);
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 20px 40px var(--card-glow);
+}
+
+.investSelectionCard:hover::before {
+  opacity: 0.4;
+  transform: scale(1.1);
+}
+
+.investSelectionCard:hover .watermarkIcon {
+  opacity: 0.15;
+  color: var(--card-color);
+  transform: rotate(0deg) scale(1.1);
+}
+
+/* Header */
+.investCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
 }
 
 .investCardIcon {
-  width: 90px;
-  height: 90px;
-  border-radius: 24px;
+  width: 50px;
+  height: 50px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 8px;
-  position: relative;
-  transition: all 0.3s ease;
+  background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--card-color);
+  box-shadow: inset 0 2px 10px rgba(255,255,255,0.05), 0 10px 20px rgba(0,0,0,0.5);
+  transition: all 0.4s ease;
 }
 
-.iconStaking {
-  background: rgba(0, 242, 255, 0.05);
-  color: #00f2ff;
-  border: 1px solid rgba(0, 242, 255, 0.2);
-  box-shadow: 
-    0 0 20px rgba(0, 242, 255, 0.1),
-    inset 0 0 15px rgba(0, 242, 255, 0.05);
-}
-
-.iconNft {
-  background: rgba(255, 184, 0, 0.05);
-  color: #FFB800;
-  border: 1px solid rgba(255, 184, 0, 0.2);
-  box-shadow: 
-    0 0 20px rgba(255, 184, 0, 0.1),
-    inset 0 0 15px rgba(255, 184, 0, 0.05);
-}
-
-.investSelectionCard:hover .iconStaking {
-  background: rgba(0, 242, 255, 0.15);
-  box-shadow: 
-    0 0 30px rgba(0, 242, 255, 0.3),
-    inset 0 0 20px rgba(0, 242, 255, 0.1);
+.investSelectionCard:hover .investCardIcon {
+  background: var(--card-color);
+  color: #000;
+  box-shadow: 0 10px 20px var(--card-glow);
   transform: scale(1.05);
 }
 
-.investSelectionCard:hover .iconNft {
-  background: rgba(255, 184, 0, 0.15);
-  box-shadow: 
-    0 0 30px rgba(255, 184, 0, 0.3),
-    inset 0 0 20px rgba(255, 184, 0, 0.1);
-  transform: scale(1.05);
-}
-
-.investSelectBtn {
-  margin-top: 10px;
+/* Badge */
+.investBadge {
+  font-size: 0.55rem;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  padding: 5px 12px;
+  border-radius: 50px;
+  text-transform: uppercase;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--card-color);
+}
+
+/* Typography */
+.investSelectionCard h4 {
+  font-size: 1.4rem;
+  font-weight: 900;
   color: #fff;
-  padding: 8px 24px;
-  border-radius: 50px;
+  margin: 0 0 8px 0;
+  letter-spacing: -0.5px;
+  text-transform: uppercase;
+}
+
+.investSelectionCard p {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.5;
+  margin: 0 0 20px 0;
+  font-weight: 500;
+}
+
+/* Button */
+.investSelectBtn {
+  margin-top: auto;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 12px;
   font-size: 0.75rem;
-  font-weight: 800;
-  letter-spacing: 1px;
-  transition: all 0.3s;
-}
-
-.investSelectionCard:hover {
-  background: rgba(255, 255, 255, 0.07);
-  transform: translateY(-8px);
-}
-
-.investSelectionCard:hover:first-child {
-  border-color: #00f2ff;
-  box-shadow: 0 15px 45px rgba(0, 242, 255, 0.15);
-}
-
-.investSelectionCard:hover:last-child {
-  border-color: #FFB800;
-  box-shadow: 0 15px 45px rgba(255, 184, 0, 0.15);
+  font-weight: 900;
+  letter-spacing: 1.2px;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  text-transform: uppercase;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .investSelectionCard:hover .investSelectBtn {
-  background: #00f2ff;
+  background: var(--card-color);
   color: #000;
-  border-color: #00f2ff;
-  box-shadow: 0 0 25px rgba(0, 242, 255, 0.5);
+  border-color: transparent;
+  box-shadow: 0 10px 30px var(--card-glow);
 }
 
-.investSelectionCard:hover:last-child .investSelectBtn {
-  background: #FFB800;
-  color: #000;
-  border-color: #FFB800;
-  box-shadow: 0 0 25px rgba(255, 184, 0, 0.5);
+.btnArrow {
+  transition: transform 0.3s ease;
+}
+.investSelectionCard:hover .btnArrow {
+  transform: translateX(5px);
 }
 
 .stakingInactiveHub {

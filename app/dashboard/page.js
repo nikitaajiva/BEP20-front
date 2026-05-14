@@ -3,9 +3,19 @@
 export const dynamic = "force-dynamic";
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { ethers } from "ethers";
+import bs58 from "bs58";
+import {
+  Connection,
+  PublicKey,
+  SystemProgram,
+  Transaction,
+  clusterApiUrl,
+} from "@solana/web3.js";
 import AuthGuard from "@/components/auth/AuthGuard";
 import DashboardLayout from "@/components/DashboardLayout";
 import AmountEntryModal from "@/components/AmountEntryModal";
+import PhantomDepositModal from "@/components/PhantomDepositModal";
+import PhantomQrDepositModal from "@/components/PhantomQrDepositModal";
 import QrDepositModal from "@/components/QrDepositModal";
 import { useAuth } from "@/context/AuthContext";
 import {
@@ -14,6 +24,15 @@ import {
   switchToBsc,
 } from "@/utils/bscWallet";
 import safeStorage from "@/utils/safeStorage";
+
+const getPhantomProvider = () => {
+  if (typeof window === "undefined") return null;
+  const provider = window.phantom?.solana || window.solana;
+  return provider?.isPhantom ? provider : null;
+};
+
+const getSolanaRpcUrl = () =>
+  process.env.NEXT_PUBLIC_SOLANA_RPC_URL || clusterApiUrl("mainnet-beta");
 
 export default function DashboardPage() {
   const { user, loading, logout, API_URL, connectPhantomWallet, disconnectPhantomWallet } = useAuth();
@@ -49,6 +68,21 @@ export default function DashboardPage() {
   const [phantomBalance, setPhantomBalance] = useState("0.000000");
   const [phantomBalanceLoading, setPhantomBalanceLoading] = useState(false);
   const [phantomBalanceError, setPhantomBalanceError] = useState("");
+  const [isPhantomDepositModalOpen, setIsPhantomDepositModalOpen] =
+    useState(false);
+  const [phantomDepositLoading, setPhantomDepositLoading] = useState(false);
+  const [phantomDepositStatus, setPhantomDepositStatus] = useState("");
+  const [phantomDepositError, setPhantomDepositError] = useState("");
+  const [phantomQrModalOpen, setPhantomQrModalOpen] = useState(false);
+  const [phantomQrPayload, setPhantomQrPayload] = useState("");
+  const [phantomQrDisplayData, setPhantomQrDisplayData] = useState(null);
+  const [phantomQrStatus, setPhantomQrStatus] = useState("pending");
+  const [phantomQrTimeLeft, setPhantomQrTimeLeft] = useState(0);
+  const [phantomTxSignatureStatus, setPhantomTxSignatureStatus] = useState("");
+  const phantomQrTimerRef = useRef(null);
+  const phantomDepositIntentRef = useRef(null);
+  // New self-contained Phantom SOL deposit modal state
+  const [phantomDepositModalOpen, setPhantomDepositModalOpen] = useState(false);
 
   const handleDisconnectPhantom = async () => {
     if (phantomDisconnectLoading) return;
@@ -84,6 +118,10 @@ export default function DashboardPage() {
       if (typeof setPhantomBalanceError === "function") {
         setPhantomBalanceError("");
       }
+
+      setIsPhantomDepositModalOpen(false);
+      setPhantomQrModalOpen(false);
+      resetPhantomQrState();
     } catch (error) {
       console.error("Dashboard Phantom disconnect error:", error);
 
@@ -98,6 +136,28 @@ export default function DashboardPage() {
     if (!address) return "";
     return `${address.slice(0, 4)}...${address.slice(-4)}`;
   };
+
+  const stopPhantomQrTimer = useCallback(() => {
+    if (phantomQrTimerRef.current) {
+      clearInterval(phantomQrTimerRef.current);
+      phantomQrTimerRef.current = null;
+    }
+  }, []);
+
+  const resetPhantomQrState = useCallback(() => {
+    stopPhantomQrTimer();
+    phantomDepositIntentRef.current = null;
+    setPhantomQrPayload("");
+    setPhantomQrDisplayData(null);
+    setPhantomQrStatus("pending");
+    setPhantomQrTimeLeft(0);
+    setPhantomTxSignatureStatus("");
+  }, [stopPhantomQrTimer]);
+
+  const openPhantomWalletLink = useCallback(() => {
+    if (!phantomQrPayload || typeof window === "undefined") return;
+    window.location.href = phantomQrPayload;
+  }, [phantomQrPayload]);
 
   const [ledgerDetails, setLedgerDetails] = useState(null);
   const [loadingLedger, setLoadingLedger] = useState(true);
@@ -185,6 +245,66 @@ export default function DashboardPage() {
       setPhantomBalance("0.000000");
     }
   }, [user?.phantomWalletAddress, fetchPhantomBalance]);
+
+  const createPhantomDepositIntent = useCallback(
+    async (amount, paymentMethod) => {
+      const localToken = safeStorage.getItem("token");
+      if (!localToken) {
+        throw new Error("Authentication token not found.");
+      }
+
+      const response = await fetch(`${API_URL}/phantom-deposits/intent`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${localToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          amount,
+          paymentMethod,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Failed to create Phantom deposit intent.");
+      }
+
+      return data;
+    },
+    [API_URL]
+  );
+
+  const confirmPhantomDeposit = useCallback(
+    async (intentId, txSignature) => {
+      const localToken = safeStorage.getItem("token");
+      if (!localToken) {
+        throw new Error("Authentication token not found.");
+      }
+
+      const response = await fetch(`${API_URL}/phantom-deposits/confirm`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${localToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          intentId,
+          txSignature,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Failed to confirm Phantom deposit.");
+      }
+
+      return data;
+    },
+    [API_URL]
+  );
 
   const savePendingDeposit = useCallback((intent, updates = {}) => {
     if (!intent) return null;
@@ -366,6 +486,10 @@ export default function DashboardPage() {
       setNativeBnbBalance("0");
       setPhantomBalance("0.000000");
       setPhantomBalanceLoading(false);
+      setIsPhantomDepositModalOpen(false);
+      setPhantomQrModalOpen(false);
+      setPhantomDepositStatus("");
+      setPhantomDepositError("");
       setTransactionStatus("");
       setLedgerDetails(null);
       setLoadingLedger(true);
@@ -373,6 +497,7 @@ export default function DashboardPage() {
       stopQrPolling();
       stopDepositPolling();
       clearPendingDeposit();
+      resetPhantomQrState();
       return;
     }
 
@@ -430,14 +555,16 @@ export default function DashboardPage() {
     stopDepositPolling,
     stopQrPolling,
     walletAccount,
+    resetPhantomQrState,
   ]);
 
   useEffect(() => {
     return () => {
       stopQrPolling();
       stopDepositPolling();
+      stopPhantomQrTimer();
     };
-  }, [stopDepositPolling, stopQrPolling]);
+  }, [stopDepositPolling, stopPhantomQrTimer, stopQrPolling]);
 
   const connectWallet = async () => {
     if (walletAccount) return; // Already connected
@@ -489,6 +616,219 @@ export default function DashboardPage() {
       setPhantomLoading(false);
     }
   };
+
+  const handlePhantomDepositSuccess = useCallback(
+    async ({ amountSol, txSignature }) => {
+      setSuccessModalTrigger({
+        id: `${Date.now()}-${Math.random()}`,
+        title: "Deposit Successful",
+        message: amountSol
+          ? `Your SOL deposit of ${amountSol} SOL has been confirmed.`
+          : "Your SOL deposit has been confirmed.",
+        transactionHash: txSignature || null,
+      });
+      setPhantomDepositStatus("Deposit confirmed.");
+      setPhantomDepositError("");
+      setPhantomQrStatus("confirmed");
+      setPhantomTxSignatureStatus("");
+      setIsPhantomDepositModalOpen(false);
+      setPhantomQrModalOpen(false);
+      resetPhantomQrState();
+      await Promise.all([fetchLedgerDetails(), fetchPhantomBalance()]);
+    },
+    [fetchLedgerDetails, fetchPhantomBalance, resetPhantomQrState]
+  );
+
+  const handleOpenPhantomDeposit = useCallback(() => {
+    setPhantomDepositStatus("");
+    setPhantomDepositError("");
+    setPhantomTxSignatureStatus("");
+    setIsPhantomDepositModalOpen(true);
+  }, []);
+
+  // Opens the new self-contained Phantom SOL deposit modal.
+  // If wallet is not yet connected, trigger connection flow first.
+  const openPhantomDepositModal = () => {
+    if (!user?.phantomWalletAddress) {
+      handleConnectPhantom?.();
+      return;
+    }
+    setPhantomDepositModalOpen(true);
+  };
+
+  const handleStartPhantomQrDeposit = useCallback(
+    async (amount) => {
+      setPhantomDepositLoading(true);
+      setPhantomDepositStatus("Creating QR deposit request...");
+      setPhantomDepositError("");
+      setPhantomTxSignatureStatus("");
+
+      try {
+        const data = await createPhantomDepositIntent(amount, "qr");
+        const intent = data.intent;
+
+        phantomDepositIntentRef.current = intent;
+        setPhantomQrPayload(data.solanaPayUrl || "");
+        setPhantomQrDisplayData(intent);
+        setPhantomQrStatus(intent.status || "pending");
+        setIsPhantomDepositModalOpen(false);
+        setPhantomQrModalOpen(true);
+        setPhantomDepositStatus("QR deposit created.");
+
+        const expiresAt = new Date(intent.expiresAt).getTime();
+        const updateTimer = () => {
+          const secondsLeft = Math.max(
+            0,
+            Math.ceil((expiresAt - Date.now()) / 1000)
+          );
+          setPhantomQrTimeLeft(secondsLeft);
+          if (secondsLeft <= 0) {
+            stopPhantomQrTimer();
+            setPhantomQrStatus("expired");
+            setPhantomTxSignatureStatus("Deposit request expired.");
+          }
+        };
+
+        stopPhantomQrTimer();
+        updateTimer();
+        phantomQrTimerRef.current = setInterval(updateTimer, 1000);
+      } catch (error) {
+        console.error("Create Phantom QR deposit error:", error);
+        setPhantomDepositError(
+          error.message || "Failed to create Phantom deposit request."
+        );
+      } finally {
+        setPhantomDepositLoading(false);
+      }
+    },
+    [createPhantomDepositIntent, stopPhantomQrTimer]
+  );
+
+  const handleSubmitPhantomTxSignature = useCallback(
+    async (txSignature) => {
+      const intentId = phantomDepositIntentRef.current?.id;
+
+      if (!intentId) {
+        setPhantomTxSignatureStatus("Missing deposit request.");
+        return;
+      }
+
+      setPhantomDepositLoading(true);
+      setPhantomTxSignatureStatus("Confirming Solana deposit...");
+      setPhantomDepositError("");
+
+      try {
+        const data = await confirmPhantomDeposit(intentId, txSignature);
+        await handlePhantomDepositSuccess({
+          amountSol: data?.intent?.amountSol,
+          txSignature: data?.intent?.txSignature || txSignature,
+        });
+      } catch (error) {
+        console.error("Confirm Phantom QR deposit error:", error);
+        setPhantomQrStatus("failed");
+        setPhantomTxSignatureStatus(
+          error.message || "Failed to confirm Solana deposit."
+        );
+      } finally {
+        setPhantomDepositLoading(false);
+      }
+    },
+    [confirmPhantomDeposit, handlePhantomDepositSuccess]
+  );
+
+  const handlePayWithPhantom = useCallback(
+    async (amount) => {
+      setPhantomDepositLoading(true);
+      setPhantomDepositStatus("Preparing Phantom payment...");
+      setPhantomDepositError("");
+
+      try {
+        const provider = getPhantomProvider();
+
+        if (!provider) {
+          throw new Error("Phantom Wallet is not available.");
+        }
+
+        const connectResponse = await provider.connect({ onlyIfTrusted: false });
+        const connectedAddress =
+          connectResponse?.publicKey?.toString?.() ||
+          provider?.publicKey?.toString?.() ||
+          "";
+
+        if (!connectedAddress) {
+          throw new Error("Unable to read connected Phantom wallet address.");
+        }
+
+        if (
+          user?.phantomWalletAddress &&
+          connectedAddress !== user.phantomWalletAddress
+        ) {
+          throw new Error(
+            "Connected Phantom extension wallet does not match your linked wallet."
+          );
+        }
+
+        const data = await createPhantomDepositIntent(amount, "extension");
+        const intent = data.intent;
+        const connection = new Connection(getSolanaRpcUrl(), "confirmed");
+        const fromPubkey = new PublicKey(connectedAddress);
+        const toPubkey = new PublicKey(intent.treasuryAddress);
+        const { blockhash, lastValidBlockHeight } =
+          await connection.getLatestBlockhash("confirmed");
+
+        const transaction = new Transaction({
+          feePayer: fromPubkey,
+          recentBlockhash: blockhash,
+        }).add(
+          SystemProgram.transfer({
+            fromPubkey,
+            toPubkey,
+            lamports: Number(intent.amountLamports),
+          })
+        );
+
+        const sendResult = await provider.signAndSendTransaction(transaction);
+        const signature =
+          typeof sendResult?.signature === "string"
+            ? sendResult.signature
+            : sendResult?.signature
+            ? bs58.encode(sendResult.signature)
+            : "";
+
+        if (!signature) {
+          throw new Error("Unable to read Phantom transaction signature.");
+        }
+
+        await connection.confirmTransaction(
+          {
+            signature,
+            blockhash,
+            lastValidBlockHeight,
+          },
+          "confirmed"
+        );
+
+        const confirmData = await confirmPhantomDeposit(intent.id, signature);
+        await handlePhantomDepositSuccess({
+          amountSol: confirmData?.intent?.amountSol,
+          txSignature: confirmData?.intent?.txSignature || signature,
+        });
+      } catch (error) {
+        console.error("Phantom extension deposit error:", error);
+        setPhantomDepositError(
+          error.message || "Failed to complete Phantom deposit."
+        );
+      } finally {
+        setPhantomDepositLoading(false);
+      }
+    },
+    [
+      confirmPhantomDeposit,
+      createPhantomDepositIntent,
+      handlePhantomDepositSuccess,
+      user?.phantomWalletAddress,
+    ]
+  );
 
   const handleOpenAmountModal = () => {
     setTransactionStatus("");
@@ -910,6 +1250,7 @@ export default function DashboardPage() {
         onDisconnectPhantom={handleDisconnectPhantom}
         onWalletDisconnect={disconnectWallet}
         onOpenAmountModal={handleOpenAmountModal}
+        onOpenPhantomDeposit={openPhantomDepositModal}
         phantomWalletAddress={user?.phantomWalletAddress || ""}
         phantomBalance={phantomBalance}
         phantomBalanceLoading={phantomBalanceLoading}
@@ -937,6 +1278,50 @@ export default function DashboardPage() {
         isOpen={isAmountModalOpen}
         onClose={() => setIsAmountModalOpen(false)}
         onSubmit={createPayload}
+      />
+
+      {/* New self-contained Phantom SOL deposit modal */}
+      <PhantomDepositModal
+        isOpen={phantomDepositModalOpen}
+        onClose={() => setPhantomDepositModalOpen(false)}
+        API_URL={API_URL}
+        user={user}
+        onDepositConfirmed={async () => {
+          setPhantomDepositModalOpen(false);
+
+          if (typeof fetchPhantomBalance === "function") {
+            await fetchPhantomBalance();
+          }
+
+          if (typeof fetchLedgerDetails === "function") {
+            await fetchLedgerDetails();
+          }
+        }}
+      />
+
+      <PhantomQrDepositModal
+        isOpen={phantomQrModalOpen}
+        onClose={() => {
+          if (phantomDepositLoading) return;
+          setPhantomQrModalOpen(false);
+          resetPhantomQrState();
+        }}
+        payload={phantomQrPayload}
+        displayData={phantomQrDisplayData}
+        status={phantomQrStatus}
+        timeLeft={phantomQrTimeLeft}
+        onRetry={() => {
+          const amount = phantomQrDisplayData?.amountSol;
+          setPhantomQrModalOpen(false);
+          resetPhantomQrState();
+          if (amount) {
+            handleStartPhantomQrDeposit(String(amount));
+          }
+        }}
+        onSubmitTxSignature={handleSubmitPhantomTxSignature}
+        txSignatureStatus={phantomTxSignatureStatus}
+        onOpenWallet={openPhantomWalletLink}
+        loading={phantomDepositLoading}
       />
 
       <QrDepositModal

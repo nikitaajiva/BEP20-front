@@ -642,6 +642,7 @@ export default function DashboardLayout({
   phantomErrorCode,
   onConnectPhantom,
   onDisconnectPhantom,
+  onOpenPhantomDeposit,
   onWalletConnect,
   onWalletDisconnect,
   onOpenAmountModal,
@@ -1549,13 +1550,13 @@ export default function DashboardLayout({
             currency="SOL"
             onDeposit={() => {
               if (phantomWalletAddress) {
-                refreshPhantomBalance?.();
+                onOpenPhantomDeposit?.();
               } else {
                 onConnectPhantom?.();
               }
             }}
-            depositLabel={phantomWalletAddress ? "Deposit" : ""}
-            showPlusBtn={!!phantomWalletAddress}
+            depositLabel={phantomWalletAddress ? "Deposit" : "Connect"}
+            showPlusBtn={true}
             onViewHistory={() => {
               window.location.href = "/dashboard/ledger";
             }}

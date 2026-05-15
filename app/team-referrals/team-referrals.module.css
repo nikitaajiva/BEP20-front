@@ -498,11 +498,11 @@
 
 .nodeUser { font-weight: 700; font-size: 14px; color: #fff; }
 .nodeIdentity:hover .nodeUser { color: #FFB800; }
-.nodeID { font-size: 11px; color: rgba(255, 255, 255, 0.3); }
+.nodeID { font-size: 11px; color: rgba(255, 255, 255, 0.3); font-family: monospace; }
 
 .sponsorTag { font-size: 13px; color: rgba(255, 255, 255, 0.7); font-weight: 600; }
 .sponsorIdentity { display: flex; flex-direction: column; }
-.sponsorID { font-size: 11px; color: rgba(255, 255, 255, 0.25); }
+.sponsorID { font-size: 11px; color: rgba(255, 255, 255, 0.25); font-family: monospace; }
 .emailTag { font-size: 13px; color: rgba(255, 255, 255, 0.5); font-family: monospace; }
 .sizeTag {
   background: rgba(255, 184, 0, 0.1);

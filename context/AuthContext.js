@@ -3,6 +3,7 @@ import React, { createContext, useState, useContext, useEffect, useRef, useCallb
 import { useRouter } from "next/navigation";
 
 import safeStorage from "../utils/safeStorage";
+import { getApiUrl } from "../utils/getApiUrl";
 import {
   getPhantomProvider,
   getPhantomConnectErrorCode,
@@ -12,8 +13,10 @@ import {
 
 const AuthContext = createContext();
 
-const RAW_API_URL = (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/$/, "");
-const API_URL = RAW_API_URL.endsWith("/api") ? RAW_API_URL : `${RAW_API_URL}/api`;
+// API_URL is computed dynamically per-call via getApiUrl().
+// This fixes the hardcoded 192.168.x.x IP issue — any device on any IP
+// will automatically reach the correct backend server.
+const getAPI_URL = () => getApiUrl();
 
 const IS_DEVELOPMENT = process.env.NODE_ENV !== "production";
 const readJsonSafely = async (response) => {
@@ -53,7 +56,7 @@ export const AuthProvider = ({ children }) => {
     if (localToken) {
       try {
         setToken(localToken);
-        const res = await fetch(`${API_URL}/auth/me`, {
+        const res = await fetch(`${getAPI_URL()}/auth/me`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${localToken}`,
@@ -90,7 +93,7 @@ export const AuthProvider = ({ children }) => {
     setActivationMessage(null);
 
     try {
-      const res = await fetch(`${API_URL}/auth/login`, {
+      const res = await fetch(`${getAPI_URL()}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -123,7 +126,7 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`${API_URL}/auth/signup`, {
+      const res = await fetch(`${getAPI_URL()}/auth/signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -149,7 +152,7 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`${API_URL}/auth/set-password/${token}`, {
+      const res = await fetch(`${getAPI_URL()}/auth/set-password/${token}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -181,7 +184,7 @@ export const AuthProvider = ({ children }) => {
     setError(null);
     setForgotPasswordMessage(null);
     try {
-      const res = await fetch(`${API_URL}/auth/forgot-password`, {
+      const res = await fetch(`${getAPI_URL()}/auth/forgot-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -204,7 +207,7 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     try {
       const localToken = safeStorage.getItem("token");
-      const res = await fetch(`${API_URL}/auth/me`, {
+      const res = await fetch(`${getAPI_URL()}/auth/me`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${localToken}`,
@@ -226,13 +229,13 @@ export const AuthProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  }, [API_URL]);
+  }, []);
 
   const stakeTokens = useCallback(async (stakingData) => {
     setLoading(true);
     try {
       const localToken = safeStorage.getItem("token");
-      const res = await fetch(`${API_URL}/users/stake`, {
+      const res = await fetch(`${getAPI_URL()}/users/stake`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${localToken}`,
@@ -258,13 +261,13 @@ export const AuthProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  }, [API_URL]);
+  }, []);
 
   const purchaseNft = useCallback(async (nftData) => {
     setLoading(true);
     try {
       const localToken = safeStorage.getItem("token");
-      const res = await fetch(`${API_URL}/users/purchase-nft`, {
+      const res = await fetch(`${getAPI_URL()}/users/purchase-nft`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${localToken}`,
@@ -290,14 +293,14 @@ export const AuthProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  }, [API_URL]);
+  }, []);
 
   const logout = useCallback(async () => {
     setLoading(true);
     try {
       const token = safeStorage.getItem("token");
       if (token) {
-        await fetch(`${API_URL}/auth/logout`, {
+        await fetch(`${getAPI_URL()}/auth/logout`, {
           method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -317,7 +320,7 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
       router.push("/login");
     }
-  }, [API_URL, router]);
+  }, [router]);
 
   const connectPhantomWallet = async () => {
     if (phantomConnectInProgressRef.current) {
@@ -407,7 +410,7 @@ export const AuthProvider = ({ children }) => {
       let challengeData;
 
       try {
-        const challengeResponse = await fetch(`${API_URL}/auth/phantom/challenge`, {
+        const challengeResponse = await fetch(`${getAPI_URL()}/auth/phantom/challenge`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -470,7 +473,7 @@ export const AuthProvider = ({ children }) => {
       let verifyData;
 
       try {
-        const verifyResponse = await fetch(`${API_URL}/auth/phantom/connect`, {
+        const verifyResponse = await fetch(`${getAPI_URL()}/auth/phantom/connect`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -546,7 +549,7 @@ export const AuthProvider = ({ children }) => {
         };
       }
 
-      const response = await fetch(`${API_URL}/auth/phantom/disconnect`, {
+      const response = await fetch(`${getAPI_URL()}/auth/phantom/disconnect`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${currentToken}`,
@@ -620,7 +623,7 @@ export const AuthProvider = ({ children }) => {
         logout,
         fetchUser,
         setError,
-        API_URL,
+        API_URL: getAPI_URL(),
         setPassword,
         activationMessage,
         setActivationMessage,

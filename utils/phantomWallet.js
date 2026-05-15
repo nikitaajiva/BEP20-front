@@ -111,13 +111,41 @@ export const getPhantomConnectErrorCode = (error, fallback = "PHANTOM_LOCKED") =
   return fallback;
 };
 
+/**
+ * Returns true if the given URL is a local/private network address.
+ * Local IPs should NOT be used from env — instead, use the browser's actual origin
+ * so QR codes work across different devices on the same network.
+ */
+const isLocalNetworkUrl = (url) => {
+  try {
+    const { hostname } = new URL(url);
+    return (
+      hostname === "localhost" ||
+      hostname === "127.0.0.1" ||
+      /^192\.168\./.test(hostname) ||
+      /^10\./.test(hostname) ||
+      /^172\.(1[6-9]|2\d|3[01])\./.test(hostname)
+    );
+  } catch {
+    return false;
+  }
+};
+
 export const buildPhantomQrHandoffUrl = ({ origin, sessionId, sessionToken }) => {
   const params = new URLSearchParams({
     session: sessionId,
     token: sessionToken,
   });
 
-  const baseOrigin = PHANTOM_PUBLIC_APP_URL || origin;
+  // Use env URL only for real public domains (production).
+  // For local IPs, always use the browser's actual origin so the QR works
+  // across any device on the network — regardless of what IP is in .env.
+  const envUrl = PHANTOM_PUBLIC_APP_URL;
+  const baseOrigin =
+    envUrl && !isLocalNetworkUrl(envUrl)
+      ? envUrl   // production domain: use env
+      : origin;  // local dev: use browser's live origin (window.location.origin)
+
   return `${baseOrigin}${PHANTOM_QR_ROUTE}?${params.toString()}`;
 };
 

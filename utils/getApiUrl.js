@@ -29,11 +29,11 @@ export function getApiUrl() {
   // 2. Truly Dynamic: Derive from browser address
   const { hostname, protocol } = window.location;
   
-  // Is it a local/network address? (localhost or 192.168.x.x etc)
-  const isLocal = hostname === "localhost" || hostname === "127.0.0.1" || /^192\.168\./.test(hostname) || /^10\./.test(hostname);
+  // Is it a local/network address or your specific production IP?
+  const isIP = /^(localhost|127\.0\.0\.1|192\.168\.|10\.|172\.)/.test(hostname) || /^[0-9.]+$/.test(hostname);
 
-  if (isLocal) {
-    // Local dev: use the same hostname but the backend port
+  if (isIP) {
+    // If accessing via IP, we usually need the specific backend port (5000)
     return `http://${hostname}:${DEFAULT_BACKEND_PORT}/api`;
   }
 

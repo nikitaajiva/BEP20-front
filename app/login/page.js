@@ -80,7 +80,7 @@ export default function SignInPage() {
           ))}
         </div>
 
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
@@ -100,7 +100,7 @@ export default function SignInPage() {
           {/* Main Login Card */}
           <div className="authCard">
             <div className="cardContent">
-              
+
               {/* Left Side: Cinematic Visual */}
               <div className="visualSide">
                 <div className="imageFrame">
@@ -112,10 +112,6 @@ export default function SignInPage() {
                     priority
                   />
                   <div className="imageOverlay" />
-                  <div className="imageTag">
-                    <span className="tagDot" />
-                    COMMAND CENTER
-                  </div>
                 </div>
               </div>
 
@@ -127,7 +123,7 @@ export default function SignInPage() {
                 </div>
 
                 {error && (
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     className="errorMessage"

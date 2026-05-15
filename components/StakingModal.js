@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaTimes, FaCoins, FaClock, FaShieldAlt, FaBolt, FaInfoCircle, FaChartLine, FaCheckCircle } from "react-icons/fa";
+import { FaTimes, FaCoins, FaBitcoin, FaEthereum, FaClock, FaShieldAlt, FaBolt, FaInfoCircle, FaChartLine, FaCheckCircle } from "react-icons/fa";
 import { useAuth } from "@/context/AuthContext";
 import SuccessModal from "./SuccessModal";
 
@@ -83,6 +83,14 @@ export default function StakingModal({ isOpen, onClose }) {
           >
             {/* Top Glow */}
             <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 250, background: "radial-gradient(circle at 50% -20%, rgba(255,85,0,0.2), transparent 70%)", zIndex: -1, pointerEvents: "none" }}></div>
+
+            {/* Background Coins */}
+            <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: -1, overflow: "hidden" }}>
+              <FaBitcoin style={{ position: "absolute", top: "5%", left: "-2%", fontSize: 120, color: "#f7931a", opacity: 0.08, transform: "rotate(-20deg)" }} />
+              <FaCoins style={{ position: "absolute", bottom: "10%", left: "-5%", fontSize: 150, color: "#ffd700", opacity: 0.05, transform: "rotate(10deg)" }} />
+              <FaEthereum style={{ position: "absolute", top: "35%", right: "-5%", fontSize: 140, color: "#627eea", opacity: 0.05, transform: "rotate(15deg)" }} />
+              <FaCoins style={{ position: "absolute", bottom: "5%", right: "10%", fontSize: 100, color: "#ff6600", opacity: 0.08, transform: "rotate(-15deg)" }} />
+            </div>
 
             <button onClick={onClose} style={{ position: "absolute", top: 20, right: 20, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff", cursor: "pointer", width: 36, height: 36, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.3s ease" }}>
               <FaTimes size={14} />
@@ -223,7 +231,7 @@ export default function StakingModal({ isOpen, onClose }) {
                         textTransform: "uppercase", letterSpacing: 1
                       }}
                     >
-                      Continue Configuration {selectedTier && <span>&rarr;</span>}
+                      CONTINUE {selectedTier && <span>&rarr;</span>}
                     </button>
                 </div>
               </motion.div>

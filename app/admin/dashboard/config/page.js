@@ -11,21 +11,33 @@ const RAW_API_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000")
 const API_BASE = RAW_API_URL.endsWith("/api") ? RAW_API_URL : `${RAW_API_URL}/api`;
 
 const ConfigSection = ({ title, icon: Icon, children, collectionName }) => (
-  <div className={styles.adminCard} style={{ marginBottom: '24px' }}>
-    <div className={styles.cardHeader} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+  <div style={{
+    background: 'rgba(10, 10, 10, 0.6)',
+    border: '1px solid rgba(255, 215, 0, 0.1)',
+    borderRadius: '16px',
+    marginBottom: '24px',
+    overflow: 'hidden',
+    backdropFilter: 'blur(20px)',
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
+  }}>
+    <div style={{ 
+      display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
+      padding: '20px 24px', borderBottom: '1px solid rgba(255, 215, 0, 0.05)',
+      background: 'linear-gradient(180deg, rgba(255,215,0,0.03) 0%, transparent 100%)'
+    }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <div style={{ background: 'rgba(255, 215, 0, 0.1)', padding: '8px', borderRadius: '8px' }}>
+        <div style={{ background: 'rgba(255, 215, 0, 0.1)', padding: '10px', borderRadius: '10px', border: '1px solid rgba(255,215,0,0.2)' }}>
           <Icon size={20} color="#ffd700" />
         </div>
-        <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800 }}>{title}</h3>
+        <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: '#fff', letterSpacing: '0.5px', textTransform: 'uppercase' }}>{title}</h3>
       </div>
       {collectionName && (
-        <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.05)', padding: '4px 8px', borderRadius: '4px' }}>
-          Collection: {collectionName}
+        <span style={{ fontSize: '10px', color: '#ffd700', background: 'rgba(255,215,0,0.05)', border: '1px solid rgba(255,215,0,0.15)', padding: '4px 10px', borderRadius: '6px', fontWeight: 800, letterSpacing: '1px', textTransform: 'uppercase' }}>
+          COLLECTION: {collectionName}
         </span>
       )}
     </div>
-    <div className={styles.cardBody} style={{ padding: '20px' }}>
+    <div style={{ padding: '24px' }}>
       {children}
     </div>
   </div>
@@ -116,34 +128,58 @@ export default function AdminConfigPage() {
   if (!config) return <div style={{ padding: '40px', textAlign: 'center', color: '#ff4444' }}>Error: {error}</div>;
 
   return (
-    <div style={{ padding: '30px', maxWidth: '1200px', margin: '0 auto' }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+    <div style={{ padding: '20px 30px', maxWidth: '1600px', margin: '0 auto', width: '100%' }}>
+      <style>{`
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .premium-btn {
+          display: inline-flex; align-items: center; gap: 8px;
+          padding: 12px 24px; border-radius: 12px; font-weight: 800; font-size: 13px;
+          cursor: pointer; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 1px;
+        }
+        .btn-secondary {
+          background: rgba(255,255,255,0.03); color: #fff; border: 1px solid rgba(255,255,255,0.1);
+        }
+        .btn-secondary:hover {
+          background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2);
+        }
+        .btn-primary {
+          background: linear-gradient(135deg, #ff5500, #ff8800); color: #000; border: none;
+          box-shadow: 0 4px 15px rgba(255, 85, 0, 0.3);
+        }
+        .btn-primary:hover {
+          transform: translateY(-2px); box-shadow: 0 8px 25px rgba(255, 85, 0, 0.5);
+        }
+        .btn-primary:disabled {
+          opacity: 0.7; cursor: not-allowed; transform: none; box-shadow: none;
+        }
+      `}</style>
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', background: 'rgba(10,10,10,0.6)', padding: '24px 30px', borderRadius: '16px', border: '1px solid rgba(255,215,0,0.1)', backdropFilter: 'blur(20px)', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
         <div>
-          <h1 style={{ margin: 0, fontSize: '28px', fontWeight: 900, color: '#fff' }}>Global Configuration</h1>
-          <p style={{ margin: '4px 0 0', color: 'rgba(255,255,255,0.5)', fontSize: '14px' }}>Manage ecosystem parameters and rewards algorithms</p>
+          <h1 style={{ margin: 0, fontSize: '24px', fontWeight: 900, color: '#fff', letterSpacing: '0.5px', textTransform: 'uppercase' }}>Global Configuration</h1>
+          <p style={{ margin: '6px 0 0', color: 'rgba(255,255,255,0.5)', fontSize: '13px', fontWeight: 500, letterSpacing: '0.5px' }}>Manage ecosystem parameters and rewards algorithms</p>
         </div>
-        <div style={{ display: 'flex', gap: '12px' }}>
-          <button onClick={handleExport} className={styles.actionBtn} style={{ background: 'rgba(255,255,255,0.05)', color: '#fff' }}>
+        <div style={{ display: 'flex', gap: '16px' }}>
+          <button onClick={handleExport} className="premium-btn btn-secondary">
             <Download size={16} /> Export Config
           </button>
-          <button onClick={handleSave} className={styles.actionBtn} disabled={saving} style={{ background: '#ffd700', color: '#000', fontWeight: 800 }}>
-            {saving ? <RefreshCw size={16} className={styles.spinner} /> : <Save size={16} />} 
+          <button onClick={handleSave} className="premium-btn btn-primary" disabled={saving}>
+            {saving ? <RefreshCw size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <Save size={16} />} 
             {saving ? 'Saving...' : 'Save Changes'}
           </button>
         </div>
       </header>
 
-      <div className="row">
-        <div className="col-12 col-xl-8">
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '24px', alignItems: 'flex-start' }}>
+        <div style={{ flex: '1 1 60%', minWidth: '350px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
           {/* 2. Token Staking */}
           <ConfigSection title="2. Token Staking" icon={Layout} collectionName="staking_tiers">
-            <div className="row">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px' }}>
               {Object.keys(config.staking_tiers).map(days => (
-                <div key={days} className="col-md-6" style={{ marginBottom: '20px' }}>
+                <div key={days} style={{ background: 'rgba(255,255,255,0.02)', padding: '15px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
                   <h4 style={{ fontSize: '13px', fontWeight: 800, color: '#ffd700', marginBottom: '15px' }}>{days} DAYS LOCK-UP</h4>
-                  <div className="row">
-                    <div className="col-6">
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                    <div>
                       <InputField 
                         label="Min APY %" 
                         value={config.staking_tiers[days].min_apy} 
@@ -155,7 +191,7 @@ export default function AdminConfigPage() {
                         type="number"
                       />
                     </div>
-                    <div className="col-6">
+                    <div>
                       <InputField 
                         label="Max APY %" 
                         value={config.staking_tiers[days].max_apy} 
@@ -180,8 +216,8 @@ export default function AdminConfigPage() {
                 <h4 style={{ fontSize: '14px', fontWeight: 900, color: tier === 'gold' ? '#ffd700' : tier === 'silver' ? '#fff' : '#cd7f32', textTransform: 'uppercase', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   {tier} (Starter)
                 </h4>
-                <div className="row">
-                  <div className="col-md-3">
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '15px' }}>
+                  <div>
                     <InputField 
                       label="Price (USDT)" 
                       value={config.nft_packages[tier].price} 
@@ -193,7 +229,7 @@ export default function AdminConfigPage() {
                       type="number"
                     />
                   </div>
-                  <div className="col-md-3">
+                  <div>
                     <InputField 
                       label="Bonus Tokens" 
                       value={config.nft_packages[tier].bonus_tokens} 
@@ -205,7 +241,7 @@ export default function AdminConfigPage() {
                       type="number"
                     />
                   </div>
-                  <div className="col-md-3">
+                  <div>
                     <InputField 
                       label="Max Annual ROI %" 
                       value={config.nft_packages[tier].max_roi_pct} 
@@ -217,7 +253,7 @@ export default function AdminConfigPage() {
                       type="number"
                     />
                   </div>
-                  <div className="col-md-3">
+                  <div>
                     <InputField 
                       label="Dividend Freq" 
                       value={config.nft_packages[tier].dividend_freq} 
@@ -328,11 +364,11 @@ export default function AdminConfigPage() {
           </ConfigSection>
         </div>
 
-        <div className="col-12 col-xl-4">
+        <div style={{ flex: '1 1 35%', minWidth: '300px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
           {/* 4. Referral Config */}
           <ConfigSection title="4. Referral Commissions" icon={Users} collectionName="referral_config">
-            <div className="row">
-              <div className="col-6">
+            <div style={{ marginBottom: '15px' }}>
+              <div>
                 <InputField 
                   label="Levels Depth" 
                   value={config.referral_config.levels} 
@@ -404,8 +440,8 @@ export default function AdminConfigPage() {
 
           {/* 8. Withdrawal Config */}
           <ConfigSection title="8. Withdrawal Rules" icon={DollarSign} collectionName="withdrawal_config">
-            <div className="row">
-              <div className="col-6">
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+              <div>
                 <InputField 
                   label="Instant Release %" 
                   value={config.withdrawal_config.instant_pct} 
@@ -413,7 +449,7 @@ export default function AdminConfigPage() {
                   type="number"
                 />
               </div>
-              <div className="col-6">
+              <div>
                 <InputField 
                   label="Vested Release %" 
                   value={config.withdrawal_config.vest_pct} 
@@ -432,12 +468,6 @@ export default function AdminConfigPage() {
         </div>
       </div>
 
-      <footer style={{ marginTop: '40px', padding: '20px', borderTop: '1px solid rgba(255,255,255,0.05)', textAlign: 'right' }}>
-         <button onClick={handleSave} className={styles.actionBtn} disabled={saving} style={{ background: '#ffd700', color: '#000', fontWeight: 800, padding: '15px 40px', fontSize: '16px' }}>
-            {saving ? <RefreshCw size={20} className={styles.spinner} /> : <Save size={20} />} 
-            {saving ? 'Saving...' : 'Save Configuration'}
-          </button>
-      </footer>
     </div>
   );
 }

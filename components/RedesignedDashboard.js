@@ -3,7 +3,7 @@ import React from "react";
 import styles from "./RedesignedDashboard.module.css";
 import { motion } from "framer-motion";
 import { Wallet, Droplets, TrendingUp, Activity, Plus, History, Shield, Eye, Gift, Copy, LogOut } from "lucide-react";
-import { FaHorse } from "react-icons/fa";
+import { FaHorse, FaCoins, FaBitcoin, FaEthereum } from "react-icons/fa";
 import Link from "next/link";
 import StakingModal from "./StakingModal";
 import NFTModal from "./NFTModal";
@@ -287,7 +287,13 @@ const RedesignedDashboard = ({
                 className={`${styles.investSelectionCard} ${styles.nftCard}`}
                 onClick={() => setIsNftModalOpen(true)}
               >
-                <div className={styles.watermarkIcon}><FaHorse /></div>
+                <div className={styles.multiWatermark}>
+                  <FaHorse className={styles.horseObsidian} />
+                  <FaHorse className={styles.horsePlatinum} />
+                  <FaHorse className={styles.horseBronze} />
+                  <FaHorse className={styles.horseSilver} />
+                  <FaHorse className={styles.horseGold} />
+                </div>
                 <div className={styles.investCardContent}>
                   <div className={styles.investCardHeader}>
                     <div className={styles.investCardIcon}>
@@ -338,7 +344,7 @@ const RedesignedDashboard = ({
                       </span>
                     </div>
                     <div className={styles.statDetailItem}>
-                      <span className={styles.statDetailLabel}>ACTIVE VEHICLES</span>
+                      <span className={styles.statDetailLabel}>ACTIVE ASSETS</span>
                       <span className={styles.statDetailValue}>
                         {stakingPlans.length + (user?.nftPackages?.length || 0)}
                       </span>
@@ -398,7 +404,7 @@ const RedesignedDashboard = ({
                 >
                   <button className={styles.investModalClose} onClick={() => setShowInvestMenu(false)}>✖</button>
                   <h3 className={styles.investModalTitle}>CHOOSE INVESTMENT TYPE</h3>
-                  <p className={styles.investModalSubtitle}>Select a vehicle to start earning rewards</p>
+                  <p className={styles.investModalSubtitle}>Select an asset to start earning rewards</p>
 
                   <div className={styles.investCardsGrid}>
                     <motion.div
@@ -408,7 +414,13 @@ const RedesignedDashboard = ({
                         setShowInvestMenu(false);
                       }}
                     >
-                      <div className={styles.watermarkIcon}><TrendingUp /></div>
+                      <div className={styles.multiWatermark}>
+                        <FaBitcoin className={styles.tokenBitcoin1} />
+                        <FaCoins className={styles.tokenCoins1} />
+                        <FaEthereum className={styles.tokenEth} />
+                        <FaCoins className={styles.tokenCoins2} />
+                        <FaBitcoin className={styles.tokenBitcoin2} />
+                      </div>
                       <div className={styles.investCardContent}>
                         <div className={styles.investCardHeader}>
                           <div className={styles.investCardIcon}>
@@ -431,7 +443,13 @@ const RedesignedDashboard = ({
                         setShowInvestMenu(false);
                       }}
                     >
-                      <div className={styles.watermarkIcon}><FaHorse /></div>
+                      <div className={styles.multiWatermark}>
+                        <FaHorse className={styles.horseObsidian} />
+                        <FaHorse className={styles.horsePlatinum} />
+                        <FaHorse className={styles.horseBronze} />
+                        <FaHorse className={styles.horseSilver} />
+                        <FaHorse className={styles.horseGold} />
+                      </div>
                       <div className={styles.investCardContent}>
                         <div className={styles.investCardHeader}>
                           <div className={styles.investCardIcon}>
@@ -459,7 +477,13 @@ const RedesignedDashboard = ({
                 className={`${styles.investSelectionCard} ${styles.stakingCard}`}
                 onClick={() => setIsStakingModalOpen(true)}
               >
-                <div className={styles.watermarkIcon}><TrendingUp /></div>
+                <div className={styles.multiWatermark}>
+                  <FaBitcoin className={styles.tokenBitcoin1} />
+                  <FaCoins className={styles.tokenCoins1} />
+                  <FaEthereum className={styles.tokenEth} />
+                  <FaCoins className={styles.tokenCoins2} />
+                  <FaBitcoin className={styles.tokenBitcoin2} />
+                </div>
                 <div className={styles.investCardContent}>
                   <div className={styles.investCardHeader}>
                     <div className={styles.investCardIcon}>

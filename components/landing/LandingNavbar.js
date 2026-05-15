@@ -79,7 +79,7 @@ const LandingNavbar = () => {
             >
               <div className="logo-img-container">
                 <Image 
-                  src="/img/toking_hoofborn_logo.png" 
+                  src="/img/main-logo.avif" 
                   alt="Toking Hoofborn Logo" 
                   fill 
                   className="object-contain object-left logo-img" 
@@ -152,7 +152,7 @@ const LandingNavbar = () => {
                     <div className="logo-wrapper">
                       <div className="logo-img-container" style={{ width: '40px', height: '40px' }}>
                         <Image 
-                          src="/img/toking_hoofborn_logo.png" 
+                          src="/img/main-logo.avif" 
                           alt="Toking Hoofborn Logo" 
                           fill 
                           className="object-contain object-left logo-img" 

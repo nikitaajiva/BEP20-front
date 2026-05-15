@@ -30,7 +30,7 @@ const LandingFooter = () => {
           <div className="footer-brand-col">
             <Link href="/" className="footer-logo-link">
               <div className="relative w-40 h-[50px]">
-                <Image src="/img/toking_hoofborn_logo.png" alt="Toking Hoofborn Logo" fill className="object-contain object-left" />
+                <Image src="/img/main-logo.avif" alt="Toking Hoofborn Logo" fill className="object-contain object-left" />
               </div>
             </Link>
             <p className="footer-brand-desc">

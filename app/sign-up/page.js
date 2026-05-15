@@ -25,7 +25,7 @@ function SignUpForm() {
   const [countrySearch, setCountrySearch] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
-  
+
   // Animation particles
   const [particles, setParticles] = useState([]);
 
@@ -92,7 +92,7 @@ function SignUpForm() {
       setError("Please fill in all required fields including email and country.");
       return;
     }
-    
+
     const emailParts = formData.email.split("@");
     if (!formData.email.includes("@") || emailParts.length < 2 || !emailParts[0] || !emailParts[1].includes(".")) {
       setError("Error! Please enter a valid email.");
@@ -120,19 +120,7 @@ function SignUpForm() {
     }
   }, [formData.selectedCountry]);
 
-  useEffect(() => {
-    async function fetchUserCountry() {
-      try {
-        const res = await fetch("https://ipapi.co/json/");
-        const data = await res.json();
-        const found = COUNTRIES_DATA.find((c) => c.code.toUpperCase() === data.country.toUpperCase());
-        if (found) {
-          setFormData((prev) => ({ ...prev, selectedCountry: found, countryCode: found.dial_code }));
-        }
-      } catch (err) { console.error("Failed to fetch IP country:", err); }
-    }
-    fetchUserCountry();
-  }, []);
+  // IP-based country selection removed as per user request
 
   return (
     <>
@@ -162,7 +150,7 @@ function SignUpForm() {
           ))}
         </div>
 
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, ease: "circOut" }}
@@ -182,29 +170,26 @@ function SignUpForm() {
           {/* Main Auth Card */}
           <div className="authCard">
             <div className="cardContent">
-              
+
               {/* Left Side: Cinematic Visual */}
               <div className="visualSide">
                 <div className="imageFrame">
                   <Image
-                    src="/img/signup-visual-premium.png"
-                    alt="Majestic Cyber Stallion"
+                    src="/img/signup-visual.png"
+                    alt="Sign Up Visual"
                     fill
                     className="visualImage"
                     priority
                   />
                   <div className="imageOverlay" />
-                  <div className="imageTag">
-                    <span className="tagDot" />
-                    ELITE RECRUITMENT
-                  </div>
+
                 </div>
               </div>
 
               {/* Right Side: Sign Up Form */}
               <div className="formSide">
                 <div className="formHeader">
-                  <motion.h2 
+                  <motion.h2
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.3 }}
@@ -212,7 +197,7 @@ function SignUpForm() {
                   >
                     Join the Elite
                   </motion.h2>
-                  <motion.p 
+                  <motion.p
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.4 }}
@@ -223,9 +208,9 @@ function SignUpForm() {
                 </div>
 
                 {error && (
-                  <motion.div 
-                    initial={{ opacity: 0, scale: 0.95 }} 
-                    animate={{ opacity: 1, scale: 1 }} 
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
                     className="errorMessage"
                   >
                     <i className="ri-error-warning-fill" /> {error}
@@ -233,16 +218,16 @@ function SignUpForm() {
                 )}
 
                 {message ? (
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     className="successMessage"
                   >
                     <i className="ri-checkbox-circle-fill" style={{ fontSize: '64px', color: '#FFB800' }} />
-                    <h3 style={{ fontSize: '24px', fontWeight: '900' }}>Legion Established</h3>
+                    <h3 style={{ fontSize: '24px', fontWeight: '900' }}>Account Created</h3>
                     <p style={{ opacity: 0.8 }}>{message}</p>
                     <Link href="/login" className="signInButton" style={{ textDecoration: 'none', width: '100%' }}>
-                      PROCEED TO COMMAND CENTER
+                      PROCEED TO SECURE LOGIN
                     </Link>
                   </motion.div>
                 ) : (
@@ -269,7 +254,7 @@ function SignUpForm() {
                         style: { opacity: 0.6 }
                       }
                     ].map((field, idx) => (
-                      <motion.div 
+                      <motion.div
                         key={field.name}
                         initial={{ opacity: 0, y: 15 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -293,20 +278,20 @@ function SignUpForm() {
                       </motion.div>
                     ))}
 
-                    <motion.div 
+                    <motion.div
                       initial={{ opacity: 0, y: 15 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.7 }}
-                      className="fieldGroup" 
+                      className="fieldGroup"
                       ref={dropdownRef}
                     >
-                      <label>TERRITORY ORIGIN</label>
+                      <label>SELECT COUNTRY</label>
                       <div className="countryInputWrapper">
                         <div className="inputWrapper" style={{ width: '100%' }}>
                           <i className="ri-global-fill" />
                           <input
                             type="text"
-                            placeholder="Select Territory"
+                            placeholder="Select Country"
                             value={countrySearch}
                             onChange={handleCountryInputChange}
                             onFocus={handleCountryInputFocus}
@@ -324,14 +309,14 @@ function SignUpForm() {
                                 </li>
                               ))
                             ) : (
-                              <div className="countryDropdownNoResults">No territories found</div>
+                              <div className="countryDropdownNoResults">No countries found</div>
                             )}
                           </ul>
                         )}
                       </div>
                     </motion.div>
 
-                    <motion.div 
+                    <motion.div
                       initial={{ opacity: 0, y: 15 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.8 }}
@@ -369,13 +354,13 @@ function SignUpForm() {
                         <div className="loader" />
                       ) : (
                         <>
-                          ESTABLISH ACCOUNT
+                          CREATE ACCOUNT
                           <i className="ri-arrow-right-up-line" />
                         </>
                       )}
                     </motion.button>
 
-                    <motion.p 
+                    <motion.p
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ delay: 1.1 }}

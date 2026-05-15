@@ -336,6 +336,7 @@ export default function TeamReferralsPage() {
                     <thead>
                       <tr>
                         <th>NODE</th>
+                        <th>EMAIL</th>
                         <th>SPONSOR</th>
                         <th>NETWORK</th>
                         <th>RANK</th>
@@ -353,7 +354,13 @@ export default function TeamReferralsPage() {
                               <span className={styles.nodeID}>#{ref.uhid}</span>
                             </div>
                           </td>
-                          <td><span className={styles.sponsorTag}>{ref.sponsorUsername ?? "GENESIS"}</span></td>
+                          <td><span className={styles.emailTag}>{ref.email ?? "N/A"}</span></td>
+                          <td>
+                            <div className={styles.sponsorIdentity}>
+                              <span className={styles.sponsorTag}>{ref.sponsorUsername ?? "GENESIS"}</span>
+                              <span className={styles.sponsorID}>{ref.sponsorUhid ? `#${ref.sponsorUhid}` : ""}</span>
+                            </div>
+                          </td>
                           <td><div className={styles.sizeTag}>{ref.teamSize ?? 0} Nodes</div></td>
                           <td><XRankBadge rank={ref.xRank} /></td>
                           <td>

@@ -25,6 +25,8 @@ export default function LedgerHistoryTable({ filters }) {
     if (formatted === "AIRDROP") return "Airdrop Node";
     if (formatted === "BOOST") return "Booster Pool";
     if (formatted === "COMMUNITY_REWARDS") return "Ecosystem Rewards";
+    if (formatted === "STAKING_HUB") return "Staking Hub";
+    if (formatted === "HORSE_NFT") return "Horse NFT Assets";
     return name.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
   };
 
@@ -167,6 +169,10 @@ export default function LedgerHistoryTable({ filters }) {
         return "#4f8cff";
       case "REWARD":
         return "#FFD700";
+      case "STAKING_DEPOSIT":
+        return "#4cc9f0";
+      case "NFT_PURCHASE":
+        return "#f038ff";
       default:
         return "#FFFFFF";
     }

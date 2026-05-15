@@ -141,27 +141,34 @@ export const buildPhantomQrHandoffUrl = ({ origin, sessionId, sessionToken }) =>
 
   /**
    * Determine the best base origin for the QR code.
-   * If the developer has explicitly set a network IP (e.g. 192.168.x.x) in .env,
-   * we MUST use it so the QR code works on mobile devices.
-   * We only fall back to window.location.origin if the env URL is empty or is just 'localhost'.
+   * 
+   * 1. If we are currently on a "real" network address (IP or Domain), use it!
+   *    This is the most dynamic way (Zero Config).
+   * 2. If we are on localhost, but have a network IP in .env, use the .env IP.
+   * 3. Last resort: use localhost.
    */
   const getBestOrigin = () => {
-    if (!envUrl) return origin;
-
-    try {
-      const url = new URL(envUrl);
-      const hostname = url.hostname;
-      
-      // If env is localhost but current page is on an IP, use the IP (origin)
-      if (hostname === "localhost" || hostname === "127.0.0.1") {
-        return origin;
+    const isLocalhost = (urlStr) => {
+      try {
+        const h = new URL(urlStr).hostname;
+        return h === "localhost" || h === "127.0.0.1";
+      } catch {
+        return true;
       }
+    };
 
-      // Otherwise, the env URL has a specific IP or domain — use it!
-      return envUrl;
-    } catch {
+    // If current origin is a real address (IP/Domain), use it!
+    if (origin && !isLocalhost(origin)) {
       return origin;
     }
+
+    // If we are on localhost, but env has a real IP/Domain, use env.
+    if (envUrl && !isLocalhost(envUrl)) {
+      return envUrl;
+    }
+
+    // Otherwise, just use what we have (likely localhost)
+    return origin;
   };
 
   const baseOrigin = getBestOrigin();

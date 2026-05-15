@@ -137,15 +137,34 @@ export const buildPhantomQrHandoffUrl = ({ origin, sessionId, sessionToken }) =>
     token: sessionToken,
   });
 
-  // Use env URL only for real public domains (production).
-  // For local IPs, always use the browser's actual origin so the QR works
-  // across any device on the network — regardless of what IP is in .env.
   const envUrl = PHANTOM_PUBLIC_APP_URL;
-  const baseOrigin =
-    envUrl && !isLocalNetworkUrl(envUrl)
-      ? envUrl   // production domain: use env
-      : origin;  // local dev: use browser's live origin (window.location.origin)
 
+  /**
+   * Determine the best base origin for the QR code.
+   * If the developer has explicitly set a network IP (e.g. 192.168.x.x) in .env,
+   * we MUST use it so the QR code works on mobile devices.
+   * We only fall back to window.location.origin if the env URL is empty or is just 'localhost'.
+   */
+  const getBestOrigin = () => {
+    if (!envUrl) return origin;
+
+    try {
+      const url = new URL(envUrl);
+      const hostname = url.hostname;
+      
+      // If env is localhost but current page is on an IP, use the IP (origin)
+      if (hostname === "localhost" || hostname === "127.0.0.1") {
+        return origin;
+      }
+
+      // Otherwise, the env URL has a specific IP or domain — use it!
+      return envUrl;
+    } catch {
+      return origin;
+    }
+  };
+
+  const baseOrigin = getBestOrigin();
   return `${baseOrigin}${PHANTOM_QR_ROUTE}?${params.toString()}`;
 };
 

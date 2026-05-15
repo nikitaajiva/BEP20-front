@@ -1550,12 +1550,10 @@ export default function DashboardLayout({
             onDeposit={() => {
               if (phantomWalletAddress) {
                 onOpenPhantomDeposit?.();
-              } else {
-                onConnectPhantom?.();
               }
             }}
-            depositLabel={phantomWalletAddress ? "Deposit" : "Connect"}
-            showPlusBtn={true}
+            depositLabel="Deposit"
+            showPlusBtn={Boolean(phantomWalletAddress)}
             onViewHistory={() => {
               window.location.href = "/dashboard/ledger";
             }}

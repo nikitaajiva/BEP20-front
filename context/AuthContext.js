@@ -3,6 +3,13 @@ import React, { createContext, useState, useContext, useEffect, useRef, useCallb
 import { useRouter } from "next/navigation";
 
 import safeStorage from "../utils/safeStorage";
+import {
+  getPhantomProvider,
+  getPhantomConnectErrorCode,
+  getPhantomUserMessage,
+  isPhantomExtensionSupportedOrigin,
+  waitForPhantomProvider,
+} from "../utils/phantomWallet";
 
 const AuthContext = createContext();
 
@@ -10,29 +17,6 @@ const RAW_API_URL = (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/$/, "");
 const API_URL = RAW_API_URL.endsWith("/api") ? RAW_API_URL : `${RAW_API_URL}/api`;
 
 const IS_DEVELOPMENT = process.env.NODE_ENV !== "production";
-const PHANTOM_DOWNLOAD_URL = "https://phantom.app/";
-
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-const getPhantomProvider = () => {
-  if (typeof window === "undefined") return null;
-
-  const provider = window.phantom?.solana || window.solana;
-  return provider?.isPhantom ? provider : null;
-};
-
-const waitForPhantomProvider = async (timeoutMs = 3000) => {
-  const startedAt = Date.now();
-
-  while (Date.now() - startedAt < timeoutMs) {
-    const provider = getPhantomProvider();
-    if (provider) return provider;
-    await sleep(100);
-  }
-
-  return getPhantomProvider();
-};
-
 const readJsonSafely = async (response) => {
   const text = await response.text();
 
@@ -42,37 +26,6 @@ const readJsonSafely = async (response) => {
     return {
       message: text || "Invalid server response.",
     };
-  }
-};
-
-const getPhantomUserMessage = (code) => {
-  switch (code) {
-    case "AUTH_REQUIRED":
-      return "Please log in before connecting your Phantom wallet.";
-    case "PHANTOM_NOT_INSTALLED":
-      return "Phantom Wallet is not installed. Please install Phantom and try again.";
-    case "PHANTOM_NOT_READY":
-      return "Phantom Wallet is not ready yet. Please refresh the page and try again.";
-    case "PHANTOM_LOCKED":
-      return "Please unlock Phantom Wallet and try again.";
-    case "PHANTOM_USER_REJECTED":
-      return "You cancelled the Phantom Wallet request.";
-    case "PHANTOM_ALREADY_PENDING":
-      return "A Phantom request is already open. Please approve or cancel it in Phantom.";
-    case "PHANTOM_CONNECT_TIMEOUT":
-      return "Phantom did not respond. Please open/unlock Phantom and try again.";
-    case "PHANTOM_NO_PUBLIC_KEY":
-      return "Could not read your Phantom wallet address. Please try again.";
-    case "PHANTOM_SIGN_FAILED":
-      return "Could not sign the verification message. Please try again.";
-    case "PHANTOM_BACKEND_CHALLENGE_FAILED":
-      return "Could not create wallet verification challenge. Please try again.";
-    case "PHANTOM_BACKEND_VERIFY_FAILED":
-      return "Could not verify Phantom wallet. Please try again.";
-    case "PHANTOM_NETWORK_ERROR":
-      return "Network error while connecting Phantom wallet. Please try again.";
-    default:
-      return "Unable to connect Phantom wallet right now. Please try again.";
   }
 };
 
@@ -391,6 +344,14 @@ export const AuthProvider = ({ children }) => {
         };
       }
 
+      if (!isPhantomExtensionSupportedOrigin()) {
+        return {
+          success: false,
+          code: "PHANTOM_INSECURE_ORIGIN",
+          error: getPhantomUserMessage("PHANTOM_INSECURE_ORIGIN"),
+        };
+      }
+
       const provider = await waitForPhantomProvider(3000);
 
       if (!provider) {
@@ -416,14 +377,10 @@ export const AuthProvider = ({ children }) => {
 
         connectResponse = await Promise.race([connectPromise, timeoutPromise]);
       } catch (error) {
-        const errorCode =
-          error?.code === 4001
-            ? "PHANTOM_USER_REJECTED"
-            : error?.code === -32002
-            ? "PHANTOM_ALREADY_PENDING"
-            : error?.code === "PHANTOM_CONNECT_TIMEOUT"
-            ? "PHANTOM_CONNECT_TIMEOUT"
-            : "PHANTOM_LOCKED";
+        const errorCode = getPhantomConnectErrorCode(
+          error,
+          "PHANTOM_LOCKED"
+        );
 
         return {
           success: false,
@@ -485,12 +442,10 @@ export const AuthProvider = ({ children }) => {
         const encodedMessage = new TextEncoder().encode(challengeData.message);
         signedMessage = await provider.signMessage(encodedMessage, "utf8");
       } catch (error) {
-        const errorCode =
-          error?.code === 4001
-            ? "PHANTOM_USER_REJECTED"
-            : error?.code === -32002
-            ? "PHANTOM_ALREADY_PENDING"
-            : "PHANTOM_SIGN_FAILED";
+        const errorCode = getPhantomConnectErrorCode(
+          error,
+          "PHANTOM_SIGN_FAILED"
+        );
 
         return {
           success: false,

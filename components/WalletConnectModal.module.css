@@ -1,0 +1,344 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background:
+    radial-gradient(circle at top, rgba(255, 170, 0, 0.16), transparent 32%),
+    rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(10px);
+}
+
+.modal {
+  position: relative;
+  width: min(100%, 620px);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 184, 0, 0.18);
+  background:
+    linear-gradient(180deg, rgba(255, 170, 0, 0.08) 0%, rgba(10, 10, 10, 0.96) 18%),
+    rgba(8, 8, 8, 0.96);
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.52),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  color: #fff;
+  padding: 28px;
+}
+
+.closeButton {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.84);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.closeButton:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 184, 0, 0.34);
+  background: rgba(255, 184, 0, 0.1);
+}
+
+.header {
+  margin-bottom: 24px;
+  padding-right: 42px;
+}
+
+.eyebrow {
+  margin: 0 0 10px;
+  color: #ffb800;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0 0 8px;
+  font-size: clamp(28px, 4vw, 34px);
+  line-height: 1.05;
+  font-weight: 900;
+}
+
+.subtitle {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.optionGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.optionCard {
+  text-align: left;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 184, 0, 0.14);
+  background:
+    linear-gradient(180deg, rgba(255, 184, 0, 0.08), rgba(255, 255, 255, 0.02)),
+    rgba(18, 18, 18, 0.92);
+  padding: 20px;
+  color: #fff;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.optionCard:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 184, 0, 0.34);
+  box-shadow: 0 16px 34px rgba(255, 136, 0, 0.12);
+  background:
+    linear-gradient(180deg, rgba(255, 184, 0, 0.12), rgba(255, 255, 255, 0.03)),
+    rgba(22, 22, 22, 0.94);
+}
+
+.optionCard:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.optionIcon {
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+  color: #ffb800;
+  background: rgba(255, 184, 0, 0.1);
+  border: 1px solid rgba(255, 184, 0, 0.16);
+}
+
+.optionTitleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.optionTitleRow h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.optionCard p {
+  margin: 0 0 14px;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.optionHint {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffd78a;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.footerNote {
+  margin-top: 18px;
+  color: rgba(255, 255, 255, 0.54);
+  font-size: 13px;
+}
+
+.errorBox {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 100, 100, 0.22);
+  background: rgba(86, 10, 10, 0.36);
+  color: #ffd7d7;
+}
+
+.errorBox p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.helperText {
+  margin-top: 10px !important;
+  color: rgba(255, 232, 232, 0.92);
+  font-size: 13px;
+}
+
+.helperText strong {
+  color: #ffcb55;
+}
+
+.inlineLink {
+  display: inline-flex;
+  margin-top: 10px;
+  color: #ffb800;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.qrPanel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  border-radius: 20px;
+  padding: 22px;
+  border: 1px solid rgba(255, 184, 0, 0.12);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.qrImage {
+  width: min(100%, 280px);
+  height: auto;
+  padding: 14px;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.26);
+}
+
+.qrLoading {
+  width: min(100%, 280px);
+  min-height: 280px;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 22px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.qrMeta {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.qrStateBadge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(255, 184, 0, 0.12);
+  color: #ffcb55;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.qrStateBadge[data-state="connected"] {
+  background: rgba(127, 255, 76, 0.14);
+  color: #9cff6d;
+}
+
+.qrStateBadge[data-state="failed"],
+.qrStateBadge[data-state="cancelled"],
+.qrStateBadge[data-state="expired"] {
+  background: rgba(255, 102, 102, 0.14);
+  color: #ff9191;
+}
+
+.timerLabel {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.qrHelpText {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.72);
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.actionRow {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.primaryButton,
+.secondaryButton {
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.primaryButton {
+  border: none;
+  color: #151515;
+  background: linear-gradient(135deg, #ffaa00 0%, #ff6a00 100%);
+  box-shadow: 0 12px 24px rgba(255, 136, 0, 0.22);
+}
+
+.secondaryButton {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.primaryButton:hover,
+.secondaryButton:hover {
+  transform: translateY(-1px);
+}
+
+@media (max-width: 720px) {
+  .modal {
+    padding: 24px 18px 18px;
+    border-radius: 20px;
+  }
+
+  .optionGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .actionRow {
+    flex-direction: column-reverse;
+  }
+
+  .primaryButton,
+  .secondaryButton {
+    width: 100%;
+  }
+}

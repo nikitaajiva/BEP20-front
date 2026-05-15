@@ -177,11 +177,13 @@ const RedesignedDashboard = ({
         </div>
 
         {/* MIDDLE: Primary Wallet */}
-        <div className={styles.headerCenter}>
-          <div className={styles.headerWalletCard}>
-            {orbitCard1}
+        {hasPhantomWallet ? (
+          <div className={styles.headerCenter}>
+            <div className={styles.headerWalletCard}>
+              {orbitCard1}
+            </div>
           </div>
-        </div>
+        ) : null}
 
         {/* RIGHT: Action Buttons */}
         <div className={styles.topRightActions}>

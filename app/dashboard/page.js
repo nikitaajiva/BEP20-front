@@ -1,7 +1,7 @@
 "use client";
 
 export const dynamic = "force-dynamic";
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { ethers } from "ethers";
 import bs58 from "bs58";
 import {
@@ -17,25 +17,30 @@ import AmountEntryModal from "@/components/AmountEntryModal";
 import PhantomDepositModal from "@/components/PhantomDepositModal";
 import PhantomQrDepositModal from "@/components/PhantomQrDepositModal";
 import QrDepositModal from "@/components/QrDepositModal";
+import WalletConnectModal from "@/components/WalletConnectModal";
 import { useAuth } from "@/context/AuthContext";
+import { createWalletProviders } from "@/walletProviders";
 import {
   getEthereum,
   requestAccounts,
   switchToBsc,
 } from "@/utils/bscWallet";
+import { getPhantomProvider } from "@/utils/phantomWallet";
 import safeStorage from "@/utils/safeStorage";
-
-const getPhantomProvider = () => {
-  if (typeof window === "undefined") return null;
-  const provider = window.phantom?.solana || window.solana;
-  return provider?.isPhantom ? provider : null;
-};
 
 const getSolanaRpcUrl = () =>
   process.env.NEXT_PUBLIC_SOLANA_RPC_URL || clusterApiUrl("mainnet-beta");
 
 export default function DashboardPage() {
-  const { user, loading, logout, API_URL, connectPhantomWallet, disconnectPhantomWallet } = useAuth();
+  const {
+    user,
+    loading,
+    logout,
+    API_URL,
+    connectPhantomWallet,
+    disconnectPhantomWallet,
+    fetchUser,
+  } = useAuth();
   const usdtDecimals = Number(process.env.NEXT_PUBLIC_USDT_DECIMALS || "18");
   const bscChainId = 56;
   const PENDING_DEPOSIT_KEY = "bep_pending_deposit";
@@ -83,6 +88,18 @@ export default function DashboardPage() {
   const phantomDepositIntentRef = useRef(null);
   // New self-contained Phantom SOL deposit modal state
   const [phantomDepositModalOpen, setPhantomDepositModalOpen] = useState(false);
+  const [walletConnectModalOpen, setWalletConnectModalOpen] = useState(false);
+  const [pendingWalletConnectAction, setPendingWalletConnectAction] = useState("");
+
+  const walletProviders = useMemo(
+    () =>
+      createWalletProviders({
+        API_URL,
+        connectPhantomWallet,
+        disconnectPhantomWallet,
+      }),
+    [API_URL, connectPhantomWallet, disconnectPhantomWallet]
+  );
 
   const handleDisconnectPhantom = async () => {
     if (phantomDisconnectLoading) return;
@@ -590,32 +607,42 @@ export default function DashboardPage() {
     }
   };
 
-  const handleConnectPhantom = async () => {
-    if (phantomLoading) return;
-
-    setPhantomLoading(true);
+  const openWalletConnectModal = useCallback((nextAction = "") => {
+    const resolvedAction = typeof nextAction === "string" ? nextAction : "";
     setPhantomStatus("");
     setPhantomErrorCode("");
+    setPendingWalletConnectAction(resolvedAction);
+    setWalletConnectModalOpen(true);
+  }, []);
 
-    try {
-      const result = await connectPhantomWallet();
+  const handleWalletConnectSuccess = useCallback(
+    async ({ walletAddress }) => {
+      setPhantomLoading(true);
 
-      if (result.success) {
-        setPhantomStatus(`Connected: ${result.walletAddress}`);
+      try {
+        setPhantomStatus(`Connected: ${walletAddress}`);
         setPhantomErrorCode("");
+        setWalletConnectModalOpen(false);
+        await fetchUser?.();
         await fetchPhantomBalance();
-      } else {
-        setPhantomStatus(result.error || "Failed to connect wallet.");
-        setPhantomErrorCode(result.code || "PHANTOM_CONNECT_FAILED");
+
+        if (pendingWalletConnectAction === "open-phantom-deposit") {
+          setPhantomDepositModalOpen(true);
+        }
+      } catch (error) {
+        console.error("Wallet connect success refresh error:", error);
+      } finally {
+        setPendingWalletConnectAction("");
+        setPhantomLoading(false);
       }
-    } catch (error) {
-      console.error("Dashboard Phantom connect error:", error);
-      setPhantomStatus(error?.message || "Failed to connect wallet.");
-      setPhantomErrorCode("PHANTOM_CONNECT_FAILED");
-    } finally {
-      setPhantomLoading(false);
-    }
-  };
+    },
+    [fetchPhantomBalance, fetchUser, pendingWalletConnectAction]
+  );
+
+  const handleWalletConnectModalClose = useCallback(() => {
+    setWalletConnectModalOpen(false);
+    setPendingWalletConnectAction("");
+  }, []);
 
   const handlePhantomDepositSuccess = useCallback(
     async ({ amountSol, txSignature }) => {
@@ -650,7 +677,7 @@ export default function DashboardPage() {
   // If wallet is not yet connected, trigger connection flow first.
   const openPhantomDepositModal = () => {
     if (!user?.phantomWalletAddress) {
-      handleConnectPhantom?.();
+      openWalletConnectModal("open-phantom-deposit");
       return;
     }
     setPhantomDepositModalOpen(true);
@@ -1245,8 +1272,8 @@ export default function DashboardPage() {
         walletAccount={walletAccount}
         walletTransactionStatus={transactionStatus}
         walletDebugMessage={debugMessage}
-        onWalletConnect={handleConnectPhantom}
-        onConnectPhantom={handleConnectPhantom}
+        onWalletConnect={openWalletConnectModal}
+        onConnectPhantom={openWalletConnectModal}
         onDisconnectPhantom={handleDisconnectPhantom}
         onWalletDisconnect={disconnectWallet}
         onOpenAmountModal={handleOpenAmountModal}
@@ -1273,6 +1300,14 @@ export default function DashboardPage() {
           {/* Internal state pass-through if needed, otherwise this can be empty children */}
         </div>
       </DashboardLayout>
+
+      <WalletConnectModal
+        isOpen={walletConnectModalOpen}
+        onClose={handleWalletConnectModalClose}
+        extensionProvider={walletProviders.phantomExtension}
+        qrProvider={walletProviders.phantomQr}
+        onConnected={handleWalletConnectSuccess}
+      />
 
       <AmountEntryModal
         isOpen={isAmountModalOpen}

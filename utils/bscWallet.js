@@ -20,6 +20,33 @@ function getEthereum() {
   return window.ethereum || null;
 }
 
+/**
+ * Wait for window.ethereum to be injected by an extension (MetaMask, etc.).
+ * Extensions inject asynchronously — this prevents false "not installed" errors
+ * on fast page loads.
+ */
+async function waitForEthereum(timeoutMs = 3000) {
+  if (typeof window === "undefined") return null;
+  const eth = window.ethereum;
+  if (eth) return eth;
+
+  const startedAt = Date.now();
+  return new Promise((resolve) => {
+    const interval = setInterval(() => {
+      const provider = window.ethereum;
+      if (provider) {
+        clearInterval(interval);
+        resolve(provider);
+        return;
+      }
+      if (Date.now() - startedAt >= timeoutMs) {
+        clearInterval(interval);
+        resolve(null);
+      }
+    }, 100);
+  });
+}
+
 function getProvider() {
   const ethereum = getEthereum();
   if (!ethereum) throw new Error("MetaMask is not available.");
@@ -38,13 +65,24 @@ async function assertBscChain() {
 }
 
 async function requestAccounts() {
-  const ethereum = getEthereum();
-  if (!ethereum) throw new Error("MetaMask is not available.");
-  const accounts = await ethereum.request({ method: "eth_requestAccounts" });
-  if (!accounts || !accounts.length) {
-    throw new Error("No wallet accounts available.");
+  const ethereum = await waitForEthereum(3000);
+  if (!ethereum) throw new Error("MetaMask is not available. Please install the MetaMask extension and refresh.");
+
+  try {
+    const accounts = await ethereum.request({ method: "eth_requestAccounts" });
+    if (!accounts || !accounts.length) {
+      throw new Error("No wallet accounts available.");
+    }
+    return accounts;
+  } catch (err) {
+    // Normalize user rejection so callers can detect code === 4001 cleanly
+    if (err?.code === 4001 || err?.message?.includes("User rejected")) {
+      const rejection = new Error("User rejected the wallet connection.");
+      rejection.code = 4001;
+      throw rejection;
+    }
+    throw err;
   }
-  return accounts;
 }
 
 async function switchToBsc(chainId = DEFAULT_CHAIN_ID) {
@@ -155,6 +193,7 @@ export {
   DEFAULT_BLOCK_EXPLORER,
   USDT_CONTRACT_ADDRESS,
   getEthereum,
+  waitForEthereum,
   requestAccounts,
   switchToBsc,
   readUsdtBalance,

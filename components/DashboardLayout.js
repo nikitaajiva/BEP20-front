@@ -665,7 +665,8 @@ export default function DashboardLayout({
   const loading = loadingProp || authLoading;
   const logout = onLogout || authLogout;
 
-  const phantomWalletAddress = user?.phantomWalletAddress || phantomWalletAddressProp || "";
+  // Always read from live auth user first — prop can be stale after disconnect/connect
+  const phantomWalletAddress = user?.phantomWalletAddress || "";
   const shortPhantomAddress = phantomWalletAddress
     ? `${phantomWalletAddress.slice(0, 4)}...${phantomWalletAddress.slice(-4)}`
     : "";

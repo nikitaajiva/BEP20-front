@@ -7,7 +7,6 @@ import {
   getPhantomProvider,
   getPhantomConnectErrorCode,
   getPhantomUserMessage,
-  isPhantomExtensionSupportedOrigin,
   waitForPhantomProvider,
 } from "../utils/phantomWallet";
 
@@ -344,14 +343,6 @@ export const AuthProvider = ({ children }) => {
         };
       }
 
-      if (!isPhantomExtensionSupportedOrigin()) {
-        return {
-          success: false,
-          code: "PHANTOM_INSECURE_ORIGIN",
-          error: getPhantomUserMessage("PHANTOM_INSECURE_ORIGIN"),
-        };
-      }
-
       const provider = await waitForPhantomProvider(3000);
 
       if (!provider) {
@@ -377,6 +368,18 @@ export const AuthProvider = ({ children }) => {
 
         connectResponse = await Promise.race([connectPromise, timeoutPromise]);
       } catch (error) {
+        // Extension service worker died (update/reload) — the page must be refreshed
+        if (
+          error?.message?.includes("Extension context invalidated") ||
+          error?.message?.includes("service worker")
+        ) {
+          return {
+            success: false,
+            code: "PHANTOM_CONTEXT_INVALIDATED",
+            error: "Phantom was updated or reloaded. Please refresh the page and try again.",
+          };
+        }
+
         const errorCode = getPhantomConnectErrorCode(
           error,
           "PHANTOM_LOCKED"

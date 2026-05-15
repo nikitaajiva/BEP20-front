@@ -49,11 +49,35 @@ export default function WalletConnectModal({
   const isClosingRef = useRef(false);
   const extensionSupportedOrigin =
     typeof window === "undefined" ? true : isPhantomExtensionSupportedOrigin();
-  const extensionAvailable =
-    isOpen &&
-    extensionSupportedOrigin &&
-    typeof extensionProvider?.isAvailable === "function" &&
-    extensionProvider.isAvailable();
+  const [extensionAvailable, setExtensionAvailable] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen || !extensionSupportedOrigin || typeof extensionProvider?.isAvailable !== "function") {
+      setExtensionAvailable(false);
+      return;
+    }
+
+    // Initial check
+    if (extensionProvider.isAvailable()) {
+      setExtensionAvailable(true);
+      return;
+    }
+
+    // Poll a few times since extensions take a tiny bit to inject
+    let attempts = 0;
+    const interval = setInterval(() => {
+      attempts++;
+      if (extensionProvider.isAvailable()) {
+        setExtensionAvailable(true);
+        clearInterval(interval);
+      } else if (attempts >= 10) {
+        clearInterval(interval);
+      }
+    }, 200);
+
+    return () => clearInterval(interval);
+  }, [isOpen, extensionSupportedOrigin, extensionProvider]);
+
   const extensionInstallUrl =
     extensionProvider?.installUrl || PHANTOM_DOWNLOAD_URL;
 
@@ -231,21 +255,15 @@ export default function WalletConnectModal({
     setExtensionError("");
 
     try {
-      if (!extensionSupportedOrigin) {
-        setExtensionError(getPhantomUserMessage("PHANTOM_INSECURE_ORIGIN"));
-        return;
-      }
-
       if (typeof extensionProvider?.connect !== "function") {
         setExtensionError("Phantom extension provider is unavailable right now.");
         return;
       }
 
-      if (!extensionAvailable) {
-        openPhantomInstallPage(extensionInstallUrl);
-        return;
-      }
-
+      // Directly call connect() — connectPhantomWallet() inside already
+      // calls waitForPhantomProvider(3000) and returns PHANTOM_NOT_INSTALLED
+      // if Phantom is genuinely not found. Do NOT pre-check here because
+      // window.phantom is not always readable before the popup opens.
       const result = await extensionProvider.connect();
 
       if (!result?.success) {
@@ -271,10 +289,8 @@ export default function WalletConnectModal({
     }
   }, [
     closeModal,
-    extensionAvailable,
     extensionInstallUrl,
     extensionProvider,
-    extensionSupportedOrigin,
     onConnected,
   ]);
 
@@ -344,7 +360,6 @@ export default function WalletConnectModal({
                 className={styles.optionCard}
                 onClick={handleExtensionConnect}
                 disabled={extensionLoading}
-                aria-disabled={!extensionSupportedOrigin}
               >
                 <div className={styles.optionIcon}>
                   <MonitorSmartphone size={22} />
@@ -353,17 +368,9 @@ export default function WalletConnectModal({
                   <h3>Connect with Extension</h3>
                   <Wallet size={16} />
                 </div>
-                <p>
-                  {extensionSupportedOrigin
-                    ? "Use Phantom browser extension on desktop."
-                    : "Phantom extension needs https, localhost, or 127.0.0.1."}
-                </p>
+                <p>Use Phantom browser extension on desktop.</p>
                 <span className={styles.optionHint}>
-                  {extensionSupportedOrigin
-                    ? extensionAvailable
-                      ? "Best for desktop"
-                      : "Redirects to install"
-                    : "Use localhost or https"}
+                  {extensionLoading ? "Connecting..." : "Best for desktop"}
                 </span>
               </button>
 
@@ -387,29 +394,21 @@ export default function WalletConnectModal({
             {extensionError ? (
               <div className={styles.errorBox}>
                 <p>{extensionError}</p>
-                {!extensionSupportedOrigin ? (
-                  <p className={styles.helperText}>
-                    Open this app on <strong>http://localhost:3000</strong> on the same desktop browser
-                    for Phantom extension, or keep using QR on your phone.
-                  </p>
-                ) : null}
-                {!extensionAvailable ? (
+                {extensionError.toLowerCase().includes("not") || extensionError.toLowerCase().includes("install") ? (
                   <a
                     className={styles.inlineLink}
                     href={PHANTOM_DOWNLOAD_URL}
                     target="_blank"
                     rel="noreferrer"
                   >
-                    Install or open Phantom
+                    Install Phantom Extension
                   </a>
                 ) : null}
               </div>
             ) : null}
 
             <div className={styles.footerNote}>
-              {extensionSupportedOrigin
-                ? "Extension is best for desktop. QR code is best for mobile wallet."
-                : "Extension needs localhost or https. QR code works better on this local IP for mobile wallet."}
+              Extension is best for desktop. QR code is best for mobile wallet.
             </div>
           </>
         ) : (

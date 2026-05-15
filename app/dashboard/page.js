@@ -128,17 +128,18 @@ export default function DashboardPage() {
       setPhantomStatus("Phantom wallet disconnected successfully.");
       setPhantomErrorCode("");
 
-      if (typeof setPhantomBalance === "function") {
-        setPhantomBalance("0.000000");
-      }
-
-      if (typeof setPhantomBalanceError === "function") {
-        setPhantomBalanceError("");
-      }
-
+      setPhantomBalance("0.000000");
+      setPhantomBalanceError("");
       setIsPhantomDepositModalOpen(false);
       setPhantomQrModalOpen(false);
       resetPhantomQrState();
+
+      // Re-sync user from server so UI updates immediately without refresh
+      try {
+        await fetchUser();
+      } catch (_) {
+        // non-critical
+      }
     } catch (error) {
       console.error("Dashboard Phantom disconnect error:", error);
 
@@ -493,6 +494,13 @@ export default function DashboardPage() {
       const formatted = ethers.formatEther(balance);
       setNativeBnbBalance(parseFloat(formatted).toFixed(6));
     } catch (err) {
+      // Silently ignore extension context errors (Phantom service worker restart)
+      if (
+        err?.message?.includes("Extension context invalidated") ||
+        err?.message?.includes("service worker")
+      ) {
+        return;
+      }
       console.error("Failed to fetch native balance:", err);
     }
   }, []);
@@ -533,33 +541,74 @@ export default function DashboardPage() {
     }
 
     if (!isManualDisconnect) {
-      const ethereum = getEthereum();
-      if (ethereum) {
-        const handleAccountsChanged = (accounts) => {
-          if (isManualDisconnect) return;
-          const account = accounts?.[0] || user?.wallet_address || "";
-          setWalletAccount(account);
-          if (account && account.startsWith("0x")) fetchNativeBalance(account);
-        };
+      // Wait for MetaMask to inject (async extension injection race condition fix)
+      let ethCleanup = () => {};
 
-        const handleChainChanged = () => {
-          setTransactionStatus("Network changed. Please reconnect if needed.");
-        };
+      const setupEthereum = async () => {
+        try {
+          const { waitForEthereum: waitEth } = await import("@/utils/bscWallet");
+          const ethereum = await waitEth(3000);
+          if (!ethereum) return;
 
-        ethereum.on("accountsChanged", handleAccountsChanged);
-        ethereum.on("chainChanged", handleChainChanged);
+          const handleAccountsChanged = (accounts) => {
+            if (isManualDisconnect) return;
+            const account = accounts?.[0] || user?.wallet_address || "";
+            setWalletAccount(account);
+            if (account && account.startsWith("0x")) fetchNativeBalance(account);
+          };
 
-        // Fetch balance periodically
-        const balanceInterval = setInterval(() => {
-          if (walletAccount && !isManualDisconnect) fetchNativeBalance(walletAccount);
-        }, 30000);
+          const handleChainChanged = () => {
+            setTransactionStatus("Network changed. Please reconnect if needed.");
+          };
 
-        return () => {
-          ethereum.removeListener("accountsChanged", handleAccountsChanged);
-          ethereum.removeListener("chainChanged", handleChainChanged);
-          clearInterval(balanceInterval);
-        };
-      }
+          ethereum.on("accountsChanged", handleAccountsChanged);
+          ethereum.on("chainChanged", handleChainChanged);
+
+          // Auto-detect already-connected accounts (no popup — silent read)
+          try {
+            const accounts = await ethereum.request({ method: "eth_accounts" });
+            if (accounts?.length && !walletAccount && !isManualDisconnect) {
+              setWalletAccount(accounts[0]);
+              setIsManualDisconnect(false);
+              fetchNativeBalance(accounts[0]);
+            }
+          } catch (_) {
+            // silent — user hasn't connected yet, or extension context invalidated
+          }
+
+          // Fetch balance periodically — stop if extension context dies
+          const balanceInterval = setInterval(async () => {
+            if (!walletAccount || isManualDisconnect) return;
+            try {
+              await fetchNativeBalance(walletAccount);
+            } catch (err) {
+              if (
+                err?.message?.includes("Extension context invalidated") ||
+                err?.message?.includes("service worker")
+              ) {
+                clearInterval(balanceInterval);
+              }
+            }
+          }, 30000);
+
+          ethCleanup = () => {
+            ethereum.removeListener("accountsChanged", handleAccountsChanged);
+            ethereum.removeListener("chainChanged", handleChainChanged);
+            clearInterval(balanceInterval);
+          };
+        } catch (err) {
+          // Extension context invalidated during setup — ignore, page reload required
+          if (
+            !err?.message?.includes("Extension context invalidated") &&
+            !err?.message?.includes("service worker")
+          ) {
+            console.error("[setupEthereum] Unexpected error:", err);
+          }
+        }
+      };
+
+      setupEthereum();
+      return () => ethCleanup();
     }
   }, [
     user,
@@ -588,21 +637,36 @@ export default function DashboardPage() {
 
     setTransactionStatus("Connecting MetaMask...");
     try {
-
       const accounts = await requestAccounts();
 
       if (accounts?.length) {
-
         await switchToBsc();
-
         setIsManualDisconnect(false);
         setWalletAccount(accounts[0]);
         fetchNativeBalance(accounts[0]);
         setTransactionStatus("Wallet connected.");
-
       }
     } catch (err) {
-      console.error("[connectWallet] Connection failed error details:", err);
+      // User cancelled the wallet popup — clear status silently, no console spam
+      if (
+        err?.code === 4001 ||
+        err?.message?.includes("User rejected") ||
+        err?.message?.includes("user rejected") ||
+        err?.message?.includes("cancelled") ||
+        err?.message?.includes("cancel")
+      ) {
+        setTransactionStatus("");
+        return;
+      }
+      // Extension context died — tell user to refresh
+      if (
+        err?.message?.includes("Extension context invalidated") ||
+        err?.message?.includes("service worker")
+      ) {
+        setTransactionStatus("Wallet extension was reloaded. Please refresh the page.");
+        return;
+      }
+      console.error("[connectWallet] Connection failed:", err);
       setTransactionStatus(err.message || "Failed to connect wallet.");
     }
   };

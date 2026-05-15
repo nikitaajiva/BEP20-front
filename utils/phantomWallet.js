@@ -38,8 +38,15 @@ export const openPhantomInstallPage = (url = PHANTOM_DOWNLOAD_URL) => {
 };
 
 export const isPhantomExtensionSupportedOrigin = () => {
+  // Phantom extension works on any origin — the browser's extension sandbox
+  // enforces trust, not the page URL. We only block SSR (no window).
   if (typeof window === "undefined") return true;
+  return true;
+};
 
+/** Returns true only if running on https or localhost (for informational hints). */
+export const isSecureOrigin = () => {
+  if (typeof window === "undefined") return true;
   const { protocol, hostname } = window.location;
   return (
     protocol === "https:" ||

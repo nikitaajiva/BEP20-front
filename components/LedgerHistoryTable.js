@@ -305,35 +305,43 @@ export default function LedgerHistoryTable({ filters }) {
               }}
             >
               <tr>
-                <th style={{ padding: "1.25rem 1rem", border: "none", color: "#ffd700", fontWeight: 800, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "1.5px" }}>Date Epoch</th>
-                <th style={{ padding: "1.25rem 1rem", border: "none", color: "#ffd700", fontWeight: 800, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "1.5px" }}>Category</th>
-                <th style={{ padding: "1.25rem 1rem", border: "none", color: "#ffd700", fontWeight: 800, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "1.5px" }}>Source Node</th>
-                <th style={{ padding: "1.25rem 1rem", border: "none", color: "#ffd700", fontWeight: 800, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "1.5px" }}>Target Node</th>
-                <th style={{ padding: "1.25rem 1rem", border: "none", color: "#ffd700", fontWeight: 800, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "1.5px", textAlign: "right" }}>Ecosystem Value</th>
-                <th style={{ padding: "1.25rem 1rem", border: "none", color: "#ffd700", fontWeight: 800, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "1.5px" }}>Yield %</th>
+                <th style={{ padding: "1.25rem 1rem", border: "none", color: "#ffd700", fontWeight: 800, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "1.5px", minWidth: "160px" }}>Date Epoch</th>
+                <th style={{ padding: "1.25rem 1rem", border: "none", color: "#ffd700", fontWeight: 800, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "1.5px", minWidth: "140px" }}>Category</th>
+                <th style={{ padding: "1.25rem 1rem", border: "none", color: "#ffd700", fontWeight: 800, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "1.5px", minWidth: "150px" }}>Source Node</th>
+                <th style={{ padding: "1.25rem 1rem", border: "none", color: "#ffd700", fontWeight: 800, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "1.5px", minWidth: "150px" }}>Target Node</th>
+                <th style={{ padding: "1.25rem 1rem", border: "none", color: "#ffd700", fontWeight: 800, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "1.5px", textAlign: "right", minWidth: "160px" }}>Ecosystem Value</th>
+                <th style={{ padding: "1.25rem 1rem", border: "none", color: "#FFB800", fontWeight: 800, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "1.5px", textAlign: "right", minWidth: "140px" }}>TSC Value</th>
+                <th style={{ padding: "1.25rem 1rem", border: "none", color: "#ffd700", fontWeight: 800, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "1.5px", textAlign: "right", minWidth: "100px" }}>Yield %</th>
               </tr>
             </thead>
             <tbody>
-              {entries.map((entry, index) => (
-                <tr key={index} style={{ borderBottom: "1px solid rgba(255, 215, 0, 0.05)", transition: "all 0.2s ease" }}>
-                  <td style={{ padding: "1.25rem 1rem", border: "none", fontSize: "0.9rem", color: "#fff", fontWeight: 500 }}>{formatDate(entry.ts)}</td>
-                  <td style={{ padding: "1.25rem 1rem", border: "none" }}>
-                    <span style={{ color: getEventTypeColor(entry.eventType), fontWeight: 700, fontSize: "0.75rem", padding: "0.4rem 0.8rem", background: `${getEventTypeColor(entry.eventType)}10`, borderRadius: "8px", display: "inline-block", border: `1px solid ${getEventTypeColor(entry.eventType)}40`, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                      {entry.eventType.replace(/_/g, " ")}
-                    </span>
-                  </td>
-                  <td style={{ padding: "1.25rem 1rem", border: "none", fontSize: "0.9rem", color: "#ffd700", fontWeight: 700 }}>
-                    {entry.eventType === "BOOST_BONUS" ? parseBoostBonusNarrative(entry.narrative).from : formatWalletName(entry.walletFrom)}
-                  </td>
-                  <td style={{ padding: "1.25rem 1rem", border: "none", fontSize: "0.9rem", color: "#ffd700", fontWeight: 700 }}>{formatWalletName(entry.walletTo)}</td>
-                  <td style={{ padding: "1.25rem 1rem", border: "none", color: parseFloat(entry.amount) >= 0 ? "#7FFF4C" : "#ff4d4d", fontWeight: 800, fontSize: "15px", textAlign: "right" }}>
-                    {parseFloat(entry.amount).toFixed(4)}
-                  </td>
-                  <td style={{ padding: "1.25rem 1rem", border: "none", fontSize: "0.9rem", color: "#fff", fontWeight: 700 }}>
-                    {entry.eventType === "BOOST_BONUS" ? `${parseBoostBonusNarrative(entry.narrative).rate}%` : entry.ratePct ? `${entry.ratePct}%` : "-"}
-                  </td>
-                </tr>
-              ))}
+              {entries.map((entry, index) => {
+                const amountVal = parseFloat(entry.amount?.$numberDecimal || entry.amount || 0);
+                const isNegative = amountVal < 0;
+                return (
+                  <tr key={index} style={{ borderBottom: "1px solid rgba(255, 215, 0, 0.05)", transition: "all 0.2s ease" }}>
+                    <td style={{ padding: "1.25rem 1rem", border: "none", fontSize: "0.9rem", color: "#fff", fontWeight: 500 }}>{formatDate(entry.ts)}</td>
+                    <td style={{ padding: "1.25rem 1rem", border: "none" }}>
+                      <span style={{ color: getEventTypeColor(entry.eventType), fontWeight: 700, fontSize: "0.75rem", padding: "0.4rem 0.8rem", background: `${getEventTypeColor(entry.eventType)}10`, borderRadius: "8px", display: "inline-block", border: `1px solid ${getEventTypeColor(entry.eventType)}40`, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        {entry.eventType.replace(/_/g, " ")}
+                      </span>
+                    </td>
+                    <td style={{ padding: "1.25rem 1rem", border: "none", fontSize: "0.9rem", color: "#ffd700", fontWeight: 700 }}>
+                      {entry.eventType === "BOOST_BONUS" ? parseBoostBonusNarrative(entry.narrative).from : formatWalletName(entry.walletFrom)}
+                    </td>
+                    <td style={{ padding: "1.25rem 1rem", border: "none", fontSize: "0.9rem", color: "#ffd700", fontWeight: 700 }}>{formatWalletName(entry.walletTo)}</td>
+                    <td style={{ padding: "1.25rem 1rem", border: "none", color: isNegative ? "#ff4d4d" : "#7FFF4C", fontWeight: 800, fontSize: "15px", textAlign: "right" }}>
+                      {amountVal.toFixed(4)}
+                    </td>
+                    <td style={{ padding: "1.25rem 1rem", border: "none", color: "#FFB800", fontWeight: 800, fontSize: "15px", textAlign: "right" }}>
+                      {entry.tscAmount ? parseFloat(entry.tscAmount.$numberDecimal || entry.tscAmount).toLocaleString() : "-"}
+                    </td>
+                    <td style={{ padding: "1.25rem 1rem", border: "none", fontSize: "0.9rem", color: "#fff", fontWeight: 700, textAlign: "right" }}>
+                      {entry.eventType === "BOOST_BONUS" ? `${parseBoostBonusNarrative(entry.narrative).rate}%` : entry.ratePct ? `${entry.ratePct}%` : "-"}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -343,6 +351,7 @@ export default function LedgerHistoryTable({ filters }) {
           {entries.map((entry, index) => {
             const hasYield = entry.eventType === "BOOST_BONUS" || entry.ratePct;
             const yieldVal = entry.eventType === "BOOST_BONUS" ? parseBoostBonusNarrative(entry.narrative).rate : entry.ratePct;
+            const tscVal = entry.tscAmount ? parseFloat(entry.tscAmount.$numberDecimal || entry.tscAmount) : null;
             
             return (
               <div 
@@ -374,17 +383,28 @@ export default function LedgerHistoryTable({ filters }) {
                   </span>
                 </div>
                 
-                <div className="d-flex justify-content-between align-items-center mb-4 p-3" style={{ background: 'rgba(255, 215, 0, 0.03)', borderRadius: '16px', border: '1px solid rgba(255,215,0,0.1)' }}>
-                  <div>
-                    <div style={{ fontSize: '10px', color: '#555', fontWeight: '800', textTransform: 'uppercase', marginBottom: '4px' }}>Value Transfer</div>
-                    <span style={{ fontSize: "22px", fontWeight: "900", color: parseFloat(entry.amount) >= 0 ? "#7FFF4C" : "#ff4d4d", letterSpacing: '-1px' }}>
-                      {parseFloat(entry.amount).toFixed(4)} <small style={{ fontSize: '12px', opacity: 0.6 }}>USDT</small>
-                    </span>
+                <div className="mb-4 p-3" style={{ background: 'rgba(255, 215, 0, 0.03)', borderRadius: '16px', border: '1px solid rgba(255,215,0,0.1)' }}>
+                  <div className="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                      <div style={{ fontSize: '10px', color: '#555', fontWeight: '800', textTransform: 'uppercase', marginBottom: '4px' }}>Value Transfer</div>
+                      <span style={{ fontSize: "20px", fontWeight: "900", color: parseFloat(entry.amount?.$numberDecimal || entry.amount) >= 0 ? "#7FFF4C" : "#ff4d4d", letterSpacing: '-1px' }}>
+                        {parseFloat(entry.amount?.$numberDecimal || entry.amount).toFixed(4)} <small style={{ fontSize: '12px', opacity: 0.6 }}>USDT</small>
+                      </span>
+                    </div>
+                    {hasYield && (
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontSize: '10px', color: '#555', fontWeight: '800', textTransform: 'uppercase', marginBottom: '4px' }}>Yield</div>
+                        <div style={{ fontSize: "16px", fontWeight: "900", color: "#fff" }}>{yieldVal}%</div>
+                      </div>
+                    )}
                   </div>
-                  {hasYield && (
-                    <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontSize: '10px', color: '#555', fontWeight: '800', textTransform: 'uppercase', marginBottom: '4px' }}>Protocol Yield</div>
-                      <div style={{ fontSize: "18px", fontWeight: "900", color: "#fff" }}>{yieldVal}%</div>
+
+                  {tscVal && (
+                    <div style={{ borderTop: '1px solid rgba(255,184,0,0.1)', paddingTop: '10px' }}>
+                      <div style={{ fontSize: '10px', color: '#555', fontWeight: '800', textTransform: 'uppercase', marginBottom: '2px' }}>Token Equivalence</div>
+                      <div style={{ fontSize: "16px", fontWeight: "900", color: "#FFB800" }}>
+                        {tscVal.toLocaleString()} <span style={{ fontSize: '10px', opacity: 0.8 }}>TSC</span>
+                      </div>
                     </div>
                   )}
                 </div>

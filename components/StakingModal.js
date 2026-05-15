@@ -22,7 +22,8 @@ export default function StakingModal({ isOpen, onClose }) {
 
   const tier = tiers.find((t) => t.days === selectedTier);
 
-  const handleStake = async () => {
+    const TSC_PRICE = 0.01;
+    const handleStake = async () => {
     const parsedAmount = parseFloat(amount);
     if (!selectedTier || isNaN(parsedAmount) || parsedAmount <= 0) {
       alert("Please enter a valid staking amount.");
@@ -33,7 +34,9 @@ export default function StakingModal({ isOpen, onClose }) {
     try {
       const result = await stakeTokens({
         amount: parsedAmount,
-        days: selectedTier
+        days: selectedTier,
+        tscAmount: parsedAmount / TSC_PRICE,
+        ratePct: tier?.max
       });
       
       if (result.success) {
@@ -240,7 +243,7 @@ export default function StakingModal({ isOpen, onClose }) {
             {step === 2 && (
               <motion.div initial={{ x: 10, opacity: 0 }} animate={{ x: 0, opacity: 1 }}>
                 <h3 style={{ fontSize: 13, fontWeight: 800, color: "rgba(255,255,255,0.5)", marginBottom: 20, textTransform: "uppercase", letterSpacing: 1 }}>Stake Amount</h3>
-                <div style={{ position: "relative", marginBottom: 24 }}>
+                <div style={{ position: "relative", marginBottom: 16 }}>
                   <input 
                     type="number" 
                     placeholder="0.00" 
@@ -257,6 +260,26 @@ export default function StakingModal({ isOpen, onClose }) {
                   />
                   <span style={{ position: "absolute", right: 20, top: "50%", transform: "translateY(-50%)", color: "#ff5500", fontWeight: 900, fontSize: 14, letterSpacing: 1 }}>USDT</span>
                 </div>
+
+                {/* TSC Conversion Display */}
+                <motion.div 
+                  initial={{ y: 5, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  style={{ 
+                    background: "rgba(255,85,0,0.05)", border: "1px solid rgba(255,85,0,0.1)", borderRadius: 16, padding: "12px 16px", marginBottom: 24,
+                    display: "flex", alignItems: "center", justifyContent: "space-between"
+                  }}
+                >
+                  <div>
+                    <div style={{ fontSize: 10, fontWeight: 800, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: 0.5 }}>TOKEN VALUE</div>
+                    <div style={{ fontSize: 18, fontWeight: 900, color: "#fff" }}>
+                      {amount ? (parseFloat(amount) / TSC_PRICE).toLocaleString() : "0"} <span style={{color: "#ff5500", fontSize: 12}}>TSC</span>
+                    </div>
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <div style={{ fontSize: 9, fontWeight: 700, color: "rgba(255,255,255,0.3)" }}>RATE: $0.01</div>
+                  </div>
+                </motion.div>
                 
                 <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 16, padding: 20, marginBottom: 24 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12, fontSize: 13 }}>
@@ -265,7 +288,7 @@ export default function StakingModal({ isOpen, onClose }) {
                   </div>
                   <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13 }}>
                     <span style={{ color: "rgba(255,255,255,0.5)", fontWeight: 500 }}>Estimated Profit</span>
-                    <span style={{ color: "#ff5500", fontWeight: 800 }}>+{(parseFloat(amount || 0) * tier.max / 100 * tier.days / 365).toFixed(2)} USDT</span>
+                    <span style={{ color: "#ff5500", fontWeight: 800 }}>+{(parseFloat(amount || 0) * (tier?.max || 0) / 100 * (tier?.days || 0) / 365).toFixed(2)} USDT</span>
                   </div>
                 </div>
     

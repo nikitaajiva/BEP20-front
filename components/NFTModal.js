@@ -30,13 +30,18 @@ export default function NFTModal({ isOpen, onClose }) {
   const [isActivating, setIsActivating] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
+  const TSC_PRICE = 0.01; // Example price from GlobalConfig
   const pkg = packages.find(p => p.id === selected);
+  const tscAmount = pkg ? (pkg.price / TSC_PRICE).toLocaleString() : "0";
 
   const handleActivate = async () => {
     if (!selected) return;
     setIsActivating(true);
     try {
-      const result = await purchaseNft({ tier: selected });
+      const result = await purchaseNft({ 
+        tier: selected,
+        tscAmount: pkg ? pkg.price / TSC_PRICE : 0
+      });
       
       if (result.success) {
         setIsSuccess(true);
@@ -188,7 +193,7 @@ export default function NFTModal({ isOpen, onClose }) {
               <h3 style={{ fontSize: 13, fontWeight: 800, color: "rgba(255,255,255,0.5)", marginBottom: 20, textTransform: "uppercase", letterSpacing: 1, textAlign: "center" }}>Confirm Selection</h3>
               
               <div style={{ 
-                background: "rgba(255,255,255,0.02)", borderRadius: 20, padding: 24, marginBottom: 24,
+                background: "rgba(255,255,255,0.02)", borderRadius: 20, padding: 24, marginBottom: 16,
                 border: `1px solid ${pkg.color}40`, position: "relative", overflow: "hidden"
               }}>
                 <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "100%", background: `radial-gradient(circle at top right, ${pkg.color}22, transparent 60%)`, pointerEvents: "none" }}></div>
@@ -214,6 +219,31 @@ export default function NFTModal({ isOpen, onClose }) {
                   </div>
                 </div>
               </div>
+
+              {/* Modern Token Conversion Section */}
+              <motion.div 
+                initial={{ y: 10, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.2 }}
+                style={{ 
+                  background: "linear-gradient(135deg, rgba(255,184,0,0.1), rgba(255,98,0,0.05))",
+                  border: "1px solid rgba(255,184,0,0.2)",
+                  borderRadius: 20, padding: "16px 20px", marginBottom: 24,
+                  display: "flex", alignItems: "center", justifyContent: "space-between",
+                  boxShadow: "inset 0 0 20px rgba(255,184,0,0.05)"
+                }}
+              >
+                <div>
+                  <div style={{ fontSize: 10, fontWeight: 900, color: "#FFB800", textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>Token Equivalence</div>
+                  <div style={{ fontSize: 20, fontWeight: 900, color: "#fff", display: "flex", alignItems: "center", gap: 8 }}>
+                    {tscAmount} <span style={{ color: "#FFB800", fontSize: 14 }}>TSC</span>
+                  </div>
+                </div>
+                <div style={{ textAlign: "right" }}>
+                  <div style={{ fontSize: 10, fontWeight: 800, color: "rgba(255,255,255,0.4)", marginBottom: 4 }}>EXCHANGE RATE</div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.7)" }}>1 TSC = $0.01</div>
+                </div>
+              </motion.div>
 
               <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 16, padding: 16, marginBottom: 24 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 12, color: "rgba(255,255,255,0.7)", fontWeight: 500 }}>

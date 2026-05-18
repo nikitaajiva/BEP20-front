@@ -246,13 +246,20 @@ export const AuthProvider = ({ children }) => {
       });
 
       const data = await res.json();
+
       if (!res.ok) {
-        throw new Error(data.message || "Staking failed");
+        // 402 = insufficient internal balance (handled gracefully on frontend)
+        const errMsg = data.message || "Staking failed";
+        if (res.status !== 402) {
+          setError(errMsg);
+        }
+        return { success: false, error: errMsg, status: res.status };
       }
+
       // Update local user state with the new staking plans array
-      setUser(prev => ({ 
-        ...prev, 
-        stakingPlans: data.stakingPlans 
+      setUser(prev => ({
+        ...prev,
+        stakingPlans: data.stakingPlans
       }));
       return { success: true };
     } catch (err) {
@@ -278,13 +285,20 @@ export const AuthProvider = ({ children }) => {
       });
 
       const data = await res.json();
+
       if (!res.ok) {
-        throw new Error(data.message || "NFT purchase failed");
+        // 402 = insufficient internal balance (handled gracefully on frontend)
+        const errMsg = data.message || "NFT purchase failed";
+        if (res.status !== 402) {
+          setError(errMsg);
+        }
+        return { success: false, error: errMsg, status: res.status };
       }
+
       // Update local user state with the new nftPackages array
-      setUser(prev => ({ 
-        ...prev, 
-        nftPackages: data.nftPackages 
+      setUser(prev => ({
+        ...prev,
+        nftPackages: data.nftPackages
       }));
       return { success: true };
     } catch (err) {

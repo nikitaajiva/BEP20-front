@@ -362,6 +362,9 @@ export const HorseNFTCard = ({
 
   // If no package is selected and we have multiple, show the list
   if (selectedPkgIndex === null && effectivePackages.length > 1) {
+    const sortedPackages = [...effectivePackages].sort((a, b) => new Date(b.purchaseDate || 0) - new Date(a.purchaseDate || 0));
+    const recentPackages = sortedPackages.slice(0, 5);
+
     return (
       <div className={styles.nftCardWrapper}>
         <div className={styles.nftHeader}>
@@ -374,19 +377,20 @@ export const HorseNFTCard = ({
           </div>
         </div>
         <div className={styles.nftListGrid}>
-          {effectivePackages.map((pkg, idx) => {
+          {recentPackages.map((pkg) => {
+            const origIdx = effectivePackages.indexOf(pkg);
             const tier = tierNormalize[pkg.tier];
             const tierColor = tier === 'gold' ? '#ffd700' : tier === 'silver' ? '#ffffff' : '#cd7f32';
             const shadowColor = tier === 'gold' ? 'rgba(255,215,0,0.3)' : tier === 'silver' ? 'rgba(255,255,255,0.3)' : 'rgba(205,127,50,0.3)';
             
-            const backendPkg = ledgerDetails?.horseNFTs?.[idx];
+            const backendPkg = ledgerDetails?.horseNFTs?.[origIdx];
             const price = backendPkg ? backendPkg.purchasePrice : (pkg.mintPrice && pkg.mintPrice > 0 ? pkg.mintPrice : (nftPriceMap[pkg.tier] || 0));
 
             return (
               <div 
-                key={idx} 
+                key={origIdx} 
                 className={styles.compactNftCard} 
-                onClick={() => setSelectedPkgIndex(idx)}
+                onClick={() => setSelectedPkgIndex(origIdx)}
                 style={{ 
                   borderLeft: `3px solid ${tierColor}`,
                   boxShadow: `0 4px 15px ${shadowColor}`
@@ -410,6 +414,13 @@ export const HorseNFTCard = ({
               </div>
             );
           })}
+        </div>
+
+        <div className={styles.nftActionButtonsSimple} style={{ marginTop: '16px' }}>
+          <button className={styles.nftHistoryBtnFull} onClick={onViewHistory}>
+            <History size={16} />
+            <span>VIEW ASSET HISTORY</span>
+          </button>
         </div>
       </div>
     );
@@ -495,12 +506,6 @@ export const HorseNFTCard = ({
         </div>
       </div>
 
-      <div className={styles.nftActionButtonsSimple}>
-        <button className={styles.nftHistoryBtnFull} onClick={onViewHistory}>
-          <History size={16} />
-          <span>VIEW ASSET HISTORY</span>
-        </button>
-      </div>
     </div>
   );
 };

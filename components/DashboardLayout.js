@@ -1591,7 +1591,7 @@ export default function DashboardLayout({
             title="Horse NFT"
             user={user}
             ledgerDetails={ledgerDetails}
-            onViewHistory={() => window.location.href = "/dashboard/history/zero-risk"}
+            onViewHistory={() => window.location.href = "/dashboard/history/asset"}
           />
         }
         orbitCard3={
@@ -1615,7 +1615,7 @@ export default function DashboardLayout({
           /> */
           <ActiveStakesCard
             user={user}
-            onViewHistory={() => window.location.href = "/dashboard/ledger"}
+            onViewHistory={() => window.location.href = "/dashboard/history/asset"}
           />
         }
         orbitCard4={

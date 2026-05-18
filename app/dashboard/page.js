@@ -1395,6 +1395,14 @@ export default function DashboardPage() {
           if (typeof fetchLedgerDetails === "function") {
             await fetchLedgerDetails();
           }
+
+          if (typeof fetchDashboardData === "function") {
+            await fetchDashboardData();
+          }
+
+          if (typeof fetchUser === "function") {
+            await fetchUser();
+          }
         }}
       />
 

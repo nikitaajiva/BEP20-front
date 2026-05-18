@@ -19,8 +19,34 @@ export const sleep = (ms) =>
 export const getPhantomProvider = () => {
   if (typeof window === "undefined") return null;
 
-  const provider = window.phantom?.solana || window.solana;
-  return provider?.isPhantom ? provider : null;
+  const provider = window.phantom?.solana;
+
+  if (provider?.isPhantom) return provider;
+
+  return null;
+};
+
+export const isLocalhostOrigin = () => {
+  if (typeof window === "undefined") return false;
+  return ["localhost", "127.0.0.1", "::1"].includes(window.location.hostname);
+};
+
+export const isPrivateLanIp = () => {
+  if (typeof window === "undefined") return false;
+  const host = window.location.hostname;
+  return (
+    /^192\.168\./.test(host) ||
+    /^10\./.test(host) ||
+    /^172\.(1[6-9]|2\d|3[0-1])\./.test(host)
+  );
+};
+
+export const isSecureOrSupportedPhantomOrigin = () => {
+  if (typeof window === "undefined") return false;
+  return (
+    window.location.protocol === "https:" ||
+    isLocalhostOrigin()
+  );
 };
 
 export const openPhantomInstallPage = (url = PHANTOM_DOWNLOAD_URL) => {
@@ -97,6 +123,8 @@ export const getPhantomUserMessage = (code) => {
       return "Network error while connecting Phantom wallet. Please try again.";
     case "PHANTOM_WALLET_ALREADY_LINKED":
       return "This Phantom wallet is already connected to another account.";
+    case "PHANTOM_UNSUPPORTED_ORIGIN":
+      return "Phantom extension cannot reliably connect on this LAN HTTP URL. Use localhost on this computer or open the app through HTTPS.";
     case "PHANTOM_QR_SESSION_EXPIRED":
       return "QR code expired. Generate a new code to continue.";
     default:

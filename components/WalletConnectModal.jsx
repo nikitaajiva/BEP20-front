@@ -39,6 +39,7 @@ export default function WalletConnectModal({
   const [mode, setMode] = useState("options");
   const [extensionLoading, setExtensionLoading] = useState(false);
   const [extensionError, setExtensionError] = useState("");
+  const [extensionErrorCode, setExtensionErrorCode] = useState("");
   const [qrError, setQrError] = useState("");
   const [qrState, setQrState] = useState("idle");
   const [qrDataUrl, setQrDataUrl] = useState("");
@@ -118,6 +119,7 @@ export default function WalletConnectModal({
     setMode("options");
     setExtensionLoading(false);
     setExtensionError("");
+    setExtensionErrorCode("");
     resetQrState();
   }, [resetQrState]);
 
@@ -253,6 +255,7 @@ export default function WalletConnectModal({
   const handleExtensionConnect = useCallback(async () => {
     setExtensionLoading(true);
     setExtensionError("");
+    setExtensionErrorCode("");
 
     try {
       if (typeof extensionProvider?.connect !== "function") {
@@ -267,12 +270,16 @@ export default function WalletConnectModal({
       const result = await extensionProvider.connect();
 
       if (!result?.success) {
+        setExtensionErrorCode(result?.code || "UNKNOWN");
         if (result?.code === "PHANTOM_NOT_INSTALLED" && extensionInstallUrl) {
           openPhantomInstallPage(extensionInstallUrl);
-          return;
         }
-
-        setExtensionError(result?.error || "Unable to connect Phantom extension.");
+        
+        if (result?.code === "PHANTOM_UNSUPPORTED_ORIGIN") {
+          setExtensionError("You're opening the app from a LAN HTTP address. For extension connect, open http://localhost:3000/dashboard on this same computer, or use an HTTPS URL. QR connect is recommended for mobile/LAN testing.");
+        } else {
+          setExtensionError(result?.error || "Unable to connect Phantom extension.");
+        }
         return;
       }
 
@@ -394,7 +401,7 @@ export default function WalletConnectModal({
             {extensionError ? (
               <div className={styles.errorBox}>
                 <p>{extensionError}</p>
-                {extensionError.toLowerCase().includes("not") || extensionError.toLowerCase().includes("install") ? (
+                {extensionErrorCode === "PHANTOM_NOT_INSTALLED" ? (
                   <a
                     className={styles.inlineLink}
                     href={PHANTOM_DOWNLOAD_URL}

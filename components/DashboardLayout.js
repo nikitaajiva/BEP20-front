@@ -1514,6 +1514,10 @@ export default function DashboardLayout({
     }
   };
 
+  const internalSolBalance =
+    ledgerDetails?.solWallet?.balance ??
+    ledgerDetails?.xamanWallet?.balance ??
+    "0";
 
   return (
     <>
@@ -1533,28 +1537,25 @@ export default function DashboardLayout({
         ledgerDetails={ledgerDetails}
         orbitCard1={
           <ActionableWalletCard
-            title={
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span>Wallet</span>
-                <div style={{ width: '8px', height: '8px', background: '#00ff00', borderRadius: '50%', boxShadow: '0 0 10px #00ff00' }}></div>
-              </div>
-            }
+            title="Wallet"
             type="system"
-            subtitle=""
-            layout="horizontal"
-            balance={
-              phantomBalanceLoading
-                ? "..."
-                : formatPrimaryBalance(phantomBalance || "0")
+            subtitle={
+              phantomWalletAddress
+                ? `CONNECTED • ${shortPhantomAddress}`
+                : "CONNECT WALLET"
             }
+            layout="horizontal"
+            balance={formatPrimaryBalance(internalSolBalance || "0")}
             currency="SOL"
             onDeposit={() => {
               if (phantomWalletAddress) {
                 onOpenPhantomDeposit?.();
+              } else {
+                onConnectPhantom?.();
               }
             }}
-            depositLabel="Deposit"
-            showPlusBtn={Boolean(phantomWalletAddress)}
+            depositLabel={phantomWalletAddress ? "Deposit" : "Connect"}
+            showPlusBtn={true}
             onViewHistory={() => {
               window.location.href = "/dashboard/ledger";
             }}

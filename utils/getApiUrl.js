@@ -1,38 +1,43 @@
 "use client";
 
 /**
- * getApiUrl() — Returns the backend API base URL.
- *
- * RULE:
- *  1. If NEXT_PUBLIC_API_URL is set in .env  → always use it (you control which backend).
- *  2. If NEXT_PUBLIC_API_URL is empty        → auto-derive from browser hostname + port 5001
- *     (useful when frontend + backend both run on the same machine).
- *
- * EXAMPLES:
- *  Backend on 192.168.1.24:5001  → set NEXT_PUBLIC_API_URL=http://192.168.1.24:5001
- *  Backend on 192.168.1.4:5001   → set NEXT_PUBLIC_API_URL=http://192.168.1.4:5001
- *  Production domain              → set NEXT_PUBLIC_API_URL=https://api.yourapp.com
- *  Empty (same-machine dev only)  → auto: uses window.location.hostname:5001
+ * getApiUrl() — Truly Dynamic API Resolver
+ * 
+ * This function determines the backend API URL at RUNTIME based on how the 
+ * user is accessing the application. 
+ * 
+ * 1. If NEXT_PUBLIC_API_URL is set in .env (Production/Specific Config) -> Use it.
+ * 2. If accessing via localhost -> Use http://localhost:5000/api
+ * 3. If accessing via Network IP (192.168.x.x) -> Use http://<IP>:5000/api
+ * 4. If accessing via Domain -> Use https://<domain>/api
  */
 
 const ENV_API_URL = (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/$/, "");
-const FALLBACK_API_PORT = "5001"; // Used only when NEXT_PUBLIC_API_URL is empty
+const DEFAULT_BACKEND_PORT = "5000"; 
 
 export function getApiUrl() {
-  // SSR: always use env URL
+  // Server-side rendering fallback
   if (typeof window === "undefined") {
-    if (!ENV_API_URL) return "/api"; // SSR with no env — safe fallback
-    return ENV_API_URL.endsWith("/api") ? ENV_API_URL : `${ENV_API_URL}/api`;
+    return ENV_API_URL || "/api";
   }
 
-  // If env URL is explicitly set, always use it — the developer chose this backend
+  // 1. Priority: .env Explicit Config (Used for production)
   if (ENV_API_URL) {
     return ENV_API_URL.endsWith("/api") ? ENV_API_URL : `${ENV_API_URL}/api`;
   }
 
-  // Fallback when NEXT_PUBLIC_API_URL is empty:
-  // Assume backend runs on the same machine as the frontend
-  const hostname = window.location.hostname;
-  return `http://${hostname}:${FALLBACK_API_PORT}/api`;
+  // 2. Truly Dynamic: Derive from browser address
+  const { hostname, protocol } = window.location;
+  
+  // Is it a local/network address or your specific production IP?
+  const isIP = /^(localhost|127\.0\.0\.1|192\.168\.|10\.|172\.)/.test(hostname) || /^[0-9.]+$/.test(hostname);
+
+  if (isIP) {
+    // If accessing via IP, we usually need the specific backend port (5000)
+    return `http://${hostname}:${DEFAULT_BACKEND_PORT}/api`;
+  }
+
+  // 3. Production Fallback: Same domain with /api prefix
+  return `${protocol}//${hostname}/api`;
 }
 

@@ -217,6 +217,44 @@ export default function DashboardPage() {
     }
   }, [user, API_URL]);
 
+  const [portfolioDetails, setPortfolioDetails] = useState(null);
+  const [loadingPortfolio, setLoadingPortfolio] = useState(true);
+  const [portfolioError, setPortfolioError] = useState("");
+
+  const fetchPortfolioDetails = useCallback(async () => {
+    if (!user) return;
+    setLoadingPortfolio(true);
+    setPortfolioError("");
+    const token = safeStorage.getItem("token");
+    if (!token) {
+      setPortfolioError("Authentication token not found.");
+      setLoadingPortfolio(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/users/portfolio`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setPortfolioDetails(data);
+      } else {
+        console.error("[DashboardPage] Portfolio Fetch Error:", data.message);
+        throw new Error(data.message || "Failed to fetch portfolio details");
+      }
+    } catch (error) {
+      console.error("[DashboardPage] Portfolio Catch error:", error.message);
+      setPortfolioError(error.message);
+      setPortfolioDetails(null);
+    } finally {
+      setLoadingPortfolio(false);
+    }
+  }, [user, API_URL]);
+
   const fetchPhantomBalance = useCallback(async () => {
     if (!user?.phantomWalletAddress) {
       setPhantomBalance("0.000000");
@@ -519,6 +557,9 @@ export default function DashboardPage() {
       setLedgerDetails(null);
       setLoadingLedger(true);
       setLedgerError("");
+      setPortfolioDetails(null);
+      setLoadingPortfolio(true);
+      setPortfolioError("");
       stopQrPolling();
       stopDepositPolling();
       clearPendingDeposit();
@@ -528,6 +569,7 @@ export default function DashboardPage() {
 
     // Always fetch ledger details if user exists
     fetchLedgerDetails();
+    fetchPortfolioDetails();
     if (user?.phantomWalletAddress) {
       fetchPhantomBalance();
     } else {
@@ -1358,6 +1400,8 @@ export default function DashboardPage() {
         loadingLedger={loadingLedger}
         ledgerError={ledgerError}
         refreshLedgerDetails={fetchLedgerDetails}
+        portfolioDetails={portfolioDetails}
+        refreshPortfolioDetails={fetchPortfolioDetails}
         successModalTrigger={successModalTrigger}
       >
         <div style={{ display: 'none' }}>

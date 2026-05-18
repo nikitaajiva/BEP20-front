@@ -20,6 +20,7 @@ const RedesignedDashboard = ({
   phantomLoading,
   phantomErrorCode,
   ledgerDetails,
+  portfolioDetails,
   orbitCard1,
   orbitCard2,
   orbitCard3,
@@ -117,6 +118,18 @@ const RedesignedDashboard = ({
   const [isStakingModalOpen, setIsStakingModalOpen] = React.useState(false);
   const [isNftModalOpen, setIsNftModalOpen] = React.useState(false);
   const [isPortfolioModalOpen, setIsPortfolioModalOpen] = React.useState(false);
+  const [showActiveAssetsTooltip, setShowActiveAssetsTooltip] = React.useState(false);
+
+  const horseNFTCount = portfolioDetails?.summary 
+    ? portfolioDetails.summary.totalNftAssetsCount 
+    : (user?.nftPackages?.length || (user?.nftPackage ? 1 : 0));
+
+  const stakingCount = portfolioDetails?.summary 
+    ? portfolioDetails.summary.totalStakingAssetsCount 
+    : (user?.stakingPlans?.length || 0);
+
+  const totalActiveAssets = horseNFTCount + stakingCount;
+
   const stakingPlans = user?.stakingPlans || [];
   const totalStaked = stakingPlans.reduce((acc, p) => acc + (parseFloat(p.amount) || 0), 0);
   
@@ -345,11 +358,66 @@ const RedesignedDashboard = ({
                         {ecosystemYieldPercent}%
                       </span>
                     </div>
-                    <div className={styles.statDetailItem}>
+                    <div 
+                      className={styles.statDetailItem}
+                      onMouseEnter={() => setShowActiveAssetsTooltip(true)}
+                      onMouseLeave={() => setShowActiveAssetsTooltip(false)}
+                      style={{ position: 'relative', cursor: 'pointer' }}
+                    >
                       <span className={styles.statDetailLabel}>ACTIVE ASSETS</span>
                       <span className={styles.statDetailValue}>
-                        {stakingPlans.length + (user?.nftPackages?.length || 0)}
+                        {totalActiveAssets}
                       </span>
+
+                      {showActiveAssetsTooltip && (
+                        <div 
+                          style={{
+                            position: 'absolute',
+                            bottom: '100%',
+                            left: '50%',
+                            transform: 'translateX(-50%) translateY(-10px)',
+                            background: 'rgba(0, 0, 0, 0.95)',
+                            border: '1px solid rgba(255, 85, 0, 0.4)',
+                            boxShadow: '0 0 15px rgba(255, 85, 0, 0.3), inset 0 0 10px rgba(255, 255, 255, 0.05)',
+                            borderRadius: '12px',
+                            padding: '12px 16px',
+                            zIndex: 100,
+                            width: '180px',
+                            pointerEvents: 'none',
+                            backdropFilter: 'blur(10px)',
+                            textAlign: 'left'
+                          }}
+                        >
+                          <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '4px' }}>Ecosystem Assets</div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                            <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.8)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: '#ff5500' }}></span>
+                              Horse NFTs:
+                            </span>
+                            <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#ff5500' }}>{horseNFTCount}</span>
+                          </div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.8)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: '#00ff00' }}></span>
+                              Token Staking:
+                            </span>
+                            <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#00ff00' }}>{stakingCount}</span>
+                          </div>
+                          <div 
+                            style={{
+                              position: 'absolute',
+                              top: '100%',
+                              left: '50%',
+                              transform: 'translateX(-50%)',
+                              width: 0,
+                              height: 0,
+                              borderLeft: '6px solid transparent',
+                              borderRight: '6px solid transparent',
+                              borderTop: '6px solid rgba(0, 0, 0, 0.95)',
+                            }}
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
                   <div className={styles.stakingProgressBox} style={{ marginTop: 12 }}>

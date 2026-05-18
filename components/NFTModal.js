@@ -30,13 +30,19 @@ export default function NFTModal({ isOpen, onClose }) {
   const [isActivating, setIsActivating] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
+  const TSC_PRICE = 0.01; // Example price from GlobalConfig
   const pkg = packages.find(p => p.id === selected);
+  const tscAmount = pkg ? (pkg.price / TSC_PRICE).toLocaleString() : "0";
 
   const handleActivate = async () => {
     if (!selected) return;
     setIsActivating(true);
     try {
-      const result = await purchaseNft({ tier: selected });
+      const result = await purchaseNft({
+        tier: selected,
+        tscAmount: pkg ? pkg.price / TSC_PRICE : 0
+      });
+
       if (result.success) {
         setIsSuccess(true);
       }
@@ -51,27 +57,27 @@ export default function NFTModal({ isOpen, onClose }) {
 
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
-      <SuccessModal 
-        isOpen={isSuccess} 
+      <SuccessModal
+        isOpen={isSuccess}
         onClose={() => window.location.reload()}
         title="Asset Acquired"
         message={`Successfully purchased the ${pkg?.tier} Horse NFT package. Your asset is now live.`}
       />
 
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
         style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(10px)" }}
       />
-      
+
       {!isSuccess && (
-        <motion.div 
+        <motion.div
           initial={{ scale: 0.95, opacity: 0, y: 10 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
-          style={{ 
-            width: "100%", maxWidth: 640, background: "#08080a", 
+          style={{
+            width: "100%", maxWidth: 640, background: "#08080a",
             backgroundImage: "radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px), linear-gradient(rgba(255,255,255,0.01) 1px, transparent 1px)",
             backgroundSize: "15px 15px, 100% 4px",
             border: "1px solid rgba(255,255,255,0.05)",
@@ -87,7 +93,7 @@ export default function NFTModal({ isOpen, onClose }) {
           </button>
 
           <div style={{ textAlign: "center", marginBottom: 30 }}>
-            <div style={{ display:"inline-block", background:"rgba(255,184,0,0.1)", color:"#FFB800", fontSize:10, fontWeight:900, padding:"6px 16px", borderRadius:50, textTransform:"uppercase", letterSpacing:2, marginBottom:16, border: "1px solid rgba(255,184,0,0.2)" }}>Asset Acquisition</div>
+            <div style={{ display: "inline-block", background: "rgba(255,184,0,0.1)", color: "#FFB800", fontSize: 10, fontWeight: 900, padding: "6px 16px", borderRadius: 50, textTransform: "uppercase", letterSpacing: 2, marginBottom: 16, border: "1px solid rgba(255,184,0,0.2)" }}>Asset Acquisition</div>
             <h2 style={{ fontSize: 26, fontWeight: 900, margin: 0, letterSpacing: "-0.5px", textTransform: "uppercase", color: "#fff", textShadow: "0 4px 20px rgba(0,0,0,0.5)" }}>
               Horse NFT Tiers
             </h2>
@@ -96,12 +102,12 @@ export default function NFTModal({ isOpen, onClose }) {
           {step === 0 && (
             <motion.div initial={{ x: 10, opacity: 0 }} animate={{ x: 0, opacity: 1 }}>
               <h3 style={{ fontSize: 13, fontWeight: 800, color: "rgba(255,255,255,0.4)", marginBottom: 20, textTransform: "uppercase", letterSpacing: 1.5, textAlign: "center" }}>How It Works</h3>
-              
+
               <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 20, padding: 24, marginBottom: 24, backdropFilter: "blur(10px)" }}>
                 <p style={{ fontSize: 14, color: "rgba(255,255,255,0.7)", lineHeight: 1.6, margin: "0 0 24px 0", textAlign: "center" }}>
                   Acquire fractional interests in real, registered horses. Each NFT is backed by legal ownership documentation and professional management agreements.
                 </p>
-                
+
                 <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
                     <div style={{ width: 40, height: 40, borderRadius: 12, background: "rgba(255,184,0,0.1)", border: "1px solid rgba(255,184,0,0.2)", display: "flex", alignItems: "center", justifyContent: "center", color: "#FFB800" }}><FaClipboardCheck size={16} /></div>
@@ -122,12 +128,12 @@ export default function NFTModal({ isOpen, onClose }) {
                 </div>
               </div>
 
-              <button 
+              <button
                 onClick={() => setStep(1)}
-                style={{ 
-                  width: "100%", padding: "16px 24px", 
-                  background: "linear-gradient(135deg,#FFB800,#FF6200)", 
-                  border: "none", borderRadius: 16, color: "#000", 
+                style={{
+                  width: "100%", padding: "16px 24px",
+                  background: "linear-gradient(135deg,#FFB800,#FF6200)",
+                  border: "none", borderRadius: 16, color: "#000",
                   fontWeight: 900, fontSize: 14, cursor: "pointer",
                   textTransform: "uppercase", letterSpacing: 1.5,
                   boxShadow: "0 10px 25px rgba(255, 184, 0, 0.4)",
@@ -145,13 +151,13 @@ export default function NFTModal({ isOpen, onClose }) {
               <h3 style={{ fontSize: 13, fontWeight: 800, color: "rgba(255,255,255,0.5)", marginBottom: 20, textTransform: "uppercase", letterSpacing: 1, textAlign: "center" }}>Select NFT Package</h3>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, marginBottom: 30 }}>
                 {packages.map((p) => (
-                  <div 
-                    key={p.id} 
-                    onClick={() => setSelected(p.id)} 
+                  <div
+                    key={p.id}
+                    onClick={() => setSelected(p.id)}
                     style={{
                       background: "linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01))",
                       border: "1px solid rgba(255,255,255,0.1)",
-                      borderRadius: 20, padding: "24px 16px", textAlign: "center", cursor: "pointer", 
+                      borderRadius: 20, padding: "24px 16px", textAlign: "center", cursor: "pointer",
                       transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                       boxShadow: "0 4px 15px rgba(0,0,0,0.2)",
                       position: "relative", overflow: "hidden"
@@ -174,7 +180,7 @@ export default function NFTModal({ isOpen, onClose }) {
                     </div>
                     <div style={{ fontSize: 12, fontWeight: 900, color: p.color, marginBottom: 6, textTransform: "uppercase", letterSpacing: 1 }}>{p.tier}</div>
                     <div style={{ fontSize: 18, fontWeight: 900, color: "#fff", marginBottom: 8 }}>{p.priceLabel}</div>
-                    <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", fontWeight: 700 }}>EST YIELD: <span style={{color: p.color}}>{p.roi}</span></div>
+                    <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", fontWeight: 700 }}>EST YIELD: <span style={{ color: p.color }}>{p.roi}</span></div>
                   </div>
                 ))}
               </div>
@@ -185,13 +191,13 @@ export default function NFTModal({ isOpen, onClose }) {
           {step === 1 && selected && pkg && (
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
               <h3 style={{ fontSize: 13, fontWeight: 800, color: "rgba(255,255,255,0.5)", marginBottom: 20, textTransform: "uppercase", letterSpacing: 1, textAlign: "center" }}>Confirm Selection</h3>
-              
-              <div style={{ 
-                background: "rgba(255,255,255,0.02)", borderRadius: 20, padding: 24, marginBottom: 24,
+
+              <div style={{
+                background: "rgba(255,255,255,0.02)", borderRadius: 20, padding: 24, marginBottom: 16,
                 border: `1px solid ${pkg.color}40`, position: "relative", overflow: "hidden"
               }}>
                 <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "100%", background: `radial-gradient(circle at top right, ${pkg.color}22, transparent 60%)`, pointerEvents: "none" }}></div>
-                
+
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
                   <div>
                     <div style={{ fontSize: 11, fontWeight: 900, color: pkg.color, textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>{pkg.tier} Asset</div>
@@ -201,7 +207,7 @@ export default function NFTModal({ isOpen, onClose }) {
                     <FaHorse color={pkg.color} size={40} />
                   </div>
                 </div>
-                
+
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                   <div style={{ background: "rgba(0,0,0,0.3)", padding: 16, borderRadius: 16, border: "1px solid rgba(255,255,255,0.05)" }}>
                     <div style={{ fontSize: 11, fontWeight: 800, color: "rgba(255,255,255,0.5)", marginBottom: 4 }}>ESTIMATED YIELD</div>
@@ -214,6 +220,31 @@ export default function NFTModal({ isOpen, onClose }) {
                 </div>
               </div>
 
+              {/* Modern Token Conversion Section */}
+              <motion.div
+                initial={{ y: 10, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.2 }}
+                style={{
+                  background: "linear-gradient(135deg, rgba(255,184,0,0.1), rgba(255,98,0,0.05))",
+                  border: "1px solid rgba(255,184,0,0.2)",
+                  borderRadius: 20, padding: "16px 20px", marginBottom: 24,
+                  display: "flex", alignItems: "center", justifyContent: "space-between",
+                  boxShadow: "inset 0 0 20px rgba(255,184,0,0.05)"
+                }}
+              >
+                <div>
+                  <div style={{ fontSize: 10, fontWeight: 900, color: "#FFB800", textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>Token Equivalence</div>
+                  <div style={{ fontSize: 20, fontWeight: 900, color: "#fff", display: "flex", alignItems: "center", gap: 8 }}>
+                    {tscAmount} <span style={{ color: "#FFB800", fontSize: 14 }}>TSC</span>
+                  </div>
+                </div>
+                <div style={{ textAlign: "right" }}>
+                  <div style={{ fontSize: 10, fontWeight: 800, color: "rgba(255,255,255,0.4)", marginBottom: 4 }}>EXCHANGE RATE</div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.7)" }}>1 TSC = $0.01</div>
+                </div>
+              </motion.div>
+
               <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 16, padding: 16, marginBottom: 24 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 12, color: "rgba(255,255,255,0.7)", fontWeight: 500 }}>
                   <FaLock color={pkg.color} size={14} />
@@ -223,13 +254,13 @@ export default function NFTModal({ isOpen, onClose }) {
 
               <div style={{ display: "flex", gap: 12 }}>
                 <button onClick={() => setSelected(null)} style={{ flex: 1, padding: 16, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16, color: "#fff", fontWeight: 800, fontSize: 14, cursor: "pointer", transition: "all 0.3s ease" }}>Back</button>
-                <button 
+                <button
                   onClick={handleActivate}
                   disabled={isActivating}
-                  style={{ 
-                    flex: 2, padding: 16, 
-                    background: pkg.gradient, 
-                    border: "none", borderRadius: 16, color: "#000", 
+                  style={{
+                    flex: 2, padding: 16,
+                    background: pkg.gradient,
+                    border: "none", borderRadius: 16, color: "#000",
                     fontWeight: 900, fontSize: 14, cursor: "pointer",
                     boxShadow: `0 10px 25px ${pkg.color}40`,
                     textTransform: "uppercase", letterSpacing: 1

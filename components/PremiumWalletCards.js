@@ -311,6 +311,12 @@ export const HorseNFTCard = ({
   ledgerDetails,
   onViewHistory
 }) => {
+  const nftPriceMap = {
+    starter: 500, growth: 1000, premium: 5000,
+    bronze: 500, silver: 1000, gold: 5000,
+    N1: 500, N2: 1000, N3: 5000, N4: 10000, N5: 25000
+  };
+
   const nftPackages = user?.nftPackages || [];
   // Backward compatibility
   const effectivePackages = nftPackages.length > 0 
@@ -372,6 +378,10 @@ export const HorseNFTCard = ({
             const tier = tierNormalize[pkg.tier];
             const tierColor = tier === 'gold' ? '#ffd700' : tier === 'silver' ? '#ffffff' : '#cd7f32';
             const shadowColor = tier === 'gold' ? 'rgba(255,215,0,0.3)' : tier === 'silver' ? 'rgba(255,255,255,0.3)' : 'rgba(205,127,50,0.3)';
+            
+            const backendPkg = ledgerDetails?.horseNFTs?.[idx];
+            const price = backendPkg ? backendPkg.purchasePrice : (pkg.mintPrice && pkg.mintPrice > 0 ? pkg.mintPrice : (nftPriceMap[pkg.tier] || 0));
+
             return (
               <div 
                 key={idx} 
@@ -386,7 +396,12 @@ export const HorseNFTCard = ({
                   {nftImages[tier]}
                 </div>
                 <div className={styles.compactNftInfo}>
-                  <div className={styles.compactNftTier} style={{ color: tierColor }}>{packageNames[pkg.tier]}</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div className={styles.compactNftTier} style={{ color: tierColor }}>{packageNames[pkg.tier]}</div>
+                    <div style={{ color: '#00ff00', fontWeight: 800, fontSize: '13px' }}>
+                      {price.toLocaleString()} USDT
+                    </div>
+                  </div>
                   <div className={styles.compactNftDate}>Purchased: {new Date(pkg.purchaseDate || Date.now()).toLocaleDateString()}</div>
                 </div>
                 <div className={styles.compactNftArrow}>
@@ -403,11 +418,15 @@ export const HorseNFTCard = ({
   // Individual Detailed View
   const activePkg = effectivePackages[selectedPkgIndex || 0];
   const tier = tierNormalize[activePkg.tier];
-  const roiProgress = nftRoiMap[activePkg.tier] || 0;
-  const dailyRate = nftRateMap[activePkg.tier] || 0;
-  
-  const dailyYield = (zeroRiskBal * dailyRate).toFixed(4);
-  const estPayout = (zeroRiskBal * (roiProgress / 100)).toFixed(2);
+
+  const backendPkg = ledgerDetails?.horseNFTs?.[selectedPkgIndex || 0];
+
+  const roiProgress = backendPkg ? backendPkg.roiProgress : (nftRoiMap[activePkg.tier] || 0);
+  const dailyRate = backendPkg ? backendPkg.dailyRate : (nftRateMap[activePkg.tier] || 0);
+  const purchasePrice = backendPkg ? backendPkg.purchasePrice : (activePkg?.mintPrice && activePkg.mintPrice > 0 ? activePkg.mintPrice : (nftPriceMap[activePkg?.tier] || 0));
+
+  const dailyYield = backendPkg ? backendPkg.dailyYield.toFixed(4) : (purchasePrice * dailyRate).toFixed(4);
+  const estPayout = backendPkg ? backendPkg.estPayout.toFixed(2) : (purchasePrice * (roiProgress / 100)).toFixed(2);
 
   return (
     <div className={styles.nftCardWrapper}>
@@ -438,7 +457,7 @@ export const HorseNFTCard = ({
       </div>
 
       <div className={styles.nftMainBalanceLarge}>
-        {zeroRiskBal.toLocaleString()} <span>USDT</span>
+        {purchasePrice.toLocaleString()} <span>USDT</span>
       </div>
 
       <div className={styles.roiProgressSection}>
@@ -471,7 +490,6 @@ export const HorseNFTCard = ({
         <div className={styles.nftStatItem} style={{ border: 'none' }}>
           <div className={styles.nftStatLabelGroup}>
             <span className={styles.nftStatLabel}>Next Payout</span>
-            <span className={styles.nftTimeLeft}>{liveTimeLeft} LEFT</span>
           </div>
           <span className={styles.nftStatValue}>{dailyYield} USDT</span>
         </div>
@@ -483,6 +501,108 @@ export const HorseNFTCard = ({
           <span>VIEW ASSET HISTORY</span>
         </button>
       </div>
+    </div>
+  );
+};
+
+export const ActiveStakesCard = ({ user, onViewHistory }) => {
+  const allStakes = [
+    ...(user?.stakingPlan?.amount ? [{ ...user.stakingPlan, isPrimary: true }] : []),
+    ...(user?.stakingPlans || [])
+  ];
+
+  return (
+    <div className={styles.rwCardWrapper} style={{ border: '1px solid rgba(255, 85, 0, 0.25)' }}>
+      <div className={styles.rwHeader} style={{ borderColor: 'rgba(255, 85, 0, 0.25)', padding: '16px' }}>
+        <span className={styles.rwTitle} style={{ color: '#ff5500' }}>Active Stakes</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 10, fontWeight: 900, color: 'rgba(255,255,255,0.4)' }}>
+          <TrendingUp size={12} color="#ff5500" />
+          <span>{allStakes.length} ACTIVE</span>
+        </div>
+      </div>
+
+      <div className={styles.rwBody} style={{ padding: '12px', maxHeight: '300px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        {allStakes.length > 0 ? (
+          allStakes.map((stake, idx) => {
+            const daysPassed = Math.max(0, Math.floor((new Date() - new Date(stake.startDate)) / 86400000));
+            const progress = Math.min(100, (daysPassed / stake.days) * 100);
+            
+            // Precise dynamic interest system rates mapping:
+            const apy = stake.days >= 365 ? 0.28 : stake.days >= 180 ? 0.22 : stake.days >= 90 ? 0.18 : 0.10;
+            const dailyYield = (parseFloat(stake.amount) * apy / 365).toFixed(4);
+            const totalEstReward = (parseFloat(stake.amount) * apy * stake.days / 365).toFixed(2);
+            
+            const daysRemaining = Math.max(0, stake.days - daysPassed);
+            const tierName = stake.days >= 365 ? "Premium" : stake.days >= 180 ? "Advanced" : stake.days >= 90 ? "Growth" : "Starter";
+
+            return (
+              <div 
+                key={idx} 
+                style={{
+                  background: 'rgba(255,255,255,0.02)',
+                  border: '1px solid rgba(255,255,255,0.05)',
+                  borderRadius: '12px',
+                  padding: '12px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px',
+                  transition: '0.2s'
+                }}
+              >
+                {/* Top Row: Amount & Tier */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{ width: 24, height: 24, borderRadius: 6, background: 'rgba(255,85,0,0.1)', color: '#ff5500', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <TrendingUp size={12} />
+                    </div>
+                    <div>
+                      <span style={{ fontSize: 14, fontWeight: 900, color: '#fff' }}>
+                        {parseFloat(stake.amount).toLocaleString()} <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)' }}>USDT</span>
+                      </span>
+                    </div>
+                  </div>
+                  <span style={{ fontSize: 8, fontWeight: 900, color: '#ff5500', background: 'rgba(255,85,0,0.1)', padding: '2px 6px', borderRadius: 4, textTransform: 'uppercase' }}>
+                    {tierName}
+                  </span>
+                </div>
+
+                {/* Middle Row: Duration, Yields & Remaining Days */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>
+                  <div>
+                    <span style={{ display: 'block', fontSize: 8, color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase' }}>Duration</span>
+                    <span style={{ fontWeight: 800, color: '#fff' }}>{stake.days} Days</span>
+                  </div>
+                  <div>
+                    <span style={{ display: 'block', fontSize: 8, color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase' }}>Daily Yield</span>
+                    <span style={{ fontWeight: 950, color: '#00ff00' }}>+{dailyYield} USDT</span>
+                  </div>
+                  <div>
+                    <span style={{ display: 'block', fontSize: 8, color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase' }}>Est. Reward</span>
+                    <span style={{ fontWeight: 950, color: '#00ff00' }}>+{totalEstReward} USDT</span>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <span style={{ display: 'block', fontSize: 8, color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase' }}>Maturity</span>
+                    <span style={{ fontWeight: 800, color: daysRemaining < 5 ? '#ff5500' : '#fff' }}>{daysRemaining}d left</span>
+                  </div>
+                </div>
+
+                {/* Bottom Row: Progress Bar */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: '2px' }}>
+                  <div style={{ flex: 1, height: 4, background: 'rgba(255,255,255,0.05)', borderRadius: 2, overflow: 'hidden' }}>
+                    <div style={{ width: `${progress}%`, height: '100%', background: '#ff5500', boxShadow: '0 0 8px rgba(255,85,0,0.5)' }}></div>
+                  </div>
+                  <span style={{ fontSize: 9, fontWeight: 900, color: 'rgba(255,255,255,0.3)' }}>{progress.toFixed(0)}%</span>
+                </div>
+              </div>
+            );
+          })
+        ) : (
+          <div style={{ textAlign: 'center', padding: '40px 20px', color: 'rgba(255,255,255,0.3)', fontSize: 13 }}>
+            No active staking records found
+          </div>
+        )}
+      </div>
+
     </div>
   );
 };

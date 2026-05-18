@@ -27,8 +27,11 @@ export default function CommunityRewardsPopup({
   }
 
   // filter rewards by search
+  const isNodeReward = rewards.length > 0 && (rewards[0]?.rewardType !== undefined || rewards[0]?.nodeTier !== undefined);
+
+  // filter rewards by search
   const filteredRewards = rewards.filter((r) =>
-    extractUsername(r.narrative)
+    (r.narrative || "")
       .toLowerCase()
       .includes(searchTerm.toLowerCase())
   );
@@ -101,10 +104,10 @@ export default function CommunityRewardsPopup({
             </div>
             <div>
               <h2 style={{ fontSize: "22px", fontWeight: "900", color: "#fff", margin: 0, letterSpacing: '0.5px' }}>
-                Network Growth Analytics
+                {isNodeReward ? "Node Infrastructure Earnings" : "Network Growth Analytics"}
               </h2>
               <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)", marginTop: "4px" }}>
-                Level {level} Detailed Performance Breakdown
+                {isNodeReward ? `Node ${level} Reward Distribution Ledger` : `Level ${level} Detailed Performance Breakdown`}
               </p>
             </div>
           </div>
@@ -118,7 +121,7 @@ export default function CommunityRewardsPopup({
               <div style={{ position: "relative", maxWidth: "350px", marginLeft: "auto" }}>
                 <input
                   type="text"
-                  placeholder="Filter by username..."
+                  placeholder="Filter by description..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   style={{
@@ -139,7 +142,7 @@ export default function CommunityRewardsPopup({
 
           {filteredRewards.length === 0 ? (
             <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: "rgba(255,255,255,0.3)" }}>
-               <p>{searchTerm ? "No results found matching your query" : "No reward data found for this level"}</p>
+               <p>{searchTerm ? "No results found matching your query" : "No reward data found for this tier"}</p>
             </div>
           ) : (
             <div
@@ -169,13 +172,22 @@ export default function CommunityRewardsPopup({
                     zIndex: 10,
                   }}
                 >
-                  <tr>
-                    <th style={{ padding: "16px 20px", color: "rgba(255,255,255,0.5)", fontWeight: "600", borderBottom: "1px solid rgba(255, 255, 255, 0.05)", textAlign: "center", width: "60px" }}>Idx</th>
-                    <th style={{ padding: "16px 20px", color: "rgba(255,255,255,0.5)", fontWeight: "600", borderBottom: "1px solid rgba(255, 255, 255, 0.05)", textAlign: "left" }}>Contributor</th>
-                    <th style={{ padding: "16px 20px", color: "rgba(255,255,255,0.5)", fontWeight: "600", borderBottom: "1px solid rgba(255, 255, 255, 0.05)", textAlign: "right" }}>Personal LP</th>
-                    <th style={{ padding: "16px 20px", color: "rgba(255,255,255,0.5)", fontWeight: "600", borderBottom: "1px solid rgba(255, 255, 255, 0.05)", textAlign: "right" }}>Reward</th>
-                    <th style={{ padding: "16px 20px", color: "rgba(255,255,255,0.5)", fontWeight: "600", borderBottom: "1px solid rgba(255, 255, 255, 0.05)", textAlign: "center" }}>Multiplier</th>
-                  </tr>
+                  {isNodeReward ? (
+                    <tr>
+                      <th style={{ padding: "16px 20px", color: "rgba(255,255,255,0.5)", fontWeight: "600", borderBottom: "1px solid rgba(255, 255, 255, 0.05)", textAlign: "center", width: "60px" }}>Idx</th>
+                      <th style={{ padding: "16px 20px", color: "rgba(255,255,255,0.5)", fontWeight: "600", borderBottom: "1px solid rgba(255, 255, 255, 0.05)", textAlign: "left" }}>Reward Type</th>
+                      <th style={{ padding: "16px 20px", color: "rgba(255,255,255,0.5)", fontWeight: "600", borderBottom: "1px solid rgba(255, 255, 255, 0.05)", textAlign: "left" }}>Narrative</th>
+                      <th style={{ padding: "16px 20px", color: "rgba(255,255,255,0.5)", fontWeight: "600", borderBottom: "1px solid rgba(255, 255, 255, 0.05)", textAlign: "right" }}>Reward</th>
+                    </tr>
+                  ) : (
+                    <tr>
+                      <th style={{ padding: "16px 20px", color: "rgba(255,255,255,0.5)", fontWeight: "600", borderBottom: "1px solid rgba(255, 255, 255, 0.05)", textAlign: "center", width: "60px" }}>Idx</th>
+                      <th style={{ padding: "16px 20px", color: "rgba(255,255,255,0.5)", fontWeight: "600", borderBottom: "1px solid rgba(255, 255, 255, 0.05)", textAlign: "left" }}>Contributor</th>
+                      <th style={{ padding: "16px 20px", color: "rgba(255,255,255,0.5)", fontWeight: "600", borderBottom: "1px solid rgba(255, 255, 255, 0.05)", textAlign: "right" }}>Personal LP</th>
+                      <th style={{ padding: "16px 20px", color: "rgba(255,255,255,0.5)", fontWeight: "600", borderBottom: "1px solid rgba(255, 255, 255, 0.05)", textAlign: "right" }}>Reward</th>
+                      <th style={{ padding: "16px 20px", color: "rgba(255,255,255,0.5)", fontWeight: "600", borderBottom: "1px solid rgba(255, 255, 255, 0.05)", textAlign: "center" }}>Multiplier</th>
+                    </tr>
+                  )}
                 </thead>
                 <tbody>
                   {filteredRewards.map((r, idx) => (
@@ -185,23 +197,42 @@ export default function CommunityRewardsPopup({
                         background: idx % 2 === 0 ? "transparent" : "rgba(255,255,255,0.01)",
                       }}
                     >
-                      <td style={{ padding: "15px 20px", borderBottom: "1px solid rgba(255, 255, 255, 0.03)", textAlign: "center", color: "rgba(255,255,255,0.3)" }}>
-                        {idx + 1}
-                      </td>
-                      <td style={{ padding: "15px 20px", borderBottom: "1px solid rgba(255, 255, 255, 0.03)", color: "#fff", fontWeight: "600" }}>
-                        {extractUsername(r.narrative)}
-                      </td>
-                      <td style={{ padding: "15px 20px", borderBottom: "1px solid rgba(255, 255, 255, 0.03)", textAlign: "right", color: "#ffd700", fontFamily: "monospace", fontWeight: '700' }}>
-                        {parseFloat(r.lp).toFixed(2)}
-                      </td>
-                      <td style={{ padding: "15px 20px", borderBottom: "1px solid rgba(255, 255, 255, 0.03)", textAlign: "right", color: "#7fff4c", fontWeight: "800", fontFamily: "monospace" }}>
-                        {parseFloat(r.amount?.$numberDecimal || r.amount).toFixed(6)}
-                      </td>
-                      <td style={{ padding: "15px 20px", borderBottom: "1px solid rgba(255, 255, 255, 0.03)", textAlign: "center" }}>
-                        <span style={{ padding: '4px 10px', background: 'rgba(255,255,255,0.05)', borderRadius: '20px', fontSize: '11px', color: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.1)' }}>
-                          {(parseFloat(r.rate?.$numberDecimal || r.rate) * 100).toFixed(0)}%
-                        </span>
-                      </td>
+                      {isNodeReward ? (
+                        <>
+                          <td style={{ padding: "15px 20px", borderBottom: "1px solid rgba(255, 255, 255, 0.03)", textAlign: "center", color: "rgba(255,255,255,0.3)" }}>
+                            {idx + 1}
+                          </td>
+                          <td style={{ padding: "15px 20px", borderBottom: "1px solid rgba(255, 255, 255, 0.03)", color: "#fff", fontWeight: "600" }}>
+                            {r.rewardType === "mining_cut" ? "TSC Network Mining Cut" : "2% Fee Airdrop"}
+                          </td>
+                          <td style={{ padding: "15px 20px", borderBottom: "1px solid rgba(255, 255, 255, 0.03)", color: "rgba(255,255,255,0.7)" }}>
+                            {r.narrative}
+                          </td>
+                          <td style={{ padding: "15px 20px", borderBottom: "1px solid rgba(255, 255, 255, 0.03)", textAlign: "right", color: "#7fff4c", fontWeight: "800", fontFamily: "monospace" }}>
+                            {parseFloat(r.amount?.$numberDecimal || r.amount).toFixed(6)}
+                          </td>
+                        </>
+                      ) : (
+                        <>
+                          <td style={{ padding: "15px 20px", borderBottom: "1px solid rgba(255, 255, 255, 0.03)", textAlign: "center", color: "rgba(255,255,255,0.3)" }}>
+                            {idx + 1}
+                          </td>
+                          <td style={{ padding: "15px 20px", borderBottom: "1px solid rgba(255, 255, 255, 0.03)", color: "#fff", fontWeight: "600" }}>
+                            {extractUsername(r.narrative)}
+                          </td>
+                          <td style={{ padding: "15px 20px", borderBottom: "1px solid rgba(255, 255, 255, 0.03)", textAlign: "right", color: "#ffd700", fontFamily: "monospace", fontWeight: '700' }}>
+                            {parseFloat(r.lp).toFixed(2)}
+                          </td>
+                          <td style={{ padding: "15px 20px", borderBottom: "1px solid rgba(255, 255, 255, 0.03)", textAlign: "right", color: "#7fff4c", fontWeight: "800", fontFamily: "monospace" }}>
+                            {parseFloat(r.amount?.$numberDecimal || r.amount).toFixed(6)}
+                          </td>
+                          <td style={{ padding: "15px 20px", borderBottom: "1px solid rgba(255, 255, 255, 0.03)", textAlign: "center" }}>
+                            <span style={{ padding: '4px 10px', background: 'rgba(255,255,255,0.05)', borderRadius: '20px', fontSize: '11px', color: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                              {(parseFloat(r.rate?.$numberDecimal || r.rate) * 100).toFixed(0)}%
+                            </span>
+                          </td>
+                        </>
+                      )}
                     </tr>
                   ))}
                 </tbody>

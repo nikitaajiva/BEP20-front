@@ -23,7 +23,7 @@ import SuccessModal from "./SuccessModal";
 import DashboardSidebar from "./DashboardSidebar";
 import RedesignedDashboard from "./RedesignedDashboard";
 import GlobalLoader from "../components/LoaderComponent";
-import { RewardsWalletCard, ActionableWalletCard, BoostWalletCard, HorseNFTCard } from "./PremiumWalletCards";
+import { RewardsWalletCard, ActionableWalletCard, BoostWalletCard, HorseNFTCard, ActiveStakesCard } from "./PremiumWalletCards";
 import CommunityRewardsCardnew from "./CommunityReward";
 import Communitybooster from "../components/Communitybooster";
 import X_PowerCard from "../components/XPowercard";
@@ -653,6 +653,8 @@ export default function DashboardLayout({
   loadingLedger,
   ledgerError,
   refreshLedgerDetails,
+  portfolioDetails,
+  refreshPortfolioDetails,
   walletAccount,
   successModalTrigger,
   shortAddress,
@@ -1342,9 +1344,23 @@ export default function DashboardLayout({
   const nftRoiProgress = maxNftRoiProgress;
   const nftDailyRate   = totalNftDailyRate;
 
+  const nftPriceMap = {
+    starter: 500, growth: 1000, premium: 5000,
+    bronze: 500, silver: 1000, gold: 5000
+  };
+
+  let totalNftPrice = 0;
+  effectiveNftPackages.forEach(p => {
+    const pPrice = p.mintPrice && p.mintPrice > 0 ? p.mintPrice : (nftPriceMap[p.tier] || 0);
+    totalNftPrice += pPrice;
+  });
+
   const zeroRiskBal    = parseFloat(ledgerDetails?.zeroRisk?.balance || "0");
-  const nftDailyYield  = (zeroRiskBal * nftDailyRate).toFixed(4);
-  const nftEstPayout   = (zeroRiskBal * (nftRoiProgress / 100)).toFixed(2);
+  const nftBaseValue   = totalNftPrice > 0 ? totalNftPrice : zeroRiskBal;
+
+  const backendAgg = ledgerDetails?.nftAggregated;
+  const nftDailyYield  = backendAgg ? backendAgg.totalNftDailyYield.toFixed(4) : (nftBaseValue * nftDailyRate).toFixed(4);
+  const nftEstPayout   = backendAgg ? backendAgg.nftEstPayout.toFixed(2) : (nftBaseValue * (nftRoiProgress / 100)).toFixed(2);
   const nftNextPayout  = nftDailyYield;
 
   // ── Aggregated Ecosystem Hub Data ──────────────────────────────────────────────
@@ -1357,11 +1373,19 @@ export default function DashboardLayout({
     return acc + (amt * apy / 365);
   }, 0);
 
-  const combinedTotalBalance = totalStaked + zeroRiskBal;
-  const combinedDailyRewards = stakingDaily + parseFloat(nftDailyYield);
-  const ecosystemYieldPercent = combinedTotalBalance > 0 
-    ? ((combinedDailyRewards / combinedTotalBalance) * 100).toFixed(4)
-    : "0.00";
+  const combinedTotalBalance = portfolioDetails?.summary
+    ? portfolioDetails.summary.totalEcosystemAssets
+    : (totalStaked + (backendAgg ? backendAgg.nftBaseValue : nftBaseValue));
+
+  const combinedDailyRewards = portfolioDetails?.summary
+    ? portfolioDetails.summary.totalDailyYield
+    : (stakingDaily + parseFloat(nftDailyYield));
+
+  const ecosystemYieldPercent = portfolioDetails?.summary
+    ? portfolioDetails.summary.avgDailyYieldPercent.toFixed(4)
+    : (combinedTotalBalance > 0 
+      ? ((combinedDailyRewards / combinedTotalBalance) * 100).toFixed(4)
+      : "0.00");
   // ────────────────────────────────────────────────────────────────────────────
 
   // Real countdown to next daily payout (rolls over at UTC midnight)
@@ -1531,6 +1555,7 @@ export default function DashboardLayout({
         onOpenAddLPModal={() => setIsAddLPModalOpen(true)}
         onRedeem={() => setIsCommunityRewardsModalOpen(true)}
         ledgerDetails={ledgerDetails}
+        portfolioDetails={portfolioDetails}
         orbitCard1={
           <ActionableWalletCard
             title={
@@ -1569,7 +1594,7 @@ export default function DashboardLayout({
           />
         }
         orbitCard3={
-          <RewardsWalletCard
+          /* <RewardsWalletCard
             totalBalance={(
               parseFloat(ledgerDetails?.communityRewards?.balance || "0") +
               parseFloat(ledgerDetails?.lpWallet?.balance || "0") +
@@ -1585,6 +1610,10 @@ export default function DashboardLayout({
             redeemed={parseFloat(ledgerDetails?.totalRewardsWithdrawal || "0").toLocaleString(undefined, { minimumFractionDigits: 2 })}
             onAutoPosition={() => onAutoPosition(false)}
             onRedeem={() => setIsCommunityRewardsModalOpen(true)}
+            onViewHistory={() => window.location.href = "/dashboard/ledger"}
+          /> */
+          <ActiveStakesCard
+            user={user}
             onViewHistory={() => window.location.href = "/dashboard/ledger"}
           />
         }

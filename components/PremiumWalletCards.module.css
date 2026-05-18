@@ -843,17 +843,17 @@
 
 /* Response Style for Mini Cards */
 @media (max-width: 768px) {
-  .cardContainerHorizontal {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 15px;
-    padding: 15px;
+  .cardContainerHorizontal { height: auto !important; flex-direction: column !important; align-items: stretch !important; gap: 12px !important; padding: 16px !important;
+    /* overridden */
+    /* overridden */
+    /* overridden */
+    /* overridden */
   }
 
-  .horizontalRight {
+  .horizontalLeft { border-right: none !important; padding-right: 0 !important; height: auto !important; width: 100% !important; } .horizontalCenter { padding: 8px 0 !important; justify-content: flex-start !important; width: 100% !important; } .horizontalRight { border-left: none !important; padding-left: 0 !important; height: auto !important; width: 100% !important; justify-content: space-between !important; flex-wrap: wrap !important; gap: 8px !important; } .glassBtnPrimary, .glassBtnSecondary { flex: 1 1 calc(50% - 4px) !important; justify-content: center !important; } /*
     width: 100%;
     justify-content: space-between;
-  }
+  */
 }
 
 @media (max-width: 600px) {
@@ -886,16 +886,16 @@
 
 /* Response Style for Split Card */
 @media (max-width: 1200px) {
-  .boostCardSplit {
-    flex-direction: column;
-    height: auto;
+  .boostCardSplit { flex-direction: column !important; height: auto !important; gap: 24px !important; padding: 20px !important;
+    /* overridden */
+    /* overridden */
   }
 
 
-  .boostGaugeArea {
+  .boostGaugeArea { width: 100% !important; align-items: center !important; } .boostChartArea { width: 100% !important; margin-top: 15px !important; } /*
     width: 100%;
     align-items: center;
-  }
+  */
 }
 
 /* Horse NFT Card Styles */

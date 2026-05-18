@@ -302,24 +302,24 @@ export default function NFTModal({ isOpen, onClose, ledgerDetails }) {
           initial={{ scale: 0.95, opacity: 0, y: 10 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           style={{
-            width: "100%", maxWidth: 640, background: "#08080a",
+            width: "100%", maxWidth: 480, background: "#08080a",
             backgroundImage: "radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px)",
             backgroundSize: "15px 15px",
             border: "1px solid rgba(255,255,255,0.05)",
-            borderRadius: 24, position: "relative", overflow: "hidden", zIndex: 1, padding: "35px 30px",
+            borderRadius: 24, position: "relative", overflow: "hidden", zIndex: 1, padding: "24px 20px",
             boxShadow: "0 30px 60px rgba(0,0,0,0.8)"
           }}
         >
           {/* Top Glow */}
-          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 250, background: "radial-gradient(circle at 50% -20%, rgba(255,184,0,0.2), transparent 70%)", zIndex: -1, pointerEvents: "none" }} />
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 200, background: "radial-gradient(circle at 50% -20%, rgba(255,184,0,0.2), transparent 70%)", zIndex: -1, pointerEvents: "none" }} />
 
-          <button onClick={onClose} style={{ position: "absolute", top: 20, right: 20, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff", cursor: "pointer", width: 36, height: 36, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.3s ease" }}>
-            <FaTimes size={14} />
+          <button onClick={onClose} style={{ position: "absolute", top: 16, right: 16, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff", cursor: "pointer", width: 32, height: 32, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.3s ease" }}>
+            <FaTimes size={12} />
           </button>
 
-          <div style={{ textAlign: "center", marginBottom: 30 }}>
-            <div style={{ display: "inline-block", background: "rgba(255,184,0,0.1)", color: "#FFB800", fontSize: 10, fontWeight: 900, padding: "6px 16px", borderRadius: 50, textTransform: "uppercase", letterSpacing: 2, marginBottom: 16, border: "1px solid rgba(255,184,0,0.2)" }}>Asset Acquisition</div>
-            <h2 style={{ fontSize: 26, fontWeight: 900, margin: 0, letterSpacing: "-0.5px", textTransform: "uppercase", color: "#fff", textShadow: "0 4px 20px rgba(0,0,0,0.5)" }}>Horse NFT Tiers</h2>
+          <div style={{ textAlign: "center", marginBottom: 16 }}>
+            <div style={{ display: "inline-block", background: "rgba(255,184,0,0.1)", color: "#FFB800", fontSize: 9, fontWeight: 900, padding: "4px 12px", borderRadius: 50, textTransform: "uppercase", letterSpacing: 2, marginBottom: 10, border: "1px solid rgba(255,184,0,0.2)" }}>Asset Acquisition</div>
+            <h2 style={{ fontSize: 22, fontWeight: 900, margin: 0, letterSpacing: "-0.5px", textTransform: "uppercase", color: "#fff", textShadow: "0 4px 20px rgba(0,0,0,0.5)" }}>Horse NFT Tiers</h2>
           </div>
 
           {/* STEP 0: How It Works */}
@@ -456,82 +456,82 @@ export default function NFTModal({ isOpen, onClose, ledgerDetails }) {
           {/* STEP 2: Insufficient Balance — Top-up via Inline Solana Pay QR */}
           {step === 2 && remainingSol > 0 && (
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
-              <h3 style={{ fontSize: 13, fontWeight: 800, color: "rgba(255,255,255,0.5)", marginBottom: 20, textTransform: "uppercase", letterSpacing: 1, textAlign: "center" }}>Top-Up Required</h3>
+              <h3 style={{ fontSize: 11, fontWeight: 900, color: "rgba(255,255,255,0.5)", marginBottom: 12, textTransform: "uppercase", letterSpacing: 1.5, textAlign: "center" }}>Top-Up Required</h3>
 
               {/* Balance breakdown card */}
-              <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,184,0,0.2)", borderRadius: 20, padding: 20, marginBottom: 20 }}>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
-                  <div style={{ background: "rgba(0,0,0,0.3)", padding: "12px 14px", borderRadius: 14, border: "1px solid rgba(255,255,255,0.05)", textAlign: "center" }}>
-                    <div style={{ fontSize: 9, fontWeight: 800, color: "rgba(255,255,255,0.4)", marginBottom: 4, textTransform: "uppercase", letterSpacing: 1 }}>Current Wallet</div>
-                    <div style={{ fontSize: 15, fontWeight: 900, color: "#4ade80" }}>{currentBalanceSol.toFixed(6)} SOL</div>
-                    <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", marginTop: 2 }}>≈ ${(currentBalanceSol * (solRate || 150)).toFixed(2)}</div>
+              <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,184,0,0.2)", borderRadius: 16, padding: "14px 16px", marginBottom: 14 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 8 }}>
+                  <div style={{ background: "rgba(0,0,0,0.3)", padding: "8px 10px", borderRadius: 12, border: "1px solid rgba(255,255,255,0.05)", textAlign: "center" }}>
+                    <div style={{ fontSize: 8, fontWeight: 800, color: "rgba(255,255,255,0.4)", marginBottom: 2, textTransform: "uppercase", letterSpacing: 1 }}>Current Wallet</div>
+                    <div style={{ fontSize: 13, fontWeight: 900, color: "#4ade80" }}>{currentBalanceSol.toFixed(6)} SOL</div>
+                    <div style={{ fontSize: 9, color: "rgba(255,255,255,0.4)" }}>≈ ${(currentBalanceSol * (solRate || 150)).toFixed(2)}</div>
                   </div>
-                  <div style={{ background: "rgba(0,0,0,0.3)", padding: "12px 14px", borderRadius: 14, border: "1px solid rgba(255,184,0,0.2)", textAlign: "center" }}>
-                    <div style={{ fontSize: 9, fontWeight: 800, color: "rgba(255,255,255,0.4)", marginBottom: 4, textTransform: "uppercase", letterSpacing: 1 }}>Remaining Shortfall</div>
-                    <div style={{ fontSize: 15, fontWeight: 900, color: "#FFB800" }}>{remainingSol} SOL</div>
-                    <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", marginTop: 2 }}>≈ ${remainingUsdt}</div>
+                  <div style={{ background: "rgba(0,0,0,0.3)", padding: "8px 10px", borderRadius: 12, border: "1px solid rgba(255,184,0,0.2)", textAlign: "center" }}>
+                    <div style={{ fontSize: 8, fontWeight: 800, color: "rgba(255,255,255,0.4)", marginBottom: 2, textTransform: "uppercase", letterSpacing: 1 }}>Remaining Shortfall</div>
+                    <div style={{ fontSize: 13, fontWeight: 900, color: "#FFB800" }}>{remainingSol} SOL</div>
+                    <div style={{ fontSize: 9, color: "rgba(255,255,255,0.4)" }}>≈ ${remainingUsdt}</div>
                   </div>
                 </div>
-                <p style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", lineHeight: 1.5, margin: "0 0 0 0", textAlign: "center" }}>
-                  Pay exactly <strong style={{ color: "#FFB800" }}>{remainingSol} SOL</strong> to proceed. The remaining amount will be combined with your existing balance of <strong style={{ color: "#4ade80" }}>{currentBalanceSol.toFixed(6)} SOL</strong> to purchase the plan.
+                <p style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", lineHeight: 1.4, margin: "0", textAlign: "center" }}>
+                  Pay exactly <strong style={{ color: "#FFB800" }}>{remainingSol} SOL</strong> to proceed.
                 </p>
               </div>
 
               {/* QR Code Presentation */}
               {!qrDataUrl ? (
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "20px 0" }}>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "10px 0" }}>
                   {activationError && (
-                    <div style={{ width: "100%", background: "rgba(255,50,50,0.1)", border: "1px solid rgba(255,50,50,0.3)", borderRadius: 12, padding: "12px 16px", marginBottom: 16, fontSize: 12, color: "#ff6b6b", textAlign: "center" }}>
+                    <div style={{ width: "100%", background: "rgba(255,50,50,0.1)", border: "1px solid rgba(255,50,50,0.3)", borderRadius: 12, padding: "10px 14px", marginBottom: 12, fontSize: 11, color: "#ff6b6b", textAlign: "center" }}>
                       {activationError}
                     </div>
                   )}
                   <button
                     onClick={handleGenerateQr}
                     disabled={loadingQr}
-                    style={{ width: "100%", padding: "16px 24px", background: "linear-gradient(135deg,#FFB800,#FF6200)", border: "none", borderRadius: 16, color: "#000", fontWeight: 900, fontSize: 14, cursor: "pointer", textTransform: "uppercase", letterSpacing: 1.5, boxShadow: "0 10px 25px rgba(255,184,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginBottom: 12 }}
+                    style={{ width: "100%", padding: "12px 20px", background: "linear-gradient(135deg,#FFB800,#FF6200)", border: "none", borderRadius: 12, color: "#000", fontWeight: 900, fontSize: 13, cursor: "pointer", textTransform: "uppercase", letterSpacing: 1.5, boxShadow: "0 8px 20px rgba(255,184,0,0.3)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 10 }}
                   >
                     {loadingQr ? (
                       <>
-                        <FaSpinner className="animate-spin" size={16} />
+                        <FaSpinner className="animate-spin" size={14} />
                         Generating Solana QR...
                       </>
                     ) : (
                       <>
-                        <FaQrcode size={16} />
+                        <FaQrcode size={14} />
                         Generate QR — Pay {remainingSol} SOL
                       </>
                     )}
                   </button>
-                  <button onClick={() => { setStep(1); setActivationError(""); }} style={{ width: "100%", padding: 16, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16, color: "#fff", fontWeight: 800, fontSize: 14, cursor: "pointer" }}>Back</button>
+                  <button onClick={() => { setStep(1); setActivationError(""); }} style={{ width: "100%", padding: 12, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, color: "#fff", fontWeight: 800, fontSize: 13, cursor: "pointer" }}>Back</button>
                 </div>
               ) : (
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                  <div style={{ position: "relative", padding: 12, background: "#fff", borderRadius: 20, boxShadow: "0 8px 25px rgba(0,0,0,0.5)", marginBottom: 16 }}>
-                    <img src={qrDataUrl} alt="Solana Pay QR" style={{ width: 170, height: 170, display: "block" }} />
+                  <div style={{ position: "relative", padding: 8, background: "#fff", borderRadius: 16, boxShadow: "0 8px 25px rgba(0,0,0,0.5)", marginBottom: 12 }}>
+                    <img src={qrDataUrl} alt="Solana Pay QR" style={{ width: 135, height: 135, display: "block" }} />
                   </div>
 
-                  <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, fontWeight: 700, color: "#FFB800", textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 16 }}>
-                    <FaSpinner className="animate-spin" size={12} />
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 10, fontWeight: 800, color: "#FFB800", textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 12 }}>
+                    <FaSpinner className="animate-spin" size={10} />
                     Waiting for payment detection...
                   </div>
 
                   {/* Merchant Address Copy Details */}
                   {intent?.merchantWalletAddress && (
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 12, padding: "8px 12px", width: "100%", maxWidth: 360, marginBottom: 20, cursor: "pointer" }} onClick={() => handleCopy(intent.merchantWalletAddress)}>
-                      <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", fontWeight: 800 }}>To:</span>
-                      <span style={{ fontSize: 11, color: "#fff", fontFamily: "monospace", flex: 1, overflow: "hidden", textOverflow: "ellipsis" }}>{intent.merchantWalletAddress}</span>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 10, padding: "6px 10px", width: "100%", maxWidth: 360, marginBottom: 14, cursor: "pointer" }} onClick={() => handleCopy(intent.merchantWalletAddress)}>
+                      <span style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", fontWeight: 800 }}>To:</span>
+                      <span style={{ fontSize: 10, color: "#fff", fontFamily: "monospace", flex: 1, overflow: "hidden", textOverflow: "ellipsis" }}>{intent.merchantWalletAddress}</span>
                       <button style={{ background: "none", border: "none", color: copied ? "#4ade80" : "#FFB800", cursor: "pointer", display: "flex", alignItems: "center" }}>
-                        {copied ? <span style={{ fontSize: 9, fontWeight: 800 }}>COPIED!</span> : <FaCopy size={12} />}
+                        {copied ? <span style={{ fontSize: 8, fontWeight: 800 }}>COPIED!</span> : <FaCopy size={10} />}
                       </button>
                     </div>
                   )}
 
                   {/* Manual Hash Fallback Verification */}
-                  <div style={{ width: "100%", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 16, marginBottom: 20 }}>
-                    <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontWeight: 800, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8, textAlign: "center" }}>
+                  <div style={{ width: "100%", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 12, marginBottom: 14 }}>
+                    <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", fontWeight: 800, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6, textAlign: "center" }}>
                       Paid but not detected? Verify manually:
                     </div>
-                    <div style={{ display: "flex", gap: 8 }}>
+                    <div style={{ display: "flex", gap: 6 }}>
                       <input
                         type="text"
                         placeholder="Paste transaction signature / hash..."
@@ -540,18 +540,18 @@ export default function NFTModal({ isOpen, onClose, ledgerDetails }) {
                           setManualSignature(e.target.value);
                           if (manualError) setManualError("");
                         }}
-                        style={{ flex: 1, background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, padding: "10px 14px", color: "#fff", fontSize: 12, outline: "none" }}
+                        style={{ flex: 1, background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, padding: "8px 12px", color: "#fff", fontSize: 11, outline: "none" }}
                       />
                       <button
                         onClick={handleVerifyManual}
                         disabled={verifyingSignature || !manualSignature.trim()}
-                        style={{ padding: "10px 16px", background: "#FFB800", color: "#000", border: "none", borderRadius: 12, fontSize: 12, fontWeight: 800, cursor: verifyingSignature ? "not-allowed" : "pointer" }}
+                        style={{ padding: "8px 14px", background: "#FFB800", color: "#000", border: "none", borderRadius: 10, fontSize: 11, fontWeight: 800, cursor: verifyingSignature ? "not-allowed" : "pointer" }}
                       >
-                        {verifyingSignature ? <FaSpinner className="animate-spin" size={14} /> : "Verify"}
+                        {verifyingSignature ? <FaSpinner className="animate-spin" size={12} /> : "Verify"}
                       </button>
                     </div>
                     {manualError && (
-                      <div style={{ color: "#ff6b6b", fontSize: 11, marginTop: 6, textAlign: "center", fontWeight: 600 }}>
+                      <div style={{ color: "#ff6b6b", fontSize: 10, marginTop: 4, textAlign: "center", fontWeight: 600 }}>
                         {manualError}
                       </div>
                     )}
@@ -567,7 +567,7 @@ export default function NFTModal({ isOpen, onClose, ledgerDetails }) {
                       setManualSignature("");
                       setManualError("");
                     }}
-                    style={{ width: "100%", padding: 14, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16, color: "#fff", fontWeight: 800, fontSize: 13, cursor: "pointer" }}
+                    style={{ width: "100%", padding: 11, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, color: "#fff", fontWeight: 800, fontSize: 12, cursor: "pointer" }}
                   >
                     Cancel Deposit &amp; Back
                   </button>

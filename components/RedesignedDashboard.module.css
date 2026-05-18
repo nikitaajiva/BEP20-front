@@ -1457,7 +1457,7 @@
 
 /* Base Responsive Overrides (Existing) */
 @media (max-width: 900px) {
-  .dashboardTopHeader {
+  .dashboardTopHeader { height: auto !important;
     position: relative;
     top: 0;
     left: 0 !important;
@@ -1851,7 +1851,7 @@
   }
 
   /* Header Section */
-  .dashboardTopHeader {
+  .dashboardTopHeader { height: auto !important;
     position: relative !important;
     top: 0 !important;
     left: 0 !important;
@@ -2709,3 +2709,272 @@
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* ============================================================
+   COMPREHENSIVE MOBILE & TABLET RESPONSIVE OVERRIDES
+   Breakpoints: 1200px (tablet-lg), 900px (tablet), 600px (mobile)
+   Strategy: preserve ALL existing design, only reflow layout
+   ============================================================ */
+
+/* ── Tablet Large (≤1200px) ─────────────────────────────── */
+@media (max-width: 1200px) {
+  .dashboardTopHeader {
+    left: 0 !important;
+    padding: 0 16px;
+    height: 64px;
+  }
+
+  .mainContentWrapper {
+    padding-top: 84px;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .dashboardRow1 {
+    grid-template-columns: 1fr 1.1fr 1fr;
+    gap: 24px;
+  }
+
+  .dashboardRow2 {
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  .stakingBlueCircle {
+    width: 280px;
+    height: 280px;
+  }
+
+  .hubAmount {
+    font-size: 30px !important;
+  }
+}
+
+/* ── Tablet (≤900px) ────────────────────────────────────── */
+@media (max-width: 900px) {
+  /* Header: fixed → relative, stacked */
+  .dashboardTopHeader {
+    position: relative !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: auto !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    padding: 14px 16px !important;
+    gap: 10px !important;
+    background: rgba(6, 6, 6, 0.97) !important;
+  }
+
+  .headerLeft {
+    width: 100%;
+  }
+
+  .headerCenter {
+    width: 100%;
+    padding: 0 !important;
+    justify-content: stretch;
+  }
+
+  .headerWalletCard {
+    max-width: 100%;
+  }
+
+  .topRightActions {
+    width: 100%;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    justify-content: stretch !important;
+    gap: 8px !important;
+    padding: 0 !important;
+    background: none !important;
+    border: none !important;
+    backdrop-filter: none !important;
+  }
+
+  .headerActionsRow {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: stretch;
+  }
+
+  .redeemBtnTop,
+  .connectBtn,
+  .supportAdminBtn {
+    flex: 1 1 calc(50% - 4px) !important;
+    min-width: unset !important;
+    height: 44px !important;
+    justify-content: center !important;
+    font-size: 13px !important;
+    border-radius: 10px !important;
+  }
+
+  .phantomWalletGroup {
+    flex: 1 1 calc(50% - 4px);
+  }
+
+  .phantomWalletGroup .connectBtn {
+    width: 100%;
+  }
+
+  .vaultPassCard {
+    width: 100% !important;
+    min-width: unset !important;
+  }
+
+  /* Main content: remove top padding (header is no longer fixed) */
+  .mainContentWrapper {
+    padding-top: 20px !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    padding-bottom: 80px !important;
+  }
+
+  /* Row 1: 3 cols → 1 col stack */
+  .dashboardRow1 {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+    margin-bottom: 20px !important;
+  }
+
+  /* Staking hub wrapper: remove centering constraints for mobile */
+  .stakingHubWrapper {
+    width: 100% !important;
+    align-items: center !important;
+  }
+
+  /* Scale down staking circle */
+  .stakingBlueCircle {
+    width: 260px !important;
+    height: 260px !important;
+  }
+
+  .hubAmount {
+    font-size: 28px !important;
+  }
+
+  .hubLabelOuter {
+    font-size: 9px !important;
+    letter-spacing: 1px !important;
+    transform: none !important;
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    margin-bottom: 16px !important;
+  }
+
+  /* Row 2: 2 cols → 1 col */
+  .dashboardRow2 {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+    margin-bottom: 30px !important;
+  }
+
+  /* Bottom cards: full width */
+  .bottomCardsSection {
+    width: 100% !important;
+  }
+
+  .staticFloatBottom {
+    max-width: 100% !important;
+  }
+
+  /* Invest now button */
+  .investNowContainer {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    transform: none !important;
+    width: 100% !important;
+    margin-top: 20px !important;
+  }
+
+  /* Investment modal */
+  .investModalContent {
+    max-width: 100% !important;
+    margin: 10px !important;
+    padding: 30px 20px !important;
+    border-radius: 20px !important;
+  }
+
+  .investCardsGrid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ── Mobile (≤600px) ────────────────────────────────────── */
+@media (max-width: 600px) {
+  .dashboardTopHeader {
+    padding: 12px !important;
+    gap: 8px !important;
+  }
+
+  .redeemBtnTop,
+  .connectBtn,
+  .supportAdminBtn {
+    flex: 1 1 100% !important;
+    height: 46px !important;
+    font-size: 13px !important;
+  }
+
+  .phantomWalletGroup {
+    flex: 1 1 100%;
+  }
+
+  .mainContentWrapper {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+    padding-bottom: 90px !important;
+  }
+
+  .dashboardRow1 {
+    gap: 16px !important;
+  }
+
+  .dashboardRow2 {
+    gap: 16px !important;
+  }
+
+  .stakingBlueCircle {
+    width: 220px !important;
+    height: 220px !important;
+  }
+
+  .hubAmount {
+    font-size: 24px !important;
+  }
+
+  .stakingCircleInner {
+    padding: 14px !important;
+  }
+
+  .statDetailLabel {
+    font-size: 7px !important;
+  }
+
+  .statDetailValue {
+    font-size: 11px !important;
+  }
+
+  .mainInvestBtn {
+    font-size: 12px !important;
+    padding: 10px 24px !important;
+    letter-spacing: 1px !important;
+  }
+
+  .vaultPassCard {
+    padding: 8px 10px !important;
+  }
+
+  .passUrl {
+    font-size: 10px !important;
+  }
+
+  /* Background effects hidden for performance on small screens */
+  .lightRaysContainer,
+  .sparklesContainer {
+    display: none !important;
+  }
+}
+

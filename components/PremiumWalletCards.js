@@ -319,8 +319,8 @@ export const HorseNFTCard = ({
 
   const nftPackages = user?.nftPackages || [];
   // Backward compatibility
-  const effectivePackages = nftPackages.length > 0 
-    ? nftPackages 
+  const effectivePackages = nftPackages.length > 0
+    ? nftPackages
     : (user?.nftPackage ? [{ tier: user.nftPackage }] : []);
 
   const [selectedPkgIndex, setSelectedPkgIndex] = React.useState(
@@ -338,8 +338,8 @@ export const HorseNFTCard = ({
     starter: "BRONZE", growth: "SILVER", premium: "GOLD",
   };
 
-  const nftRoiMap   = { starter: 45, growth: 55, premium: 65, bronze: 45, silver: 55, gold: 65 };
-  const nftRateMap  = { starter: 0.003, growth: 0.004, premium: 0.005, bronze: 0.003, silver: 0.004, gold: 0.005 };
+  const nftRoiMap = { starter: 45, growth: 55, premium: 65, bronze: 45, silver: 55, gold: 65 };
+  const nftRateMap = { starter: 0.003, growth: 0.004, premium: 0.005, bronze: 0.003, silver: 0.004, gold: 0.005 };
 
   const calcTimeLeft = () => {
     const now = new Date();
@@ -371,7 +371,7 @@ export const HorseNFTCard = ({
           <div className={styles.headerLeft}>
             <div className={styles.nftIconBox}><FaHorse size={20} color="#ffd700" /></div>
             <div className={styles.titleSection}>
-              <h3>MY ASSETS</h3>
+              <h3>NFT Packages</h3>
               <p>{effectivePackages.length} ACTIVE NFTs</p>
             </div>
           </div>
@@ -382,16 +382,16 @@ export const HorseNFTCard = ({
             const tier = tierNormalize[pkg.tier];
             const tierColor = tier === 'gold' ? '#ffd700' : tier === 'silver' ? '#ffffff' : '#cd7f32';
             const shadowColor = tier === 'gold' ? 'rgba(255,215,0,0.3)' : tier === 'silver' ? 'rgba(255,255,255,0.3)' : 'rgba(205,127,50,0.3)';
-            
+
             const backendPkg = ledgerDetails?.horseNFTs?.[origIdx];
             const price = backendPkg ? backendPkg.purchasePrice : (pkg.mintPrice && pkg.mintPrice > 0 ? pkg.mintPrice : (nftPriceMap[pkg.tier] || 0));
 
             return (
-              <div 
-                key={origIdx} 
-                className={styles.compactNftCard} 
+              <div
+                key={origIdx}
+                className={styles.compactNftCard}
                 onClick={() => setSelectedPkgIndex(origIdx)}
-                style={{ 
+                style={{
                   borderLeft: `3px solid ${tierColor}`,
                   boxShadow: `0 4px 15px ${shadowColor}`
                 }}
@@ -409,19 +409,21 @@ export const HorseNFTCard = ({
                   <div className={styles.compactNftDate}>Purchased: {new Date(pkg.purchaseDate || Date.now()).toLocaleDateString()}</div>
                 </div>
                 <div className={styles.compactNftArrow}>
-                   <ArrowRight size={14} color={tierColor} />
+                  <ArrowRight size={14} color={tierColor} />
                 </div>
               </div>
             );
           })}
         </div>
 
-        <div className={styles.nftActionButtonsSimple} style={{ marginTop: '16px' }}>
-          <button className={styles.nftHistoryBtnFull} onClick={onViewHistory}>
-            <History size={16} />
-            <span>VIEW ASSET HISTORY</span>
-          </button>
-        </div>
+        {effectivePackages.length >= 4 && (
+          <div className={styles.nftActionButtonsSimple} style={{ marginTop: '16px' }}>
+            <button className={styles.nftHistoryBtnFull} onClick={onViewHistory}>
+              <History size={16} />
+              <span>VIEW ASSET HISTORY</span>
+            </button>
+          </div>
+        )}
       </div>
     );
   }
@@ -444,8 +446,8 @@ export const HorseNFTCard = ({
       <div className={styles.nftHeader}>
         <div className={styles.headerLeft}>
           {effectivePackages.length > 1 && (
-            <button 
-              className={styles.nftBackBtn} 
+            <button
+              className={styles.nftBackBtn}
               onClick={() => setSelectedPkgIndex(null)}
               style={{ background: 'transparent', border: 'none', color: '#fff', marginRight: '10px', cursor: 'pointer', fontSize: '18px' }}
             >
@@ -482,8 +484,8 @@ export const HorseNFTCard = ({
             style={{
               width: `${Math.min(roiProgress, 100)}%`,
               background: tier === 'gold' ? 'linear-gradient(90deg,#ffd700,#ff8c00)'
-                         : tier === 'silver' ? 'linear-gradient(90deg,#c0c0c0,#808080)'
-                         : 'linear-gradient(90deg,#cd7f32,#a0522d)'
+                : tier === 'silver' ? 'linear-gradient(90deg,#c0c0c0,#808080)'
+                  : 'linear-gradient(90deg,#cd7f32,#a0522d)'
             }}
           ></div>
         </div>
@@ -492,17 +494,23 @@ export const HorseNFTCard = ({
       <div className={styles.nftStatsGrid}>
         <div className={styles.nftStatItem}>
           <span className={styles.nftStatLabel}>Daily Yield</span>
-          <span className={styles.nftStatValue} style={{ color: "#00ff00" }}>{dailyYield} USDT</span>
+          <span className={styles.nftStatValue} style={{ color: "#00ff00" }}>
+            {dailyYield} USDT <span style={{ fontSize: '10px', color: 'rgba(0,255,0,0.75)', fontWeight: 700, marginLeft: '4px' }}>({(dailyRate * 100).toFixed(2)}%)</span>
+          </span>
         </div>
         <div className={styles.nftStatItem}>
           <span className={styles.nftStatLabel}>Est. Payout</span>
-          <span className={styles.nftStatValue}>{estPayout} USDT</span>
+          <span className={styles.nftStatValue}>
+            {estPayout} USDT <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: 700, marginLeft: '4px' }}>({roiProgress}%)</span>
+          </span>
         </div>
         <div className={styles.nftStatItem} style={{ border: 'none' }}>
           <div className={styles.nftStatLabelGroup}>
             <span className={styles.nftStatLabel}>Next Payout</span>
           </div>
-          <span className={styles.nftStatValue}>{dailyYield} USDT</span>
+          <span className={styles.nftStatValue}>
+            {dailyYield} USDT <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: 700, marginLeft: '4px' }}>({(dailyRate * 100).toFixed(2)}%)</span>
+          </span>
         </div>
       </div>
 
@@ -516,6 +524,8 @@ export const ActiveStakesCard = ({ user, onViewHistory }) => {
     ...(user?.stakingPlans || [])
   ];
 
+  const displayedStakes = allStakes.slice(0, 3);
+
   return (
     <div className={styles.rwCardWrapper} style={{ border: '1px solid rgba(255, 85, 0, 0.25)' }}>
       <div className={styles.rwHeader} style={{ borderColor: 'rgba(255, 85, 0, 0.25)', padding: '16px' }}>
@@ -527,22 +537,22 @@ export const ActiveStakesCard = ({ user, onViewHistory }) => {
       </div>
 
       <div className={styles.rwBody} style={{ padding: '12px', maxHeight: '300px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        {allStakes.length > 0 ? (
-          allStakes.map((stake, idx) => {
+        {displayedStakes.length > 0 ? (
+          displayedStakes.map((stake, idx) => {
             const daysPassed = Math.max(0, Math.floor((new Date() - new Date(stake.startDate)) / 86400000));
             const progress = Math.min(100, (daysPassed / stake.days) * 100);
-            
+
             // Precise dynamic interest system rates mapping:
             const apy = stake.days >= 365 ? 0.28 : stake.days >= 180 ? 0.22 : stake.days >= 90 ? 0.18 : 0.10;
             const dailyYield = (parseFloat(stake.amount) * apy / 365).toFixed(4);
             const totalEstReward = (parseFloat(stake.amount) * apy * stake.days / 365).toFixed(2);
-            
+
             const daysRemaining = Math.max(0, stake.days - daysPassed);
             const tierName = stake.days >= 365 ? "Premium" : stake.days >= 180 ? "Advanced" : stake.days >= 90 ? "Growth" : "Starter";
 
             return (
-              <div 
-                key={idx} 
+              <div
+                key={idx}
                 style={{
                   background: 'rgba(255,255,255,0.02)',
                   border: '1px solid rgba(255,255,255,0.05)',
@@ -575,7 +585,7 @@ export const ActiveStakesCard = ({ user, onViewHistory }) => {
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>
                   <div>
                     <span style={{ display: 'block', fontSize: 8, color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase' }}>Duration</span>
-                    <span style={{ fontWeight: 800, color: '#fff' }}>{stake.days} Days</span>
+                    <span style={{ fontWeight: 800, color: '#fff' }}>{stake.days} Days <span style={{ fontSize: '8px', color: '#ff5500', fontWeight: 800 }}>({(apy * 100)}% APY)</span></span>
                   </div>
                   <div>
                     <span style={{ display: 'block', fontSize: 8, color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase' }}>Daily Yield</span>
@@ -607,6 +617,35 @@ export const ActiveStakesCard = ({ user, onViewHistory }) => {
           </div>
         )}
       </div>
+
+      {allStakes.length > 3 && (
+        <div style={{ padding: '0 12px 16px 12px' }}>
+          <button
+            className={styles.nftHistoryBtnFull}
+            onClick={onViewHistory}
+            style={{
+              width: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
+              padding: '12px',
+              background: 'rgba(255, 85, 0, 0.1)',
+              border: '1px solid rgba(255, 85, 0, 0.25)',
+              borderRadius: '12px',
+              color: '#ff5500',
+              fontWeight: 800,
+              fontSize: '11px',
+              letterSpacing: '1px',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease'
+            }}
+          >
+            <History size={14} />
+            <span>VIEW STAKING HISTORY ({allStakes.length - 3} MORE)</span>
+          </button>
+        </div>
+      )}
 
     </div>
   );

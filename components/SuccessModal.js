@@ -9,6 +9,11 @@ export default function SuccessModal({
   message = "Your request has been processed securely on-chain.",
   transactionHash,
 }) {
+  const isEvm = transactionHash?.startsWith("0x");
+  const explorerLink = isEvm 
+    ? `https://bscscan.com/tx/${transactionHash}`
+    : `https://solscan.io/tx/${transactionHash}`;
+
   if (!isOpen) return null;
 
   return (
@@ -57,7 +62,7 @@ export default function SuccessModal({
           }}>
             <div style={{ fontSize: 10, fontWeight: 800, color: "rgba(255,255,255,0.3)", marginBottom: 4, textTransform: "uppercase" }}>Transaction Hash</div>
             <a 
-              href={`https://explorer.example.com/tx/${transactionHash}`} 
+              href={explorerLink} 
               target="_blank" 
               rel="noopener noreferrer"
               style={{ fontSize: 11, color: "#ffd700", textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}

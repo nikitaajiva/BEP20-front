@@ -1429,15 +1429,17 @@ export default function DashboardPage() {
         onClose={() => setPhantomDepositModalOpen(false)}
         API_URL={API_URL}
         user={user}
-        onDepositConfirmed={async () => {
+        onDepositConfirmed={async (payload) => {
           setPhantomDepositModalOpen(false);
 
-          if (typeof fetchPhantomBalance === "function") {
-            await fetchPhantomBalance();
-          }
-
-          if (typeof fetchLedgerDetails === "function") {
-            await fetchLedgerDetails();
+          const intent = payload?.intent || payload;
+          if (intent) {
+            await handlePhantomDepositSuccess({
+              amountSol: intent.amountSol,
+              txSignature: intent.txSignature || intent.tx_signature || intent.signature || intent.txHash || intent.tx_hash,
+            });
+          } else {
+            await handlePhantomDepositSuccess({});
           }
 
           if (typeof fetchDashboardData === "function") {

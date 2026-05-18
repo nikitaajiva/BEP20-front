@@ -778,14 +778,64 @@ const PhantomDepositModal = ({
           )}
 
           {error && (
-            <div className="mt-5 rounded-xl border border-red-500/20 bg-red-500/5 p-3.5 text-xs font-bold uppercase tracking-wider text-red-400 text-center">
-              {error}
+            <div 
+              className="phantom-error-box"
+              style={{
+                marginTop: "20px",
+                padding: "14px 20px",
+                borderRadius: "16px",
+                background: "rgba(255, 74, 74, 0.08)",
+                border: "1px solid rgba(255, 74, 74, 0.25)",
+                color: "#ff6c6c",
+                fontSize: "12px",
+                fontWeight: "800",
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+                textAlign: "center",
+                boxShadow: "0 4px 15px rgba(255, 74, 74, 0.08), inset 0 0 10px rgba(255, 74, 74, 0.05)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "10px",
+                animation: "phantomShake 0.4s ease-in-out"
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+              <span>{error}</span>
             </div>
           )}
 
           {successMessage && method === "phantom" && (
-            <div className="mt-5 rounded-xl border border-green-500/20 bg-green-500/5 p-3.5 text-xs font-bold uppercase tracking-wider text-green-400 text-center">
-              {successMessage}
+            <div 
+              className="phantom-success-box"
+              style={{
+                marginTop: "20px",
+                padding: "14px 20px",
+                borderRadius: "16px",
+                background: "rgba(0, 230, 118, 0.08)",
+                border: "1px solid rgba(0, 230, 118, 0.25)",
+                color: "#00e676",
+                fontSize: "12px",
+                fontWeight: "800",
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+                textAlign: "center",
+                boxShadow: "0 4px 15px rgba(0, 230, 118, 0.08), inset 0 0 10px rgba(0, 230, 118, 0.05)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "10px"
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+              <span>{successMessage}</span>
             </div>
           )}
 
@@ -797,6 +847,12 @@ const PhantomDepositModal = ({
       
       {/* Scrollbar & Specific Styles to override global button resets */}
       <style dangerouslySetInnerHTML={{__html: `
+        @keyframes phantomShake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-5px); }
+          75% { transform: translateX(5px); }
+        }
+
         .custom-scrollbar::-webkit-scrollbar {
           width: 4px;
         }

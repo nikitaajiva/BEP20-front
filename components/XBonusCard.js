@@ -65,12 +65,58 @@ const XBonusBanner = () => {
     };
   };
 
+  // NFT Tier data: N1–N5 (Minting & Mining)
   const rawXBonusLevels = [
-    { level: "X", display: "N1", self: "1,000", community: "15,000 USDT", color: "#ff6600" }, // Fire Orange
-    { level: "X1", display: "N2", self: "1,500", community: "30,000 USDT", color: "#ff4500" }, // Orange Red
-    { level: "X2", display: "N3", self: "3,000", community: "120,000 USDT", color: "#ff8c00" }, // Dark Orange
-    { level: "X3", display: "N4", self: "6,000", community: "300,000 USDT", color: "#e25822" }, // Flame
-    { level: "X4", display: "N5", self: "12,000", community: "900,000 USDT", color: "#ffd700" }, // Gold
+    {
+      level: "X",
+      display: "N1",
+      mintPrice: "100 U",
+      miningPower: 100,
+      powerCoefficient: "0.7×",
+      poolMultiplier: "2.0×",
+      afterTSC: "2.5×",
+      color: "#ff6600",
+    },
+    {
+      level: "X1",
+      display: "N2",
+      mintPrice: "500 U",
+      miningPower: 500,
+      powerCoefficient: "0.8×",
+      poolMultiplier: "2.0×",
+      afterTSC: "2.8×",
+      color: "#ff4500",
+    },
+    {
+      level: "X2",
+      display: "N3",
+      mintPrice: "1,000 U",
+      miningPower: 1000,
+      powerCoefficient: "0.9×",
+      poolMultiplier: "2.0×",
+      afterTSC: "3.0×",
+      color: "#ff8c00",
+    },
+    {
+      level: "X3",
+      display: "N4",
+      mintPrice: "3,000 U",
+      miningPower: 3000,
+      powerCoefficient: "1.0×",
+      poolMultiplier: "2.0×",
+      afterTSC: "3.5×",
+      color: "#e25822",
+    },
+    {
+      level: "X4",
+      display: "N5",
+      mintPrice: "10,000 U",
+      miningPower: 10000,
+      powerCoefficient: "1.1×",
+      poolMultiplier: "2.0×",
+      afterTSC: "4.0×",
+      color: "#ffd700",
+    },
   ];
 
   const fetchReferrals = useCallback(
@@ -159,12 +205,12 @@ const XBonusBanner = () => {
   const nextLockedIndex = xBonusLevels.findIndex((x) => x.locked);
   const nextLocked = xBonusLevels[nextLockedIndex];
 
-  const parseUSDT = (val) => parseInt(val.replace(/,/g, "").replace(" USDT", ""));
+  const parseMintPrice = (val) => parseInt(val.replace(/,/g, "").replace(" U", ""));
   const unlockData = nextLocked
     ? {
-        requiredSelfLp: parseUSDT(nextLocked.self),
+        requiredSelfLp: parseMintPrice(nextLocked.mintPrice),
         userSelfLp: parseFloat(ledgerDetails?.lpWallet?.balance || 0).toFixed(2),
-        requiredCommunityLp: parseUSDT(nextLocked.community),
+        requiredCommunityLp: 0,
         legs: Legs,
         isUnlocked: false,
       }
@@ -229,11 +275,15 @@ const XBonusBanner = () => {
                     </div>
                   </div>
 
-                  {/* Right Side: LP Chevron Card */}
+                  {/* Right Side: NFT Mining Stats Card */}
                   <div className={styles.lpCard}>
-                    <div className={styles.miniLabel}>PERSONAL LP</div>
+                    <div className={styles.miniLabel}>MINING POWER</div>
                     <div className={styles.lpValue}>
-                      {item.self.split(' ')[0]}
+                      {item.miningPower.toLocaleString()}
+                    </div>
+                    <div className={styles.nftStatRow}>
+                      <span className={styles.nftStatBadge} title={`Power Coefficient: ${item.powerCoefficient}`}>{item.powerCoefficient}</span>
+                      <span className={styles.nftStatBadge} style={{ color: "#7fff4c" }} title={`After TSC Launch: ${item.afterTSC}`}>{item.afterTSC}</span>
                     </div>
                   </div>
                 </div>

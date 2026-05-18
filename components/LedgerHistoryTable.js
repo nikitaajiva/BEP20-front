@@ -27,6 +27,7 @@ export default function LedgerHistoryTable({ filters }) {
     if (formatted === "COMMUNITY_REWARDS") return "Ecosystem Rewards";
     if (formatted === "STAKING_HUB") return "Staking Hub";
     if (formatted === "HORSE_NFT") return "Horse NFT Assets";
+    if (formatted === "NFT_MINT") return "NFT Mining Vault";
     return name.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
   };
 

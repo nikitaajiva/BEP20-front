@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { FaTimes, FaHorse, FaCheckCircle, FaLock, FaExternalLinkAlt, FaClipboardCheck, FaMoneyBillWave, FaGift, FaShieldAlt } from "react-icons/fa";
 import { useAuth } from "@/context/AuthContext";
 import SuccessModal from "./SuccessModal";
@@ -37,7 +37,6 @@ export default function NFTModal({ isOpen, onClose }) {
     setIsActivating(true);
     try {
       const result = await purchaseNft({ tier: selected });
-      
       if (result.success) {
         setIsSuccess(true);
       }
@@ -106,7 +105,7 @@ export default function NFTModal({ isOpen, onClose }) {
                 <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
                     <div style={{ width: 40, height: 40, borderRadius: 12, background: "rgba(255,184,0,0.1)", border: "1px solid rgba(255,184,0,0.2)", display: "flex", alignItems: "center", justifyContent: "center", color: "#FFB800" }}><FaClipboardCheck size={16} /></div>
-                    <div style={{ flex: 1, fontSize: 13, color: "rgba(255,255,255,0.9)", fontWeight: 500 }}>Registration & Veterinary records included</div>
+                    <div style={{ flex: 1, fontSize: 13, color: "rgba(255,255,255,0.9)", fontWeight: 500 }}>Registration &amp; Veterinary records included</div>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
                     <div style={{ width: 40, height: 40, borderRadius: 12, background: "rgba(255,184,0,0.1)", border: "1px solid rgba(255,184,0,0.2)", display: "flex", alignItems: "center", justifyContent: "center", color: "#FFB800" }}><FaMoneyBillWave size={16} /></div>
@@ -114,7 +113,7 @@ export default function NFTModal({ isOpen, onClose }) {
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
                     <div style={{ width: 40, height: 40, borderRadius: 12, background: "rgba(255,184,0,0.1)", border: "1px solid rgba(255,184,0,0.2)", display: "flex", alignItems: "center", justifyContent: "center", color: "#FFB800" }}><FaGift size={16} /></div>
-                    <div style={{ flex: 1, fontSize: 13, color: "rgba(255,255,255,0.9)", fontWeight: 500 }}>Exclusive Airdrops & Event Invitations</div>
+                    <div style={{ flex: 1, fontSize: 13, color: "rgba(255,255,255,0.9)", fontWeight: 500 }}>Exclusive Airdrops &amp; Event Invitations</div>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
                     <div style={{ width: 40, height: 40, borderRadius: 12, background: "rgba(255,184,0,0.1)", border: "1px solid rgba(255,184,0,0.2)", display: "flex", alignItems: "center", justifyContent: "center", color: "#FFB800" }}><FaShieldAlt size={16} /></div>

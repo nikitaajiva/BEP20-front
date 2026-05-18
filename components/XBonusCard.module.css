@@ -191,15 +191,16 @@
 .lpCard {
     background: rgba(255, 255, 255, 0.02);
     border: 1px solid rgba(255, 255, 255, 0.05);
-    height: 62px; /* Increased to match levelCard better */
+    height: 72px; /* Match levelCard height */
     display: flex !important;
     flex-direction: column;
     justify-content: center;
     align-items: flex-end;
-    padding: 0 20px 0 25px;
+    padding: 0 14px 0 20px;
     clip-path: polygon(8% 0%, 100% 0%, 100% 100%, 8% 100%, 0% 50%);
     margin-left: -5px;
     transition: all 0.3s ease;
+    gap: 2px;
 }
 
 .locked .lpCard {
@@ -215,10 +216,31 @@
 }
 
 .lpValue {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     font-weight: 800;
     color: var(--x-color);
     opacity: 0.9;
+    line-height: 1.2;
+}
+
+.nftStatRow {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    flex-wrap: nowrap;
+}
+
+.nftStatBadge {
+    font-size: 7.5px;
+    font-weight: 800;
+    color: rgba(255, 255, 255, 0.55);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
+    padding: 1px 4px;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    white-space: nowrap;
 }
 
 .rewardValueSection {
@@ -335,16 +357,21 @@
 /* Responsive */
 @media (max-width: 480px) {
     .xBonusRow {
-        grid-template-columns: 1fr 40px 70px;
+        grid-template-columns: 1fr 40px 80px;
     }
     .levelCard { 
         padding: 0 15px 0 10px; 
-        height: 50px; 
+        height: 60px; 
+    }
+    .lpCard {
+        height: 60px;
+        padding: 0 8px 0 14px;
     }
     .levelTitle { font-size: 0.7rem; }
     .rewardValue { font-size: 0.65rem; }
     .lpValue { font-size: 0.65rem; }
     .miniLabel { font-size: 7px; }
+    .nftStatBadge { font-size: 6px; padding: 1px 3px; }
     .hexagon { width: 30px; height: 34px; }
     .iconContainer { width: 24px; height: 24px; margin-right: 8px; }
     .rewardValueSection { gap: 3px; }

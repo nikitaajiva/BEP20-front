@@ -8,7 +8,8 @@ import {
   getPhantomProvider,
   getPhantomConnectErrorCode,
   getPhantomUserMessage,
-  waitForPhantomProvider,
+  isSecureOrSupportedPhantomOrigin,
+  isPrivateLanIp,
 } from "../utils/phantomWallet";
 
 const AuthContext = createContext();
@@ -346,7 +347,15 @@ export const AuthProvider = ({ children }) => {
         };
       }
 
-      const provider = await waitForPhantomProvider(3000);
+      if (!isSecureOrSupportedPhantomOrigin() && isPrivateLanIp()) {
+        return {
+          success: false,
+          code: "PHANTOM_UNSUPPORTED_ORIGIN",
+          error: getPhantomUserMessage("PHANTOM_UNSUPPORTED_ORIGIN"),
+        };
+      }
+
+      const provider = getPhantomProvider();
 
       if (!provider) {
         return {
@@ -359,18 +368,46 @@ export const AuthProvider = ({ children }) => {
       let connectResponse;
 
       try {
-        const connectPromise = provider.connect({ onlyIfTrusted: false });
+        if (process.env.NODE_ENV !== "production") {
+          console.log("[Phantom Debug]", {
+            protocol: window.location.protocol,
+            hostname: window.location.hostname,
+            hasPhantom: !!window.phantom?.solana,
+            isPhantom: !!window.phantom?.solana?.isPhantom,
+            isConnected: !!window.phantom?.solana?.isConnected,
+            publicKey: window.phantom?.solana?.publicKey?.toString?.(),
+          });
+        }
 
-        const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => {
-            reject({
-              code: "PHANTOM_CONNECT_TIMEOUT",
-            });
-          }, 15000);
-        });
+        const withTimeout = (promise, ms = 30000) =>
+          Promise.race([
+            promise,
+            new Promise((_, reject) =>
+              setTimeout(() => reject({ code: "PHANTOM_CONNECT_TIMEOUT" }), ms)
+            ),
+          ]);
 
-        connectResponse = await Promise.race([connectPromise, timeoutPromise]);
+        try {
+          connectResponse = await withTimeout(
+            provider.connect({ onlyIfTrusted: false }),
+            30000
+          );
+        } catch (e) {
+           connectResponse = await withTimeout(
+            provider.request({ method: "connect" }),
+            30000
+           );
+        }
+
       } catch (error) {
+        if (error?.code === -32002) {
+          return {
+            success: false,
+            code: "PHANTOM_ALREADY_PENDING",
+            error: "A Phantom request is already open. Please approve or cancel it in Phantom.",
+          };
+        }
+
         // Extension service worker died (update/reload) — the page must be refreshed
         if (
           error?.message?.includes("Extension context invalidated") ||

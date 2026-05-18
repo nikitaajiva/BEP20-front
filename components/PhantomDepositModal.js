@@ -61,14 +61,18 @@ const PhantomDepositModal = ({
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   const pollingTimerRef = useRef(null);
+  const pollingAttemptsRef = useRef(0);
+
+  const stopQrPolling = () => {
+    if (pollingTimerRef.current) {
+      clearTimeout(pollingTimerRef.current);
+      pollingTimerRef.current = null;
+    }
+    setQrPolling(false);
+  };
 
   useEffect(() => {
-    return () => {
-      if (pollingTimerRef.current) {
-        clearInterval(pollingTimerRef.current);
-        pollingTimerRef.current = null;
-      }
-    };
+    return () => stopQrPolling();
   }, []);
 
   const walletAddress = user?.phantomWalletAddress || "";
@@ -102,7 +106,7 @@ const PhantomDepositModal = ({
       setQrDataUrl("");
       setSolanaPayUrl("");
       if (pollingTimerRef.current) {
-        clearInterval(pollingTimerRef.current);
+        clearTimeout(pollingTimerRef.current);
         pollingTimerRef.current = null;
       }
       setQrPolling(false);
@@ -169,54 +173,64 @@ const PhantomDepositModal = ({
     return data.intent;
   };
 
-  const startQrStatusPolling = (intentId) => {
-    if (!intentId) return;
+  const scheduleNextPoll = (intentId) => {
+    pollingAttemptsRef.current += 1;
 
-    if (pollingTimerRef.current) {
-      clearInterval(pollingTimerRef.current);
-      pollingTimerRef.current = null;
-    }
+    const delayMs =
+      pollingAttemptsRef.current <= 12
+        ? 10000
+        : 20000;
 
-    setQrPolling(true);
+    pollingTimerRef.current = setTimeout(() => {
+      pollQrStatus(intentId);
+    }, delayMs);
+  };
 
-    pollingTimerRef.current = setInterval(async () => {
-      try {
-        const statusIntent = await checkDepositStatus(intentId);
+  const pollQrStatus = async (intentId) => {
+    try {
+      if (!intentId) return;
 
-        if (!statusIntent) return;
+      const statusIntent = await checkDepositStatus(intentId);
 
+      if (statusIntent) {
         setIntent((prev) => ({
           ...(prev || {}),
           ...statusIntent,
         }));
 
         if (statusIntent.status === "confirmed") {
-          clearInterval(pollingTimerRef.current);
-          pollingTimerRef.current = null;
-          setQrPolling(false);
-
-          setSuccessMessage("Payment received successfully.");
+          stopQrPolling();
+          setSuccessMessage("Payment confirmed successfully.");
           onDepositConfirmed?.({
             success: true,
             intent: statusIntent,
           });
+          return;
         }
 
         if (["failed", "expired"].includes(statusIntent.status)) {
-          clearInterval(pollingTimerRef.current);
-          pollingTimerRef.current = null;
-          setQrPolling(false);
-
+          stopQrPolling();
           setError(
             statusIntent.status === "expired"
               ? "This payment request expired. Please create a new request."
               : "Payment failed. Please try again."
           );
+          return;
         }
-      } catch (error) {
-        console.error("QR payment polling error:", error);
       }
-    }, 5000);
+
+      scheduleNextPoll(intentId);
+    } catch (error) {
+      console.error("QR payment polling error:", error);
+      scheduleNextPoll(intentId);
+    }
+  };
+
+  const startQrStatusPolling = (intentId) => {
+    stopQrPolling();
+    pollingAttemptsRef.current = 0;
+    setQrPolling(true);
+    scheduleNextPoll(intentId);
   };
 
   const createIntent = async (paymentMethod) => {
@@ -305,14 +319,20 @@ const PhantomDepositModal = ({
       throw new Error(data.message || "Unable to confirm deposit.");
     }
 
-    setSuccessMessage("Deposit confirmed successfully.");
+    setSuccessMessage("Payment confirmed successfully.");
+    
+    stopQrPolling();
+
+    setIntent((prev) => ({
+      ...(prev || {}),
+      ...(data.intent || {}),
+    }));
+
     onDepositConfirmed?.(data);
 
-    setIntent((prev) => prev ? { ...prev, status: "confirmed" } : null);
-    if (pollingTimerRef.current) {
-      clearInterval(pollingTimerRef.current);
-      pollingTimerRef.current = null;
-    }
+    setTimeout(() => {
+      onClose?.();
+    }, 1500);
 
     return data;
   };
@@ -398,7 +418,7 @@ const PhantomDepositModal = ({
       }).add(
         SystemProgram.transfer({
           fromPubkey: fromPublicKey,
-          toPubkey: new PublicKey(activeIntent.treasuryAddress),
+          toPubkey: new PublicKey(activeIntent.merchantWalletAddress),
           lamports: Number(activeIntent.amountLamports),
         })
       );
@@ -431,12 +451,7 @@ const PhantomDepositModal = ({
   };
 
   const handleClose = () => {
-    if (pollingTimerRef.current) {
-      clearInterval(pollingTimerRef.current);
-      pollingTimerRef.current = null;
-    }
-
-    setQrPolling(false);
+    stopQrPolling();
     onClose?.();
   };
 
@@ -576,10 +591,10 @@ const PhantomDepositModal = ({
                       <div className="text-[10px] uppercase font-bold text-white/40" style={{ margin: "0 0 4px 0" }}>Receiving Address</div>
                       <div className="flex items-center justify-between gap-3">
                         <span className="text-[13px] font-mono text-white/90 truncate block">
-                          {intent.treasuryAddress}
+                          {intent.merchantWalletAddress}
                         </span>
                         <button 
-                          onClick={() => handleCopy(intent.treasuryAddress, 'address')}
+                          onClick={() => handleCopy(intent.merchantWalletAddress, 'address')}
                           className="flex-shrink-0 text-[#d4af37] hover:text-white transition-colors bg-[#d4af37]/10 p-1.5 rounded-md"
                           title="Copy Address"
                         >
@@ -608,16 +623,40 @@ const PhantomDepositModal = ({
                         Payment confirmed!
                       </div>
                     ) : (
-                      <div className="flex flex-col items-center bg-[#111] w-full rounded-xl py-3 border border-white/5">
-                        <div className="flex items-center justify-center gap-2 text-[13px] font-medium text-[#d4af37]">
-                          <RefreshCw size={14} className="animate-spin" />
-                          Waiting for payment...
-                        </div>
-                        {timeLeft !== null && (
-                          <div className="text-[11px] text-white/40 mt-1 font-mono">
-                            Expires in {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
+                      <div className="flex flex-col w-full gap-3">
+                        <div className="flex flex-col items-center bg-[#111] w-full rounded-xl py-3 border border-white/5">
+                          <div className="flex items-center justify-center gap-2 text-[13px] font-medium text-[#d4af37]">
+                            <RefreshCw size={14} className="animate-spin" />
+                            Waiting for payment...
                           </div>
-                        )}
+                          {timeLeft !== null && (
+                            <div className="text-[11px] text-white/40 mt-1 font-mono">
+                              Expires in {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="rounded-xl border border-white/10 bg-[#0a0a0a] p-3.5">
+                          <label className="mb-2 block text-[10px] font-bold uppercase tracking-wider text-white/40">
+                            Already paid? Paste Tx Hash
+                          </label>
+                          <div className="flex gap-2">
+                            <input
+                              value={manualSignature}
+                              onChange={(e) => setManualSignature(e.target.value)}
+                              placeholder="Paste Solana transaction hash"
+                              className="w-full rounded-lg border border-white/10 bg-[#111] px-3 py-2 text-xs text-white outline-none focus:border-[#d4af37]/50"
+                            />
+                            <button
+                              type="button"
+                              onClick={handleSubmitManualSignature}
+                              disabled={checking || !manualSignature.trim()}
+                              className="flex flex-shrink-0 items-center justify-center rounded-lg bg-[#d4af37] px-3 py-2 text-[11px] font-bold text-black transition-colors hover:bg-[#ffdf6b] disabled:opacity-50"
+                            >
+                              {checking ? "Verifying..." : "Verify Payment"}
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -680,46 +719,7 @@ const PhantomDepositModal = ({
             </div>
           )}
 
-          {/* Advanced / Developer Fallback */}
-          {(process.env.NEXT_PUBLIC_ENABLE_MANUAL_DEPOSIT_VERIFY === "true" || process.env.NODE_ENV === "development") && (
-            <div className="mt-6 border-t border-white/5 pt-4">
-              <button 
-                onClick={() => setShowAdvanced(!showAdvanced)}
-                className="flex w-full items-center justify-center gap-2 text-[11px] font-bold uppercase tracking-wider text-white/30 hover:text-white/60 transition-colors"
-                style={{ padding: "8px 0", border: "none", background: "transparent" }}
-              >
-                <span>Developer Fallback</span>
-                {showAdvanced ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-              </button>
-              
-              {showAdvanced && (
-                <div className="mt-3 rounded-2xl border border-white/5 bg-[#111] p-4 animate-in fade-in">
-                  <label className="mb-2 block text-[10px] font-bold uppercase tracking-wider text-white/40" style={{ margin: "0 0 8px 0" }}>
-                    Manual Signature Verify
-                  </label>
-                  <div className="flex gap-2">
-                    <input
-                      value={manualSignature}
-                      onChange={(e) => setManualSignature(e.target.value)}
-                      placeholder="Paste tx signature..."
-                      className="w-full rounded-xl border border-white/10 bg-black px-3.5 py-2.5 text-xs text-white outline-none focus:border-[#d4af37]/50"
-                    />
-                    <button
-                      type="button"
-                      onClick={handleSubmitManualSignature}
-                      disabled={checking || !manualSignature.trim() || !intent?.id}
-                      className="flex flex-shrink-0 items-center justify-center rounded-xl bg-[#d4af37]/10 px-4 transition-colors hover:bg-[#d4af37]/20 disabled:opacity-50"
-                    >
-                      <RefreshCw size={16} className={`text-[#d4af37] ${checking ? "animate-spin" : ""}`} />
-                    </button>
-                  </div>
-                  {!intent?.id && (
-                    <p className="mt-2 text-[10px] text-red-400" style={{ margin: "8px 0 0 0" }}>Generate a deposit intent first before verifying.</p>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
+
         </div>
       </div>
       

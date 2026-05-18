@@ -151,11 +151,11 @@ export default function LedgerHistoryTable({ filters }) {
   };
   const formatDate = (timestamp) => {
     const date = new Date(timestamp);
-    const day = String(date.getUTCDate()).padStart(2, "0");
-    const month = String(date.getUTCMonth() + 1).padStart(2, "0"); // Month is zero-based
-    const year = date.getUTCFullYear();
-    const hours = String(date.getUTCHours()).padStart(2, "0");
-    const minutes = String(date.getUTCMinutes()).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
 
     return `${day}/${month}/${year} ${hours}:${minutes}`;
   };
@@ -332,7 +332,7 @@ export default function LedgerHistoryTable({ filters }) {
                     </td>
                     <td style={{ padding: "1.25rem 1rem", border: "none", fontSize: "0.9rem", color: "#ffd700", fontWeight: 700 }}>{formatWalletName(entry.walletTo)}</td>
                     <td style={{ padding: "1.25rem 1rem", border: "none", color: isNegative ? "#ff4d4d" : "#7FFF4C", fontWeight: 800, fontSize: "15px", textAlign: "right" }}>
-                      {amountVal.toFixed(4)}
+                      {amountVal.toLocaleString(undefined, { minimumFractionDigits: 4, maximumFractionDigits: 6 })}
                     </td>
                     <td style={{ padding: "1.25rem 1rem", border: "none", color: "#FFB800", fontWeight: 800, fontSize: "15px", textAlign: "right" }}>
                       {entry.tscAmount ? parseFloat(entry.tscAmount.$numberDecimal || entry.tscAmount).toLocaleString() : "-"}
@@ -389,7 +389,7 @@ export default function LedgerHistoryTable({ filters }) {
                     <div>
                       <div style={{ fontSize: '10px', color: '#555', fontWeight: '800', textTransform: 'uppercase', marginBottom: '4px' }}>Value Transfer</div>
                       <span style={{ fontSize: "20px", fontWeight: "900", color: parseFloat(entry.amount?.$numberDecimal || entry.amount) >= 0 ? "#7FFF4C" : "#ff4d4d", letterSpacing: '-1px' }}>
-                        {parseFloat(entry.amount?.$numberDecimal || entry.amount).toFixed(4)} <small style={{ fontSize: '12px', opacity: 0.6 }}>USDT</small>
+                        {parseFloat(entry.amount?.$numberDecimal || entry.amount).toLocaleString(undefined, { minimumFractionDigits: 4, maximumFractionDigits: 6 })} <small style={{ fontSize: '12px', opacity: 0.6 }}>USDT/SOL</small>
                       </span>
                     </div>
                     {hasYield && (

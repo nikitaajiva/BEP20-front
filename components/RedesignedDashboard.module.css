@@ -1331,6 +1331,14 @@
   gap: 5px;
   min-width: 230px;
   flex-shrink: 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.vaultPassCard:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 4px 15px rgba(255, 184, 0, 0.08);
 }
 
 .passHeader {
@@ -1386,6 +1394,13 @@
   padding: 5px 10px;
   border-radius: 8px;
   border: 1px solid rgba(255, 184, 0, 0.12);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.passLinkWrapper:hover {
+  background: rgba(255, 184, 0, 0.08);
+  border-color: rgba(255, 184, 0, 0.25);
 }
 
 .passUrl {

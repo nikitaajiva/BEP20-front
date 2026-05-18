@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import QRCode from "qrcode";
 import {
   Connection,
@@ -8,7 +8,16 @@ import {
   SystemProgram,
   Transaction,
 } from "@solana/web3.js";
-import { Wallet, QrCode, X, RefreshCw } from "lucide-react";
+import { 
+  Wallet, 
+  QrCode, 
+  X, 
+  RefreshCw, 
+  Copy, 
+  CheckCircle2, 
+  ChevronDown, 
+  ChevronUp 
+} from "lucide-react";
 
 const getPhantomProvider = () => {
   if (typeof window === "undefined") return null;
@@ -36,6 +45,7 @@ const PhantomDepositModal = ({
   onDepositConfirmed,
 }) => {
   const [amount, setAmount] = useState("");
+  const [method, setMethod] = useState("qr"); // "qr" or "phantom"
   const [intent, setIntent] = useState(null);
   const [solanaPayUrl, setSolanaPayUrl] = useState("");
   const [qrDataUrl, setQrDataUrl] = useState("");
@@ -46,7 +56,11 @@ const PhantomDepositModal = ({
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [qrPolling, setQrPolling] = useState(false);
-  const pollingTimerRef = React.useRef(null);
+  const [timeLeft, setTimeLeft] = useState(null);
+  const [copied, setCopied] = useState(null);
+  const [showAdvanced, setShowAdvanced] = useState(false);
+
+  const pollingTimerRef = useRef(null);
 
   useEffect(() => {
     return () => {
@@ -67,6 +81,7 @@ const PhantomDepositModal = ({
   useEffect(() => {
     if (!isOpen) {
       setAmount("");
+      setMethod("qr");
       setIntent(null);
       setSolanaPayUrl("");
       setQrDataUrl("");
@@ -76,12 +91,62 @@ const PhantomDepositModal = ({
       setChecking(false);
       setError("");
       setSuccessMessage("");
+      setTimeLeft(null);
+      setShowAdvanced(false);
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    if (intent && intent.status !== "confirmed" && intent.status !== "failed" && !paying && !loading) {
+      setIntent(null);
+      setQrDataUrl("");
+      setSolanaPayUrl("");
+      if (pollingTimerRef.current) {
+        clearInterval(pollingTimerRef.current);
+        pollingTimerRef.current = null;
+      }
+      setQrPolling(false);
+    }
+    setError("");
+    setSuccessMessage("");
+  }, [amount]);
+
+  useEffect(() => {
+    if (!intent?.expiresAt || intent.status === "confirmed" || intent.status === "failed" || intent.status === "expired") {
+      setTimeLeft(null);
+      return;
+    }
+    
+    const calculateTimeLeft = () => {
+      const diff = new Date(intent.expiresAt).getTime() - Date.now();
+      return Math.max(0, Math.floor(diff / 1000));
+    };
+    
+    setTimeLeft(calculateTimeLeft());
+    
+    const timer = setInterval(() => {
+      const t = calculateTimeLeft();
+      setTimeLeft(t);
+      if (t <= 0) {
+        clearInterval(timer);
+        if (intent.status === "created" || intent.status === "submitted") {
+           setIntent(prev => prev ? {...prev, status: "expired"} : null);
+        }
+      }
+    }, 1000);
+    
+    return () => clearInterval(timer);
+  }, [intent?.expiresAt, intent?.status]);
 
   const getToken = () => {
     if (typeof window === "undefined") return null;
     return localStorage.getItem("token");
+  };
+
+  const handleCopy = (text, type) => {
+    navigator.clipboard.writeText(text);
+    setCopied(type);
+    setTimeout(() => setCopied(null), 2000);
   };
 
   const checkDepositStatus = async (intentId) => {
@@ -243,6 +308,12 @@ const PhantomDepositModal = ({
     setSuccessMessage("Deposit confirmed successfully.");
     onDepositConfirmed?.(data);
 
+    setIntent((prev) => prev ? { ...prev, status: "confirmed" } : null);
+    if (pollingTimerRef.current) {
+      clearInterval(pollingTimerRef.current);
+      pollingTimerRef.current = null;
+    }
+
     return data;
   };
 
@@ -256,7 +327,7 @@ const PhantomDepositModal = ({
 
   const handleSubmitManualSignature = async () => {
     if (!intent?.id) {
-      setError("Please generate QR deposit request first.");
+      setError("Please generate a deposit request first or ensure one is active.");
       return;
     }
 
@@ -279,14 +350,17 @@ const PhantomDepositModal = ({
   };
 
   const handlePayWithPhantom = async () => {
-    if (paying) return;
+    if (paying || loading || (intent && intent.status === 'confirmed')) return;
 
     setPaying(true);
     setError("");
     setSuccessMessage("");
 
     try {
-      const activeIntent = intent || (await createIntent("extension"));
+      let activeIntent = intent;
+      if (!activeIntent || ["failed", "expired"].includes(activeIntent.status)) {
+        activeIntent = await createIntent("extension");
+      }
 
       if (!activeIntent) return;
 
@@ -336,6 +410,8 @@ const PhantomDepositModal = ({
       if (!signature) {
         throw new Error("No transaction signature returned from Phantom.");
       }
+      
+      setIntent((prev) => prev ? { ...prev, status: "submitted", txSignature: signature } : null);
 
       await connection.confirmTransaction(
         {
@@ -364,22 +440,27 @@ const PhantomDepositModal = ({
     onClose?.();
   };
 
+  const isInputDisabled = (!!intent && !["failed", "expired"].includes(intent.status)) || paying || loading;
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 px-4 backdrop-blur-sm">
-      <div className="w-full max-w-md overflow-hidden rounded-2xl border border-[#d4af37]/30 bg-[#0a0a0a] shadow-[0_0_40px_rgba(212,175,55,0.15)]">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 px-3 backdrop-blur-sm overflow-y-auto">
+      <div 
+        className="w-full max-w-[420px] my-6 overflow-hidden rounded-3xl border border-[#d4af37]/30 bg-[#0a0a0a] relative"
+        style={{ boxShadow: "0 10px 40px rgba(212,175,55,0.12)" }}
+      >
         {/* Header */}
-        <div className="relative border-b border-[#d4af37]/20 bg-gradient-to-r from-[#d4af37]/10 to-transparent p-5">
-          <div className="flex items-center justify-between">
+        <div className="relative border-b border-[#d4af37]/20 bg-gradient-to-r from-[#d4af37]/10 to-transparent p-4 sm:p-5">
+          <div className="flex items-start justify-between">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full border border-[#d4af37]/30 bg-[#d4af37]/10 text-[#d4af37]">
-                <Wallet size={20} />
+              <div className="flex-shrink-0 flex h-11 w-11 items-center justify-center rounded-full border border-[#d4af37]/30 bg-[#d4af37]/10 text-[#d4af37]">
+                <Wallet size={22} />
               </div>
-              <div>
-                <h2 className="text-lg font-bold tracking-wide text-white">Deposit SOL</h2>
-                <p className="text-xs text-[#d4af37]/70">
-                  Scan QR or use Phantom extension
+              <div className="flex flex-col justify-center">
+                <h2 className="text-lg sm:text-xl font-bold tracking-wide text-white" style={{ margin: 0, paddingBottom: "2px" }}>Deposit SOL</h2>
+                <p className="text-[11px] sm:text-xs text-[#d4af37]/70 leading-tight" style={{ margin: 0 }}>
+                  Choose a deposit method securely
                 </p>
               </div>
             </div>
@@ -387,29 +468,30 @@ const PhantomDepositModal = ({
             <button
               type="button"
               onClick={handleClose}
-              className="rounded-full p-2 text-white/50 transition-colors hover:bg-white/5 hover:text-white"
+              className="rounded-full p-2 text-white/50 transition-colors hover:bg-white/10 hover:text-white mt-1"
             >
-              <X size={18} />
+              <X size={20} />
             </button>
           </div>
         </div>
 
         {/* Body */}
-        <div className="p-5">
-          <div className="mb-5 rounded-xl border border-white/5 bg-white/[0.02] p-4">
-            <label className="mb-2 block text-xs font-medium uppercase tracking-wider text-white/60">
-              Amount in SOL
+        <div className="p-4 sm:p-5 max-h-[calc(100vh-120px)] overflow-y-auto custom-scrollbar">
+          
+          <div className="mb-5 rounded-2xl border border-white/10 bg-[#111] p-4">
+            <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-white/50" style={{ margin: "0 0 8px 0" }}>
+              Amount
             </label>
             <div className="relative">
               <input
-                disabled={!!intent}
+                disabled={isInputDisabled}
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 type="number"
                 min="0"
                 step="0.000001"
                 placeholder="0.00"
-                className="w-full rounded-lg border border-white/10 bg-black/50 py-3 pl-4 pr-12 text-lg font-medium text-white shadow-inner outline-none transition-all focus:border-[#d4af37] focus:shadow-[0_0_10px_rgba(212,175,55,0.2)] disabled:opacity-50"
+                className="w-full rounded-xl border border-white/10 bg-black py-3.5 pl-4 pr-14 text-lg font-bold text-white outline-none transition-all focus:border-[#d4af37]/60 focus:bg-[#0f0f0f] disabled:opacity-50"
               />
               <div className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-[#d4af37]">
                 SOL
@@ -420,101 +502,243 @@ const PhantomDepositModal = ({
           <div className="grid grid-cols-2 gap-3">
             <button
               type="button"
-              onClick={handleQrDeposit}
-              disabled={loading || !isAmountValid}
-              className="group flex items-center justify-center gap-2 rounded-xl border border-[#d4af37]/30 bg-black/40 px-4 py-3 text-sm font-medium text-[#d4af37] transition-all hover:bg-[#d4af37]/10 disabled:opacity-50 disabled:hover:bg-black/40"
+              onClick={() => setMethod("qr")}
+              className={`flex flex-col items-center justify-center rounded-2xl border p-3 sm:p-4 text-center transition-all ${
+                method === "qr"
+                  ? "border-[#d4af37] bg-[#d4af37]/10 text-[#d4af37]"
+                  : "border-white/10 bg-[#111] text-white/50 hover:bg-white/5 hover:text-white"
+              }`}
+              style={method === "qr" ? { boxShadow: "0 0 15px rgba(212,175,55,0.15)" } : {}}
             >
-              <QrCode size={18} className="transition-transform group-hover:scale-110" />
-              QR Deposit
+              <QrCode size={24} className="mb-2 mx-auto" />
+              <div className="text-sm font-bold w-full" style={{ margin: 0 }}>QR Deposit</div>
+              <div className="text-[10px] sm:text-[11px] opacity-70 w-full mt-1 leading-tight" style={{ margin: "4px 0 0 0" }}>Scan with mobile</div>
             </button>
 
             <button
               type="button"
-              onClick={handlePayWithPhantom}
-              disabled={paying || loading || !isAmountValid}
-              className="group flex items-center justify-center gap-2 rounded-xl border border-[#d4af37] bg-gradient-to-r from-[#d4af37]/20 to-[#d4af37]/5 px-4 py-3 text-sm font-medium text-white shadow-[0_0_15px_rgba(212,175,55,0.1)] transition-all hover:shadow-[0_0_20px_rgba(212,175,55,0.3)] disabled:opacity-50 disabled:hover:shadow-[0_0_15px_rgba(212,175,55,0.1)]"
+              onClick={() => setMethod("phantom")}
+              className={`flex flex-col items-center justify-center rounded-2xl border p-3 sm:p-4 text-center transition-all ${
+                method === "phantom"
+                  ? "border-[#d4af37] bg-[#d4af37]/10 text-[#d4af37]"
+                  : "border-white/10 bg-[#111] text-white/50 hover:bg-white/5 hover:text-white"
+              }`}
+              style={method === "phantom" ? { boxShadow: "0 0 15px rgba(212,175,55,0.15)" } : {}}
             >
-              <Wallet size={18} className="transition-transform group-hover:scale-110" />
-              {paying ? "Processing..." : "Pay with Phantom"}
+              <Wallet size={24} className="mb-2 mx-auto" />
+              <div className="text-sm font-bold w-full" style={{ margin: 0 }}>Pay Direct</div>
+              <div className="text-[10px] sm:text-[11px] opacity-70 w-full mt-1 leading-tight" style={{ margin: "4px 0 0 0" }}>Phantom extension</div>
             </button>
           </div>
 
-          {qrDataUrl && (
-            <div className="mt-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
-              <div className="relative mx-auto w-max rounded-2xl border border-[#d4af37]/30 bg-gradient-to-b from-[#d4af37]/10 to-transparent p-5 shadow-[0_0_30px_rgba(212,175,55,0.1)]">
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full border border-[#d4af37]/40 bg-[#0a0a0a] px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[#d4af37]">
-                  Scan to Pay
-                </div>
-                <img
-                  src={qrDataUrl}
-                  alt="Solana deposit QR"
-                  className="mx-auto h-48 w-48 rounded-lg border-4 border-white shadow-lg"
-                />
-              </div>
-
-              {intent?.temporaryConnectedWalletMode && (
-                <p className="mt-4 text-center text-[11px] font-medium text-[#d4af37]/80">
-                  <span className="text-[#d4af37]">Demo Mode:</span> This QR receives SOL to your connected wallet.
-                </p>
-              )}
-
-              {qrPolling && (
-                <div className="mt-4 flex items-center justify-center gap-2 rounded-lg border border-[#d4af37]/20 bg-[#d4af37]/5 py-2 text-[11px] text-[#d4af37]">
-                  <RefreshCw size={12} className="animate-spin" />
-                  Waiting for payment confirmation...
-                </div>
-              )}
-
-              {intent?.status === "confirmed" && (
-                <div className="mt-4 flex items-center justify-center gap-2 rounded-lg border border-green-500/30 bg-green-500/10 py-2 text-[11px] font-medium text-green-400">
-                  <div className="h-2 w-2 rounded-full bg-green-400 shadow-[0_0_5px_#4ade80]"></div>
-                  Payment confirmed successfully!
-                </div>
-              )}
-
-              <div className="mt-5 rounded-xl border border-white/5 bg-white/[0.02] p-4">
-                <label className="mb-2 block text-[10px] font-medium uppercase tracking-wider text-white/50">
-                  Manual Verification
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    value={manualSignature}
-                    onChange={(e) => setManualSignature(e.target.value)}
-                    placeholder="Paste tx signature here..."
-                    className="w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-xs text-white outline-none transition-all focus:border-[#d4af37]/50 focus:bg-black/60"
-                  />
+          {method === "qr" && (
+            <div className="mt-5 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              {!intent || ["failed", "expired"].includes(intent.status) ? (
+                <div className="rounded-3xl border border-white/5 bg-[#111] p-6 text-center">
+                  <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[#d4af37]/10">
+                    <QrCode size={28} className="text-[#d4af37]" />
+                  </div>
+                  <h3 className="text-lg font-bold text-white" style={{ margin: "0 0 8px 0" }}>QR Deposit</h3>
+                  <p className="text-xs text-white/50 leading-relaxed max-w-[250px] mx-auto" style={{ margin: "0 0 20px 0" }}>
+                    Scan with Phantom mobile wallet. We will detect the deposit automatically.
+                  </p>
                   <button
                     type="button"
-                    onClick={handleSubmitManualSignature}
-                    disabled={checking || !manualSignature.trim()}
-                    className="flex shrink-0 items-center justify-center rounded-lg border border-[#d4af37]/30 bg-[#d4af37]/10 px-3 transition-colors hover:bg-[#d4af37]/20 disabled:opacity-50"
+                    onClick={handleQrDeposit}
+                    disabled={loading || !isAmountValid}
+                    className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#d4af37] px-4 py-3.5 text-[15px] font-bold text-black transition-all hover:bg-[#ffdf6b] disabled:opacity-50"
                   >
-                    <RefreshCw size={14} className={`text-[#d4af37] ${checking ? "animate-spin" : ""}`} />
+                    {loading ? (
+                      <><RefreshCw size={18} className="animate-spin" /> Generating...</>
+                    ) : (
+                      <><QrCode size={18} /> Generate QR Code</>
+                    )}
                   </button>
                 </div>
-              </div>
+              ) : (
+                <div className="rounded-3xl border border-[#d4af37]/30 bg-gradient-to-b from-[#d4af37]/10 to-transparent p-5 sm:p-6 flex flex-col items-center relative">
+                  <div className="mb-5 rounded-full border border-[#d4af37]/40 bg-[#0a0a0a] px-4 py-1.5 text-[11px] font-bold uppercase tracking-widest text-[#d4af37]">
+                    Send exactly {intent.amountSol} SOL
+                  </div>
+                  
+                  {qrDataUrl && (
+                    <div className="mx-auto mb-5 w-max rounded-xl bg-white p-2.5" style={{ boxShadow: "0 8px 25px rgba(0,0,0,0.5)" }}>
+                      <img
+                        src={qrDataUrl}
+                        alt="Solana deposit QR"
+                        className="h-44 w-44 rounded-lg block"
+                      />
+                    </div>
+                  )}
+
+                  <div className="w-full space-y-3">
+                    <div className="rounded-xl border border-white/10 bg-[#0a0a0a] p-3.5">
+                      <div className="text-[10px] uppercase font-bold text-white/40" style={{ margin: "0 0 4px 0" }}>Receiving Address</div>
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-[13px] font-mono text-white/90 truncate block">
+                          {intent.treasuryAddress}
+                        </span>
+                        <button 
+                          onClick={() => handleCopy(intent.treasuryAddress, 'address')}
+                          className="flex-shrink-0 text-[#d4af37] hover:text-white transition-colors bg-[#d4af37]/10 p-1.5 rounded-md"
+                          title="Copy Address"
+                        >
+                          {copied === 'address' ? <CheckCircle2 size={16} className="text-green-400" /> : <Copy size={16} />}
+                        </button>
+                      </div>
+                    </div>
+                    
+                    {solanaPayUrl && (
+                      <div className="rounded-xl border border-white/10 bg-[#0a0a0a] p-3.5 flex justify-between items-center">
+                         <span className="text-[13px] font-medium text-white/70">Solana Pay Link</span>
+                         <button 
+                          onClick={() => handleCopy(solanaPayUrl, 'link')}
+                          className="flex items-center gap-1.5 text-xs font-bold text-[#d4af37] hover:text-white transition-colors bg-[#d4af37]/10 px-2.5 py-1.5 rounded-md"
+                        >
+                          {copied === 'link' ? <><CheckCircle2 size={14} className="text-green-400"/> Copied</> : <><Copy size={14}/> Copy Link</>}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="mt-5 w-full flex flex-col items-center">
+                    {intent.status === "confirmed" ? (
+                      <div className="flex w-full items-center justify-center gap-2 rounded-xl border border-green-500/30 bg-green-500/10 py-3.5 text-sm font-bold text-green-400">
+                        <CheckCircle2 size={18} />
+                        Payment confirmed!
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center bg-[#111] w-full rounded-xl py-3 border border-white/5">
+                        <div className="flex items-center justify-center gap-2 text-[13px] font-medium text-[#d4af37]">
+                          <RefreshCw size={14} className="animate-spin" />
+                          Waiting for payment...
+                        </div>
+                        {timeLeft !== null && (
+                          <div className="text-[11px] text-white/40 mt-1 font-mono">
+                            Expires in {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
-          {solanaPayUrl && !qrDataUrl && (
-            <div className="mt-4 break-all rounded-xl border border-white/5 bg-black/30 p-3 text-[10px] text-white/30">
-              {solanaPayUrl}
+          {method === "phantom" && (
+            <div className="mt-5 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <div className="rounded-3xl border border-white/5 bg-[#111] p-6 text-center">
+                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[#d4af37]/10">
+                  <Wallet size={28} className="text-[#d4af37]" />
+                </div>
+                <h3 className="text-lg font-bold text-white" style={{ margin: "0 0 8px 0" }}>Pay with Phantom</h3>
+                <p className="text-xs text-white/50 max-w-[250px] mx-auto leading-relaxed" style={{ margin: "0 0 20px 0" }}>
+                  Pay directly from your connected Phantom wallet extension.
+                </p>
+
+                <button
+                  type="button"
+                  onClick={handlePayWithPhantom}
+                  disabled={paying || loading || !isAmountValid || (intent && intent.status === 'confirmed')}
+                  className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#d4af37] px-4 py-3.5 text-[15px] font-bold text-black transition-all hover:bg-[#ffdf6b] disabled:opacity-50"
+                  style={!(paying || loading || !isAmountValid) ? { boxShadow: "0 4px 15px rgba(212,175,55,0.3)" } : {}}
+                >
+                  {paying || loading ? (
+                    <><RefreshCw size={18} className="animate-spin" /> Processing...</>
+                  ) : intent?.status === 'confirmed' ? (
+                    <><CheckCircle2 size={18} className="text-green-700" /> Confirmed</>
+                  ) : (
+                    <><Wallet size={18} /> Pay {amount || "0.00"} SOL</>
+                  )}
+                </button>
+
+                {/* Status messages for Phantom */}
+                {intent?.status === "submitted" && (
+                  <div className="mt-4 flex items-center justify-center gap-2 text-xs font-medium text-[#d4af37]">
+                    <RefreshCw size={14} className="animate-spin" /> Confirming on blockchain...
+                  </div>
+                )}
+                {intent?.status === "created" && paying && (
+                  <div className="mt-4 flex items-center justify-center gap-2 text-xs font-medium text-[#d4af37]">
+                    <RefreshCw size={14} className="animate-spin" /> Waiting for wallet approval...
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
           {error && (
-            <div className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300 shadow-[0_0_15px_rgba(239,68,68,0.1)]">
+            <div className="mt-5 rounded-xl border border-red-500/30 bg-red-500/10 p-3.5 text-[13px] font-medium text-red-300 text-center">
               {error}
             </div>
           )}
 
-          {successMessage && !qrDataUrl && (
-            <div className="mt-4 rounded-xl border border-green-500/30 bg-green-500/10 p-3 text-sm text-green-300 shadow-[0_0_15px_rgba(34,197,94,0.1)]">
+          {successMessage && method === "phantom" && (
+            <div className="mt-5 rounded-xl border border-green-500/30 bg-green-500/10 p-3.5 text-[13px] font-medium text-green-400 text-center">
               {successMessage}
+            </div>
+          )}
+
+          {/* Advanced / Developer Fallback */}
+          {(process.env.NEXT_PUBLIC_ENABLE_MANUAL_DEPOSIT_VERIFY === "true" || process.env.NODE_ENV === "development") && (
+            <div className="mt-6 border-t border-white/5 pt-4">
+              <button 
+                onClick={() => setShowAdvanced(!showAdvanced)}
+                className="flex w-full items-center justify-center gap-2 text-[11px] font-bold uppercase tracking-wider text-white/30 hover:text-white/60 transition-colors"
+                style={{ padding: "8px 0", border: "none", background: "transparent" }}
+              >
+                <span>Developer Fallback</span>
+                {showAdvanced ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+              </button>
+              
+              {showAdvanced && (
+                <div className="mt-3 rounded-2xl border border-white/5 bg-[#111] p-4 animate-in fade-in">
+                  <label className="mb-2 block text-[10px] font-bold uppercase tracking-wider text-white/40" style={{ margin: "0 0 8px 0" }}>
+                    Manual Signature Verify
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      value={manualSignature}
+                      onChange={(e) => setManualSignature(e.target.value)}
+                      placeholder="Paste tx signature..."
+                      className="w-full rounded-xl border border-white/10 bg-black px-3.5 py-2.5 text-xs text-white outline-none focus:border-[#d4af37]/50"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleSubmitManualSignature}
+                      disabled={checking || !manualSignature.trim() || !intent?.id}
+                      className="flex flex-shrink-0 items-center justify-center rounded-xl bg-[#d4af37]/10 px-4 transition-colors hover:bg-[#d4af37]/20 disabled:opacity-50"
+                    >
+                      <RefreshCw size={16} className={`text-[#d4af37] ${checking ? "animate-spin" : ""}`} />
+                    </button>
+                  </div>
+                  {!intent?.id && (
+                    <p className="mt-2 text-[10px] text-red-400" style={{ margin: "8px 0 0 0" }}>Generate a deposit intent first before verifying.</p>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </div>
       </div>
+      
+      {/* Scrollbar styling */}
+      <style dangerouslySetInnerHTML={{__html: `
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(212, 175, 55, 0.2);
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(212, 175, 55, 0.4);
+        }
+      `}} />
     </div>
   );
 };

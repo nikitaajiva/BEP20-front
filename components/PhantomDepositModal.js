@@ -43,8 +43,10 @@ const PhantomDepositModal = ({
   API_URL,
   user,
   onDepositConfirmed,
+  initialAmount = "",
+  isLockedAmount = false,
 }) => {
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState(initialAmount);
   const [method, setMethod] = useState("qr"); // "qr" or "phantom"
   const [intent, setIntent] = useState(null);
   const [solanaPayUrl, setSolanaPayUrl] = useState("");
@@ -84,7 +86,7 @@ const PhantomDepositModal = ({
 
   useEffect(() => {
     if (!isOpen) {
-      setAmount("");
+      setAmount(initialAmount);
       setMethod("qr");
       setIntent(null);
       setSolanaPayUrl("");
@@ -97,8 +99,10 @@ const PhantomDepositModal = ({
       setSuccessMessage("");
       setTimeLeft(null);
       setShowAdvanced(false);
+    } else {
+      setAmount(initialAmount);
     }
-  }, [isOpen]);
+  }, [isOpen, initialAmount]);
 
   useEffect(() => {
     if (intent && intent.status !== "confirmed" && intent.status !== "failed" && !paying && !loading) {
@@ -499,9 +503,11 @@ const PhantomDepositModal = ({
             </label>
             <div className="relative">
               <input
-                disabled={isInputDisabled}
+                disabled={isInputDisabled || isLockedAmount}
                 value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                onChange={(e) => {
+                  if (!isLockedAmount) setAmount(e.target.value);
+                }}
                 type="number"
                 min="0"
                 step="0.000001"

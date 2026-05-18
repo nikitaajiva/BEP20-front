@@ -1,10 +1,16 @@
 "use client";
 export const dynamic = "force-dynamic";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import AuthGuard from "@/components/auth/AuthGuard";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import { FaClock, FaRedo, FaCoins, FaUnlock, FaChartBar, FaChartLine, FaInfoCircle, FaShieldAlt, FaRocket, FaHistory, FaBolt, FaArrowUp } from "react-icons/fa";
+import SuccessModal from "@/components/SuccessModal";
+import QRCode from "qrcode";
+import { 
+  FaClock, FaRedo, FaCoins, FaUnlock, FaChartBar, FaChartLine, 
+  FaInfoCircle, FaShieldAlt, FaRocket, FaHistory, FaBolt, 
+  FaArrowUp, FaQrcode, FaCopy, FaSpinner, FaWallet, FaCheckCircle 
+} from "react-icons/fa";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -38,72 +44,287 @@ const tiers = [
   { days: 365, min: 23, max: 28, badge: "Premium",  color: "#e63200", description: "Top-tier APY with maximum compounding." },
 ];
 
-const card = {
+const cardStyle = {
   background: "rgba(255,102,0,0.04)",
   border: "1px solid rgba(255,102,0,0.1)",
   borderRadius: 20,
   padding: "28px 24px",
   marginBottom: 24,
+  position: "relative",
+  overflow: "hidden"
 };
 
 export default function StakingPage() {
-  const { user, updateMe } = useAuth();
-  const [view, setView] = useState("selection"); // selection or analytics
+  const { user, stakeTokens, API_URL } = useAuth();
+  const [view, setView] = useState("selection"); // selection, analytics, or topup
   const [selectedTier, setSelectedTier] = useState(null);
   const [amount, setAmount] = useState("");
   const [isStaking, setIsStaking] = useState(false);
-  
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  // SOL/USDT Conversion
+  const [ledgerDetails, setLedgerDetails] = useState(null);
+  const [solRate, setSolRate] = useState(null);
+  const [solRateLoading, setSolRateLoading] = useState(false);
+  const [remainingUsdt, setRemainingUsdt] = useState(0);
+  const [remainingSol, setRemainingSol] = useState(0);
+
+  // Inline Deposit Intent & Polling State
+  const [intent, setIntent] = useState(null);
+  const [qrDataUrl, setQrDataUrl] = useState("");
+  const [solanaPayUrl, setSolanaPayUrl] = useState("");
+  const [loadingQr, setLoadingQr] = useState(false);
+  const [polling, setPolling] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [manualSignature, setManualSignature] = useState("");
+  const [verifyingSignature, setVerifyingSignature] = useState(false);
+  const [manualError, setManualError] = useState("");
+  const [activationError, setActivationError] = useState("");
+
+  const pollTimerRef = useRef(null);
+
   const tier = tiers.find((t) => t.days === selectedTier);
+  const TSC_PRICE = 0.01;
 
   // Sync view state with user data
   useEffect(() => {
-    if (user?.stakingPlan?.days) {
-      console.log("Staking Plan Detected:", user.stakingPlan);
+    if (user?.stakingPlans?.length > 0 || user?.stakingPlan?.days) {
       setView("analytics");
     }
   }, [user]);
 
-  const activePlan = user?.stakingPlan;
+  const activePlan = user?.stakingPlans?.[user.stakingPlans.length - 1] || user?.stakingPlan;
+  
   // Loose matching for tier lookup to prevent syncing screen lock
   const activeTier = tiers.find(t => 
     t.days == activePlan?.days || 
     Number(t.days) === Number(activePlan?.days)
   );
 
-  const handleStake = async () => {
+  // Fetch ledger details
+  const fetchLedgerDetails = useCallback(async () => {
+    try {
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      if (!token) return;
+      const response = await fetch(`${API_URL}/ledger`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await response.json();
+      if (data.success && data.ledgerDetails) {
+        setLedgerDetails(data.ledgerDetails);
+      }
+    } catch (e) {
+      console.error("Failed to fetch ledger details:", e);
+    }
+  }, [API_URL]);
+
+  useEffect(() => {
+    fetchLedgerDetails();
+  }, [fetchLedgerDetails]);
+
+  // Fetch live SOL/USDT rate from CoinGecko
+  const fetchSolRate = useCallback(async () => {
+    if (solRate !== null) return solRate;
+    setSolRateLoading(true);
+    try {
+      const res = await fetch(
+        "https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd",
+        { cache: "no-store" }
+      );
+      const data = await res.json();
+      const rate = data?.solana?.usd;
+      if (rate && rate > 0) {
+        setSolRate(rate);
+        return rate;
+      }
+    } catch (e) {
+      console.warn("Could not fetch SOL rate:", e);
+    } finally {
+      setSolRateLoading(false);
+    }
+    setSolRate(150);
+    return 150;
+  }, [solRate]);
+
+  // Process Staking
+  const processStaking = useCallback(async () => {
+    setIsStaking(true);
+    setActivationError("");
+    try {
+      const parsedAmount = parseFloat(amount);
+      const result = await stakeTokens({
+        amount: parsedAmount,
+        days: selectedTier,
+        tscAmount: parsedAmount / TSC_PRICE,
+        ratePct: tier?.max
+      });
+
+      if (result.success) {
+        setShowSuccess(true);
+      } else {
+        setActivationError(result.error || "Staking failed. Please try again.");
+      }
+    } catch (err) {
+      console.error("Staking failed:", err);
+      setActivationError(err.message || "Staking failed.");
+    } finally {
+      setIsStaking(false);
+    }
+  }, [amount, selectedTier, tier, stakeTokens]);
+
+  // Start polling deposit status
+  const startPolling = useCallback((intentId) => {
+    if (pollTimerRef.current) clearInterval(pollTimerRef.current);
+    setPolling(true);
+    pollTimerRef.current = setInterval(async () => {
+      try {
+        const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+        if (!token) return;
+        const res = await fetch(`${API_URL}/phantom-deposits/status/${intentId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.success && data.intent) {
+          if (data.intent.status === "confirmed") {
+            clearInterval(pollTimerRef.current);
+            setPolling(false);
+            await processStaking();
+          } else if (["failed", "expired"].includes(data.intent.status)) {
+            clearInterval(pollTimerRef.current);
+            setPolling(false);
+            setActivationError("The deposit payment failed or expired.");
+          }
+        }
+      } catch (e) {
+        console.error("Polling error:", e);
+      }
+    }, 4000);
+  }, [processStaking, API_URL]);
+
+  // Generate QR inline
+  const handleGenerateQr = async () => {
+    setLoadingQr(true);
+    setActivationError("");
+    setManualError("");
+    try {
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      if (!token) {
+        throw new Error("Authentication token not found. Please log in again.");
+      }
+      const response = await fetch(`${API_URL}/phantom-deposits/intent`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          amount: remainingSol,
+          paymentMethod: "qr"
+        })
+      });
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Failed to create deposit intent.");
+      }
+      setIntent(data.intent);
+      setSolanaPayUrl(data.solanaPayUrl);
+      const qr = await QRCode.toDataURL(data.solanaPayUrl, {
+        margin: 1,
+        width: 200
+      });
+      setQrDataUrl(qr);
+      startPolling(data.intent.id);
+    } catch (e) {
+      console.error(e);
+      setActivationError(e.message || "Unable to generate Solana Pay QR code.");
+    } finally {
+      setLoadingQr(false);
+    }
+  };
+
+  // Verify signature fallback
+  const handleVerifyManual = async () => {
+    if (!manualSignature.trim()) {
+      setManualError("Please enter transaction signature.");
+      return;
+    }
+    setVerifyingSignature(true);
+    setManualError("");
+    try {
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      if (!token) {
+        throw new Error("Authentication token not found. Please log in again.");
+      }
+      const response = await fetch(`${API_URL}/phantom-deposits/confirm`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          intentId: intent.id,
+          txSignature: manualSignature.trim()
+        })
+      });
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Verification failed. Check signature/hash.");
+      }
+      if (pollTimerRef.current) clearInterval(pollTimerRef.current);
+      setPolling(false);
+      await processStaking();
+    } catch (e) {
+      setManualError(e.message || "Verification failed. Please try again.");
+    } finally {
+      setVerifyingSignature(false);
+    }
+  };
+
+  const handleCopy = (text) => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  // Shortfall check before staking
+  const handleStakeClick = async () => {
     const parsedAmount = parseFloat(amount);
     if (!selectedTier || isNaN(parsedAmount) || parsedAmount <= 0) {
       alert("Please enter a valid staking amount.");
       return;
     }
-    
-    setIsStaking(true);
-    try {
-      const result = await updateMe({
-        stakingPlan: {
-          amount: parsedAmount,
-          days: selectedTier,
-          startDate: new Date()
-        }
-      });
-      
-      if (result.success) {
-        // Force reload to sync all context data
-        window.location.reload();
-      } else {
-        alert(result.error || "Failed to update staking plan.");
-      }
-    } catch (error) {
-      console.error("Staking failed:", error);
-    } finally {
-      setIsStaking(false);
+    setActivationError("");
+
+    const currentBalanceSol = parseFloat(ledgerDetails?.solWallet?.balance || "0");
+    const rate = await fetchSolRate();
+
+    const requiredSol = parsedAmount / rate;
+    const shortfallSol = requiredSol - currentBalanceSol;
+
+    if (shortfallSol > 0.000001) {
+      const shortfallUsdt = shortfallSol * rate;
+      setRemainingUsdt(parseFloat(shortfallUsdt.toFixed(2)));
+      setRemainingSol(parseFloat(shortfallSol.toFixed(6)));
+      setView("topup"); // Dynamic inline shortfall top-up screen
+      return;
     }
+
+    await processStaking();
   };
 
   const handleUpgrade = () => {
     setView("selection");
     setSelectedTier(activePlan?.days);
   };
+
+  // Clean timer cleanup
+  useEffect(() => {
+    return () => {
+      if (pollTimerRef.current) {
+        clearInterval(pollTimerRef.current);
+      }
+    };
+  }, []);
 
   // --- Chart Configurations ---
   const apyChartData = {
@@ -128,7 +349,6 @@ export default function StakingPage() {
     ],
   };
 
-  // --- Dynamic Chart Calculations ---
   const getCompoundedData = (apy, customAmount) => {
     const principal = parseFloat(customAmount || amount || 0);
     if (!principal) return [0, 0, 0, 0, 0];
@@ -210,10 +430,20 @@ export default function StakingPage() {
     }
   };
 
+  const currentBalanceSol = parseFloat(ledgerDetails?.solWallet?.balance || "0");
+
   return (
     <AuthGuard>
       <div style={{ minHeight:"100vh", background:"#000", color:"#fff", fontFamily:"'Inter',sans-serif", padding:"40px 20px 100px" }}>
         <div style={{ maxWidth:900, margin:"0 auto" }}>
+          
+          <SuccessModal 
+            isOpen={showSuccess} 
+            onClose={() => window.location.reload()}
+            title="Staking Confirmed"
+            message={`Successfully staked ${amount} USDT for ${tier?.days} days. Your yield engine is now active.`}
+          />
+
           <Link href="/dashboard" style={{ color:"#ff6600", fontSize:13, fontWeight:700, textDecoration:"none", display:"inline-flex", alignItems:"center", gap:6, marginBottom:28 }}>
             ← Back to Dashboard
           </Link>
@@ -230,6 +460,130 @@ export default function StakingPage() {
               Our dynamic APY engine ensures sustainable returns through multi-stream revenue sharing.
             </p>
           </div>
+
+          {/* DYNAMIC SHORTFALL TOP-UP VIEW */}
+          {view === "topup" && remainingSol > 0 && (
+            <div className="animate__animated animate__fadeIn" style={{ maxWidth: 600, margin: "0 auto" }}>
+              <div style={cardStyle}>
+                <h3 style={{ fontSize: 16, fontWeight: 900, color: "#fff", marginBottom: 20, textTransform: "uppercase", letterSpacing: 1.5, textAlign: "center" }}>Top-Up Required</h3>
+                
+                {/* Balance breakdown card */}
+                <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,85,0,0.2)", borderRadius: 20, padding: 20, marginBottom: 20 }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
+                    <div style={{ background: "rgba(0,0,0,0.3)", padding: "12px 14px", borderRadius: 14, border: "1px solid rgba(255,255,255,0.05)", textAlign: "center" }}>
+                      <div style={{ fontSize: 9, fontWeight: 800, color: "rgba(255,255,255,0.4)", marginBottom: 4, textTransform: "uppercase", letterSpacing: 1 }}>Current Wallet</div>
+                      <div style={{ fontSize: 16, fontWeight: 900, color: "#4ade80" }}>{currentBalanceSol.toFixed(6)} SOL</div>
+                      {solRate ? <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", marginTop: 2 }}>≈ ${(currentBalanceSol * solRate).toFixed(2)}</div> : null}
+                    </div>
+                    <div style={{ background: "rgba(0,0,0,0.3)", padding: "12px 14px", borderRadius: 14, border: "1px solid rgba(255,85,0,0.2)", textAlign: "center" }}>
+                      <div style={{ fontSize: 9, fontWeight: 800, color: "rgba(255,255,255,0.4)", marginBottom: 4, textTransform: "uppercase", letterSpacing: 1 }}>Remaining Shortfall</div>
+                      <div style={{ fontSize: 16, fontWeight: 900, color: "#ff5500" }}>{remainingSol} SOL</div>
+                      <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", marginTop: 2 }}>≈ ${remainingUsdt}</div>
+                    </div>
+                  </div>
+                  <p style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", lineHeight: 1.5, margin: "0 0 0 0", textAlign: "center" }}>
+                    Pay exactly <strong style={{ color: "#ff5500" }}>{remainingSol} SOL</strong> to proceed. The remaining amount will be combined with your existing balance of <strong style={{ color: "#4ade80" }}>{currentBalanceSol.toFixed(6)} SOL</strong> to establish the staking plan.
+                  </p>
+                </div>
+
+                {!qrDataUrl ? (
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+                    {activationError && (
+                      <div style={{ width: "100%", background: "rgba(255,50,50,0.1)", border: "1px solid rgba(255,50,50,0.3)", borderRadius: 12, padding: "12px 16px", fontSize: 12, color: "#ff6b6b", textAlign: "center" }}>
+                        {activationError}
+                      </div>
+                    )}
+                    <button
+                      onClick={handleGenerateQr}
+                      disabled={loadingQr}
+                      style={{ width: "100%", padding: "16px 24px", background: "linear-gradient(135deg,#ff5500,#ff8800)", border: "none", borderRadius: 16, color: "#000", fontWeight: 900, fontSize: 14, cursor: "pointer", textTransform: "uppercase", letterSpacing: 1.5, boxShadow: "0 10px 25px rgba(255,85,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}
+                    >
+                      {loadingQr ? (
+                        <>
+                          <FaSpinner className="animate-spin" size={16} />
+                          Generating Solana QR...
+                        </>
+                      ) : (
+                        <>
+                          <FaQrcode size={16} />
+                          Generate QR — Pay {remainingSol} SOL
+                        </>
+                      )}
+                    </button>
+                    <button onClick={() => { setView("selection"); setActivationError(""); }} style={{ width: "100%", padding: 16, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16, color: "#fff", fontWeight: 800, fontSize: 14, cursor: "pointer" }}>Back</button>
+                  </div>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                    <div style={{ padding: 12, background: "#fff", borderRadius: 20, boxShadow: "0 8px 25px rgba(0,0,0,0.5)", marginBottom: 16 }}>
+                      <img src={qrDataUrl} alt="Solana Pay QR" style={{ width: 170, height: 170, display: "block" }} />
+                    </div>
+
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, fontWeight: 700, color: "#ff5500", textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 16 }}>
+                      <FaSpinner className="animate-spin" size={12} />
+                      Waiting for payment detection...
+                    </div>
+
+                    {intent?.merchantWalletAddress && (
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 12, padding: "8px 12px", width: "100%", maxWidth: 360, marginBottom: 20, cursor: "pointer" }} onClick={() => handleCopy(intent.merchantWalletAddress)}>
+                        <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", fontWeight: 800 }}>To:</span>
+                        <span style={{ fontSize: 11, color: "#fff", fontFamily: "monospace", flex: 1, overflow: "hidden", textOverflow: "ellipsis" }}>{intent.merchantWalletAddress}</span>
+                        <button style={{ background: "none", border: "none", color: copied ? "#4ade80" : "#ff5500", cursor: "pointer", display: "flex", alignItems: "center" }}>
+                          {copied ? <span style={{ fontSize: 9, fontWeight: 800 }}>COPIED!</span> : <FaCopy size={12} />}
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Manual Hash Fallback Verification */}
+                    <div style={{ width: "100%", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 16, marginBottom: 20 }}>
+                      <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontWeight: 800, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8, textAlign: "center" }}>
+                        Paid but not detected? Verify manually:
+                      </div>
+                      <div style={{ display: "flex", gap: 8 }}>
+                        <input
+                          type="text"
+                          placeholder="Paste transaction signature / hash..."
+                          value={manualSignature}
+                          onChange={(e) => {
+                            setManualSignature(e.target.value);
+                            if (manualError) setManualError("");
+                          }}
+                          style={{ flex: 1, background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, padding: "10px 14px", color: "#fff", fontSize: 12, outline: "none" }}
+                        />
+                        <button
+                          onClick={handleVerifyManual}
+                          disabled={verifyingSignature || !manualSignature.trim()}
+                          style={{ padding: "10px 16px", background: "#ff5500", color: "#000", border: "none", borderRadius: 12, fontSize: 12, fontWeight: 800, cursor: verifyingSignature ? "not-allowed" : "pointer" }}
+                        >
+                          {verifyingSignature ? <FaSpinner className="animate-spin" size={14} /> : "Verify"}
+                        </button>
+                      </div>
+                      {manualError && (
+                        <div style={{ color: "#ff6b6b", fontSize: 11, marginTop: 6, textAlign: "center", fontWeight: 600 }}>
+                          {manualError}
+                        </div>
+                      )}
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        if (pollTimerRef.current) clearInterval(pollTimerRef.current);
+                        setIntent(null);
+                        setQrDataUrl("");
+                        setSolanaPayUrl("");
+                        setPolling(false);
+                        setManualSignature("");
+                        setManualError("");
+                        setView("selection");
+                      }}
+                      style={{ width: "100%", padding: 14, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16, color: "#fff", fontWeight: 800, fontSize: 13, cursor: "pointer" }}
+                    >
+                      Cancel Deposit &amp; Back
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* ANALYTICS VIEW */}
           {view === "analytics" && activePlan && (
@@ -345,8 +699,8 @@ export default function StakingPage() {
                 </div>
               </div>
             </div>
-          ) : (
-              <div style={card}>
+            ) : (
+              <div style={cardStyle}>
                 <h2 style={{ color: "#fff" }}>Syncing Staking Data...</h2>
                 <p style={{ color: "#888" }}>Found plan for {activePlan?.amount} TOKING, matching tier settings...</p>
                 <div style={{ background: "rgba(255,255,255,0.05)", padding: 12, borderRadius: 8, fontSize: 11, color: "#666", marginTop: 10 }}>
@@ -363,7 +717,7 @@ export default function StakingPage() {
           {view === "selection" && (
             <>
               {/* Step 1 */}
-              <div style={card}>
+              <div style={cardStyle}>
                 <h2 style={{ fontSize:18, fontWeight:800, color:"#ff8c00", marginBottom:6 }}>Step 1 — Choose Your Lock Period</h2>
                 <p style={{ fontSize:13, color:"#666", marginBottom:24 }}>Select how long to stake. Longer periods = higher APY.</p>
                 <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(180px,1fr))", gap:14 }}>
@@ -388,7 +742,7 @@ export default function StakingPage() {
               </div>
 
               {/* Step 2 */}
-              <div style={{ ...card, opacity: selectedTier ? 1 : 0.4 }}>
+              <div style={{ ...cardStyle, opacity: selectedTier ? 1 : 0.4 }}>
                 <h2 style={{ fontSize:18, fontWeight:800, color:"#ff8c00", marginBottom:6 }}>Step 2 — Enter Stake Amount</h2>
                 <p style={{ fontSize:13, color:"#666", marginBottom:20 }}>How many Toking Tokens would you like to lock?</p>
                 
@@ -409,6 +763,17 @@ export default function StakingPage() {
                         style={{ width:"100%", background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,102,0,0.25)", borderRadius:12, color:"#fff", fontSize:24, fontWeight:900, padding:"18px 80px 18px 20px", outline:"none", boxSizing:"border-box", transition: "0.3s" }}/>
                       <span style={{ position:"absolute", right:16, top:"50%", transform:"translateY(-50%)", color:"#ff6600", fontWeight:900, fontSize:14 }}>TOKING</span>
                     </div>
+
+                    {/* Available Wallet Balance display */}
+                    {ledgerDetails && (
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 12, background: "rgba(255,85,0,0.04)", border: "1px solid rgba(255,85,0,0.1)", borderRadius: 12, padding: "10px 14px" }}>
+                        <FaWallet color="#ff6600" size={12} />
+                        <span style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", fontWeight: 500 }}>
+                          Wallet Balance: <strong style={{ color: "#ff6600" }}>{currentBalanceSol.toFixed(6)} SOL</strong>
+                          {solRate ? <span style={{ color: "rgba(255,255,255,0.3)", marginLeft: 6 }}>≈ ${(currentBalanceSol * solRate).toFixed(2)} USDT</span> : null}
+                        </span>
+                      </div>
+                    )}
                     
                     {/* Instant Feedback Stats */}
                     <div style={{ marginTop:20, background:"rgba(255,102,0,0.04)", border:"1px solid rgba(255,102,0,0.15)", borderRadius:16, padding:"20px" }}>
@@ -456,7 +821,7 @@ export default function StakingPage() {
               </div>
 
               {/* Step 3 */}
-              <div style={{ ...card, opacity: selectedTier && amount ? 1 : 0.4 }}>
+              <div style={{ ...cardStyle, opacity: selectedTier && amount ? 1 : 0.4 }}>
                 <h2 style={{ fontSize:18, fontWeight:800, color:"#ff8c00", marginBottom:20 }}>Step 3 — Confirm Your Stake</h2>
                 <div style={{ display:"flex", flexDirection:"column", gap:10, marginBottom:24 }}>
                   {[["Lock Period", tier ? `${tier.days} days (${tier.badge})` : "—"],["APY Range", tier ? `${tier.min}% – ${tier.max}%` : "—"],["Stake Amount", amount ? `${amount} TOKING` : "—"],["Daily Rewards","Automatic every 24 hours"],["Unlock Date", tier && amount ? new Date(Date.now()+tier.days*86400000).toLocaleDateString() : "—"]].map(([k,v])=>(
@@ -467,18 +832,18 @@ export default function StakingPage() {
                   ))}
                 </div>
                 <button 
-                  onClick={handleStake}
-                  disabled={!selectedTier || !amount || isStaking} 
+                  onClick={handleStakeClick}
+                  disabled={!selectedTier || !amount || isStaking || solRateLoading} 
                   style={{
                     width:"100%", padding:16,
-                    background: selectedTier && amount ? "linear-gradient(135deg,#ffd700,#ff8c00,#ff4500)" : "rgba(255,255,255,0.06)",
+                    background: selectedTier && amount ? "linear-gradient(135deg,#ffd700,#ff8800,#ff4500)" : "rgba(255,255,255,0.06)",
                     border:"none", borderRadius:14, color: selectedTier && amount ? "#000" : "#444",
                     fontSize:15, fontWeight:900, cursor: selectedTier && amount ? "pointer" : "not-allowed",
                     boxShadow: selectedTier && amount ? "0 8px 32px rgba(255,102,0,0.4)" : "none",
-                    opacity: isStaking ? 0.7 : 1
+                    opacity: isStaking || solRateLoading ? 0.7 : 1
                   }}
                 >
-                  {isStaking ? "🔄 Processing Stake..." : `🔥 Stake ${amount ? `${amount} TOKING` : "Now"}`}
+                  {isStaking ? "🔄 Processing Stake..." : solRateLoading ? "🔄 Syncing Exchange Rate..." : `🔥 Stake ${amount ? `${amount} TOKING` : "Now"}`}
                 </button>
                 <p style={{ fontSize:11, color:"#555", textAlign:"center", marginTop:12 }}>
                   Funds are locked until the lock-up period ends. Daily rewards start immediately.

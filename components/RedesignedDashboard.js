@@ -601,12 +601,14 @@ const RedesignedDashboard = ({
         <StakingModal
           isOpen={isStakingModalOpen}
           onClose={() => setIsStakingModalOpen(false)}
+          ledgerDetails={ledgerDetails}
         />
       )}
       {isNftModalOpen && (
         <NFTModal
           isOpen={isNftModalOpen}
           onClose={() => setIsNftModalOpen(false)}
+          ledgerDetails={ledgerDetails}
         />
       )}
       {isPortfolioModalOpen && (

@@ -354,26 +354,116 @@
     opacity: 0.5;
 }
 
+.lpTextGroup {
+    display: flex;
+    flex-direction: column;
+}
+
 /* Responsive */
-@media (max-width: 480px) {
+@media (max-width: 600px) {
+    .xBonusContainer {
+        height: auto !important;
+        min-height: 520px !important;
+        padding: 20px !important;
+    }
+
+    .xBonusList {
+        overflow-y: auto !important;
+        gap: 12px !important;
+        padding: 10px 5px !important;
+    }
+
     .xBonusRow {
-        grid-template-columns: 1fr 40px 80px;
+        display: flex !important;
+        flex-direction: column !important;
+        background: rgba(10, 10, 10, 0.45) !important;
+        border: 1px solid rgba(255, 255, 255, 0.06) !important;
+        border-radius: 16px !important;
+        padding: 12px 16px !important;
+        gap: 10px !important;
+        clip-path: none !important;
+        margin: 0 !important;
     }
-    .levelCard { 
-        padding: 0 15px 0 10px; 
-        height: 60px; 
+
+    .levelCard {
+        display: flex !important;
+        width: 100% !important;
+        height: auto !important;
+        padding: 0 !important;
+        background: transparent !important;
+        border: none !important;
+        clip-path: none !important;
+        align-items: center !important;
     }
+
+    .iconContainer {
+        width: 28px !important;
+        height: 28px !important;
+        border-radius: 8px !important;
+        margin-right: 10px !important;
+    }
+
+    .levelTitle {
+        font-size: 1rem !important;
+    }
+
+    .rewardValueSection {
+        margin-left: auto !important;
+        gap: 6px !important;
+    }
+
+    .rewardValue {
+        font-size: 0.8rem !important;
+    }
+
+    .hexagonWrapper {
+        display: none !important;
+    }
+
     .lpCard {
-        height: 60px;
-        padding: 0 8px 0 14px;
+        display: flex !important;
+        width: 100% !important;
+        height: auto !important;
+        padding: 10px 0 0 0 !important;
+        background: transparent !important;
+        border: none !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+        clip-path: none !important;
+        margin: 0 !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        gap: 10px !important;
     }
-    .levelTitle { font-size: 0.7rem; }
-    .rewardValue { font-size: 0.65rem; }
-    .lpValue { font-size: 0.65rem; }
-    .miniLabel { font-size: 7px; }
-    .nftStatBadge { font-size: 6px; padding: 1px 3px; }
-    .hexagon { width: 30px; height: 34px; }
-    .iconContainer { width: 24px; height: 24px; margin-right: 8px; }
-    .rewardValueSection { gap: 3px; }
+
+    .lpTextGroup {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 8px !important;
+    }
+
+    .miniLabel {
+        font-size: 8px !important;
+        margin-bottom: 0 !important;
+    }
+
+    .lpValue {
+        font-size: 0.8rem !important;
+        line-height: 1 !important;
+    }
+
+    .nftStatRow {
+        gap: 6px !important;
+    }
+
+    .nftStatBadge {
+        font-size: 7px !important;
+        padding: 2px 5px !important;
+    }
+
+    .xBonusList::before {
+        display: none !important;
+    }
 }
 

@@ -233,7 +233,6 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const stakeTokens = useCallback(async (stakingData) => {
-    setLoading(true);
     try {
       const localToken = safeStorage.getItem("token");
       const res = await fetch(`${getAPI_URL()}/users/stake`, {
@@ -266,13 +265,10 @@ export const AuthProvider = ({ children }) => {
       console.error("Staking error:", err);
       setError(err.message);
       return { success: false, error: err.message };
-    } finally {
-      setLoading(false);
     }
   }, []);
 
   const purchaseNft = useCallback(async (nftData) => {
-    setLoading(true);
     try {
       const localToken = safeStorage.getItem("token");
       const res = await fetch(`${getAPI_URL()}/users/purchase-nft`, {
@@ -305,8 +301,6 @@ export const AuthProvider = ({ children }) => {
       console.error("NFT purchase error:", err);
       setError(err.message);
       return { success: false, error: err.message };
-    } finally {
-      setLoading(false);
     }
   }, []);
 

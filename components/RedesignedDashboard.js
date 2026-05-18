@@ -2,7 +2,7 @@
 import React from "react";
 import styles from "./RedesignedDashboard.module.css";
 import { motion } from "framer-motion";
-import { Wallet, Droplets, TrendingUp, Activity, Plus, History, Shield, Eye, Gift, Copy, LogOut } from "lucide-react";
+import { Wallet, Droplets, TrendingUp, Activity, Plus, History, Shield, Eye, Gift, Copy, LogOut, Check } from "lucide-react";
 import { FaHorse, FaCoins, FaBitcoin, FaEthereum } from "react-icons/fa";
 import Link from "next/link";
 import StakingModal from "./StakingModal";
@@ -83,6 +83,7 @@ const RedesignedDashboard = ({
 
   const [mounted, setMounted] = React.useState(false);
   const [copySuccess, setCopySuccess] = React.useState(false);
+  const [copiedPhantom, setCopiedPhantom] = React.useState(false);
   const referralLink = (mounted && user?.username)
     ? `${window.location.origin}/sign-up?sponsorId=${user.username}`
     : "";
@@ -111,7 +112,10 @@ const RedesignedDashboard = ({
   const handleCopyPhantomWallet = (e) => {
     e.stopPropagation();
     if (!phantomWalletAddress) return;
-    copyToClipboard(phantomWalletAddress);
+    copyToClipboard(phantomWalletAddress).then(() => {
+      setCopiedPhantom(true);
+      setTimeout(() => setCopiedPhantom(false), 2000);
+    });
   };
 
   const [showInvestMenu, setShowInvestMenu] = React.useState(false);
@@ -232,8 +236,8 @@ const RedesignedDashboard = ({
                 </span>
                 {hasPhantomWallet && (
                   <div className={styles.walletActions}>
-                    <span onClick={handleCopyPhantomWallet} title="Copy Address">
-                      <Copy size={11} />
+                    <span onClick={handleCopyPhantomWallet} title={copiedPhantom ? "Copied!" : "Copy Address"}>
+                      {copiedPhantom ? <Check size={11} color="#00ff00" /> : <Copy size={11} />}
                     </span>
 
                     {onDisconnectPhantom && (
@@ -349,9 +353,21 @@ const RedesignedDashboard = ({
               {/* Inner Content */}
               <div className={styles.stakingCircleInner}>
                 <>
-                  <div className={styles.hubAmount} style={{ color: "#ff5500", fontSize: 36 }}>
-                    {ecosystemTotalBalance > 0 ? ecosystemTotalBalance.toLocaleString() : "0.00"}
-                  </div>
+                  {(() => {
+                    const num = parseFloat(ecosystemTotalBalance || 0);
+                    const displayVal = num === 0 ? "0.00" : (num < 0.0001 ? num.toFixed(6) : (num < 1 ? num.toFixed(4) : num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })));
+                    
+                    let dynamicFontSize = 36;
+                    if (displayVal.length > 12) dynamicFontSize = 20;
+                    else if (displayVal.length > 10) dynamicFontSize = 24;
+                    else if (displayVal.length > 8) dynamicFontSize = 28;
+
+                    return (
+                      <div className={styles.hubAmount} style={{ color: "#ff5500", fontSize: dynamicFontSize }}>
+                        {displayVal}
+                      </div>
+                    );
+                  })()}
                   <div className={styles.hubCurrency} style={{ letterSpacing: 4, marginBottom: 12 }}>ECOSYSTEM ASSETS</div>
                   <div className={styles.hubSeparator}></div>
                   <div className={styles.stakingStatsDetail} style={{ marginTop: 12 }}>
@@ -433,7 +449,7 @@ const RedesignedDashboard = ({
                     <div className={styles.marketStat}>
                       <span className={styles.marketLabel}>TODAY</span>
                       <span className={styles.marketValue} style={{ color: "#ff5500" }}>
-                        +{ecosystemDailyRewards.toFixed(4)}
+                        +{ecosystemDailyRewards < 0.0001 && ecosystemDailyRewards > 0 ? ecosystemDailyRewards.toFixed(8) : ecosystemDailyRewards.toFixed(4)}
                       </span>
                     </div>
                     <div className={styles.marketStat}>

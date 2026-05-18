@@ -244,6 +244,10 @@ export const BoostWalletCard = ({
   chartOptions,
   plugins = []
 }) => {
+  const balanceNum = parseFloat(String(balance).replace(/,/g, '')) || 0;
+  const limitNum = parseFloat(String(limit).replace(/,/g, '')) || 0;
+  const progressPercent = limitNum > 0 ? Math.min((balanceNum / limitNum) * 100, 100) : 0;
+
   return (
     <div className={styles.boostCardSplit}>
       {/* Left side: Header & Gauge */}
@@ -272,6 +276,20 @@ export const BoostWalletCard = ({
               <div className={styles.gaugeValue}>{balance}</div>
               <div className={styles.gaugeCurrency}>USDT</div>
             </div>
+          </div>
+        </div>
+
+        {/* Dynamic Capacity / Limit Tracker */}
+        <div className={styles.capacityContainer}>
+          <div className={styles.capacityHeader}>
+            <span className={styles.capacityLabel}>Limit Progress</span>
+            <span className={styles.capacityValue}>{progressPercent.toFixed(1)}%</span>
+          </div>
+          <div className={styles.capacityTrack}>
+            <div className={styles.capacityBar} style={{ width: `${progressPercent}%` }}></div>
+          </div>
+          <div className={styles.capacityFooter}>
+            <span>Limit: {limit} USDT</span>
           </div>
         </div>
       </div>
@@ -518,13 +536,38 @@ export const HorseNFTCard = ({
   );
 };
 
-export const ActiveStakesCard = ({ user, onViewHistory }) => {
-  const allStakes = [
-    ...(user?.stakingPlan?.amount ? [{ ...user.stakingPlan, isPrimary: true }] : []),
-    ...(user?.stakingPlans || [])
-  ];
+export const ActiveStakesCard = ({ user, portfolioDetails, onViewHistory }) => {
+  // Use portfolioDetails tokenStaking if available (matches backend exact math)
+  let allStakes = [];
+  let isFromPortfolio = false;
+  
+  if (portfolioDetails?.tokenStaking && portfolioDetails.tokenStaking.length > 0) {
+    allStakes = portfolioDetails.tokenStaking;
+    isFromPortfolio = true;
+  } else {
+    // Fallback to legacy client-side computation
+    allStakes = [
+      ...(user?.stakingPlan?.amount ? [{ ...user.stakingPlan, isPrimary: true }] : []),
+      ...(user?.stakingPlans || [])
+    ];
+  }
 
   const displayedStakes = allStakes.slice(0, 3);
+
+  const formatCryptoVal = (val, defaultDec = 2) => {
+    const num = parseFloat(val || 0);
+    if (num === 0) return "0";
+    if (num < 0.000001) {
+      return num.toFixed(10).replace(/\.?0+$/, '');
+    }
+    if (num < 0.0001) {
+      return num.toFixed(8).replace(/\.?0+$/, '');
+    }
+    if (num < 1) {
+      return num.toFixed(6).replace(/\.?0+$/, '');
+    }
+    return num.toLocaleString(undefined, { minimumFractionDigits: defaultDec, maximumFractionDigits: 6 });
+  };
 
   return (
     <div className={styles.rwCardWrapper} style={{ border: '1px solid rgba(255, 85, 0, 0.25)' }}>
@@ -539,16 +582,31 @@ export const ActiveStakesCard = ({ user, onViewHistory }) => {
       <div className={styles.rwBody} style={{ padding: '12px', maxHeight: '300px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {displayedStakes.length > 0 ? (
           displayedStakes.map((stake, idx) => {
-            const daysPassed = Math.max(0, Math.floor((new Date() - new Date(stake.startDate)) / 86400000));
-            const progress = Math.min(100, (daysPassed / stake.days) * 100);
-
-            // Precise dynamic interest system rates mapping:
-            const apy = stake.days >= 365 ? 0.28 : stake.days >= 180 ? 0.22 : stake.days >= 90 ? 0.18 : 0.10;
-            const dailyYield = (parseFloat(stake.amount) * apy / 365).toFixed(4);
-            const totalEstReward = (parseFloat(stake.amount) * apy * stake.days / 365).toFixed(2);
-
-            const daysRemaining = Math.max(0, stake.days - daysPassed);
-            const tierName = stake.days >= 365 ? "Premium" : stake.days >= 180 ? "Advanced" : stake.days >= 90 ? "Growth" : "Starter";
+            let amountVal, dailyYield, totalEstReward, daysRemaining, tierName, progress, apy, days, tokenAmount;
+            
+            if (isFromPortfolio) {
+              amountVal = stake.amount;
+              tokenAmount = stake.tokenAmount;
+              dailyYield = stake.dailyYield;
+              totalEstReward = stake.estReward;
+              daysRemaining = stake.daysRemaining;
+              tierName = stake.tierName;
+              progress = stake.progress;
+              apy = stake.apy < 1 ? (stake.apy * 100).toFixed(0) : stake.apy;
+              days = stake.days;
+            } else {
+              const daysPassed = Math.max(0, Math.floor((new Date() - new Date(stake.startDate)) / 86400000));
+              days = stake.days;
+              progress = Math.min(100, (daysPassed / stake.days) * 100);
+              apy = stake.days >= 365 ? 0.28 : stake.days >= 180 ? 0.22 : stake.days >= 90 ? 0.18 : 0.10;
+              amountVal = parseFloat(stake.amount || stake.stakeAmount || 0);
+              tokenAmount = parseFloat(stake.tokenAmount || stake.tscAmount || (amountVal / 0.01) || 0);
+              dailyYield = (amountVal * apy / 365);
+              totalEstReward = (amountVal * apy * stake.days / 365);
+              daysRemaining = Math.max(0, stake.days - daysPassed);
+              tierName = stake.days >= 365 ? "Premium" : stake.days >= 180 ? "Advanced" : stake.days >= 90 ? "Growth" : "Starter";
+              apy = apy * 100; // convert to percentage for display
+            }
 
             return (
               <div
@@ -572,8 +630,13 @@ export const ActiveStakesCard = ({ user, onViewHistory }) => {
                     </div>
                     <div>
                       <span style={{ fontSize: 14, fontWeight: 900, color: '#fff' }}>
-                        {parseFloat(stake.amount).toLocaleString()} <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)' }}>USDT</span>
+                        {formatCryptoVal(amountVal, 2)} <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)' }}>USDT</span>
                       </span>
+                      {tokenAmount > 0 && (
+                        <div style={{ fontSize: 10, color: 'rgba(255,184,0,0.85)', marginTop: '2px', fontWeight: 800 }}>
+                          {formatCryptoVal(tokenAmount, 2)} TSC Tokens
+                        </div>
+                      )}
                     </div>
                   </div>
                   <span style={{ fontSize: 8, fontWeight: 900, color: '#ff5500', background: 'rgba(255,85,0,0.1)', padding: '2px 6px', borderRadius: 4, textTransform: 'uppercase' }}>
@@ -585,15 +648,15 @@ export const ActiveStakesCard = ({ user, onViewHistory }) => {
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>
                   <div>
                     <span style={{ display: 'block', fontSize: 8, color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase' }}>Duration</span>
-                    <span style={{ fontWeight: 800, color: '#fff' }}>{stake.days} Days <span style={{ fontSize: '8px', color: '#ff5500', fontWeight: 800 }}>({(apy * 100)}% APY)</span></span>
+                    <span style={{ fontWeight: 800, color: '#fff' }}>{days} Days <span style={{ fontSize: '8px', color: '#ff5500', fontWeight: 800 }}>({apy}% APY)</span></span>
                   </div>
                   <div>
                     <span style={{ display: 'block', fontSize: 8, color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase' }}>Daily Yield</span>
-                    <span style={{ fontWeight: 950, color: '#00ff00' }}>+{dailyYield} USDT</span>
+                    <span style={{ fontWeight: 950, color: '#00ff00' }}>+{formatCryptoVal(dailyYield, 4)} USDT</span>
                   </div>
                   <div>
                     <span style={{ display: 'block', fontSize: 8, color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase' }}>Est. Reward</span>
-                    <span style={{ fontWeight: 950, color: '#00ff00' }}>+{totalEstReward} USDT</span>
+                    <span style={{ fontWeight: 950, color: '#00ff00' }}>+{formatCryptoVal(totalEstReward, 2)} USDT</span>
                   </div>
                   <div style={{ textAlign: 'right' }}>
                     <span style={{ display: 'block', fontSize: 8, color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase' }}>Maturity</span>

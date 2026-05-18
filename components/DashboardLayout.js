@@ -1364,10 +1364,13 @@ export default function DashboardLayout({
   const nftNextPayout  = nftDailyYield;
 
   // ── Aggregated Ecosystem Hub Data ──────────────────────────────────────────────
-  const stakingPlans = user?.stakingPlans || [];
-  const totalStaked = stakingPlans.reduce((acc, p) => acc + (parseFloat(p.amount) || 0), 0);
-  const stakingDaily = stakingPlans.reduce((acc, p) => {
-    const amt = parseFloat(p.amount || "0");
+  const allStakingPlans = [
+    ...(user?.stakingPlan?.amount ? [{ ...user.stakingPlan }] : []),
+    ...(user?.stakingPlans || [])
+  ];
+  const totalStaked = allStakingPlans.reduce((acc, p) => acc + (parseFloat(p.amount || p.stakeAmount) || 0), 0);
+  const stakingDaily = allStakingPlans.reduce((acc, p) => {
+    const amt = parseFloat(p.amount || p.stakeAmount || "0");
     const days = p.days || 0;
     const apy = days >= 365 ? 0.28 : days >= 180 ? 0.22 : days >= 90 ? 0.18 : 0.10;
     return acc + (amt * apy / 365);
@@ -1615,6 +1618,7 @@ export default function DashboardLayout({
           /> */
           <ActiveStakesCard
             user={user}
+            portfolioDetails={portfolioDetails}
             onViewHistory={() => window.location.href = "/dashboard/history/asset"}
           />
         }

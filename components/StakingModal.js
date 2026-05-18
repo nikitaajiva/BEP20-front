@@ -20,6 +20,7 @@ export default function StakingModal({ isOpen, onClose, ledgerDetails }) {
   const [amount, setAmount] = useState("");
   const [isStaking, setIsStaking] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [successTxHash, setSuccessTxHash] = useState("");
   const [activationError, setActivationError] = useState("");
 
   // SOL/USDT Conversion
@@ -78,10 +79,13 @@ export default function StakingModal({ isOpen, onClose, ledgerDetails }) {
         amount: parsedAmount,
         days: selectedTier,
         tscAmount: parsedAmount / TSC_PRICE,
+        tokenAmount: parsedAmount / TSC_PRICE,
         ratePct: tier?.max
       });
 
       if (result.success) {
+        if (result.txHash) setSuccessTxHash(result.txHash);
+        else if (result.transactionHash) setSuccessTxHash(result.transactionHash);
         setShowSuccess(true);
       } else {
         setActivationError(result.error || "Staking failed. Please try again.");
@@ -248,6 +252,7 @@ export default function StakingModal({ isOpen, onClose, ledgerDetails }) {
       setAmount("");
       setIsStaking(false);
       setShowSuccess(false);
+      setSuccessTxHash("");
       setActivationError("");
       setRemainingUsdt(0);
       setRemainingSol(0);
@@ -283,6 +288,7 @@ export default function StakingModal({ isOpen, onClose, ledgerDetails }) {
         onClose={() => window.location.reload()}
         title="Staking Confirmed"
         message={`Successfully staked ${amount} USDT for ${tier?.days} days. Your yield engine is now active.`}
+        transactionHash={successTxHash}
       />
       
       <div style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>

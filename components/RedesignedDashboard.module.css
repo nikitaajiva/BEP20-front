@@ -1442,7 +1442,10 @@
   .mainContentArea {
     margin-left: 0 !important;
     width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
     padding: 15px !important;
+    overflow-x: hidden !important;
   }
   .dashboardContainer {
     flex-direction: column;
@@ -1472,6 +1475,10 @@
     padding-top: 20px;
     padding-left: 15px;
     padding-right: 15px;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
   }
 
   .dashboardMainGrid {
@@ -1569,10 +1576,13 @@
   }
 
   .mainContentArea {
-    padding-bottom: 80px;
-    margin-left: 0;
-    width: 100%;
-    padding: 15px;
+    padding-bottom: 140px !important;
+    margin-left: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
+    padding: 12px !important;
   }
 }
 
@@ -2846,12 +2856,12 @@
 
   /* Scale down staking circle */
   .stakingBlueCircle {
-    width: 260px !important;
-    height: 260px !important;
+    width: 300px !important;
+    height: 300px !important;
   }
 
   .hubAmount {
-    font-size: 28px !important;
+    font-size: 32px !important;
   }
 
   .hubLabelOuter {
@@ -2925,7 +2935,11 @@
   .mainContentWrapper {
     padding-left: 12px !important;
     padding-right: 12px !important;
-    padding-bottom: 90px !important;
+    padding-bottom: 140px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
   }
 
   .dashboardRow1 {
@@ -2934,27 +2948,72 @@
 
   .dashboardRow2 {
     gap: 16px !important;
+    grid-template-columns: 1fr !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
   }
 
   .stakingBlueCircle {
-    width: 220px !important;
-    height: 220px !important;
+    width: 290px !important;
+    height: 290px !important;
   }
 
   .hubAmount {
-    font-size: 24px !important;
+    font-size: 26px !important;
+  }
+
+  .hubCurrency {
+    font-size: 9px !important;
+    letter-spacing: 2px !important;
+    margin-bottom: 6px !important;
   }
 
   .stakingCircleInner {
-    padding: 14px !important;
+    padding: 16px !important;
   }
 
   .statDetailLabel {
-    font-size: 7px !important;
+    font-size: 8px !important;
   }
 
   .statDetailValue {
     font-size: 11px !important;
+  }
+
+  .stakingStatsDetail {
+    margin-top: 6px !important;
+    gap: 12px !important;
+  }
+
+  .stakingProgressBox {
+    margin: 6px 0 !important;
+    width: 120px !important;
+  }
+
+  .stakingDaysRemaining {
+    font-size: 8px !important;
+    letter-spacing: 1px !important;
+  }
+
+  .marketStatsRow {
+    margin-top: 6px !important;
+    gap: 15px !important;
+  }
+
+  .marketLabel {
+    font-size: 8px !important;
+  }
+
+  .marketValue {
+    font-size: 10px !important;
+  }
+
+  .hubPortfolioBtn {
+    padding: 6px 12px !important;
+    font-size: 9px !important;
+    margin-top: 6px !important;
   }
 
   .mainInvestBtn {

@@ -30,6 +30,7 @@ export default function NFTModal({ isOpen, onClose, ledgerDetails }) {
   const [selected, setSelected] = useState(null);
   const [isActivating, setIsActivating] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [successTxHash, setSuccessTxHash] = useState("");
   const [activationError, setActivationError] = useState("");
 
   // SOL/USDT conversion
@@ -90,6 +91,8 @@ export default function NFTModal({ isOpen, onClose, ledgerDetails }) {
         tscAmount: pkg ? pkg.price / TSC_PRICE : 0,
       });
       if (result.success) {
+        if (result.txHash) setSuccessTxHash(result.txHash);
+        else if (result.transactionHash) setSuccessTxHash(result.transactionHash);
         setIsSuccess(true);
       } else {
         setActivationError(result.error || "Purchase failed. Please try again.");
@@ -251,6 +254,7 @@ export default function NFTModal({ isOpen, onClose, ledgerDetails }) {
       setSelected(null);
       setIsActivating(false);
       setIsSuccess(false);
+      setSuccessTxHash("");
       setActivationError("");
       setRemainingUsdt(0);
       setRemainingSol(0);
@@ -286,6 +290,7 @@ export default function NFTModal({ isOpen, onClose, ledgerDetails }) {
         onClose={() => window.location.reload()}
         title="Asset Acquired"
         message={`Successfully purchased the ${pkg?.tier} Horse NFT package. Your asset is now live.`}
+        transactionHash={successTxHash}
       />
 
       {/* Backdrop */}

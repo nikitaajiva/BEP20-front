@@ -277,9 +277,11 @@ const XBonusBanner = () => {
 
                   {/* Right Side: NFT Mining Stats Card */}
                   <div className={styles.lpCard}>
-                    <div className={styles.miniLabel}>MINING POWER</div>
-                    <div className={styles.lpValue}>
-                      {item.miningPower.toLocaleString()}
+                    <div className={styles.lpTextGroup}>
+                      <div className={styles.miniLabel}>MINING POWER</div>
+                      <div className={styles.lpValue}>
+                        {item.miningPower.toLocaleString()}
+                      </div>
                     </div>
                     <div className={styles.nftStatRow}>
                       <span className={styles.nftStatBadge} title={`Power Coefficient: ${item.powerCoefficient}`}>{item.powerCoefficient}</span>

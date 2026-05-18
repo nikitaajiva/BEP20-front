@@ -166,28 +166,49 @@ export default function Communitybooster() {
           const levelTotal = records?.levelTotals?.find((lt) => lt.level === i + 1)?.total || 0;
           const accent = accentForLevel(i + 1);
           const tierInfo = c.tiers[0];
+          const isUnlocked = i + 1 <= maxUnlockedLevel;
+          const isFailed = failedLevels.includes(i + 1);
+          const StatusIcon = isUnlocked ? FaLockOpen : FaLock;
 
           return (
-            <div key={i} className={`booster-card tier-${i + 1}`}>
+            <div key={i} className={`booster-card tier-${i + 1} ${isUnlocked ? 'unlocked' : 'locked'}`}>
               <div className="booster-card-header">
-                <span className="booster-tier-label">LEVEL {i + 1}</span>
-                <span className="booster-bonus-pct">Reward Rate: {tierInfo.bonus}</span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                  <span className="booster-tier-label">LEVEL {i + 1}</span>
+                  <span className="booster-bonus-rate">Yield: +{tierInfo.bonus}</span>
+                </div>
+                <div className={`booster-status-badge ${isUnlocked ? 'unlocked' : isFailed ? 'failed' : 'locked'}`}>
+                  <StatusIcon size={9} />
+                  <span>{isUnlocked ? "Active" : isFailed ? "Failed" : "Locked"}</span>
+                </div>
               </div>
 
               <div className="booster-card-body">
-                <div className="booster-val-row">
-                  <span className="booster-mini-label">Direct Business</span>
-                  <div className="booster-val-large">{c.direct}</div>
+                <div className="booster-val-row-wrapper">
+                  <div className="booster-val-row">
+                    <span className="booster-mini-label">Direct Target</span>
+                    <div className="booster-val-large">{c.direct}</div>
+                  </div>
+                  <div className="booster-progress-track">
+                    <div className="booster-progress-bar" style={{ width: isUnlocked ? "100%" : "35%" }}></div>
+                  </div>
                 </div>
-                <div className="booster-val-row">
-                  <span className="booster-mini-label">Team Business</span>
-                  <div className="booster-val-large">{c.community}</div>
+
+                <div className="booster-val-row-wrapper">
+                  <div className="booster-val-row">
+                    <span className="booster-mini-label">Team Target</span>
+                    <div className="booster-val-large">{c.community}</div>
+                  </div>
+                  <div className="booster-progress-track">
+                    <div className="booster-progress-bar" style={{ width: isUnlocked ? "100%" : "35%" }}></div>
+                  </div>
                 </div>
-                <div className="booster-val-row" style={{ marginTop: '12px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '12px' }}>
-                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                     <span className="booster-mini-label" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                       Today's Earnings 
-                       <div
+
+                <div className="booster-val-row-wrapper" style={{ marginTop: '4px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '8px' }}>
+                  <div className="booster-val-row">
+                    <span className="booster-mini-label" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      Today's Earnings 
+                      <div
                         className="eye-icon-wrapper"
                         style={{ cursor: "pointer", display: "flex", alignItems: "center", opacity: 0.6 }}
                         onClick={(e) => {
@@ -195,15 +216,15 @@ export default function Communitybooster() {
                           setSelectedRewards(allRewards.filter((r) => r.level === i + 1));
                           setSelectedLevel(i + 1);
                           setOpenPopup(true);
-                         }}
-                       >
-                         <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" title="View Details">
-                           <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>
-                         </svg>
-                       </div>
-                     </span>
-                     <div className="booster-val-large" style={{ color: '#7fff4c' }}>{levelTotal.toFixed(6)}</div>
-                   </div>
+                        }}
+                      >
+                        <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" title="View Details">
+                          <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>
+                        </svg>
+                      </div>
+                    </span>
+                    <div className="booster-val-large" style={{ color: '#7fff4c' }}>{levelTotal.toFixed(6)}</div>
+                  </div>
                 </div>
               </div>
             </div>

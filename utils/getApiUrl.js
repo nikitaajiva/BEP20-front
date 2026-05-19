@@ -7,13 +7,23 @@
  * user is accessing the application. 
  * 
  * 1. If NEXT_PUBLIC_API_URL is set in .env (Production/Specific Config) -> Use it.
- * 2. If accessing via localhost -> Use http://localhost:5000/api
- * 3. If accessing via Network IP (192.168.x.x) -> Use http://<IP>:5000/api
+ * 2. If accessing via localhost -> Use http://localhost:<configured-port>/api
+ * 3. If accessing via Network IP (192.168.x.x) -> Use http://<IP>:<configured-port>/api
  * 4. If accessing via Domain -> Use https://<domain>/api
  */
 
 const ENV_API_URL = (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/$/, "");
-const DEFAULT_BACKEND_PORT = "5000"; 
+const DEFAULT_BACKEND_PORT = (() => {
+  if (!ENV_API_URL) return "5000";
+
+  try {
+    const { port, protocol } = new URL(ENV_API_URL);
+    if (port) return port;
+    return protocol === "https:" ? "443" : "80";
+  } catch {
+    return "5000";
+  }
+})();
 
 export function getApiUrl() {
   // Server-side rendering fallback
@@ -44,11 +54,10 @@ export function getApiUrl() {
   const isIP = /^(localhost|127\.0\.0\.1|192\.168\.|10\.|172\.)/.test(hostname) || /^[0-9.]+$/.test(hostname);
 
   if (isIP) {
-    // If accessing via IP, we usually need the specific backend port (5000)
+    // If accessing via IP, reuse the configured backend port when available.
     return `http://${hostname}:${DEFAULT_BACKEND_PORT}/api`;
   }
 
   // 3. Production Fallback: Same domain with /api prefix
   return `${protocol}//${hostname}/api`;
 }
-

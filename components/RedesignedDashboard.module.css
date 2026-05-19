@@ -967,6 +967,14 @@
   height: 72px;
 }
 
+@media (max-width: 1400px) {
+  .dashboardTopHeader {
+    height: 64px !important;
+    padding: 0 12px !important;
+    gap: 8px !important;
+  }
+}
+
 /* Header left section — Referral card */
 .headerLeft {
   flex-shrink: 0;
@@ -1020,6 +1028,15 @@
   padding-bottom: 120px;
   padding-left: 40px;
   padding-right: 40px;
+}
+
+@media (max-width: 1400px) {
+  .mainContentWrapper {
+    padding-top: 100px !important;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+  }
+}
   max-width: 1850px;
   margin: 0 auto;
   position: relative;
@@ -1333,6 +1350,20 @@
   flex-shrink: 0;
   cursor: pointer;
   transition: all 0.2s ease;
+}
+
+@media (max-width: 1400px) {
+  .vaultPassCard {
+    min-width: 170px !important;
+    padding: 6px 10px !important;
+  }
+  .passLabel {
+    font-size: 8px !important;
+  }
+  .passUrl {
+    font-size: 10px !important;
+    max-width: 140px !important;
+  }
 }
 
 .vaultPassCard:hover {

@@ -364,6 +364,19 @@
   padding: 0 16px;
 }
 
+.horizontalCenter div {
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+}
+
+@media (max-width: 1400px) {
+  .horizontalCenter div {
+    font-size: 15px !important;
+  }
+}
+
 /* RIGHT: Buttons */
 .horizontalRight {
   display: flex;
@@ -445,6 +458,29 @@
   background: rgba(255, 184, 0, 0.3);
   transform: translateY(-2px);
   box-shadow: 0 4px 10px rgba(255, 184, 0, 0.3);
+}
+
+@media (max-width: 1400px) {
+  .horizontalRight {
+    padding-left: 8px !important;
+    gap: 4px !important;
+  }
+  .horizontalRight button:last-child {
+    display: none !important; /* Hide view history button in horizontal card to save huge space */
+  }
+  .horizontalLeft {
+    padding-right: 8px !important;
+    gap: 6px !important;
+  }
+  .horizontalCenter {
+    padding: 0 8px !important;
+    gap: 4px !important;
+    min-width: 0 !important;
+  }
+}
+
+.glassPlusBtnFakeDummyClass {
+  color: inherit;
 }
 
 /* New Rewards Wallet Layout */

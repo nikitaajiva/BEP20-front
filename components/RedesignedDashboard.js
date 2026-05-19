@@ -78,7 +78,7 @@ const RedesignedDashboard = ({
     : "";
   const hasPhantomWallet = phantomWalletAddress.length > 0;
   const walletButtonLabel = hasPhantomWallet
-    ? `SOL: ${shortPhantomAddress}`
+    ? shortPhantomAddress
     : "Connect";
 
   const [mounted, setMounted] = React.useState(false);

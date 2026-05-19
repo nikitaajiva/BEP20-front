@@ -29,35 +29,41 @@ export default function AssetHistoryPage() {
           <DashboardNavbar user={user} onLogout={logout} />
           <div className={styles.contentWrapper}>
             <main className={styles.mainContent}>
-              <div className="container-xxl flex-grow-1 container-p-y py-4">
+              <div className="container-fluid flex-grow-1 container-p-y py-4 px-md-5">
                 <div className="row mb-4">
                   <div className="col-12">
-                    <h2
-                      className="fw-bold mb-3"
-                      style={{
-                        color: "#fff",
-                        fontSize: "1.75rem",
-                        textAlign: "center",
-                        textTransform: "uppercase",
-                        letterSpacing: "1px",
-                        textShadow: "0 2px 10px rgba(255, 165, 0, 0.2)"
-                      }}
-                    >
-                      🛡️ My Active Asset History
-                    </h2>
-                    <p style={{ color: "rgba(255,255,255,0.5)", textAlign: "center", fontSize: "0.95rem" }}>
-                      View all your Horse NFT purchases, Mining mints, and token staking ledger entries.
+                    <div className="d-flex justify-content-center align-items-center mb-2" style={{ gap: "8px" }}>
+                      <span style={{ fontSize: "1.8rem" }}>🛡️</span>
+                      <h2
+                        className="fw-bold m-0"
+                        style={{
+                          background: "linear-gradient(90deg, #FFB800 0%, #FF6200 100%)",
+                          WebkitBackgroundClip: "text",
+                          WebkitTextFillColor: "transparent",
+                          backgroundClip: "text",
+                          fontSize: "2rem",
+                          fontWeight: "900",
+                          textAlign: "center",
+                          textTransform: "uppercase",
+                          letterSpacing: "1.5px",
+                          textShadow: "0 4px 20px rgba(255, 98, 0, 0.15)"
+                        }}
+                      >
+                        My Active Asset History
+                      </h2>
+                    </div>
+                    <p style={{ color: "rgba(255,255,255,0.45)", textAlign: "center", fontSize: "0.9rem", fontWeight: 500, letterSpacing: "0.3px" }}>
+                      Track all your Horse NFT purchases, Mining mints, and token staking ledger entries in real time.
                     </p>
                   </div>
                 </div>
 
                 <div
-                  className="card p-4 mb-4"
+                  className="p-0 mb-4"
                   style={{
-                    borderRadius: "22px",
-                    background: "#181f3a",
-                    border: "1px solid rgba(255, 165, 0, 0.15)",
-                    boxShadow: "0 8px 32px 0 rgba(0, 0, 0, 0.5)",
+                    background: "transparent",
+                    border: "none",
+                    boxShadow: "none"
                   }}
                 >
                   <AssetHistoryTable />

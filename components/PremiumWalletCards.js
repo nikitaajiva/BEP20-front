@@ -644,25 +644,32 @@ export const ActiveStakesCard = ({ user, portfolioDetails, onViewHistory }) => {
                   </span>
                 </div>
 
-                {/* Middle Row: Duration, Yields & Remaining Days */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>
-                  <div>
-                    <span style={{ display: 'block', fontSize: 8, color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase' }}>Duration</span>
-                    <span style={{ fontWeight: 800, color: '#fff' }}>{days} Days <span style={{ fontSize: '8px', color: '#ff5500', fontWeight: 800 }}>({apy}% APY)</span></span>
-                  </div>
-                  <div>
-                    <span style={{ display: 'block', fontSize: 8, color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase' }}>Daily Yield</span>
-                    <span style={{ fontWeight: 950, color: '#00ff00' }}>+{formatCryptoVal(dailyYield, 4)} USDT</span>
-                  </div>
-                  <div>
-                    <span style={{ display: 'block', fontSize: 8, color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase' }}>Est. Reward</span>
-                    <span style={{ fontWeight: 950, color: '#00ff00' }}>+{formatCryptoVal(totalEstReward, 2)} USDT</span>
-                  </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <span style={{ display: 'block', fontSize: 8, color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase' }}>Maturity</span>
-                    <span style={{ fontWeight: 800, color: daysRemaining < 5 ? '#ff5500' : '#fff' }}>{daysRemaining}d left</span>
-                  </div>
-                </div>
+                 {/* Middle Section: Elegant 2-row structured layout to prevent overlap on tight widths */}
+                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                   {/* Row 1: Duration & Maturity */}
+                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 11, borderBottom: '1px dashed rgba(255,255,255,0.06)', paddingBottom: '6px' }}>
+                     <div>
+                       <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.35)', fontWeight: 700, textTransform: 'uppercase', marginRight: '4px' }}>Duration:</span>
+                       <span style={{ fontWeight: 800, color: '#fff' }}>{days} Days <span style={{ fontSize: '8px', color: '#ff5500', fontWeight: 800 }}>({apy}% APY)</span></span>
+                     </div>
+                     <div style={{ textAlign: 'right' }}>
+                       <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.35)', fontWeight: 700, textTransform: 'uppercase', marginRight: '4px' }}>Maturity:</span>
+                       <span style={{ fontWeight: 800, color: daysRemaining < 5 ? '#ff5500' : '#fff' }}>{daysRemaining}d left</span>
+                     </div>
+                   </div>
+
+                   {/* Row 2: Daily Yield & Est. Reward */}
+                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 11 }}>
+                     <div>
+                       <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.35)', fontWeight: 700, textTransform: 'uppercase', marginRight: '4px' }}>Daily Yield:</span>
+                       <span style={{ fontWeight: 950, color: '#00ff00' }}>+{formatCryptoVal(dailyYield, 4)} USDT</span>
+                     </div>
+                     <div style={{ textAlign: 'right' }}>
+                       <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.35)', fontWeight: 700, textTransform: 'uppercase', marginRight: '4px' }}>Est. Reward:</span>
+                       <span style={{ fontWeight: 950, color: '#00ff00' }}>+{formatCryptoVal(totalEstReward, 2)} USDT</span>
+                     </div>
+                   </div>
+                 </div>
 
                 {/* Bottom Row: Progress Bar */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: '2px' }}>

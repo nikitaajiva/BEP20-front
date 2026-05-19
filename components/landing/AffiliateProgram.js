@@ -144,7 +144,7 @@ const AffiliateProgram = () => {
         }
 
         .affiliate-container {
-          max-width: 1320px;
+          max-width: 1650px;
           margin: 0 auto;
           padding: 0 24px;
           position: relative;

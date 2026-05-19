@@ -276,7 +276,7 @@ const LandingNavbar = () => {
         }
 
         .navbar-container {
-          max-width: 1400px;
+          max-width: 1650px;
           margin: 0 auto;
           padding: 0 40px;
           display: flex;

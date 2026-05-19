@@ -29,6 +29,7 @@ const geistMono = Geist_Mono({
 });
 
 import AppLayout from "@/components/AppLayout";
+import StyledJsxRegistry from "@/lib/registry";
 
 export const metadata = {
   title: "Toking Hoofborn | Elite Racing Ecosystem",
@@ -67,7 +68,9 @@ export default function RootLayout({ children }) {
         </Suspense>
         <AuthProvider>
           <ReferralProvider>
-            <AppLayout>{children}</AppLayout>
+            <StyledJsxRegistry>
+              <AppLayout>{children}</AppLayout>
+            </StyledJsxRegistry>
           </ReferralProvider>
         </AuthProvider>
       </body>

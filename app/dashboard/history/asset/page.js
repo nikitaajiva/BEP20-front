@@ -29,7 +29,7 @@ export default function AssetHistoryPage() {
           <DashboardNavbar user={user} onLogout={logout} />
           <div className={styles.contentWrapper}>
             <main className={styles.mainContent}>
-              <div className="container-fluid flex-grow-1 container-p-y py-4 px-md-5">
+              <div className="container-fluid flex-grow-1 container-p-y py-4 px-0">
                 <div className="row mb-4">
                   <div className="col-12">
                     <div className="d-flex justify-content-center align-items-center mb-2" style={{ gap: "8px" }}>

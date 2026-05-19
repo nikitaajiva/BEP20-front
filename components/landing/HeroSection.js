@@ -186,7 +186,7 @@ const HeroSection = () => {
           position: relative;
           z-index: 10;
           width: 100%;
-          max-width: 1320px;
+          max-width: 1650px;
           margin: 0 auto;
           padding: 0 24px;
         }

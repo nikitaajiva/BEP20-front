@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import React from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -113,7 +113,7 @@ const HowItWorksSection = () => {
         }
 
         .process-container {
-          max-width: 1320px;
+          max-width: 1650px;
           margin: 0 auto;
           padding: 0 24px;
           position: relative;

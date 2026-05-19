@@ -1028,6 +1028,12 @@
   padding-bottom: 120px;
   padding-left: 40px;
   padding-right: 40px;
+  max-width: 1850px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  overflow: visible;
 }
 
 @media (max-width: 1400px) {
@@ -1036,13 +1042,6 @@
     padding-left: 20px !important;
     padding-right: 20px !important;
   }
-}
-  max-width: 1850px;
-  margin: 0 auto;
-  position: relative;
-  z-index: 10;
-  width: 100%;
-  overflow: visible;
 }
 
 .dashboardMainGrid {

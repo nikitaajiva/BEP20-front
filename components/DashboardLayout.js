@@ -44,6 +44,7 @@ import { Line, Bar } from "react-chartjs-2";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import CommunityRewardsClaimModal from "./CommunityRewardsClaimModal";
 import InvestmentSections from "./InvestmentSections";
+import ReferralRewardsCard from "./ReferralRewardsCard";
 
 // Icon Components (defined from your .jsx files)
 const Wallet1Icon = (props) => (
@@ -1648,6 +1649,12 @@ export default function DashboardLayout({
               </div>
               <div className="col-12 col-xl-6 d-flex flex-column">
                 <CommunityRewardsCardnew />
+              </div>
+            </div>
+            {/* Referral Rewards Section */}
+            <div className="row g-4" style={{ marginTop: 8 }}>
+              <div className="col-12">
+                <ReferralRewardsCard API_URL={API_URL} />
               </div>
             </div>
             {/* <InvestmentSections /> */}

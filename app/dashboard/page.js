@@ -181,6 +181,8 @@ export default function DashboardPage() {
   const [loadingLedger, setLoadingLedger] = useState(true);
   const [ledgerError, setLedgerError] = useState("");
 
+  const fetchedRef = useRef(false);
+
   const fetchLedgerDetails = useCallback(async () => {
     if (!user) return;
     setLoadingLedger(true);
@@ -294,13 +296,6 @@ export default function DashboardPage() {
     }
   }, [API_URL, user?.phantomWalletAddress]);
 
-  useEffect(() => {
-    if (user?.phantomWalletAddress) {
-      fetchPhantomBalance();
-    } else {
-      setPhantomBalance("0.000000");
-    }
-  }, [user?.phantomWalletAddress, fetchPhantomBalance]);
 
   const createPhantomDepositIntent = useCallback(
     async (amount, paymentMethod) => {
@@ -543,6 +538,32 @@ export default function DashboardPage() {
     }
   }, []);
 
+  // Fetch ledger, portfolio, and phantom balance exactly once when user logs in/updates
+  useEffect(() => {
+    if (!user) {
+      setLedgerDetails(null);
+      setLoadingLedger(true);
+      setLedgerError("");
+      setPortfolioDetails(null);
+      setLoadingPortfolio(true);
+      setPortfolioError("");
+      fetchedRef.current = false;
+      return;
+    }
+
+    if (fetchedRef.current) return;
+    fetchedRef.current = true;
+
+    fetchLedgerDetails();
+    fetchPortfolioDetails();
+    if (user?.phantomWalletAddress) {
+      fetchPhantomBalance();
+    } else {
+      setPhantomBalance("0.000000");
+      setPhantomBalanceLoading(false);
+    }
+  }, [user?._id, user?.phantomWalletAddress, fetchLedgerDetails, fetchPortfolioDetails, fetchPhantomBalance]);
+
   useEffect(() => {
     if (!user) {
       setWalletAccount("");
@@ -554,27 +575,11 @@ export default function DashboardPage() {
       setPhantomDepositStatus("");
       setPhantomDepositError("");
       setTransactionStatus("");
-      setLedgerDetails(null);
-      setLoadingLedger(true);
-      setLedgerError("");
-      setPortfolioDetails(null);
-      setLoadingPortfolio(true);
-      setPortfolioError("");
       stopQrPolling();
       stopDepositPolling();
       clearPendingDeposit();
       resetPhantomQrState();
       return;
-    }
-
-    // Always fetch ledger details if user exists
-    fetchLedgerDetails();
-    fetchPortfolioDetails();
-    if (user?.phantomWalletAddress) {
-      fetchPhantomBalance();
-    } else {
-      setPhantomBalance("0.000000");
-      setPhantomBalanceLoading(false);
     }
 
     // Fallback to database registered wallet if available (unless manually disconnected)

@@ -21,7 +21,7 @@ import {
 } from "react-icons/fa6";
 
 import BlockHeroSection from "./Blogsection";
-const API_URL = process.env.NEXT_PUBLIC_API_URL + "/api";
+import { getApiUrl } from "../utils/getApiUrl";
 
 // KeepGrowingText component (Enlarged and Repositioned)
 const KeepGrowingText = () => {
@@ -82,7 +82,7 @@ const HeroSection = () => {
           : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjg1MTRhODJjYzY0ZjVlYmJlMzc5NjcyIn0sImlhdCI6MTc1MDMyODIyNCwiZXhwIjoxNzUwMzM1NDI0fQ.L9H4-X1kFwQ521-NunJ1mp41ScJKyRw-dPonxyttXR0";
         if (!token) return;
 
-        const response = await fetch(`${API_URL}/promotions/airdrop-config`, {
+        const response = await fetch(`${getApiUrl()}/promotions/airdrop-config`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

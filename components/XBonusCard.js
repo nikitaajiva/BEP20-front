@@ -12,15 +12,19 @@ import {
   FaCrown 
 } from "react-icons/fa";
 import Image from "next/image";
-import React, { useState, useEffect, useContext, useCallback } from "react";
+import React, { useState, useEffect, useContext, useCallback, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
 import UnlockStatusPopop from "./UnlockStatus";
 import XBonusPopup from "./XBonusCardPopup";
 
 // import XBonus from "../public/assets/images/XBonus.png";
-const XBonusBanner = () => {
-  const [ledgerDetails, setLedgerDetails] = useState(null);
-  const [loadingLedger, setLoadingLedger] = useState(true);
+const XBonusBanner = ({ ledgerDetails: propLedgerDetails }) => {
+  const hasParentLedger = propLedgerDetails !== undefined;
+  const [localLedgerDetails, setLocalLedgerDetails] = useState(null);
+  const [localLoadingLedger, setLocalLoadingLedger] = useState(true);
+
+  const ledgerDetails = hasParentLedger ? propLedgerDetails : localLedgerDetails;
+  const loadingLedger = hasParentLedger ? !propLedgerDetails : localLoadingLedger;
   const [ledgerError, setLedgerError] = useState("");
   const [Referrals, setReferrals] = useState([]);
   const [Legs, setLegs] = useState([]);
@@ -156,6 +160,7 @@ const XBonusBanner = () => {
   );
 
   const fetchLedgerDetails = useCallback(async () => {
+    if (hasParentLedger) return;
     if (!user) return;
 
     const token = localStorage.getItem("token");
@@ -165,24 +170,32 @@ const XBonusBanner = () => {
       });
       const data = await response.json();
       if (response.ok && data.success) {
-        setLedgerDetails(data.data);
+        setLocalLedgerDetails(data.data);
       }
     } catch (error) {
       setLedgerError(error.message);
     } finally {
-      setLoadingLedger(false);
+      setLocalLoadingLedger(false);
     }
-  }, [user, API_URL]);
+  }, [user, API_URL, hasParentLedger]);
+
+  const fetchedLedgerRef = useRef(false);
+  const fetchedReferralsRef = useRef(false);
 
   useEffect(() => {
-    fetchLedgerDetails();
-  }, [fetchLedgerDetails]);
+    if (hasParentLedger) return;
+    if (user?._id && !fetchedLedgerRef.current) {
+      fetchedLedgerRef.current = true;
+      fetchLedgerDetails();
+    }
+  }, [user?._id, fetchLedgerDetails, hasParentLedger]);
 
   useEffect(() => {
-    if (user?.uhid && user?.username) {
+    if (user?.uhid && user?.username && !fetchedReferralsRef.current) {
+      fetchedReferralsRef.current = true;
       fetchReferrals(user.uhid, user.username, 0);
     }
-  }, [fetchReferrals, user]);
+  }, [fetchReferrals, user?.uhid, user?.username]);
 
   const unlockedIndex = rawXBonusLevels.findIndex(
     (l) => l.level === user?.xRank

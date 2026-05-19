@@ -1,10 +1,11 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FaGift } from "react-icons/fa";
 import { FaLock, FaLockOpen } from "react-icons/fa";
 import "./communitybooster.css";
 import CommunityBoosterPopup from "./CommunityBoosterPopup.js";
 // import CommunityBoostericon from "../public/assets/images/CommunityBoostericon2.png";
+import { getApiUrl } from "../utils/getApiUrl";
 const CARDS = [
   {
     direct: "2K USDT",
@@ -22,7 +23,7 @@ const CARDS = [
     tiers: [{ name: "Tier 3", bonus: "7%" }],
   },
 ];
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const getBaseApiUrl = () => getApiUrl().replace(/\/api$/, "");
 
 const formatNum = (n) =>
   n === undefined || n === null ? "-" : Number(n).toLocaleString();
@@ -103,13 +104,17 @@ export default function Communitybooster() {
   const [failedLevels, setFailedLevels] = useState([]); // 🔹 added state
   const [openPopup, setOpenPopup] = useState(false);
   const [selectedRewards, setSelectedRewards] = useState([]);
+  const fetchedRef = useRef(false);
   useEffect(() => {
+    if (fetchedRef.current) return;
+    fetchedRef.current = true;
+
     const fetchCascadeRules = async () => {
       try {
         const token = localStorage.getItem("token");
         if (!token) throw new Error("Authentication token not found.");
 
-        const finalUrl = `${API_URL}/api/rewards/booster`;
+        const finalUrl = `${getBaseApiUrl()}/api/rewards/booster`;
 
         const response = await fetch(finalUrl, {
           method: "GET",

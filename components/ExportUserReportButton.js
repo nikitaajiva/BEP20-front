@@ -1,6 +1,6 @@
 "use client";
-
-import { useState } from "react";
+import React, { useState } from "react";
+import { getApiUrl } from "../utils/getApiUrl";
 
 export default function ExportUserReportButton() {
   const [loading, setLoading] = useState(false);
@@ -12,7 +12,7 @@ export default function ExportUserReportButton() {
         typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/report/generate-user-report`,
+        `${getApiUrl()}/report/generate-user-report`,
         {
           method: "GET",
           headers: {

@@ -1,11 +1,12 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { FaLock, FaLockOpen } from "react-icons/fa";
 import { Activity } from "lucide-react";
 import "./CommunityReward.css";
 import CommunityRewardsPopup from "./CommunityRewardsPopup.js";
+import { getApiUrl } from "../utils/getApiUrl";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const getBaseApiUrl = () => getApiUrl().replace(/\/api$/, "");
 
 const formatNum = (n) =>
   n === undefined || n === null ? "-" : Number(n).toLocaleString();
@@ -30,26 +31,30 @@ export default function CommunityReward() {
   const [selectedRewards, setSelectedRewards] = useState([]);
   const [selectedLevel, setSelectedLevel] = useState("");
 
+  const fetchedRef = useRef(false);
   useEffect(() => {
+    if (fetchedRef.current) return;
+    fetchedRef.current = true;
+
     const fetchNodeData = async () => {
       try {
         const token = localStorage.getItem("token");
         if (!token) throw new Error("Authentication token not found.");
 
-        const [statusRes, rewardsRes] = await Promise.all([
-          fetch(`${API_URL}/api/users/node-status`, {
+         const [statusRes, rewardsRes] = await Promise.all([
+          fetch(`${getBaseApiUrl()}/api/users/node-status`, {
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,
             },
           }),
-          fetch(`${API_URL}/api/rewards/node`, {
+          fetch(`${getBaseApiUrl()}/api/rewards/node`, {
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,
             },
           }),
-        ]);
+         ]);
 
         if (!statusRes.ok) throw new Error("Failed to fetch node status.");
         if (!rewardsRes.ok) throw new Error("Failed to fetch node rewards.");

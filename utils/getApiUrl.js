@@ -21,13 +21,24 @@ export function getApiUrl() {
     return ENV_API_URL || "/api";
   }
 
+  const { hostname, protocol } = window.location;
+
   // 1. Priority: .env Explicit Config (Used for production)
   if (ENV_API_URL) {
-    return ENV_API_URL.endsWith("/api") ? ENV_API_URL : `${ENV_API_URL}/api`;
+    try {
+      const envHostname = new URL(ENV_API_URL).hostname;
+      const isEnvLan = /^(192\.168\.|10\.|172\.)/.test(envHostname);
+      
+      // If it's a LAN IP and doesn't match current hostname, we bypass it to let dynamic resolver handle it
+      if (!isEnvLan || envHostname === hostname) {
+        return ENV_API_URL.endsWith("/api") ? ENV_API_URL : `${ENV_API_URL}/api`;
+      }
+    } catch (e) {
+      console.warn("Invalid ENV_API_URL format:", ENV_API_URL);
+    }
   }
 
   // 2. Truly Dynamic: Derive from browser address
-  const { hostname, protocol } = window.location;
   
   // Is it a local/network address or your specific production IP?
   const isIP = /^(localhost|127\.0\.0\.1|192\.168\.|10\.|172\.)/.test(hostname) || /^[0-9.]+$/.test(hostname);

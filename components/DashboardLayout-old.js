@@ -1633,7 +1633,7 @@ const displayBalance = Math.max(rawBalance, 0);
             </div>
             {/* card-7 */}
             <div className="col-lg-4 col-sm-6">
-              <X_BonusCard />
+              <X_BonusCard ledgerDetails={ledgerDetails} />
             </div>
             
             {/* card-8 */}

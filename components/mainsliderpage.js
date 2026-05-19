@@ -13,8 +13,9 @@ import Mercedes from "../public/assets/img/poolbanner/mercedes_PNG80179 1.png";
 import RewardPoolimage from "../public/assets/img/poolbanner/Apple-iPhone-17-Pro-Max.png";
 import WingCardUnlockStatus from "./WingCardUnlockStatus";
 import "./mainsliderpage.css";
+import { getApiUrl } from "../utils/getApiUrl";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const getBaseApiUrl = () => getApiUrl().replace(/\/api$/, "");
 
 export default function Mainsliderpage({ xRank }) {
   const [index, setIndex] = useState(0);
@@ -42,7 +43,7 @@ export default function Mainsliderpage({ xRank }) {
       if (!token) throw new Error("Authentication token not found");
 
       const res = await fetch(
-        `${API_URL}/api/ledger/checkPoolRewardEligibility`,
+        `${getBaseApiUrl()}/api/ledger/checkPoolRewardEligibility`,
         {
           method: "GET",
           headers: {

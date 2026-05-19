@@ -1644,7 +1644,7 @@ export default function DashboardLayout({
             {/* Analytical & Rewards Stack stays below the Hub circle */}
             <div className="row g-4">
               <div className="col-12 col-xl-6 d-flex flex-column">
-                <X_BonusCard />
+                <X_BonusCard ledgerDetails={ledgerDetails} />
               </div>
               <div className="col-12 col-xl-6 d-flex flex-column">
                 <CommunityRewardsCardnew />

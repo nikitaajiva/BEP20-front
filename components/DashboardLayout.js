@@ -44,6 +44,7 @@ import { Line, Bar } from "react-chartjs-2";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import CommunityRewardsClaimModal from "./CommunityRewardsClaimModal";
 import InvestmentSections from "./InvestmentSections";
+import { ReferralLevelsCard } from "./ReferralLevelsCard";
 
 // Icon Components (defined from your .jsx files)
 const Wallet1Icon = (props) => (
@@ -657,6 +658,7 @@ export default function DashboardLayout({
   refreshPortfolioDetails,
   walletAccount,
   successModalTrigger,
+  onClearSuccessModalTrigger,
   shortAddress,
 }) {
   const { user: authUser, logout: authLogout, loading: authLoading, API_URL, setUser } = useAuth();
@@ -725,6 +727,13 @@ export default function DashboardLayout({
     transactionHash: null,
   });
   const lastSuccessModalIdRef = useRef(null);
+
+  const handleSuccessModalClose = () => {
+    setIsSuccessModalOpen(false);
+    if (typeof onClearSuccessModalTrigger === "function") {
+      onClearSuccessModalTrigger();
+    }
+  };
 
   // State for the new claim community rewards modal (if we add one later)
   const [isClaimRewardsModalOpen, setIsClaimRewardsModalOpen] = useState(false);
@@ -1650,6 +1659,11 @@ export default function DashboardLayout({
                 <CommunityRewardsCardnew />
               </div>
             </div>
+            <div className="row g-4 mt-2">
+              <div className="col-12 col-xl-6 d-flex flex-column">
+                <ReferralLevelsCard />
+              </div>
+            </div>
             {/* <InvestmentSections /> */}
           </div>
         }
@@ -1714,7 +1728,7 @@ export default function DashboardLayout({
       />
       <SuccessModal
         isOpen={isSuccessModalOpen}
-        onClose={() => setIsSuccessModalOpen(false)}
+        onClose={handleSuccessModalClose}
         title={successModalContent.title}
         message={successModalContent.message}
         transactionHash={successModalContent.transactionHash}

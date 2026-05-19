@@ -291,17 +291,17 @@ export default function StakingModal({ isOpen, onClose, ledgerDetails }) {
         transactionHash={successTxHash}
       />
       
-      <div style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
-        {/* Backdrop */}
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          onClick={onClose}
-          style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(10px)" }}
-        />
-        
-        {!showSuccess && (
+      {!showSuccess && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+          {/* Backdrop */}
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(10px)" }}
+          />
+          
           <motion.div 
             initial={{ scale: 0.95, opacity: 0, y: 10 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -668,8 +668,8 @@ export default function StakingModal({ isOpen, onClose, ledgerDetails }) {
               </motion.div>
             )}
           </motion.div>
-        )}
-      </div>
+        </div>
+      )}
     </>
   );
 }

@@ -284,7 +284,7 @@ export default function NFTModal({ isOpen, onClose, ledgerDetails }) {
   const currentBalanceSol = parseFloat(ledgerDetails?.solWallet?.balance || "0");
 
   return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+    <>
       <SuccessModal
         isOpen={isSuccess}
         onClose={() => window.location.reload()}
@@ -293,17 +293,18 @@ export default function NFTModal({ isOpen, onClose, ledgerDetails }) {
         transactionHash={successTxHash}
       />
 
-      {/* Backdrop */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        onClick={onClose}
-        style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(10px)" }}
-      />
-
       {!isSuccess && (
-        <motion.div
+        <div style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(10px)" }}
+          />
+
+          <motion.div
           initial={{ scale: 0.95, opacity: 0, y: 10 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           style={{
@@ -581,7 +582,8 @@ export default function NFTModal({ isOpen, onClose, ledgerDetails }) {
             </motion.div>
           )}
         </motion.div>
-      )}
-    </div>
-  );
+      </div>
+    )}
+  </>
+);
 }

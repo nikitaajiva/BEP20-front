@@ -94,9 +94,10 @@ const AppLayout = ({ children }) => {
                 <Link
                   href={link.href}
                   className={`${styles.navLink} ${isActive ? styles.navLinkActive : ""}`}
+                  title={link.label}
                 >
                   <i className={link.icon} style={{ fontSize: "20px" }}></i>
-                  {link.label}
+                  <span className={styles.navLabel}>{link.label}</span>
                 </Link>
               </li>
             );
@@ -105,31 +106,32 @@ const AppLayout = ({ children }) => {
 
         <div className={styles.sidebarFooter}>
           {/* User Profile Summary in Sidebar */}
-          <div className="d-flex align-items-center gap-3 p-2 mb-3" style={{ background: "rgba(255, 102, 0, 0.05)", borderRadius: "12px", border: "1px solid rgba(255, 102, 0, 0.15)" }}>
-            <div style={{ width: 35, height: 35, backgroundColor: "#ff6600", borderRadius: "50%", display: "flex", justifyContent: "center", alignItems: "center" }}>
+          <div className={`d-flex align-items-center p-2 mb-3 ${styles.profileBox}`} style={{ background: "rgba(255, 102, 0, 0.05)", borderRadius: "12px", border: "1px solid rgba(255, 102, 0, 0.15)" }}>
+            <div className={styles.profileAvatar} style={{ width: 35, height: 35, backgroundColor: "#ff6600", borderRadius: "50%", display: "flex", justifyContent: "center", alignItems: "center", flexShrink: 0 }}>
               <span style={{ color: "#fff", fontWeight: 800, fontSize: 16 }}>{username[0] ? username[0].toUpperCase() : 'U'}</span>
             </div>
-            <div className="d-flex flex-column overflow-hidden">
+            <div className={`d-flex flex-column overflow-hidden ${styles.profileText}`}>
               <span style={{ color: "#fff", fontWeight: 700, fontSize: 14, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{username}</span>
               <span style={{ color: "#ff6600", fontSize: 10 }}>🐴 NFT Member</span>
             </div>
           </div>
 
-          <div style={{ display: "flex", gap: "8px", width: "100%" }}>
+          <div className={styles.footerButtonsContainer} style={{ display: "flex", width: "100%" }}>
             <button
               onClick={logout}
               className={styles.navLink}
+              title="Logout"
               style={{ flex: 1, background: "transparent", border: "none", cursor: "pointer", display: "flex", justifyContent: "center" }}
             >
               <LogOut size={20} />
-              Logout
+              <span className={styles.navLabel}>Logout</span>
             </button>
             {user?.userType === "superadmin" && (
               <Link
                 href="/admin/dashboard"
                 className={styles.navLink}
                 title="Super Admin Dashboard"
-                style={{ padding: "0 15px", background: "rgba(255, 102, 0, 0.1)", border: "1px solid rgba(255, 102, 0, 0.2)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "12px" }}
+                style={{ padding: "12px", background: "rgba(255, 102, 0, 0.1)", border: "1px solid rgba(255, 102, 0, 0.2)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "12px" }}
               >
                 <i className="ri-admin-fill" style={{ fontSize: "20px", color: "#ff6600", margin: 0 }}></i>
               </Link>

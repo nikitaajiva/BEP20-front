@@ -1408,6 +1408,7 @@ export default function DashboardPage() {
         portfolioDetails={portfolioDetails}
         refreshPortfolioDetails={fetchPortfolioDetails}
         successModalTrigger={successModalTrigger}
+        onClearSuccessModalTrigger={() => setSuccessModalTrigger(null)}
       >
         <div style={{ display: 'none' }}>
           {/* Internal state pass-through if needed, otherwise this can be empty children */}

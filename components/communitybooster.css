@@ -355,20 +355,32 @@
         width: 100% !important;
         max-width: 100% !important;
         box-sizing: border-box !important;
+        overflow-x: hidden !important;
+        padding: 25px 20px !important;
     }
     .booster-list {
         grid-template-columns: 1fr;
-        gap: 20px;
+        gap: 15px;
     }
     .booster-card {
-        min-height: 245px !important;
-        padding: 20px !important;
+        min-height: auto !important;
+        padding: 18px !important;
     }
     .booster-mini-label {
-        font-size: 10px !important;
+        font-size: 9px !important;
+        letter-spacing: 0.8px !important;
     }
     .booster-val-large {
-        font-size: 1.1rem !important;
+        font-size: 1rem !important;
+    }
+    .booster-val-row {
+        gap: 10px !important;
+    }
+    .booster-tier-label {
+        font-size: 11px !important;
+    }
+    .booster-bonus-rate {
+        font-size: 8px !important;
     }
 }
 
@@ -381,21 +393,58 @@
         width: 100% !important;
         max-width: 100% !important;
         box-sizing: border-box !important;
-        overflow: hidden !important;
-        padding: 20px 15px !important;
+        overflow-x: hidden !important;
+        padding: 20px 12px !important;
+        border-radius: 20px !important;
     }
     .booster-title-box {
-        padding: 6px 20px !important;
+        padding: 6px 16px !important;
+        width: 90% !important;
+    }
+    .booster-title-box h5 {
+        font-size: 0.9rem !important;
+    }
+    .booster-list {
+        gap: 12px;
+        padding-top: 25px !important;
+    }
+    .booster-card {
+        padding: 14px !important;
+        min-height: auto !important;
+        border-radius: 16px !important;
+    }
+    .booster-card-header {
+        margin-bottom: 10px !important;
+        padding-bottom: 6px !important;
     }
     .booster-mini-label {
         font-size: 8px !important;
+        letter-spacing: 0.6px !important;
     }
     .booster-val-large {
-        font-size: 0.95rem !important;
+        font-size: 0.9rem !important;
+        letter-spacing: 0.3px !important;
     }
-    .booster-card {
-        padding: 15px !important;
-        min-height: 220px !important;
+    .booster-val-row {
+        gap: 8px !important;
+    }
+    .booster-tier-label {
+        font-size: 10px !important;
+        letter-spacing: 0.4px !important;
+    }
+    .booster-bonus-rate {
+        font-size: 7px !important;
+        letter-spacing: 0.4px !important;
+    }
+    .booster-status-badge {
+        font-size: 7px !important;
+        padding: 2px 6px !important;
+        gap: 3px !important;
+    }
+    .booster-footer-note {
+        font-size: 9px !important;
+        padding: 8px !important;
+        margin-top: 15px !important;
     }
 }
 

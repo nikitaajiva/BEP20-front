@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import safeStorage from "@/utils/safeStorage";
-import ReferralTreeModal from "./ReferralTreeModal";
 
 /* ─── tiny animation helper ──────────────────────────────────────────────── */
 function useCountUp(target, duration = 1200) {
@@ -91,7 +90,6 @@ export default function ReferralRewardsCard({ API_URL }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const fetchSummary = useCallback(async () => {
     const token = safeStorage.getItem("token");
@@ -181,7 +179,7 @@ export default function ReferralRewardsCard({ API_URL }) {
         {/* View Team Button */}
         <button
           id="referral-view-team-btn"
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => router.push("/dashboard/referral-tree")}
           style={viewBtn}
           onMouseEnter={(e) => {
             e.currentTarget.style.background = "rgba(99,102,241,0.25)";
@@ -248,13 +246,6 @@ export default function ReferralRewardsCard({ API_URL }) {
           50% { opacity: 0.4; transform: scale(1.4); }
         }
       `}</style>
-      
-      <ReferralTreeModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        API_URL={API_URL}
-        summaryData={data}
-      />
     </div>
   );
 }

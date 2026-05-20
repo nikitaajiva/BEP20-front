@@ -1195,11 +1195,42 @@
   margin-bottom: 5px;
 }
 
+.roiProgressBarWrap {
+  position: relative;
+}
+
+.roiProgressBarWrap::after {
+  content: attr(data-progress-tooltip);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%) translateY(4px);
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.92);
+  border: 1px solid rgba(255, 215, 0, 0.25);
+  color: #ffd700;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.4px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  white-space: nowrap;
+  z-index: 2;
+}
+
+.roiProgressBarWrap:hover::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
 .roiProgressBar {
   height: 6px;
   background: rgba(255, 255, 255, 0.08);
   border-radius: 3px;
   overflow: hidden;
+  position: relative;
 }
 
 .roiProgressFill {
@@ -1435,4 +1466,3 @@
   opacity: 1;
   transform: translateX(3px);
 }
-

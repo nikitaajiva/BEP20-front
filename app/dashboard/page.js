@@ -267,7 +267,7 @@ export default function DashboardPage() {
     if (!token) { setLoadingHorseNfts(false); return; }
     setLoadingHorseNfts(true);
     try {
-      const { getMyHorseNfts } = await import("../services/horseNftApi");
+      const { getMyHorseNfts } = await import("../../services/horseNftApi");
       const res = await getMyHorseNfts({ page: 1, limit: 100 });
       if (res.success && Array.isArray(res.data)) {
         setMyHorseNfts(res.data);

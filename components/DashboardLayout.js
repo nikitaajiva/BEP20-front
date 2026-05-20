@@ -655,6 +655,8 @@ export default function DashboardLayout({
   ledgerError,
   refreshLedgerDetails,
   portfolioDetails,
+  myHorseNfts,
+  refetchMyHorseNfts,
   refreshPortfolioDetails,
   walletAccount,
   successModalTrigger,
@@ -1320,57 +1322,55 @@ export default function DashboardLayout({
     setIsSocialAlertOpen(false);
   };
 
-  // ── NFT Package Helpers ──────────────────────────────────────────────────────
-  // DB values: starter | growth | premium  →  display tiers: bronze | silver | gold
-  const nftRoiMap = { starter: 45, growth: 55, premium: 65 };
-  const nftRateMap = { starter: 0.003, growth: 0.004, premium: 0.005 };
+  // ── Horse NFT API Data ─────────────────────────────────────────────────────
+  // myHorseNfts: comes from GET /api/horse-nft/my, passed from DashboardPage via prop.
+  // activeHorseNfts: only ACTIVE + PAID purchases are included in calculations.
+  const activeHorseNfts = Array.isArray(myHorseNfts)
+    ? myHorseNfts.filter(n => n.status === "ACTIVE" && n.paymentStatus === "PAID")
+    : [];
+
+  // Tier label helpers
   const nftLabelMap = {
     starter: "STARTER PACK",
     growth: "GROWTH PACK",
     premium: "PREMIUM PACK",
   };
-
-  const nftPackagesArr = user?.nftPackages || [];
-  // Backward compatibility
-  const effectiveNftPackages = nftPackagesArr.length > 0
-    ? nftPackagesArr
-    : (user?.nftPackage ? [{ tier: user.nftPackage }] : []);
-
-  let totalNftDailyRate = 0;
-  let maxNftRoiProgress = 0;
-  let highestTier = null;
   const tiersOrder = { starter: 1, growth: 2, premium: 3 };
 
-  effectiveNftPackages.forEach(p => {
-    totalNftDailyRate += (nftRateMap[p.tier] || 0);
-    maxNftRoiProgress = Math.max(maxNftRoiProgress, nftRoiMap[p.tier] || 0);
-    if (!highestTier || tiersOrder[p.tier] > tiersOrder[highestTier]) {
-      highestTier = p.tier;
+  // Derive highestTier from live Horse NFT data for status bar label
+  let highestTier = null;
+  activeHorseNfts.forEach(n => {
+    const tc = (n.tierCode || "").toLowerCase();
+    if (!highestTier || (tiersOrder[tc] || 0) > (tiersOrder[highestTier] || 0)) {
+      highestTier = tc;
     }
   });
 
-  const nftPackageRaw = highestTier;
-  const nftRoiProgress = maxNftRoiProgress;
-  const nftDailyRate = totalNftDailyRate;
+  // ── Correct ROI calculations from Horse NFT backend data ────────────────────
+  // Formula: dailyYieldUSDT = purchasePriceUSDT * annualRoiPercent / 100 / 365
+  let totalHorseNftInvested = 0;     // sum of purchasePriceUSDT
+  let totalHorseNftDailyYield = 0;   // sum of daily yield USDT amounts
+  let weightedRoiSum = 0;            // for weighted average ROI%
 
-  const nftPriceMap = {
-    starter: 500, growth: 1000, premium: 5000,
-    bronze: 500, silver: 1000, gold: 5000
-  };
-
-  let totalNftPrice = 0;
-  effectiveNftPackages.forEach(p => {
-    const pPrice = p.mintPrice && p.mintPrice > 0 ? p.mintPrice : (nftPriceMap[p.tier] || 0);
-    totalNftPrice += pPrice;
+  activeHorseNfts.forEach(n => {
+    const price = parseFloat(n.purchasePriceUSDT || 0);
+    const roi = parseFloat(n.annualRoiPercent || 0);
+    const dailyYield = price * roi / 100 / 365;
+    totalHorseNftInvested += price;
+    totalHorseNftDailyYield += dailyYield;
+    weightedRoiSum += price * roi;
   });
 
-  const zeroRiskBal = parseFloat(ledgerDetails?.zeroRisk?.balance || "0");
-  const nftBaseValue = totalNftPrice > 0 ? totalNftPrice : zeroRiskBal;
+  const nftPackageRaw = highestTier;
+  const nftBaseValue = totalHorseNftInvested;
+  const nftDailyYield = totalHorseNftDailyYield.toFixed(4);
 
-  const backendAgg = ledgerDetails?.nftAggregated;
-  const nftDailyYield = backendAgg ? backendAgg.totalNftDailyYield.toFixed(4) : (nftBaseValue * nftDailyRate).toFixed(4);
-  const nftEstPayout = backendAgg ? backendAgg.nftEstPayout.toFixed(2) : (nftBaseValue * (nftRoiProgress / 100)).toFixed(2);
-  const nftNextPayout = nftDailyYield;
+  // Weighted average annual ROI % for display
+  const weightedAnnualRoiPercent = totalHorseNftInvested > 0
+    ? weightedRoiSum / totalHorseNftInvested
+    : 0;
+  // Avg daily yield % for ecosystem hub
+  const horseNftAvgDailyYieldPct = weightedAnnualRoiPercent / 365;
 
   // ── Aggregated Ecosystem Hub Data ──────────────────────────────────────────────
   const allStakingPlans = [
@@ -1385,20 +1385,26 @@ export default function DashboardLayout({
     return acc + (amt * apy / 365);
   }, 0);
 
+  // combinedTotalBalance: prefer portfolioDetails.summary (from active-staking API)
+  // then fall back to staking + Horse NFT invested
   const combinedTotalBalance = portfolioDetails?.summary
     ? portfolioDetails.summary.totalEcosystemAssets
-    : (totalStaked + (backendAgg ? backendAgg.nftBaseValue : nftBaseValue));
+    : (totalStaked + nftBaseValue);
 
+  // combinedDailyRewards: staking daily + Horse NFT daily (from backend data)
   const combinedDailyRewards = portfolioDetails?.summary
     ? portfolioDetails.summary.totalDailyYield
-    : (stakingDaily + parseFloat(nftDailyYield));
+    : (stakingDaily + totalHorseNftDailyYield);
 
+  // ecosystemYieldPercent: prefer portfolioDetails.summary, else compute from Horse NFT weighted avg
   const ecosystemYieldPercent = portfolioDetails?.summary
     ? portfolioDetails.summary.avgDailyYieldPercent.toFixed(4)
     : (combinedTotalBalance > 0
       ? ((combinedDailyRewards / combinedTotalBalance) * 100).toFixed(4)
       : "0.00");
   // ────────────────────────────────────────────────────────────────────────────
+
+  const zeroRiskBal = parseFloat(ledgerDetails?.zeroRisk?.balance || "0");
 
   // Real countdown to next daily payout (rolls over at UTC midnight)
   const _now = new Date();
@@ -1410,8 +1416,8 @@ export default function DashboardLayout({
   const _diffM = Math.floor((_diffMs % 3600000) / 60000);
   const nftTimeLeft = `${_diffH}h ${String(_diffM).padStart(2, '0')}m`;
 
-  // Display label for the bottom status bar
-  const nftTierLabel = effectiveNftPackages.length > 1
+  // Display label for the bottom status bar (now driven by live Horse NFT API data)
+  const nftTierLabel = activeHorseNfts.length > 1
     ? "MULTIPLE PACKS"
     : nftPackageRaw
       ? nftLabelMap[nftPackageRaw] || nftPackageRaw.toUpperCase()
@@ -1572,6 +1578,7 @@ export default function DashboardLayout({
         onRedeem={() => setIsCommunityRewardsModalOpen(true)}
         ledgerDetails={ledgerDetails}
         portfolioDetails={portfolioDetails}
+        myHorseNfts={myHorseNfts}
         orbitCard1={
           <ActionableWalletCard
             title="Wallet"
@@ -1603,6 +1610,7 @@ export default function DashboardLayout({
             title="Horse NFT"
             user={user}
             ledgerDetails={ledgerDetails}
+            myHorseNfts={myHorseNfts}
             onViewHistory={() => window.location.href = "/dashboard/history/asset?type=nft"}
           />
         }

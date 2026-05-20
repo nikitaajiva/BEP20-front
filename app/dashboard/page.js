@@ -257,6 +257,29 @@ export default function DashboardPage() {
     }
   }, [user, API_URL]);
 
+  // ── Horse NFT data from /api/horse-nft/my ─────────────────────────────────
+  const [myHorseNfts, setMyHorseNfts] = useState([]);
+  const [loadingHorseNfts, setLoadingHorseNfts] = useState(true);
+
+  const fetchMyHorseNfts = useCallback(async () => {
+    if (!user) return;
+    const token = safeStorage.getItem("token");
+    if (!token) { setLoadingHorseNfts(false); return; }
+    setLoadingHorseNfts(true);
+    try {
+      const { getMyHorseNfts } = await import("../services/horseNftApi");
+      const res = await getMyHorseNfts({ page: 1, limit: 100 });
+      if (res.success && Array.isArray(res.data)) {
+        setMyHorseNfts(res.data);
+      }
+    } catch (err) {
+      console.error("[DashboardPage] Horse NFT fetch error:", err.message);
+    } finally {
+      setLoadingHorseNfts(false);
+    }
+  }, [user]);
+  // ──────────────────────────────────────────────────────────────────────────
+
   const fetchPhantomBalance = useCallback(async () => {
     if (!user?.phantomWalletAddress) {
       setPhantomBalance("0.000000");
@@ -556,13 +579,14 @@ export default function DashboardPage() {
 
     fetchLedgerDetails();
     fetchPortfolioDetails();
+    fetchMyHorseNfts();
     if (user?.phantomWalletAddress) {
       fetchPhantomBalance();
     } else {
       setPhantomBalance("0.000000");
       setPhantomBalanceLoading(false);
     }
-  }, [user?._id, user?.phantomWalletAddress, fetchLedgerDetails, fetchPortfolioDetails, fetchPhantomBalance]);
+  }, [user?._id, user?.phantomWalletAddress, fetchLedgerDetails, fetchPortfolioDetails, fetchMyHorseNfts, fetchPhantomBalance]);
 
   useEffect(() => {
     if (!user) {
@@ -1407,6 +1431,8 @@ export default function DashboardPage() {
         refreshLedgerDetails={fetchLedgerDetails}
         portfolioDetails={portfolioDetails}
         refreshPortfolioDetails={fetchPortfolioDetails}
+        myHorseNfts={myHorseNfts}
+        refetchMyHorseNfts={fetchMyHorseNfts}
         successModalTrigger={successModalTrigger}
         onClearSuccessModalTrigger={() => setSuccessModalTrigger(null)}
       >

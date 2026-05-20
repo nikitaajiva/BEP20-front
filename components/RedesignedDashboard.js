@@ -21,6 +21,7 @@ const RedesignedDashboard = ({
   phantomErrorCode,
   ledgerDetails,
   portfolioDetails,
+  myHorseNfts,
   orbitCard1,
   orbitCard2,
   orbitCard3,
@@ -124,9 +125,15 @@ const RedesignedDashboard = ({
   const [isPortfolioModalOpen, setIsPortfolioModalOpen] = React.useState(false);
   const [showActiveAssetsTooltip, setShowActiveAssetsTooltip] = React.useState(false);
 
-  const horseNFTCount = portfolioDetails?.summary 
-    ? portfolioDetails.summary.totalNftAssetsCount 
-    : (user?.nftPackages?.length || (user?.nftPackage ? 1 : 0));
+  // Derive Horse NFT count from live Horse NFT API data when available
+  const activeHorseNftsCount = Array.isArray(myHorseNfts)
+    ? myHorseNfts.filter(n => n.status === "ACTIVE" && n.paymentStatus === "PAID").length
+    : 0;
+  const horseNFTCount = activeHorseNftsCount > 0
+    ? activeHorseNftsCount
+    : (portfolioDetails?.summary
+      ? portfolioDetails.summary.totalNftAssetsCount
+      : (user?.nftPackages?.length || (user?.nftPackage ? 1 : 0)));
 
   const stakingCount = portfolioDetails?.summary 
     ? portfolioDetails.summary.totalStakingAssetsCount 

@@ -581,7 +581,7 @@ export const ActiveStakesCard = ({ user, portfolioDetails, onViewHistory }) => {
   // Detailed View Render
   if (selectedStakeIndex !== null && allStakes[selectedStakeIndex]) {
     const stake = allStakes[selectedStakeIndex];
-    let amountVal, dailyYield, totalEstReward, daysRemaining, tierName, progress, apy, days, tokenAmount;
+    let amountVal, dailyYield, totalEstReward, daysRemaining, tierName, progress, apy, days, tokenAmount, earnedRewards;
     
     if (isFromPortfolio) {
       amountVal = stake.amount;
@@ -593,6 +593,7 @@ export const ActiveStakesCard = ({ user, portfolioDetails, onViewHistory }) => {
       progress = stake.progress;
       apy = stake.apy < 1 ? (stake.apy * 100).toFixed(0) : stake.apy;
       days = stake.days;
+      earnedRewards = stake.earnedRewards || 0;
     } else {
       const daysPassed = Math.max(0, Math.floor((new Date() - new Date(stake.startDate || Date.now())) / 86400000));
       days = stake.days;
@@ -605,6 +606,7 @@ export const ActiveStakesCard = ({ user, portfolioDetails, onViewHistory }) => {
       daysRemaining = Math.max(0, stake.days - daysPassed);
       tierName = stake.days >= 365 ? "Premium" : stake.days >= 180 ? "Advanced" : stake.days >= 90 ? "Growth" : "Starter";
       apy = apy * 100;
+      earnedRewards = dailyYield * daysPassed;
     }
 
     const startDateFormatted = new Date(stake.startDate || Date.now()).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
@@ -641,16 +643,24 @@ export const ActiveStakesCard = ({ user, portfolioDetails, onViewHistory }) => {
         </div>
 
         <div className={styles.rwBody} style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-          <div>
-            <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Staked Value</div>
-            <div style={{ fontSize: '24px', fontWeight: 900, color: '#fff', lineHeight: 1 }}>
-              {formatCryptoVal(amountVal, 2)} <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.5)', fontWeight: 500 }}>USDT</span>
-            </div>
-            {tokenAmount > 0 && (
-              <div style={{ fontSize: '11px', color: 'rgba(255,184,0,0.95)', marginTop: '6px', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <span style={{ fontSize: '12px' }}>🪙</span> {formatCryptoVal(tokenAmount, 2)} TSC Tokens
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div>
+              <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Staked Value</div>
+              <div style={{ fontSize: '24px', fontWeight: 900, color: '#fff', lineHeight: 1 }}>
+                {formatCryptoVal(amountVal, 2)} <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.5)', fontWeight: 500 }}>USDT</span>
               </div>
-            )}
+              {tokenAmount > 0 && (
+                <div style={{ fontSize: '11px', color: 'rgba(255,184,0,0.95)', marginTop: '6px', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <span style={{ fontSize: '12px' }}>🪙</span> {formatCryptoVal(tokenAmount, 2)} TSC Tokens
+                </div>
+              )}
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: '10px', color: 'rgba(0, 255, 0, 0.8)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px', fontWeight: 800 }}>Earned to Date</div>
+              <div style={{ fontSize: '24px', fontWeight: 900, color: '#00ff00', lineHeight: 1 }}>
+                +{formatCryptoVal(earnedRewards, 4)} <span style={{ fontSize: '14px', color: 'rgba(0, 255, 0, 0.6)', fontWeight: 500 }}>USDT</span>
+              </div>
+            </div>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
@@ -713,7 +723,7 @@ export const ActiveStakesCard = ({ user, portfolioDetails, onViewHistory }) => {
       <div className={styles.rwBody} style={{ padding: '12px', maxHeight: '300px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {displayedStakes.length > 0 ? (
           displayedStakes.map((stake, idx) => {
-            let amountVal, dailyYield, totalEstReward, daysRemaining, tierName, progress, apy, days, tokenAmount;
+            let amountVal, dailyYield, totalEstReward, daysRemaining, tierName, progress, apy, days, tokenAmount, earnedRewards;
             
             if (isFromPortfolio) {
               amountVal = stake.amount;
@@ -725,6 +735,7 @@ export const ActiveStakesCard = ({ user, portfolioDetails, onViewHistory }) => {
               progress = stake.progress;
               apy = stake.apy < 1 ? (stake.apy * 100).toFixed(0) : stake.apy;
               days = stake.days;
+              earnedRewards = stake.earnedRewards || 0;
             } else {
               const daysPassed = Math.max(0, Math.floor((new Date() - new Date(stake.startDate)) / 86400000));
               days = stake.days;
@@ -737,6 +748,7 @@ export const ActiveStakesCard = ({ user, portfolioDetails, onViewHistory }) => {
               daysRemaining = Math.max(0, stake.days - daysPassed);
               tierName = stake.days >= 365 ? "Premium" : stake.days >= 180 ? "Advanced" : stake.days >= 90 ? "Growth" : "Starter";
               apy = apy * 100; // convert to percentage for display
+              earnedRewards = dailyYield * daysPassed;
             }
 
             return (
@@ -801,17 +813,21 @@ export const ActiveStakesCard = ({ user, portfolioDetails, onViewHistory }) => {
                      </div>
                    </div>
 
-                   {/* Row 2: Daily Yield & Est. Reward */}
-                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 11 }}>
-                     <div>
-                       <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.35)', fontWeight: 700, textTransform: 'uppercase', marginRight: '4px' }}>Daily Yield:</span>
-                       <span style={{ fontWeight: 950, color: '#00ff00' }}>+{formatCryptoVal(dailyYield, 4)} USDT</span>
-                     </div>
-                     <div style={{ textAlign: 'right' }}>
-                       <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.35)', fontWeight: 700, textTransform: 'uppercase', marginRight: '4px' }}>Est. Reward:</span>
-                       <span style={{ fontWeight: 950, color: '#00ff00' }}>+{formatCryptoVal(totalEstReward, 2)} USDT</span>
-                     </div>
-                   </div>
+                    {/* Row 2: Daily Yield, Earned & Est. Reward */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 11 }}>
+                      <div>
+                        <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.35)', fontWeight: 700, textTransform: 'uppercase', marginRight: '4px' }}>Daily Yield:</span>
+                        <span style={{ fontWeight: 950, color: '#00ff00' }}>+{formatCryptoVal(dailyYield, 4)} USDT</span>
+                      </div>
+                      <div style={{ textAlign: 'center' }}>
+                        <span style={{ fontSize: 8, color: 'rgba(0, 255, 0, 0.8)', fontWeight: 700, textTransform: 'uppercase', marginRight: '4px' }}>Earned:</span>
+                        <span style={{ fontWeight: 950, color: '#00ff00' }}>+{formatCryptoVal(earnedRewards, 4)} USDT</span>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.35)', fontWeight: 700, textTransform: 'uppercase', marginRight: '4px' }}>Est. Reward:</span>
+                        <span style={{ fontWeight: 950, color: '#00ff00' }}>+{formatCryptoVal(totalEstReward, 2)} USDT</span>
+                      </div>
+                    </div>
                  </div>
 
                 {/* Bottom Row: Progress Bar */}

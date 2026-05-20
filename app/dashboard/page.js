@@ -235,7 +235,7 @@ export default function DashboardPage() {
     }
 
     try {
-      const response = await fetch(`${API_URL}/users/portfolio`, {
+      const response = await fetch(`${API_URL}/users/active-staking`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

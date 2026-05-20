@@ -546,20 +546,8 @@ export const HorseNFTCard = ({
 export const ActiveStakesCard = ({ user, portfolioDetails, onViewHistory }) => {
   const [selectedStakeIndex, setSelectedStakeIndex] = React.useState(null);
 
-  // Use portfolioDetails tokenStaking if available (matches backend exact math)
-  let allStakes = [];
-  let isFromPortfolio = false;
-  
-  if (portfolioDetails?.tokenStaking && portfolioDetails.tokenStaking.length > 0) {
-    allStakes = portfolioDetails.tokenStaking;
-    isFromPortfolio = true;
-  } else {
-    // Fallback to legacy client-side computation
-    allStakes = [
-      ...(user?.stakingPlan?.amount ? [{ ...user.stakingPlan, isPrimary: true }] : []),
-      ...(user?.stakingPlans || [])
-    ];
-  }
+  // Read exclusively from backend active-staking details
+  const allStakes = portfolioDetails?.tokenStaking || [];
 
   const displayedStakes = allStakes.slice(0, 3);
 
@@ -581,33 +569,21 @@ export const ActiveStakesCard = ({ user, portfolioDetails, onViewHistory }) => {
   // Detailed View Render
   if (selectedStakeIndex !== null && allStakes[selectedStakeIndex]) {
     const stake = allStakes[selectedStakeIndex];
-    let amountVal, dailyYield, totalEstReward, daysRemaining, tierName, progress, apy, days, tokenAmount, earnedRewards;
-    
-    if (isFromPortfolio) {
-      amountVal = stake.amount;
-      tokenAmount = stake.tokenAmount;
-      dailyYield = stake.dailyYield;
-      totalEstReward = stake.estReward;
-      daysRemaining = stake.daysRemaining;
-      tierName = stake.tierName;
-      progress = stake.progress;
-      apy = stake.apy < 1 ? (stake.apy * 100).toFixed(0) : stake.apy;
-      days = stake.days;
-      earnedRewards = stake.earnedRewards || 0;
-    } else {
-      const daysPassed = Math.max(0, Math.floor((new Date() - new Date(stake.startDate || Date.now())) / 86400000));
-      days = stake.days;
-      progress = Math.min(100, (daysPassed / stake.days) * 100);
-      apy = stake.days >= 365 ? 0.28 : stake.days >= 180 ? 0.22 : stake.days >= 90 ? 0.18 : 0.10;
-      amountVal = parseFloat(stake.amount || stake.stakeAmount || 0);
-      tokenAmount = parseFloat(stake.tokenAmount || stake.tscAmount || (amountVal / 0.01) || 0);
-      dailyYield = (amountVal * apy / 365);
-      totalEstReward = (amountVal * apy * stake.days / 365);
-      daysRemaining = Math.max(0, stake.days - daysPassed);
-      tierName = stake.days >= 365 ? "Premium" : stake.days >= 180 ? "Advanced" : stake.days >= 90 ? "Growth" : "Starter";
-      apy = apy * 100;
-      earnedRewards = dailyYield * daysPassed;
-    }
+
+    // Extract values with safe defaults
+    const amountVal = parseFloat(stake.amount || stake.stakeAmount || 0);
+    const tokenAmount = parseFloat(stake.tokenAmount || stake.tscAmount || (amountVal / 0.01) || 0);
+    const apyRaw = stake.apy || 0;
+    const daysPassed = stake.daysPassed || 0;
+    const days = stake.days || 0;
+    const progress = stake.progress || 0;
+
+    const dailyYield = (amountVal * apyRaw / 365);
+    const totalEstReward = (amountVal * apyRaw * days / 365);
+    const daysRemaining = Math.max(0, days - daysPassed);
+    const tierName = days >= 365 ? "Premium" : days >= 180 ? "Advanced" : days >= 90 ? "Growth" : "Starter";
+    const apy = apyRaw * 100;
+    const earnedRewards = dailyYield * daysPassed;
 
     const startDateFormatted = new Date(stake.startDate || Date.now()).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
     const maturityDateFormatted = new Date(new Date(stake.startDate || Date.now()).getTime() + days * 86400000).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
@@ -719,37 +695,19 @@ export const ActiveStakesCard = ({ user, portfolioDetails, onViewHistory }) => {
           <span>{allStakes.length} ACTIVE</span>
         </div>
       </div>
-
       <div className={styles.rwBody} style={{ padding: '12px', maxHeight: '300px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {displayedStakes.length > 0 ? (
           displayedStakes.map((stake, idx) => {
-            let amountVal, dailyYield, totalEstReward, daysRemaining, tierName, progress, apy, days, tokenAmount, earnedRewards;
-            
-            if (isFromPortfolio) {
-              amountVal = stake.amount;
-              tokenAmount = stake.tokenAmount;
-              dailyYield = stake.dailyYield;
-              totalEstReward = stake.estReward;
-              daysRemaining = stake.daysRemaining;
-              tierName = stake.tierName;
-              progress = stake.progress;
-              apy = stake.apy < 1 ? (stake.apy * 100).toFixed(0) : stake.apy;
-              days = stake.days;
-              earnedRewards = stake.earnedRewards || 0;
-            } else {
-              const daysPassed = Math.max(0, Math.floor((new Date() - new Date(stake.startDate)) / 86400000));
-              days = stake.days;
-              progress = Math.min(100, (daysPassed / stake.days) * 100);
-              apy = stake.days >= 365 ? 0.28 : stake.days >= 180 ? 0.22 : stake.days >= 90 ? 0.18 : 0.10;
-              amountVal = parseFloat(stake.amount || stake.stakeAmount || 0);
-              tokenAmount = parseFloat(stake.tokenAmount || stake.tscAmount || (amountVal / 0.01) || 0);
-              dailyYield = (amountVal * apy / 365);
-              totalEstReward = (amountVal * apy * stake.days / 365);
-              daysRemaining = Math.max(0, stake.days - daysPassed);
-              tierName = stake.days >= 365 ? "Premium" : stake.days >= 180 ? "Advanced" : stake.days >= 90 ? "Growth" : "Starter";
-              apy = apy * 100; // convert to percentage for display
-              earnedRewards = dailyYield * daysPassed;
-            }
+            const amountVal = stake.amount || 0;
+            const tokenAmount = stake.tokenAmount || 0;
+            const dailyYield = stake.dailyYield || 0;
+            const totalEstReward = stake.estReward || 0;
+            const daysRemaining = stake.daysRemaining || 0;
+            const tierName = stake.tierName || "N/A";
+            const progress = stake.progress || 0;
+            const apy = stake.apy ? (stake.apy < 1 ? (stake.apy * 100).toFixed(0) : stake.apy) : 0;
+            const days = stake.days || 0;
+            const earnedRewards = stake.earnedRewards || 0;
 
             return (
               <div

@@ -407,6 +407,13 @@ export const HorseNFTCard = ({
       const dailyRate = annualRoi / 100 / 365;
       const dailyYield = price * dailyRate;
       const estPayout = price * annualRoi / 100;
+      
+      const purchaseDateStr = pkg.purchasedAt || pkg.activatedAt || pkg.createdAt || Date.now();
+      const purchaseDateObj = new Date(purchaseDateStr);
+      const daysPassed = Math.max(0, new Date() - purchaseDateObj) / 86400000;
+      const earningsAsOfNow = daysPassed * dailyYield;
+      const progressPercent = estPayout > 0 ? (earningsAsOfNow / estPayout) * 100 : 0;
+
       return {
         tierCode,
         tier,
@@ -417,7 +424,9 @@ export const HorseNFTCard = ({
         dailyRate,
         dailyYield: dailyYield.toFixed(4),
         estPayout: estPayout.toFixed(2),
-        purchaseDate: pkg.purchasedAt || pkg.activatedAt || pkg.createdAt,
+        earningsAsOfNow: earningsAsOfNow.toFixed(2),
+        progressPercent: Math.min(progressPercent, 100).toFixed(2),
+        purchaseDate: purchaseDateStr,
         displayName: pkg.displayName || packageNames[tierCode] || tier.toUpperCase(),
       };
     } else {
@@ -429,6 +438,13 @@ export const HorseNFTCard = ({
       const dailyRate = annualRoi / 100 / 365;
       const dailyYield = price * dailyRate;
       const estPayout = price * annualRoi / 100;
+
+      const purchaseDateStr = pkg.purchaseDate || Date.now();
+      const purchaseDateObj = new Date(purchaseDateStr);
+      const daysPassed = Math.max(0, new Date() - purchaseDateObj) / 86400000;
+      const earningsAsOfNow = daysPassed * dailyYield;
+      const progressPercent = estPayout > 0 ? (earningsAsOfNow / estPayout) * 100 : 0;
+
       return {
         tierCode,
         tier,
@@ -439,7 +455,9 @@ export const HorseNFTCard = ({
         dailyRate,
         dailyYield: dailyYield.toFixed(4),
         estPayout: estPayout.toFixed(2),
-        purchaseDate: pkg.purchaseDate,
+        earningsAsOfNow: earningsAsOfNow.toFixed(2),
+        progressPercent: Math.min(progressPercent, 100).toFixed(2),
+        purchaseDate: purchaseDateStr,
         displayName: packageNames[tierCode] || tier.toUpperCase(),
       };
     }
@@ -551,13 +569,13 @@ export const HorseNFTCard = ({
       <div className={styles.roiProgressSection}>
         <div className={styles.roiLabelRow}>
           <span>Annual ROI Target</span>
-          <span style={{ color: '#00ff00' }}>{d.annualRoi}%</span>
+          <span style={{ color: '#00ff00' }}>{d.earningsAsOfNow} / {d.estPayout} USDT</span>
         </div>
-        <div className={styles.roiProgressBar}>
+        <div className={styles.roiProgressBar} title={`${d.progressPercent}% Earned`} style={{ cursor: 'pointer' }}>
           <div
             className={styles.roiProgressFill}
             style={{
-              width: `${Math.min(d.annualRoi, 100)}%`,
+              width: `${Math.min(d.progressPercent, 100)}%`,
               background: d.tier === 'gold' ? 'linear-gradient(90deg,#ffd700,#ff8c00)'
                 : d.tier === 'silver' ? 'linear-gradient(90deg,#c0c0c0,#808080)'
                   : 'linear-gradient(90deg,#cd7f32,#a0522d)'
@@ -582,13 +600,13 @@ export const HorseNFTCard = ({
         <div className={styles.nftStatItem} style={{ border: 'none' }}>
           <div className={styles.nftStatLabelGroup}>
             <span className={styles.nftStatLabel}>Next Payout</span>
+            <div style={{ fontSize: '10px', color: '#ffb800', marginTop: '2px', fontWeight: 800, letterSpacing: '1px' }}>
+              IN {liveTimeLeft}
+            </div>
           </div>
           <span className={styles.nftStatValue}>
             {d.dailyYield} USDT <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: 700, marginLeft: '4px' }}>({(d.dailyRate * 100).toFixed(2)}%)</span>
           </span>
-          <div style={{ fontSize: '10px', color: '#ffb800', marginTop: '4px', fontWeight: 800, letterSpacing: '1px' }}>
-            IN {liveTimeLeft}
-          </div>
         </div>
       </div>
     </div>

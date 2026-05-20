@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, Users, DollarSign, Layers, Search, Filter, ChevronDown, ChevronRight, Eye } from "lucide-react";
 import DashboardNavbar from "@/components/DashboardNavbar";
@@ -162,7 +162,7 @@ const TreeNode = ({ node, isExpanded, onToggle }) => {
   );
 };
 
-export default function ReferralLevelsPage() {
+function ReferralLevelsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const levelParam = searchParams.get('level');
@@ -436,5 +436,17 @@ export default function ReferralLevelsPage() {
         </div>
       </div>
     </AuthGuard>
+  );
+}
+
+export default function ReferralLevelsPage() {
+  return (
+    <Suspense fallback={
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', background: '#000' }}>
+        Loading network structure...
+      </div>
+    }>
+      <ReferralLevelsContent />
+    </Suspense>
   );
 }

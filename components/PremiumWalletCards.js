@@ -359,20 +359,25 @@ export const HorseNFTCard = ({
   const nftRoiMap = { starter: 45, growth: 55, premium: 65, bronze: 45, silver: 55, gold: 65 };
   const nftRateMap = { starter: 0.003, growth: 0.004, premium: 0.005, bronze: 0.003, silver: 0.004, gold: 0.005 };
 
-  const calcTimeLeft = () => {
+  const calcTimeLeft = React.useCallback(() => {
     const now = new Date();
-    const nextMid = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1));
-    const diff = nextMid - now;
+    let nextPayout = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 2, 0, 0));
+    if (now.getTime() >= nextPayout.getTime()) {
+      nextPayout.setUTCDate(nextPayout.getUTCDate() + 1);
+    }
+    const diff = nextPayout - now;
     const h = Math.floor(diff / 3600000);
     const m = Math.floor((diff % 3600000) / 60000);
-    return `${h}h ${String(m).padStart(2, '0')}m`;
-  };
-
-  const [liveTimeLeft, setLiveTimeLeft] = React.useState(calcTimeLeft());
-  React.useEffect(() => {
-    const id = setInterval(() => setLiveTimeLeft(calcTimeLeft()), 60000);
-    return () => clearInterval(id);
+    const s = Math.floor((diff % 60000) / 1000);
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
   }, []);
+
+  const [liveTimeLeft, setLiveTimeLeft] = React.useState('');
+  React.useEffect(() => {
+    setLiveTimeLeft(calcTimeLeft());
+    const id = setInterval(() => setLiveTimeLeft(calcTimeLeft()), 1000);
+    return () => clearInterval(id);
+  }, [calcTimeLeft]);
 
   const zeroRiskBal = parseFloat(ledgerDetails?.zeroRisk?.balance || "0");
 
@@ -523,20 +528,24 @@ export const HorseNFTCard = ({
           </span>
         </div>
         <div className={styles.nftStatItem} style={{ border: 'none' }}>
-          <div className={styles.nftStatLabelGroup}>
+          <div className={styles.nftStatLabelGroup} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             <span className={styles.nftStatLabel}>Next Payout</span>
+            <span style={{ fontSize: '10px', color: '#ffb800', fontWeight: 800, letterSpacing: '1px' }}>
+              IN {liveTimeLeft}
+            </span>
           </div>
           <span className={styles.nftStatValue}>
             {dailyYield} USDT <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: 700, marginLeft: '4px' }}>({(dailyRate * 100).toFixed(2)}%)</span>
           </span>
         </div>
       </div>
-
     </div>
   );
 };
 
 export const ActiveStakesCard = ({ user, portfolioDetails, onViewHistory }) => {
+  const [selectedStakeIndex, setSelectedStakeIndex] = React.useState(null);
+
   // Use portfolioDetails tokenStaking if available (matches backend exact math)
   let allStakes = [];
   let isFromPortfolio = false;
@@ -569,6 +578,128 @@ export const ActiveStakesCard = ({ user, portfolioDetails, onViewHistory }) => {
     return num.toLocaleString(undefined, { minimumFractionDigits: defaultDec, maximumFractionDigits: 6 });
   };
 
+  // Detailed View Render
+  if (selectedStakeIndex !== null && allStakes[selectedStakeIndex]) {
+    const stake = allStakes[selectedStakeIndex];
+    let amountVal, dailyYield, totalEstReward, daysRemaining, tierName, progress, apy, days, tokenAmount;
+    
+    if (isFromPortfolio) {
+      amountVal = stake.amount;
+      tokenAmount = stake.tokenAmount;
+      dailyYield = stake.dailyYield;
+      totalEstReward = stake.estReward;
+      daysRemaining = stake.daysRemaining;
+      tierName = stake.tierName;
+      progress = stake.progress;
+      apy = stake.apy < 1 ? (stake.apy * 100).toFixed(0) : stake.apy;
+      days = stake.days;
+    } else {
+      const daysPassed = Math.max(0, Math.floor((new Date() - new Date(stake.startDate || Date.now())) / 86400000));
+      days = stake.days;
+      progress = Math.min(100, (daysPassed / stake.days) * 100);
+      apy = stake.days >= 365 ? 0.28 : stake.days >= 180 ? 0.22 : stake.days >= 90 ? 0.18 : 0.10;
+      amountVal = parseFloat(stake.amount || stake.stakeAmount || 0);
+      tokenAmount = parseFloat(stake.tokenAmount || stake.tscAmount || (amountVal / 0.01) || 0);
+      dailyYield = (amountVal * apy / 365);
+      totalEstReward = (amountVal * apy * stake.days / 365);
+      daysRemaining = Math.max(0, stake.days - daysPassed);
+      tierName = stake.days >= 365 ? "Premium" : stake.days >= 180 ? "Advanced" : stake.days >= 90 ? "Growth" : "Starter";
+      apy = apy * 100;
+    }
+
+    const startDateFormatted = new Date(stake.startDate || Date.now()).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+    const maturityDateFormatted = new Date(new Date(stake.startDate || Date.now()).getTime() + days * 86400000).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+
+    return (
+      <div className={styles.rwCardWrapper} style={{ border: '1px solid rgba(255, 85, 0, 0.25)', minHeight: '380px' }}>
+        <div className={styles.rwHeader} style={{ borderColor: 'rgba(255, 85, 0, 0.25)', padding: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <button
+              onClick={() => setSelectedStakeIndex(null)}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: '#fff',
+                cursor: 'pointer',
+                fontSize: '18px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '0 4px 0 0',
+                transition: 'transform 0.2s'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.transform = 'translateX(-3px)'}
+              onMouseLeave={(e) => e.currentTarget.style.transform = 'translateX(0)'}
+            >
+              &larr;
+            </button>
+            <span className={styles.rwTitle} style={{ color: '#ff5500' }}>Stake Details</span>
+          </div>
+          <span style={{ fontSize: 8, fontWeight: 900, color: '#ff5500', background: 'rgba(255,85,0,0.1)', padding: '2px 6px', borderRadius: 4, textTransform: 'uppercase' }}>
+            {tierName}
+          </span>
+        </div>
+
+        <div className={styles.rwBody} style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <div>
+            <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Staked Value</div>
+            <div style={{ fontSize: '24px', fontWeight: 900, color: '#fff', lineHeight: 1 }}>
+              {formatCryptoVal(amountVal, 2)} <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.5)', fontWeight: 500 }}>USDT</span>
+            </div>
+            {tokenAmount > 0 && (
+              <div style={{ fontSize: '11px', color: 'rgba(255,184,0,0.95)', marginTop: '6px', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <span style={{ fontSize: '12px' }}>🪙</span> {formatCryptoVal(tokenAmount, 2)} TSC Tokens
+              </div>
+            )}
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9px', color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>
+              <span>MATURITY PROGRESS</span>
+              <span style={{ color: '#ff5500' }}>{progress.toFixed(0)}%</span>
+            </div>
+            <div style={{ height: '5px', background: 'rgba(255,255,255,0.05)', borderRadius: '3px', overflow: 'hidden' }}>
+              <div style={{ width: `${progress}%`, height: '100%', background: 'linear-gradient(90deg, #ff5500, #ff8c00)', boxShadow: '0 0 10px rgba(255,85,0,0.6)' }}></div>
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '12px', padding: '10px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
+              <span style={{ fontSize: '8px', color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase' }}>Duration</span>
+              <span style={{ fontSize: '12px', fontWeight: 800, color: '#fff' }}>{days} Days</span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
+              <span style={{ fontSize: '8px', color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase' }}>APY Rate</span>
+              <span style={{ fontSize: '12px', fontWeight: 800, color: '#ff5500' }}>{apy}% APY</span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', borderTop: '1px dashed rgba(255,255,255,0.06)', paddingTop: '6px' }}>
+              <span style={{ fontSize: '8px', color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase' }}>Daily Yield</span>
+              <span style={{ fontSize: '12px', fontWeight: 900, color: '#00ff00' }}>+{formatCryptoVal(dailyYield, 4)} USDT</span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', borderTop: '1px dashed rgba(255,255,255,0.06)', paddingTop: '6px' }}>
+              <span style={{ fontSize: '8px', color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase' }}>Est. Reward</span>
+              <span style={{ fontSize: '12px', fontWeight: 900, color: '#00ff00' }}>+{formatCryptoVal(totalEstReward, 2)} USDT</span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', borderTop: '1px dashed rgba(255,255,255,0.06)', paddingTop: '6px' }}>
+              <span style={{ fontSize: '8px', color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase' }}>Start Date</span>
+              <span style={{ fontSize: '11px', fontWeight: 800, color: 'rgba(255,255,255,0.8)' }}>{startDateFormatted}</span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', borderTop: '1px dashed rgba(255,255,255,0.06)', paddingTop: '6px' }}>
+              <span style={{ fontSize: '8px', color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase' }}>Maturity Date</span>
+              <span style={{ fontSize: '11px', fontWeight: 800, color: 'rgba(255,255,255,0.8)' }}>{maturityDateFormatted}</span>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginTop: 'auto' }}>
+            <span>Remaining Timeline:</span>
+            <span style={{ fontWeight: 850, color: daysRemaining < 5 ? '#ff5500' : '#fff' }}>{daysRemaining} Days left</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Standard List View Render
   return (
     <div className={styles.rwCardWrapper} style={{ border: '1px solid rgba(255, 85, 0, 0.25)' }}>
       <div className={styles.rwHeader} style={{ borderColor: 'rgba(255, 85, 0, 0.25)', padding: '16px' }}>
@@ -611,6 +742,7 @@ export const ActiveStakesCard = ({ user, portfolioDetails, onViewHistory }) => {
             return (
               <div
                 key={idx}
+                onClick={() => setSelectedStakeIndex(idx)}
                 style={{
                   background: 'rgba(255,255,255,0.02)',
                   border: '1px solid rgba(255,255,255,0.05)',
@@ -619,7 +751,18 @@ export const ActiveStakesCard = ({ user, portfolioDetails, onViewHistory }) => {
                   display: 'flex',
                   flexDirection: 'column',
                   gap: '8px',
-                  transition: '0.2s'
+                  transition: 'all 0.2s ease',
+                  cursor: 'pointer'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,85,0,0.04)';
+                  e.currentTarget.style.borderColor = 'rgba(255,85,0,0.2)';
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.05)';
+                  e.currentTarget.style.transform = 'translateY(0)';
                 }}
               >
                 {/* Top Row: Amount & Tier */}
@@ -716,7 +859,6 @@ export const ActiveStakesCard = ({ user, portfolioDetails, onViewHistory }) => {
           </button>
         </div>
       )}
-
     </div>
   );
 };

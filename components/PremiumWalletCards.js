@@ -335,19 +335,40 @@ export const HorseNFTCard = ({
     N1: 500, N2: 1000, N3: 5000, N4: 10000, N5: 25000
   };
 
+  const [purchasedNfts, setPurchasedNfts] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    let active = true;
+    const fetchNfts = async () => {
+      try {
+        const { getMyHorseNfts } = await import("../services/horseNftApi");
+        const res = await getMyHorseNfts({ page: 1, limit: 20 });
+        if (active && res.success && Array.isArray(res.data)) {
+          setPurchasedNfts(res.data);
+        }
+      } catch (err) {
+        console.error("Failed to load purchased Horse NFTs dynamically", err);
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+    fetchNfts();
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const nftPackages = user?.nftPackages || [];
   // Backward compatibility
   const effectivePackages = nftPackages.length > 0
     ? nftPackages
     : (user?.nftPackage ? [{ tier: user.nftPackage }] : []);
 
-  const [selectedPkgIndex, setSelectedPkgIndex] = React.useState(
-    effectivePackages.length === 1 ? 0 : null
-  );
-
   const tierNormalize = {
     starter: "bronze", growth: "silver", premium: "gold",
     bronze: "bronze", silver: "silver", gold: "gold",
+    n1: "bronze", n2: "silver", n3: "gold", n4: "gold", n5: "gold"
   };
 
   const nftImages = { bronze: "🥉", silver: "🥈", gold: "🥇" };
@@ -358,6 +379,47 @@ export const HorseNFTCard = ({
 
   const nftRoiMap = { starter: 45, growth: 55, premium: 65, bronze: 45, silver: 55, gold: 65 };
   const nftRateMap = { starter: 0.003, growth: 0.004, premium: 0.005, bronze: 0.003, silver: 0.004, gold: 0.005 };
+
+  const normalizeNft = (item, idx) => {
+    const tierCode = (item.tierCode || item.tier || "").toLowerCase();
+    const tierNormalized = tierNormalize[tierCode] || "bronze";
+    const displayName = item.displayName || packageNames[tierCode] || tierNormalized.toUpperCase();
+    const purchasePrice = item.purchasePriceUSDT || item.mintPrice || nftPriceMap[tierCode] || 0;
+    const roiProgress = item.annualRoiPercent || nftRoiMap[tierCode] || 0;
+    const dailyRate = nftRateMap[tierCode] || 0.003;
+    const dailyYield = (purchasePrice * dailyRate).toFixed(4);
+
+    return {
+      id: item.id || item._id || `fallback-${idx}`,
+      tierCode,
+      tierNormalized,
+      displayName,
+      purchasePrice,
+      roiProgress,
+      dailyRate,
+      dailyYield,
+      bonusTokens: item.bonusTokens || 0,
+      dividendFrequency: item.dividendFrequency || item.dividendFreq || "Daily",
+      status: item.status || "active",
+      paymentStatus: item.paymentStatus || "PAID",
+      nextPayoutAt: item.nextPayoutAt || null,
+      totalPaidUSDT: item.totalPaidUSDT || 0,
+      totalPayoutCount: item.totalPayoutCount || 0,
+      purchaseDate: item.purchasedAt || item.purchaseDate || Date.now(),
+    };
+  };
+
+  const displayNfts = (purchasedNfts.length > 0 ? purchasedNfts : effectivePackages).map(normalizeNft);
+
+  const [selectedPkgIndex, setSelectedPkgIndex] = React.useState(null);
+
+  React.useEffect(() => {
+    if (displayNfts.length === 1) {
+      setSelectedPkgIndex(0);
+    } else {
+      setSelectedPkgIndex(null);
+    }
+  }, [displayNfts.length]);
 
   const calcTimeLeft = React.useCallback(() => {
     const now = new Date();
@@ -379,13 +441,47 @@ export const HorseNFTCard = ({
     return () => clearInterval(id);
   }, [calcTimeLeft]);
 
-  const zeroRiskBal = parseFloat(ledgerDetails?.zeroRisk?.balance || "0");
+  if (loading) {
+    return (
+      <div className={styles.nftCardWrapper}>
+        <div className={styles.nftHeader}>
+          <div className={styles.headerLeft}>
+            <div className={styles.nftIconBox}><FaHorse size={20} color="#ffd700" /></div>
+            <div className={styles.titleSection}>
+              <h3>{title}</h3>
+              <p>LOADING...</p>
+            </div>
+          </div>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '60px 20px' }}>
+          <div className="spinner-border text-warning" role="status"></div>
+        </div>
+      </div>
+    );
+  }
 
-  if (effectivePackages.length === 0) return null;
+  if (displayNfts.length === 0) {
+    return (
+      <div className={styles.nftCardWrapper}>
+        <div className={styles.nftHeader}>
+          <div className={styles.headerLeft}>
+            <div className={styles.nftIconBox}><FaHorse size={20} color="#ffd700" /></div>
+            <div className={styles.titleSection}>
+              <h3>{title}</h3>
+              <p>NO ACTIVE NFTs</p>
+            </div>
+          </div>
+        </div>
+        <div style={{ textAlign: 'center', padding: '60px 20px', color: 'rgba(255,255,255,0.3)', fontSize: 13 }}>
+          No Horse NFT purchased yet.
+        </div>
+      </div>
+    );
+  }
 
   // If no package is selected and we have multiple, show the list
-  if (selectedPkgIndex === null && effectivePackages.length > 1) {
-    const sortedPackages = [...effectivePackages].sort((a, b) => new Date(b.purchaseDate || 0) - new Date(a.purchaseDate || 0));
+  if (selectedPkgIndex === null && displayNfts.length > 1) {
+    const sortedPackages = [...displayNfts].sort((a, b) => new Date(b.purchaseDate || 0) - new Date(a.purchaseDate || 0));
     const recentPackages = sortedPackages.slice(0, 5);
 
     return (
@@ -395,23 +491,20 @@ export const HorseNFTCard = ({
             <div className={styles.nftIconBox}><FaHorse size={20} color="#ffd700" /></div>
             <div className={styles.titleSection}>
               <h3>NFT Packages</h3>
-              <p>{effectivePackages.length} ACTIVE NFTs</p>
+              <p>{displayNfts.length} ACTIVE NFTs</p>
             </div>
           </div>
         </div>
         <div className={styles.nftListGrid}>
-          {recentPackages.map((pkg) => {
-            const origIdx = effectivePackages.indexOf(pkg);
-            const tier = tierNormalize[pkg.tier];
+          {recentPackages.map((pkg, recentIdx) => {
+            const origIdx = displayNfts.findIndex(p => p.id === pkg.id);
+            const tier = pkg.tierNormalized;
             const tierColor = tier === 'gold' ? '#ffd700' : tier === 'silver' ? '#ffffff' : '#cd7f32';
             const shadowColor = tier === 'gold' ? 'rgba(255,215,0,0.3)' : tier === 'silver' ? 'rgba(255,255,255,0.3)' : 'rgba(205,127,50,0.3)';
 
-            const backendPkg = ledgerDetails?.horseNFTs?.[origIdx];
-            const price = backendPkg ? backendPkg.purchasePrice : (pkg.mintPrice && pkg.mintPrice > 0 ? pkg.mintPrice : (nftPriceMap[pkg.tier] || 0));
-
             return (
               <div
-                key={origIdx}
+                key={pkg.id}
                 className={styles.compactNftCard}
                 onClick={() => setSelectedPkgIndex(origIdx)}
                 style={{
@@ -420,16 +513,16 @@ export const HorseNFTCard = ({
                 }}
               >
                 <div className={styles.compactNftIcon} style={{ background: `${tierColor}11`, color: tierColor }}>
-                  {nftImages[tier]}
+                  {nftImages[tier] || "🥈"}
                 </div>
                 <div className={styles.compactNftInfo}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div className={styles.compactNftTier} style={{ color: tierColor }}>{packageNames[pkg.tier]}</div>
+                    <div className={styles.compactNftTier} style={{ color: tierColor }}>{pkg.displayName}</div>
                     <div style={{ color: '#00ff00', fontWeight: 800, fontSize: '13px' }}>
-                      {price.toLocaleString()} USDT
+                      {pkg.purchasePrice.toLocaleString()} USDT
                     </div>
                   </div>
-                  <div className={styles.compactNftDate}>Purchased: {new Date(pkg.purchaseDate || Date.now()).toLocaleDateString()}</div>
+                  <div className={styles.compactNftDate}>Purchased: {new Date(pkg.purchaseDate).toLocaleDateString()}</div>
                 </div>
                 <div className={styles.compactNftArrow}>
                   <ArrowRight size={14} color={tierColor} />
@@ -439,7 +532,7 @@ export const HorseNFTCard = ({
           })}
         </div>
 
-        {effectivePackages.length >= 4 && (
+        {displayNfts.length >= 4 && (
           <div className={styles.nftActionButtonsSimple} style={{ marginTop: '16px' }}>
             <button className={styles.nftHistoryBtnFull} onClick={onViewHistory}>
               <History size={16} />
@@ -452,23 +545,18 @@ export const HorseNFTCard = ({
   }
 
   // Individual Detailed View
-  const activePkg = effectivePackages[selectedPkgIndex || 0];
-  const tier = tierNormalize[activePkg.tier];
-
-  const backendPkg = ledgerDetails?.horseNFTs?.[selectedPkgIndex || 0];
-
-  const roiProgress = backendPkg ? backendPkg.roiProgress : (nftRoiMap[activePkg.tier] || 0);
-  const dailyRate = backendPkg ? backendPkg.dailyRate : (nftRateMap[activePkg.tier] || 0);
-  const purchasePrice = backendPkg ? backendPkg.purchasePrice : (activePkg?.mintPrice && activePkg.mintPrice > 0 ? activePkg.mintPrice : (nftPriceMap[activePkg?.tier] || 0));
-
-  const dailyYield = backendPkg ? backendPkg.dailyYield.toFixed(4) : (purchasePrice * dailyRate).toFixed(4);
-  const estPayout = backendPkg ? backendPkg.estPayout.toFixed(2) : (purchasePrice * (roiProgress / 100)).toFixed(2);
+  const activePkg = displayNfts[selectedPkgIndex || 0];
+  const tier = activePkg.tierNormalized;
+  const roiProgress = activePkg.roiProgress;
+  const dailyRate = activePkg.dailyRate;
+  const purchasePrice = activePkg.purchasePrice;
+  const dailyYield = activePkg.dailyYield;
 
   return (
     <div className={styles.nftCardWrapper}>
       <div className={styles.nftHeader}>
         <div className={styles.headerLeft}>
-          {effectivePackages.length > 1 && (
+          {displayNfts.length > 1 && (
             <button
               className={styles.nftBackBtn}
               onClick={() => setSelectedPkgIndex(null)}
@@ -482,7 +570,7 @@ export const HorseNFTCard = ({
           </div>
           <div className={styles.titleSection}>
             <h3>{title}</h3>
-            <p>{packageNames[activePkg.tier]}</p>
+            <p>{activePkg.displayName}</p>
           </div>
         </div>
 
@@ -516,32 +604,82 @@ export const HorseNFTCard = ({
 
       <div className={styles.nftStatsGrid}>
         <div className={styles.nftStatItem}>
-          <span className={styles.nftStatLabel}>Daily Yield</span>
-          <span className={styles.nftStatValue} style={{ color: "#00ff00" }}>
-            {dailyYield} USDT <span style={{ fontSize: '10px', color: 'rgba(0,255,0,0.75)', fontWeight: 700, marginLeft: '4px' }}>({(dailyRate * 100).toFixed(2)}%)</span>
+          <span className={styles.nftStatLabel}>Display Name / Tier</span>
+          <span className={styles.nftStatValue}>
+            {activePkg.displayName} ({activePkg.tierCode.toUpperCase()})
           </span>
         </div>
         <div className={styles.nftStatItem}>
-          <span className={styles.nftStatLabel}>Est. Payout</span>
+          <span className={styles.nftStatLabel}>Status / Payment</span>
           <span className={styles.nftStatValue}>
-            {estPayout} USDT <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: 700, marginLeft: '4px' }}>({roiProgress}%)</span>
+            <span style={{ 
+              color: activePkg.status === 'ACTIVE' || activePkg.status === 'active' ? '#4ade80' : '#ffb800', 
+              fontWeight: 800, 
+              textTransform: 'uppercase',
+              marginRight: '8px'
+            }}>
+              {activePkg.status}
+            </span>
+            <span style={{ 
+              color: activePkg.paymentStatus === 'PAID' || activePkg.paymentStatus === 'paid' ? '#4ade80' : '#ffb800', 
+              fontWeight: 800, 
+              textTransform: 'uppercase'
+            }}>
+              ({activePkg.paymentStatus})
+            </span>
+          </span>
+        </div>
+        <div className={styles.nftStatItem}>
+          <span className={styles.nftStatLabel}>Purchase Price</span>
+          <span className={styles.nftStatValue} style={{ color: "#ffd700", fontWeight: 800 }}>
+            {parseFloat(activePkg.purchasePrice).toLocaleString()} USDT
+          </span>
+        </div>
+        <div className={styles.nftStatItem}>
+          <span className={styles.nftStatLabel}>Bonus Tokens</span>
+          <span className={styles.nftStatValue} style={{ color: "#ffd700", fontWeight: 800 }}>
+            {parseFloat(activePkg.bonusTokens).toLocaleString()} TSC
+          </span>
+        </div>
+        <div className={styles.nftStatItem}>
+          <span className={styles.nftStatLabel}>Daily Yield</span>
+          <span className={styles.nftStatValue} style={{ color: "#00ff00" }}>
+            {dailyYield} USDT <span style={{ fontSize: '10px', color: 'rgba(0,0,0,0.75)', fontWeight: 700, marginLeft: '4px' }}>({(dailyRate * 100).toFixed(2)}%)</span>
+          </span>
+        </div>
+        <div className={styles.nftStatItem}>
+          <span className={styles.nftStatLabel}>Dividend Frequency</span>
+          <span className={styles.nftStatValue} style={{ textTransform: 'capitalize' }}>
+            {activePkg.dividendFrequency}
+          </span>
+        </div>
+        <div className={styles.nftStatItem}>
+          <span className={styles.nftStatLabel}>Total Paid</span>
+          <span className={styles.nftStatValue} style={{ color: "#00ff00", fontWeight: 800 }}>
+            {parseFloat(activePkg.totalPaidUSDT).toLocaleString(undefined, { minimumFractionDigits: 2 })} USDT
+          </span>
+        </div>
+        <div className={styles.nftStatItem}>
+          <span className={styles.nftStatLabel}>Payout Count</span>
+          <span className={styles.nftStatValue}>
+            {activePkg.totalPayoutCount} times
           </span>
         </div>
         <div className={styles.nftStatItem} style={{ border: 'none' }}>
           <div className={styles.nftStatLabelGroup} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             <span className={styles.nftStatLabel}>Next Payout</span>
-            <span style={{ fontSize: '10px', color: '#ffb800', fontWeight: 800, letterSpacing: '1px' }}>
+            <span style={{ fontSize: '9px', color: '#ffb800', fontWeight: 800, letterSpacing: '1px' }}>
               IN {liveTimeLeft}
             </span>
           </div>
           <span className={styles.nftStatValue}>
-            {dailyYield} USDT <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: 700, marginLeft: '4px' }}>({(dailyRate * 100).toFixed(2)}%)</span>
+            {activePkg.nextPayoutAt ? new Date(activePkg.nextPayoutAt).toLocaleDateString() : 'Pending'}
           </span>
         </div>
       </div>
     </div>
   );
-};
+}
 
 export const ActiveStakesCard = ({ user, portfolioDetails, onViewHistory }) => {
   const [selectedStakeIndex, setSelectedStakeIndex] = React.useState(null);

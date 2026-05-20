@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import styles from "./RedesignedDashboard.module.css";
-import { LogOut, Home, Users, FileText, Settings, Activity, PieChart, Database, Zap, Award, ChevronDown, BarChart2, Layers, TrendingUp, Clock, ArrowLeftCircle } from "lucide-react";
+import { LogOut, Home, Users, FileText, Settings, Activity, PieChart, Database, Zap, Award, ChevronDown, BarChart2, Layers, TrendingUp, Clock, ArrowLeftCircle, Gift } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
@@ -21,6 +21,7 @@ const mainNavLinks = [
   { name: "Ledger Rows", href: "/admin/dashboard/ledger-rows", icon: Activity },
   { name: "Recent Transactions", href: "/admin/dashboard/usdt-deposits", icon: Zap },
   { name: "Users Summary", href: "/admin/dashboard/users-summary", icon: FileText },
+  { name: "Horse NFT", href: "/admin/dashboard/horse-nft", icon: Gift },
   { name: "Global Config", href: "/admin/dashboard/config", icon: Settings },
 ];
 

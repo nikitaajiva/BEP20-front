@@ -6,32 +6,89 @@ import { useAuth } from "@/context/AuthContext";
 import SuccessModal from "./SuccessModal";
 import QRCode from "qrcode";
 
-const packages = [
-  {
-    id: "starter", tier: "Bronze", price: 500, priceLabel: "$500 USDT",
-    icon: "🥉", color: "#cd7f32", gradient: "linear-gradient(135deg,#cd7f32,#a0522d)",
-    roi: "15%", tokens: "5,000"
-  },
-  {
-    id: "growth", tier: "Silver", price: 1000, priceLabel: "$1,000 USDT",
-    icon: "🥈", color: "#c0c0c0", gradient: "linear-gradient(135deg,#c0c0c0,#808080)",
-    roi: "25%", tokens: "12,000"
-  },
-  {
-    id: "premium", tier: "Gold", price: 5000, priceLabel: "$5,000 USDT",
-    icon: "🥇", color: "#ffd700", gradient: "linear-gradient(135deg,#ffd700,#ff8c00)",
-    roi: "35%", tokens: "75,000"
-  },
-];
+// Packages loaded dynamically on mount with local hardcoded items as fallback
 
 export default function NFTModal({ isOpen, onClose, ledgerDetails }) {
   const { user, purchaseNft, API_URL } = useAuth();
+  const [packages, setPackages] = useState([
+    {
+      id: "starter", tierCode: "starter", tier: "Bronze", price: 500, priceLabel: "$500 USDT",
+      icon: "🥉", color: "#cd7f32", gradient: "linear-gradient(135deg,#cd7f32,#a0522d)",
+      roi: "15%", tokens: "5,000", benefits: []
+    },
+    {
+      id: "growth", tierCode: "growth", tier: "Silver", price: 1000, priceLabel: "$1,000 USDT",
+      icon: "🥈", color: "#c0c0c0", gradient: "linear-gradient(135deg,#c0c0c0,#808080)",
+      roi: "25%", tokens: "12,000", benefits: []
+    },
+    {
+      id: "premium", tierCode: "premium", tier: "Gold", price: 5000, priceLabel: "$5,000 USDT",
+      icon: "🥇", color: "#ffd700", gradient: "linear-gradient(135deg,#ffd700,#ff8c00)",
+      roi: "35%", tokens: "75,000", benefits: []
+    },
+  ]);
+  const [loadingPackages, setLoadingPackages] = useState(false);
   const [step, setStep] = useState(0);
   const [selected, setSelected] = useState(null);
   const [isActivating, setIsActivating] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [successTxHash, setSuccessTxHash] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
   const [activationError, setActivationError] = useState("");
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const fetchPackages = async () => {
+      setLoadingPackages(true);
+      try {
+        const { getHorseNftPackages } = await import("../services/horseNftApi");
+        const res = await getHorseNftPackages();
+        if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+          const mapped = res.data.map(pkg => {
+            let tier = "Bronze";
+            let color = "#cd7f32";
+            let gradient = "linear-gradient(135deg,#cd7f32,#a0522d)";
+            let icon = "🥉";
+
+            const code = (pkg.tierCode || "").toLowerCase();
+            if (code === "growth" || code === "silver") {
+              tier = "Silver";
+              color = "#c0c0c0";
+              gradient = "linear-gradient(135deg,#c0c0c0,#808080)";
+              icon = "🥈";
+            } else if (code === "premium" || code === "gold") {
+              tier = "Gold";
+              color = "#ffd700";
+              gradient = "linear-gradient(135deg,#ffd700,#ff8c00)";
+              icon = "🥇";
+            }
+
+            return {
+              id: pkg.tierCode,
+              tierCode: pkg.tierCode,
+              tier,
+              price: pkg.priceUSDT,
+              priceLabel: `$${pkg.priceUSDT.toLocaleString()} USDT`,
+              icon,
+              color,
+              gradient,
+              roi: `${pkg.annualRoiPercent}%`,
+              tokens: pkg.bonusTokens ? pkg.bonusTokens.toLocaleString() : "0",
+              benefits: pkg.benefits || [],
+              displayName: pkg.displayName || pkg.tierName || tier,
+              dividendFrequency: pkg.dividendFrequency,
+            };
+          });
+          setPackages(mapped);
+        }
+      } catch (err) {
+        console.error("Failed to fetch dynamic Horse NFT packages, using static fallback", err);
+      } finally {
+        setLoadingPackages(false);
+      }
+    };
+    fetchPackages();
+  }, [isOpen]);
 
   // SOL/USDT conversion
   const [solRate, setSolRate] = useState(null);         // SOL price in USDT
@@ -226,26 +283,28 @@ export default function NFTModal({ isOpen, onClose, ledgerDetails }) {
   const handleActivate = useCallback(async () => {
     if (!selected || !pkg) return;
     setActivationError("");
-
-    const currentBalanceSol = parseFloat(ledgerDetails?.solWallet?.balance || "0");
-    const rate = await fetchSolRate();
-
-    // Convert pkg.price (USDT) to SOL equivalent
-    const requiredSol = pkg.price / rate;
-    const shortfallSol = requiredSol - currentBalanceSol;
-
-    if (shortfallSol > 0.000001) {
-      // Need top-up
-      const shortfallUsdt = shortfallSol * rate;
-      setRemainingUsdt(parseFloat(shortfallUsdt.toFixed(2)));
-      setRemainingSol(parseFloat(shortfallSol.toFixed(6)));
-      setStep(2);
-      return;
+    setIsActivating(true);
+    try {
+      const { purchaseHorseNft } = await import("../services/horseNftApi");
+      const res = await purchaseHorseNft(pkg.tierCode);
+      if (res.success) {
+        const isPending = res.data?.paymentStatus === "PENDING" || res.data?.status === "PENDING_PAYMENT";
+        const msg = isPending 
+          ? "Purchase request created. Payment confirmation required."
+          : "Horse NFT activated successfully.";
+        setSuccessMsg(msg);
+        setSuccessTxHash(res.data?.paymentReference || res.data?.id || "");
+        setIsSuccess(true);
+      } else {
+        setActivationError(res.message || "Purchase failed. Please try again.");
+      }
+    } catch (err) {
+      console.error("Purchase failed", err);
+      setActivationError(err.message || "Purchase failed.");
+    } finally {
+      setIsActivating(false);
     }
-
-    // Sufficient balance — proceed
-    await processPurchase();
-  }, [selected, pkg, ledgerDetails, fetchSolRate, processPurchase]);
+  }, [selected, pkg]);
 
   // Reset on close or cleanup
   useEffect(() => {
@@ -264,6 +323,7 @@ export default function NFTModal({ isOpen, onClose, ledgerDetails }) {
       setPolling(false);
       setManualSignature("");
       setManualError("");
+      setSuccessMsg("");
       if (pollTimerRef.current) {
         clearInterval(pollTimerRef.current);
         pollTimerRef.current = null;
@@ -289,7 +349,7 @@ export default function NFTModal({ isOpen, onClose, ledgerDetails }) {
         isOpen={isSuccess}
         onClose={() => window.location.reload()}
         title="Asset Acquired"
-        message={`Successfully purchased the ${pkg?.tier} Horse NFT package. Your asset is now live.`}
+        message={successMsg || `Successfully purchased the ${pkg?.tier} Horse NFT package. Your asset is now live.`}
         transactionHash={successTxHash}
       />
 
@@ -360,26 +420,32 @@ export default function NFTModal({ isOpen, onClose, ledgerDetails }) {
           {step === 1 && !selected && (
             <motion.div initial={{ x: 10, opacity: 0 }} animate={{ x: 0, opacity: 1 }}>
               <h3 style={{ fontSize: 13, fontWeight: 800, color: "rgba(255,255,255,0.5)", marginBottom: 20, textTransform: "uppercase", letterSpacing: 1, textAlign: "center" }}>Select NFT Package</h3>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, marginBottom: 30 }}>
-                {packages.map((p) => (
-                  <div
-                    key={p.id}
-                    onClick={() => setSelected(p.id)}
-                    style={{ background: "linear-gradient(135deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01))", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 20, padding: "24px 16px", textAlign: "center", cursor: "pointer", transition: "all 0.3s cubic-bezier(0.4,0,0.2,1)", boxShadow: "0 4px 15px rgba(0,0,0,0.2)", position: "relative", overflow: "hidden" }}
-                    onMouseEnter={e => { e.currentTarget.style.borderColor = p.color; e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = `0 10px 30px ${p.color}30, inset 0 0 15px ${p.color}15`; }}
-                    onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "0 4px 15px rgba(0,0,0,0.2)"; }}
-                  >
-                    <div style={{ fontSize: 36, marginBottom: 12, display: "flex", justifyContent: "center" }}>
-                      <div style={{ background: `linear-gradient(135deg,${p.color}33,${p.color}11)`, padding: 12, borderRadius: 16, border: `1px solid ${p.color}44` }}>
-                        <FaHorse color={p.color} size={32} />
+              {loadingPackages ? (
+                <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: 160, marginBottom: 30 }}>
+                  <FaSpinner className="animate-spin" size={24} color="#FFB800" />
+                </div>
+              ) : (
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, marginBottom: 30 }}>
+                  {packages.map((p) => (
+                    <div
+                      key={p.id}
+                      onClick={() => setSelected(p.id)}
+                      style={{ background: "linear-gradient(135deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01))", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 20, padding: "24px 16px", textAlign: "center", cursor: "pointer", transition: "all 0.3s cubic-bezier(0.4,0,0.2,1)", boxShadow: "0 4px 15px rgba(0,0,0,0.2)", position: "relative", overflow: "hidden" }}
+                      onMouseEnter={e => { e.currentTarget.style.borderColor = p.color; e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = `0 10px 30px ${p.color}30, inset 0 0 15px ${p.color}15`; }}
+                      onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "0 4px 15px rgba(0,0,0,0.2)"; }}
+                    >
+                      <div style={{ fontSize: 36, marginBottom: 12, display: "flex", justifyContent: "center" }}>
+                        <div style={{ background: `linear-gradient(135deg,${p.color}33,${p.color}11)`, padding: 12, borderRadius: 16, border: `1px solid ${p.color}44` }}>
+                          <FaHorse color={p.color} size={32} />
+                        </div>
                       </div>
+                      <div style={{ fontSize: 12, fontWeight: 900, color: p.color, marginBottom: 6, textTransform: "uppercase", letterSpacing: 1 }}>{p.tier}</div>
+                      <div style={{ fontSize: 18, fontWeight: 900, color: "#fff", marginBottom: 8 }}>{p.priceLabel}</div>
+                      <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", fontWeight: 700 }}>EST YIELD: <span style={{ color: p.color }}>{p.roi}</span></div>
                     </div>
-                    <div style={{ fontSize: 12, fontWeight: 900, color: p.color, marginBottom: 6, textTransform: "uppercase", letterSpacing: 1 }}>{p.tier}</div>
-                    <div style={{ fontSize: 18, fontWeight: 900, color: "#fff", marginBottom: 8 }}>{p.priceLabel}</div>
-                    <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", fontWeight: 700 }}>EST YIELD: <span style={{ color: p.color }}>{p.roi}</span></div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
               <button onClick={() => setStep(0)} style={{ width: "100%", padding: 16, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16, color: "#fff", fontWeight: 800, fontSize: 14, cursor: "pointer" }}>Back</button>
             </motion.div>
           )}
@@ -416,8 +482,7 @@ export default function NFTModal({ isOpen, onClose, ledgerDetails }) {
               <div style={{ background: "rgba(255,184,0,0.05)", border: "1px solid rgba(255,184,0,0.15)", borderRadius: 16, padding: "12px 16px", marginBottom: 16, display: "flex", alignItems: "center", gap: 12 }}>
                 <FaWallet color="#FFB800" size={14} />
                 <div style={{ flex: 1, fontSize: 12, color: "rgba(255,255,255,0.7)", fontWeight: 500 }}>
-                  Wallet Balance: <strong style={{ color: "#FFB800" }}>{currentBalanceSol.toFixed(6)} SOL</strong>
-                  {solRate ? <span style={{ color: "rgba(255,255,255,0.4)", marginLeft: 8 }}>≈ ${(currentBalanceSol * solRate).toFixed(2)} USDT</span> : null}
+                  USDT Balance: <strong style={{ color: "#FFB800" }}>{parseFloat(ledgerDetails?.bnbWallet?.balance || "0").toLocaleString(undefined, { minimumFractionDigits: 2 })} USDT</strong>
                 </div>
               </div>
 

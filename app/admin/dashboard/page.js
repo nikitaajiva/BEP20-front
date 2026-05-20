@@ -2,7 +2,7 @@
 
 export const dynamic = "force-dynamic";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import {
   TrendingUp,
@@ -11,13 +11,10 @@ import {
   Zap,
   Award,
   Activity,
-  LayoutGrid,
-  Wallet,
   Database,
   ArrowUpRight,
   ArrowDownRight,
   RefreshCw,
-  ShieldCheck,
   Droplets,
   CircleDollarSign,
   BarChart3,
@@ -52,28 +49,6 @@ ChartJS.register(
 );
 
 const WEEK = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-const DEPOSITS_SERIES    = [450, 680, 520, 910, 780, 1200, 950];
-const WITHDRAWALS_SERIES = [310, 420, 380, 600, 540, 870, 720];
-const USERS_SERIES       = [12, 15, 8, 22, 18, 30, 25];
-
-/* ────────────────────────────────────────────── */
-
-function useCounter(target, duration = 1400) {
-  const [count, setCount] = useState(0);
-  useEffect(() => {
-    const num = parseFloat(String(target).replace(/,/g, ""));
-    if (isNaN(num)) return;
-    let start = 0;
-    const step = num / (duration / 16);
-    const timer = setInterval(() => {
-      start += step;
-      if (start >= num) { setCount(num); clearInterval(timer); }
-      else setCount(start);
-    }, 16);
-    return () => clearInterval(timer);
-  }, [target]);
-  return count;
-}
 
 /* ─── SPARKLINE (inline mini line chart) ──── */
 function Sparkline({ data, color = "#ffd700", height = 40 }) {
@@ -105,6 +80,37 @@ function Sparkline({ data, color = "#ffd700", height = 40 }) {
       })}
     </svg>
   );
+}
+
+function toNumber(value) {
+  const num = Number(value);
+  return Number.isFinite(num) ? num : 0;
+}
+
+function toAbsNumber(value) {
+  return Math.abs(toNumber(value));
+}
+
+function formatCompact(value) {
+  const num = toNumber(value);
+  if (num >= 1000) {
+    return `${(num / 1000).toFixed(num >= 10000 ? 0 : 1).replace(/\.0$/, "")}K`;
+  }
+  if (num === 0) return "0";
+  if (num < 1) return num.toFixed(2);
+  return num.toFixed(0);
+}
+
+function clampPercent(value) {
+  return Math.max(0, Math.min(value, 100));
+}
+
+function calculateTrendPercent(currentValue, series) {
+  if (!Array.isArray(series) || series.length <= 1) return 0;
+  const previousSeries = series.slice(0, -1).map((value) => toNumber(value));
+  const baseline = previousSeries.reduce((sum, value) => sum + value, 0) / previousSeries.length;
+  if (baseline === 0) return currentValue > 0 ? 100 : 0;
+  return Math.round(((currentValue - baseline) / baseline) * 100);
 }
 
 /* ─── STAT CARD ─────────────────────────────── */
@@ -141,14 +147,25 @@ function StatCard({ title, value, unit = "USDT", sub, icon: Icon, colorClass, ic
 
 /* ─── DONUT CHART ─────────────────────────── */
 function ProtocolDonut({ report }) {
+  const deposits = toNumber(report?.totalPositiveLP);
+  const withdrawals = toAbsNumber(report?.totalNegativeLP);
+  const rewards =
+    toNumber(report?.distributedLpRewards) +
+    toNumber(report?.distributedAirdropRewards) +
+    toNumber(report?.distributedBoosterRewards) +
+    toNumber(report?.totalX1Rewards) +
+    toNumber(report?.totalCommunityBoosterRewards) +
+    toNumber(report?.totalCascadeRewards);
+  const ecosystemFee = toNumber(report?.totalEcosystemFee);
+
   const data = {
     labels: ["Deposits", "Withdrawals", "Rewards", "Eco-Fee"],
     datasets: [{
       data: [
-        report?.totalPositiveLP || 0,
-        report?.totalNegativeLP || 0,
-        report?.totalCommunityRewards || 0,
-        report?.totalEcosystemFee || 0
+        deposits,
+        withdrawals,
+        rewards,
+        ecosystemFee,
       ],
       backgroundColor: ["#ffd700", "#f43f5e", "#10b981", "#6366f1"],
       borderColor: "rgba(0,0,0,0)",
@@ -176,25 +193,20 @@ function ProtocolDonut({ report }) {
       },
     },
   };
-  const totalVal = (
-    parseFloat(report?.totalPositiveLP || 0) +
-    parseFloat(report?.totalNegativeLP || 0) +
-    parseFloat(report?.totalCommunityRewards || 0) +
-    parseFloat(report?.totalEcosystemFee || 0)
-  );
+  const totalVal = deposits + withdrawals + rewards + ecosystemFee;
 
   const LEGEND = [
-    { label: "Deposits",    color: "#ffd700", val: report?.totalPositiveLP ? (parseFloat(report.totalPositiveLP)/1000).toFixed(0) + 'K' : '0K' },
-    { label: "Withdrawals", color: "#f43f5e", val: report?.totalNegativeLP ? (parseFloat(report.totalNegativeLP)/1000).toFixed(0) + 'K' : '0K' },
-    { label: "Rewards",     color: "#10b981", val: report?.totalCommunityRewards ? (parseFloat(report.totalCommunityRewards)/1000).toFixed(0) + 'K' : '0K'  },
-    { label: "Eco-Fee",     color: "#6366f1", val: report?.totalEcosystemFee ? (parseFloat(report.totalEcosystemFee)/1000).toFixed(0) + 'K' : '0K'  },
+    { label: "Deposits", color: "#ffd700", val: formatCompact(deposits) },
+    { label: "Withdrawals", color: "#f43f5e", val: formatCompact(withdrawals) },
+    { label: "Rewards", color: "#10b981", val: formatCompact(rewards) },
+    { label: "Eco-Fee", color: "#6366f1", val: formatCompact(ecosystemFee) },
   ];
   return (
     <div className={styles.donutWrap}>
       <div style={{ position:"relative", width: 180, height: 180 }}>
         <Doughnut data={data} options={opts} className={styles.donutSvg} />
         <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", pointerEvents:"none" }}>
-          <div style={{ fontSize: 22, fontWeight: 900, color: "#fff" }}>{(totalVal/1000).toFixed(0)}K</div>
+          <div style={{ fontSize: 22, fontWeight: 900, color: "#fff" }}>{formatCompact(totalVal)}</div>
           <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: 2, color: "rgba(255,255,255,0.3)", textTransform: "uppercase", marginTop: 2 }}>Total USDT</div>
         </div>
       </div>
@@ -221,12 +233,14 @@ export default function SupportDashboard() {
   const [refreshing, setRefreshing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(null);
   const [error, setError] = useState(null);
+  const [responseTimeMs, setResponseTimeMs] = useState(0);
 
   const fetchReport = async (force = false) => {
     if (force) setRefreshing(true);
     else setLoading(true);
     setError(null);
     try {
+      const startedAt = performance.now();
       const token = localStorage.getItem("token");
       if (!token) throw new Error("Authentication required");
       const url = `${process.env.NEXT_PUBLIC_API_URL}/api/support/system-report${force ? "?refresh=1" : ""}`;
@@ -237,6 +251,7 @@ export default function SupportDashboard() {
       if (!res.ok || !resData.success) throw new Error(resData.message || "Failed to fetch report");
       setReport(resData.data || resData.report || resData);
       setLastUpdated(new Date());
+      setResponseTimeMs(Math.round(performance.now() - startedAt));
     } catch (err) {
       setError(err.message);
     } finally {
@@ -251,18 +266,70 @@ export default function SupportDashboard() {
     }
   }, [authLoading, user]);
 
+  const trendLabels = report?.trend7d?.labels?.length ? report.trend7d.labels : WEEK;
+  const depositsSeries = report?.trend7d?.deposits?.length
+    ? report.trend7d.deposits.map((value) => toNumber(value))
+    : Array(WEEK.length).fill(0);
+  const withdrawalsSeries = report?.trend7d?.withdrawals?.length
+    ? report.trend7d.withdrawals.map((value) => toNumber(value))
+    : Array(WEEK.length).fill(0);
+  const usersSeries = report?.trend7d?.newUsers?.length
+    ? report.trend7d.newUsers.map((value) => toNumber(value))
+    : Array(WEEK.length).fill(0);
+
+  const rewardsSeries = [
+    toNumber(report?.dailyRewards?.x1Rewards),
+    toNumber(report?.dailyRewards?.xPowerRewards),
+    toNumber(report?.dailyRewards?.communityBoosterRewards),
+    toNumber(report?.dailyRewards?.dailyRewardsLp),
+    toNumber(report?.dailyRewards?.dailyRewardsAirdrop),
+    toNumber(report?.dailyRewards?.dailyRewardsBoost),
+    toNumber(report?.dailyRewards?.dailyCascadeRewards),
+  ];
+
+  const todayDepositsAmount = toNumber(report?.onChainDepositsToday?.total);
+  const todayWithdrawalsAmount = toNumber(report?.onChainWithdrawalsToday?.total);
+  const todayDepositsCount = toNumber(report?.onChainDepositsToday?.txCount);
+  const todayWithdrawalsCount = toNumber(report?.onChainWithdrawalsToday?.txCount);
+  const todayRewardsAmount = toNumber(report?.dailyRewards?.total);
+  const lifetimeRewardsTotal =
+    toNumber(report?.distributedLpRewards) +
+    toNumber(report?.distributedAirdropRewards) +
+    toNumber(report?.distributedBoosterRewards) +
+    toNumber(report?.totalX1Rewards) +
+    toNumber(report?.totalCommunityBoosterRewards) +
+    toNumber(report?.totalCascadeRewards);
+
+  const positiveUsers = toNumber(report?.onChainPositiveBalance?.userCount);
+  const negativeUsers = toNumber(report?.onChainNegativeBalance?.userCount);
+  const withdrawalErrorCount = toNumber(report?.withdrawalErrorCount);
+  const operationalBase = Math.max(positiveUsers + negativeUsers + withdrawalErrorCount, 1);
+  const healthMetrics = [
+    { label: "Protocol Uptime", val: report ? 100 : 0, color: "#10b981" },
+    { label: "API Response (avg)", val: clampPercent(responseTimeMs / 10), color: "#ffd700", unit: "ms", raw: `${responseTimeMs}ms` },
+    { label: "Deposit Success Rate", val: clampPercent((positiveUsers / operationalBase) * 100), color: "#10b981" },
+    { label: "Withdrawal Queue", val: clampPercent((negativeUsers / Math.max(positiveUsers + negativeUsers, 1)) * 100), color: "#6366f1" },
+    { label: "Error Rate (24h)", val: clampPercent((withdrawalErrorCount / operationalBase) * 100), color: "#f43f5e" },
+  ];
+  const depositsTrend = calculateTrendPercent(todayDepositsAmount, depositsSeries);
+  const withdrawalsTrend = calculateTrendPercent(todayWithdrawalsAmount, withdrawalsSeries);
+  const rewardsTrend = calculateTrendPercent(todayRewardsAmount, rewardsSeries.every((value) => value === 0) ? [0, 0] : rewardsSeries);
+  const usersTrend = calculateTrendPercent(toNumber(report?.newUsersToday), usersSeries);
+
   const DATA = {
-    todayDeposits:   report?.onChainDepositsToday?.total || "0.00",
-    totalDeposits:   report?.totalPositiveLP || "0.00",
-    todayWithdrawals:report?.onChainWithdrawalsToday?.total || "0.00",
-    totalWithdrawals:report?.totalNegativeLP || "0.00",
-    todayRewards:    report?.dailyRewards?.total || "0.00",
-    totalRewards:    report?.totalCommunityRewards || "0.00",
-    activeLPCount:   report?.activeLPUsers || "0",
-    totalUsersInLP:  report?.activeLPUsers || "0",
-    newUsersToday:   report?.newUsersToday || "0",
-    netFlow:         ((parseFloat(report?.onChainDepositsToday?.total || 0)) - (parseFloat(report?.onChainWithdrawalsToday?.total || 0))).toFixed(2),
-    ecosystemFee:    report?.totalEcosystemFee || "0.00",
+    todayDepositsAmount,
+    todayDepositsCount,
+    totalDeposits: toNumber(report?.totalPositiveLP),
+    todayWithdrawalsAmount,
+    todayWithdrawalsCount,
+    totalWithdrawals: toAbsNumber(report?.totalNegativeLP),
+    todayRewards: todayRewardsAmount,
+    totalRewards: lifetimeRewardsTotal,
+    activeLPCount: toNumber(report?.activeLPUsers),
+    totalUsersInLP: toNumber(report?.activeLPUsers),
+    newUsersToday: toNumber(report?.newUsersToday),
+    netFlow: (todayDepositsAmount - todayWithdrawalsAmount).toFixed(2),
+    ecosystemFee: toNumber(report?.totalEcosystemFee),
   };
 
   useEffect(() => {
@@ -304,11 +371,11 @@ export default function SupportDashboard() {
   };
 
   const lineData = {
-    labels: WEEK,
+    labels: trendLabels,
     datasets: [
       {
         label: "Deposits",
-        data: DEPOSITS_SERIES,
+        data: depositsSeries,
         borderColor: "#ffd700",
         backgroundColor: (ctx) => {
           const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 300);
@@ -321,7 +388,7 @@ export default function SupportDashboard() {
       },
       {
         label: "Withdrawals",
-        data: WITHDRAWALS_SERIES,
+        data: withdrawalsSeries,
         borderColor: "#f43f5e",
         backgroundColor: (ctx) => {
           const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 300);
@@ -336,12 +403,12 @@ export default function SupportDashboard() {
   };
 
   const barData = {
-    labels: WEEK,
+    labels: trendLabels,
     datasets: [{
       label: "New Users",
-      data: USERS_SERIES,
-      backgroundColor: USERS_SERIES.map((_, i) =>
-        i === USERS_SERIES.length - 1 ? "#ffd700" : "rgba(255,215,0,0.25)"
+      data: usersSeries,
+      backgroundColor: usersSeries.map((_, i) =>
+        i === usersSeries.length - 1 ? "#ffd700" : "rgba(255,215,0,0.25)"
       ),
       borderRadius: 8,
       barThickness: 18,
@@ -370,6 +437,11 @@ export default function SupportDashboard() {
           </div>
           <div className={styles.heroTime}>{currentTime}</div>
           <div className={styles.heroDate}>{currentDate}</div>
+          {error && (
+            <div style={{ fontSize: 10, color: "#f43f5e", marginTop: 4, maxWidth: 180, textAlign: "right" }}>
+              {error}
+            </div>
+          )}
           {lastUpdated && (
             <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", marginTop: 4, letterSpacing: 0.5 }}>
               Updated: {lastUpdated.toLocaleTimeString()}
@@ -417,7 +489,7 @@ export default function SupportDashboard() {
             <div className={styles.stripBody}>
               <div className={styles.stripLabel}>{item.label}</div>
               <div className={styles.stripValue}>
-                {parseFloat(item.value || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                {toNumber(item.value).toLocaleString(undefined, { maximumFractionDigits: 2 })}
                 <span className={styles.stripUnit}>USDT</span>
               </div>
             </div>
@@ -436,50 +508,50 @@ export default function SupportDashboard() {
       <div className={styles.statsGrid}>
         <StatCard
           title="Today Deposits"
-          value={parseFloat(DATA.todayDeposits || 0).toLocaleString()}
-          sub="Snapshot at 00:00 UTC"
+          value={DATA.todayDepositsCount.toLocaleString()}
+          sub={`${todayDepositsAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })} USDT settled today`}
           icon={TrendingUp}
-          trend={report?.onChainDepositsToday?.txCount}
+          trend={depositsTrend}
           unit="TRX"
           iconBg="rgba(16,185,129,0.12)"
           iconColor="#10b981"
           colorClass={styles.accentGreen}
-          sparkData={DEPOSITS_SERIES}
+          sparkData={depositsSeries}
           sparkColor="#10b981"
         />
         <StatCard
           title="Today Withdrawals"
-          value={parseFloat(DATA.todayWithdrawals || 0).toLocaleString()}
-          sub="Validated Outflow"
+          value={DATA.todayWithdrawalsCount.toLocaleString()}
+          sub={`${todayWithdrawalsAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })} USDT processed today`}
           icon={TrendingDown}
-          trend={report?.onChainWithdrawalsToday?.txCount}
+          trend={withdrawalsTrend}
           unit="TRX"
           iconBg="rgba(244,63,94,0.12)"
           iconColor="#f43f5e"
           colorClass={styles.accentRed}
-          sparkData={WITHDRAWALS_SERIES}
+          sparkData={withdrawalsSeries}
           sparkColor="#f43f5e"
         />
         <StatCard
           title="Today Rewards"
-          value={parseFloat(DATA.todayRewards || 0).toLocaleString()}
+          value={DATA.todayRewards.toLocaleString(undefined, { maximumFractionDigits: 6 })}
           sub="Distributed to users"
           icon={Award}
-          trend={report?.dailyRewards?.total > 0 ? 100 : 0}
-          sparkData={[320, 380, 355, 410, 390, 423, 423]}
+          trend={rewardsTrend}
+          sparkData={rewardsSeries.every((value) => value === 0) ? Array(7).fill(0) : rewardsSeries}
           sparkColor="#ffd700"
         />
         <StatCard
           title="New Users Today"
           unit="ACCOUNTS"
           value={DATA.newUsersToday}
-          sub="System sync: 0.2ms"
+          sub={`System sync: ${responseTimeMs}ms`}
           icon={Users}
-          trend={report?.newUsersToday}
+          trend={usersTrend}
           iconBg="rgba(99,102,241,0.12)"
           iconColor="#6366f1"
           colorClass={styles.accentBlue}
-          sparkData={USERS_SERIES}
+          sparkData={usersSeries}
           sparkColor="#6366f1"
         />
       </div>
@@ -537,16 +609,16 @@ export default function SupportDashboard() {
           <div className={styles.flowGrid}>
             <div className={styles.flowItem}>
               <div className={styles.flowLabel}>In Flow Today</div>
-              <div className={styles.flowValue} style={{ color:"#10b981" }}>+{(parseFloat(DATA.todayDeposits)/1000).toFixed(1)}K</div>
+              <div className={styles.flowValue} style={{ color:"#10b981" }}>+{formatCompact(DATA.todayDepositsAmount)}</div>
               <div className={styles.flowBar}>
-                <div className={styles.flowFill} style={{ width: "72%", background: "#10b981" }} />
+                <div className={styles.flowFill} style={{ width: `${clampPercent((DATA.todayDepositsAmount / Math.max(DATA.todayDepositsAmount + DATA.todayWithdrawalsAmount, 1)) * 100)}%`, background: "#10b981" }} />
               </div>
             </div>
             <div className={styles.flowItem}>
               <div className={styles.flowLabel}>Out Flow Today</div>
-              <div className={styles.flowValue} style={{ color:"#f43f5e" }}>-{(parseFloat(DATA.todayWithdrawals)/1000).toFixed(1)}K</div>
+              <div className={styles.flowValue} style={{ color:"#f43f5e" }}>-{formatCompact(DATA.todayWithdrawalsAmount)}</div>
               <div className={styles.flowBar}>
-                <div className={styles.flowFill} style={{ width: "48%", background: "#f43f5e" }} />
+                <div className={styles.flowFill} style={{ width: `${clampPercent((DATA.todayWithdrawalsAmount / Math.max(DATA.todayDepositsAmount + DATA.todayWithdrawalsAmount, 1)) * 100)}%`, background: "#f43f5e" }} />
               </div>
             </div>
           </div>
@@ -596,13 +668,7 @@ export default function SupportDashboard() {
             <div className={styles.chartBadge}>Live</div>
           </div>
           <div style={{ display:"flex", flexDirection:"column", gap: 14, marginTop: 10 }}>
-            {[
-              { label: "Protocol Uptime",     val: 99.98, color: "#10b981" },
-              { label: "API Response (avg)",   val: 0.2,   color: "#ffd700", unit:"ms", raw:"0.2ms" },
-              { label: "Deposit Success Rate", val: 98.5,  color: "#10b981" },
-              { label: "Withdrawal Queue",     val: 72,    color: "#6366f1" },
-              { label: "Error Rate (24h)",     val: 1.5,   color: "#f43f5e" },
-            ].map((item) => (
+            {healthMetrics.map((item) => (
               <div key={item.label}>
                 <div style={{ display:"flex", justifyContent:"space-between", marginBottom: 6 }}>
                   <span style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.4)", letterSpacing: 0.5 }}>{item.label}</span>
@@ -616,7 +682,7 @@ export default function SupportDashboard() {
           </div>
           <div className={styles.syncBadge}>
             <Zap size={10} color="#ffd700" />
-            System Sync: 0.2ms · All nodes operational
+            System Sync: {responseTimeMs}ms · {report ? "Live report active" : "Waiting for report"}
           </div>
         </div>
       </div>

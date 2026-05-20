@@ -5,6 +5,7 @@ import AuthGuard from "@/components/auth/AuthGuard";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import SuccessModal from "@/components/SuccessModal";
+import ReferralRewardsCard from "@/components/ReferralRewardsCard";
 import QRCode from "qrcode";
 import { 
   FaClock, FaRedo, FaCoins, FaUnlock, FaChartBar, FaChartLine, 
@@ -447,6 +448,11 @@ export default function StakingPage() {
           <Link href="/dashboard" style={{ color:"#ff6600", fontSize:13, fontWeight:700, textDecoration:"none", display:"inline-flex", alignItems:"center", gap:6, marginBottom:28 }}>
             ← Back to Dashboard
           </Link>
+
+          {/* Referral Rewards Card */}
+          <div style={{ marginBottom: 40, display: "flex", justifyContent: "center" }}>
+            <ReferralRewardsCard API_URL={API_URL} />
+          </div>
 
           <div style={{ textAlign:"center", marginBottom:40 }}>
             <div style={{ display:"inline-block", background:"rgba(255,102,0,0.15)", border:"1px solid rgba(255,102,0,0.3)", color:"#ff8c00", fontSize:11, fontWeight:800, letterSpacing:2, padding:"5px 16px", borderRadius:20, textTransform:"uppercase", marginBottom:16 }}>

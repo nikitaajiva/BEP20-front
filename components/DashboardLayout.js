@@ -44,7 +44,7 @@ import { Line, Bar } from "react-chartjs-2";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import CommunityRewardsClaimModal from "./CommunityRewardsClaimModal";
 import InvestmentSections from "./InvestmentSections";
-import { ReferralLevelsCard } from "./ReferralLevelsCard";
+import ReferralRewardsCard from "./ReferralRewardsCard";
 
 // Icon Components (defined from your .jsx files)
 const Wallet1Icon = (props) => (
@@ -1322,18 +1322,18 @@ export default function DashboardLayout({
 
   // ── NFT Package Helpers ──────────────────────────────────────────────────────
   // DB values: starter | growth | premium  →  display tiers: bronze | silver | gold
-  const nftRoiMap   = { starter: 45, growth: 55, premium: 65 };
-  const nftRateMap  = { starter: 0.003, growth: 0.004, premium: 0.005 };
+  const nftRoiMap = { starter: 45, growth: 55, premium: 65 };
+  const nftRateMap = { starter: 0.003, growth: 0.004, premium: 0.005 };
   const nftLabelMap = {
     starter: "STARTER PACK",
-    growth:  "GROWTH PACK",
+    growth: "GROWTH PACK",
     premium: "PREMIUM PACK",
   };
 
   const nftPackagesArr = user?.nftPackages || [];
   // Backward compatibility
-  const effectiveNftPackages = nftPackagesArr.length > 0 
-    ? nftPackagesArr 
+  const effectiveNftPackages = nftPackagesArr.length > 0
+    ? nftPackagesArr
     : (user?.nftPackage ? [{ tier: user.nftPackage }] : []);
 
   let totalNftDailyRate = 0;
@@ -1349,9 +1349,9 @@ export default function DashboardLayout({
     }
   });
 
-  const nftPackageRaw  = highestTier;
+  const nftPackageRaw = highestTier;
   const nftRoiProgress = maxNftRoiProgress;
-  const nftDailyRate   = totalNftDailyRate;
+  const nftDailyRate = totalNftDailyRate;
 
   const nftPriceMap = {
     starter: 500, growth: 1000, premium: 5000,
@@ -1364,13 +1364,13 @@ export default function DashboardLayout({
     totalNftPrice += pPrice;
   });
 
-  const zeroRiskBal    = parseFloat(ledgerDetails?.zeroRisk?.balance || "0");
-  const nftBaseValue   = totalNftPrice > 0 ? totalNftPrice : zeroRiskBal;
+  const zeroRiskBal = parseFloat(ledgerDetails?.zeroRisk?.balance || "0");
+  const nftBaseValue = totalNftPrice > 0 ? totalNftPrice : zeroRiskBal;
 
   const backendAgg = ledgerDetails?.nftAggregated;
-  const nftDailyYield  = backendAgg ? backendAgg.totalNftDailyYield.toFixed(4) : (nftBaseValue * nftDailyRate).toFixed(4);
-  const nftEstPayout   = backendAgg ? backendAgg.nftEstPayout.toFixed(2) : (nftBaseValue * (nftRoiProgress / 100)).toFixed(2);
-  const nftNextPayout  = nftDailyYield;
+  const nftDailyYield = backendAgg ? backendAgg.totalNftDailyYield.toFixed(4) : (nftBaseValue * nftDailyRate).toFixed(4);
+  const nftEstPayout = backendAgg ? backendAgg.nftEstPayout.toFixed(2) : (nftBaseValue * (nftRoiProgress / 100)).toFixed(2);
+  const nftNextPayout = nftDailyYield;
 
   // ── Aggregated Ecosystem Hub Data ──────────────────────────────────────────────
   const allStakingPlans = [
@@ -1395,19 +1395,19 @@ export default function DashboardLayout({
 
   const ecosystemYieldPercent = portfolioDetails?.summary
     ? portfolioDetails.summary.avgDailyYieldPercent.toFixed(4)
-    : (combinedTotalBalance > 0 
+    : (combinedTotalBalance > 0
       ? ((combinedDailyRewards / combinedTotalBalance) * 100).toFixed(4)
       : "0.00");
   // ────────────────────────────────────────────────────────────────────────────
 
   // Real countdown to next daily payout (rolls over at UTC midnight)
-  const _now          = new Date();
+  const _now = new Date();
   const _nextMidnight = new Date(Date.UTC(
     _now.getUTCFullYear(), _now.getUTCMonth(), _now.getUTCDate() + 1
   ));
-  const _diffMs  = _nextMidnight - _now;
-  const _diffH   = Math.floor(_diffMs / 3600000);
-  const _diffM   = Math.floor((_diffMs % 3600000) / 60000);
+  const _diffMs = _nextMidnight - _now;
+  const _diffH = Math.floor(_diffMs / 3600000);
+  const _diffM = Math.floor((_diffMs % 3600000) / 60000);
   const nftTimeLeft = `${_diffH}h ${String(_diffM).padStart(2, '0')}m`;
 
   // Display label for the bottom status bar
@@ -1659,9 +1659,10 @@ export default function DashboardLayout({
                 <CommunityRewardsCardnew />
               </div>
             </div>
-            <div className="row g-4 mt-2">
-              <div className="col-12 col-xl-6 d-flex flex-column">
-                <ReferralLevelsCard />
+            {/* Referral Rewards Section */}
+            <div className="row g-4" style={{ marginTop: 8 }}>
+              <div className="col-12">
+                <ReferralRewardsCard API_URL={API_URL} />
               </div>
             </div>
             {/* <InvestmentSections /> */}

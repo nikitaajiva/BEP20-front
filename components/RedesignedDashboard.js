@@ -124,6 +124,7 @@ const RedesignedDashboard = ({
   const [isNftModalOpen, setIsNftModalOpen] = React.useState(false);
   const [isPortfolioModalOpen, setIsPortfolioModalOpen] = React.useState(false);
   const [showActiveAssetsTooltip, setShowActiveAssetsTooltip] = React.useState(false);
+  const [showProgressTooltip, setShowProgressTooltip] = React.useState(false);
 
   // Derive Horse NFT count from live Horse NFT API data when available
   const activeHorseNftsCount = Array.isArray(myHorseNfts)
@@ -141,8 +142,83 @@ const RedesignedDashboard = ({
 
   const totalActiveAssets = horseNFTCount + stakingCount;
 
-  const stakingPlans = user?.stakingPlans || [];
-  const totalStaked = stakingPlans.reduce((acc, p) => acc + (parseFloat(p.amount) || 0), 0);
+  // Setup breakdown values for progress bar and detailed hover tooltip
+  const activeHorseNfts = Array.isArray(myHorseNfts)
+    ? myHorseNfts.filter(n => n.status === "ACTIVE" && n.paymentStatus === "PAID")
+    : [];
+
+  const totalNftPrice = portfolioDetails?.summary
+    ? portfolioDetails.summary.totalNftPrice
+    : activeHorseNfts.reduce((sum, n) => sum + parseFloat(n.purchasePriceUSDT || 0), 0);
+
+  const totalStakedAmount = portfolioDetails?.summary
+    ? portfolioDetails.summary.totalStakedAmount
+    : (user?.stakingPlans || []).reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0);
+
+  const totalStakingDailyYield = portfolioDetails?.tokenStaking
+    ? portfolioDetails.tokenStaking.reduce((sum, s) => sum + (parseFloat(s.dailyYield) || 0), 0)
+    : (user?.stakingPlans || []).reduce((sum, p) => {
+        const amt = parseFloat(p.amount || "0");
+        const days = p.days || 0;
+        const apy = days >= 365 ? 0.28 : days >= 180 ? 0.22 : days >= 90 ? 0.18 : 0.10;
+        
+        const planDate = p.startDate ? new Date(p.startDate).toISOString().slice(0, 10) : "";
+        const todayDate = new Date().toISOString().slice(0, 10);
+        const isCronRun = planDate ? planDate < todayDate : false;
+        
+        return sum + (isCronRun ? (amt * apy / 365) : 0);
+      }, 0);
+
+  const totalStakingEstReward = portfolioDetails?.tokenStaking
+    ? portfolioDetails.tokenStaking.reduce((sum, s) => sum + (parseFloat(s.estReward) || 0), 0)
+    : (user?.stakingPlans || []).reduce((sum, p) => {
+        const amt = parseFloat(p.amount || "0");
+        const days = p.days || 0;
+        const apy = days >= 365 ? 0.28 : days >= 180 ? 0.22 : days >= 90 ? 0.18 : 0.10;
+        return sum + (amt * apy * days / 365);
+      }, 0);
+
+  const totalAssetsValue = totalNftPrice + totalStakedAmount;
+  let horsePct = 0;
+  let stakingPct = 0;
+  if (totalAssetsValue > 0) {
+    if (totalNftPrice > 0 && totalStakedAmount > 0) {
+      // both exist, ensure min width of 4% for visual clarity
+      const rawHorse = (totalNftPrice / totalAssetsValue) * 100;
+      const rawStaking = (totalStakedAmount / totalAssetsValue) * 100;
+      if (rawHorse < 4) {
+        horsePct = 4;
+        stakingPct = 96;
+      } else if (rawStaking < 4) {
+        stakingPct = 4;
+        horsePct = 96;
+      } else {
+        horsePct = rawHorse;
+        stakingPct = rawStaking;
+      }
+    } else if (totalNftPrice > 0) {
+      horsePct = 100;
+      stakingPct = 0;
+    } else if (totalStakedAmount > 0) {
+      horsePct = 0;
+      stakingPct = 100;
+    }
+  }
+
+  const formatDailyYield = (val) => {
+    const num = parseFloat(val || 0);
+    if (num === 0) return "0.00";
+    if (num < 0.001) return num.toFixed(6);
+    return num.toFixed(4);
+  };
+  const formatEstReward = (val) => {
+    const num = parseFloat(val || 0);
+    if (num === 0) return "0.00";
+    if (num < 0.1) return num.toFixed(3);
+    return num.toFixed(4);
+  };
+
+  const totalStaked = totalStakedAmount;
   
   const calculateTotalRewards = () => {
     return stakingPlans.reduce((acc, p) => {
@@ -446,11 +522,107 @@ const RedesignedDashboard = ({
                       )}
                     </div>
                   </div>
-                  <div className={styles.stakingProgressBox} style={{ marginTop: 12 }}>
+                  <div 
+                    className={styles.stakingProgressBox} 
+                    style={{ marginTop: 12, position: 'relative', cursor: 'pointer' }}
+                    onMouseEnter={() => setShowProgressTooltip(true)}
+                    onMouseLeave={() => setShowProgressTooltip(false)}
+                  >
                     <div className={styles.miniChart}>
-                      <div className={styles.miniChartFill} style={{ width: ecosystemTotalBalance > 0 ? '65%' : '0%' }}></div>
+                      <div 
+                        className={styles.miniChartFillHorse} 
+                        style={{ 
+                          width: `${horsePct}%`, 
+                          height: '100%', 
+                          background: '#FFB800', 
+                          boxShadow: '0 0 8px rgba(255, 184, 0, 0.5)' 
+                        }}
+                      ></div>
+                      <div 
+                        className={styles.miniChartFillStaking} 
+                        style={{ 
+                          width: `${stakingPct}%`, 
+                          height: '100%', 
+                          background: '#ff5500', 
+                          boxShadow: '0 0 8px rgba(255, 85, 0, 0.5)' 
+                        }}
+                      ></div>
                     </div>
                     <div className={styles.stakingDaysRemaining}>DIVERSIFIED PORTFOLIO</div>
+
+                    {showProgressTooltip && (
+                      <div 
+                        style={{
+                          position: 'absolute',
+                          bottom: '100%',
+                          left: '50%',
+                          transform: 'translateX(-50%) translateY(-10px)',
+                          background: 'rgba(0, 0, 0, 0.95)',
+                          border: '1px solid rgba(255, 184, 0, 0.4)',
+                          boxShadow: '0 0 15px rgba(255, 184, 0, 0.3), inset 0 0 10px rgba(255, 255, 255, 0.05)',
+                          borderRadius: '12px',
+                          padding: '12px 16px',
+                          zIndex: 100,
+                          width: '220px',
+                          pointerEvents: 'none',
+                          backdropFilter: 'blur(10px)',
+                          textAlign: 'left'
+                        }}
+                      >
+                        <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '4px' }}>Portfolio Breakdown</div>
+                        
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                          <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.8)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: '#FFB800' }}></span>
+                            Horse NFTs:
+                          </span>
+                          <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#FFB800' }}>
+                            {totalNftPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USDT
+                          </span>
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: totalStakedAmount > 0 ? '6px' : '0px' }}>
+                          <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.8)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: '#ff5500' }}></span>
+                            Token Staking:
+                          </span>
+                          <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#ff5500' }}>
+                            {totalStakedAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })} USDT
+                          </span>
+                        </div>
+
+                        {totalStakedAmount > 0 && (
+                          <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '6px', marginTop: '6px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                              <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.5)', paddingLeft: '12px' }}>Daily Yield:</span>
+                              <span style={{ fontSize: '10px', fontWeight: 'bold', color: '#00ff00' }}>
+                                +{formatDailyYield(totalStakingDailyYield)} USDT
+                              </span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.5)', paddingLeft: '12px' }}>Est. Reward:</span>
+                              <span style={{ fontSize: '10px', fontWeight: 'bold', color: '#00ff00' }}>
+                                +{formatEstReward(totalStakingEstReward)} USDT
+                              </span>
+                            </div>
+                          </div>
+                        )}
+
+                        <div 
+                          style={{
+                            position: 'absolute',
+                            top: '100%',
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            width: 0,
+                            height: 0,
+                            borderLeft: '6px solid transparent',
+                            borderRight: '6px solid transparent',
+                            borderTop: '6px solid rgba(0, 0, 0, 0.95)',
+                          }}
+                        />
+                      </div>
+                    )}
                   </div>
                   <div className={styles.marketStatsRow} style={{ marginTop: 10 }}>
                     <div className={styles.marketStat}>
@@ -639,6 +811,7 @@ const RedesignedDashboard = ({
           isOpen={isPortfolioModalOpen}
           onClose={() => setIsPortfolioModalOpen(false)}
           user={user}
+          portfolioDetails={portfolioDetails}
         />
       )}
 

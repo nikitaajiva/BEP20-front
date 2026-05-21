@@ -1382,7 +1382,10 @@ export default function DashboardLayout({
     const amt = parseFloat(p.amount || p.stakeAmount || "0");
     const days = p.days || 0;
     const apy = days >= 365 ? 0.28 : days >= 180 ? 0.22 : days >= 90 ? 0.18 : 0.10;
-    return acc + (amt * apy / 365);
+    const planDate = p.startDate ? new Date(p.startDate).toISOString().slice(0, 10) : "";
+    const todayDate = new Date().toISOString().slice(0, 10);
+    const isCronRun = planDate ? planDate < todayDate : false;
+    return acc + (isCronRun ? (amt * apy / 365) : 0);
   }, 0);
 
   // combinedTotalBalance: prefer portfolioDetails.summary (from active-staking API)

@@ -717,11 +717,11 @@ export const ActiveStakesCard = ({ user, portfolioDetails, onViewHistory }) => {
   let allStakes = [];
   let isFromPortfolio = false;
 
-  if (portfolioDetails?.tokenStaking && portfolioDetails.tokenStaking.length > 0) {
-    allStakes = portfolioDetails.tokenStaking;
+  if (portfolioDetails) {
+    allStakes = portfolioDetails.tokenStaking || [];
     isFromPortfolio = true;
   } else {
-    // Fallback to legacy client-side computation
+    // Fallback to legacy client-side computation (includes all stakes immediately)
     allStakes = [
       ...(user?.stakingPlan?.amount ? [{ ...user.stakingPlan, isPrimary: true }] : []),
       ...(user?.stakingPlans || [])
@@ -768,12 +768,15 @@ export const ActiveStakesCard = ({ user, portfolioDetails, onViewHistory }) => {
       apy = stake.days >= 365 ? 0.28 : stake.days >= 180 ? 0.22 : stake.days >= 90 ? 0.18 : 0.10;
       amountVal = parseFloat(stake.amount || stake.stakeAmount || 0);
       tokenAmount = parseFloat(stake.tokenAmount || stake.tscAmount || (amountVal / 0.01) || 0);
-      dailyYield = (amountVal * apy / 365);
+      const planDate = stake.startDate ? new Date(stake.startDate).toISOString().slice(0, 10) : "";
+      const todayDate = new Date().toISOString().slice(0, 10);
+      const isCronRun = planDate ? planDate < todayDate : false;
+      dailyYield = isCronRun ? (amountVal * apy / 365) : 0;
       totalEstReward = (amountVal * apy * stake.days / 365);
       daysRemaining = Math.max(0, stake.days - daysPassed);
       tierName = stake.days >= 365 ? "Premium" : stake.days >= 180 ? "Advanced" : stake.days >= 90 ? "Growth" : "Starter";
       apy = apy * 100;
-      earnedRewards = dailyYield * daysPassed;
+      earnedRewards = isCronRun ? ((amountVal * (apy / 100) / 365) * daysPassed) : 0;
     }
 
     const startDateFormatted = new Date(stake.startDate || Date.now()).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });

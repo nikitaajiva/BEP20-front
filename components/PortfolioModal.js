@@ -4,13 +4,19 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Briefcase, TrendingUp, Clock, History } from "lucide-react";
 
 
-export default function PortfolioModal({ isOpen, onClose, user }) {
+export default function PortfolioModal({ isOpen, onClose, user, portfolioDetails }) {
   if (!isOpen) return null;
 
-  const allStakes = [
-    ...(user?.stakingPlan?.amount ? [{ ...user.stakingPlan, isPrimary: true }] : []),
-    ...(user?.stakingPlans || [])
-  ];
+  let allStakes = [];
+  if (portfolioDetails) {
+    allStakes = portfolioDetails.tokenStaking || [];
+  } else {
+    // Fallback to legacy client-side computation (includes all stakes immediately)
+    allStakes = [
+      ...(user?.stakingPlan?.amount ? [{ ...user.stakingPlan, isPrimary: true }] : []),
+      ...(user?.stakingPlans || [])
+    ];
+  }
 
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 1001, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
@@ -61,12 +67,12 @@ export default function PortfolioModal({ isOpen, onClose, user }) {
             </thead>
             <tbody>
               {allStakes.length > 0 ? allStakes.map((stake, idx) => {
-                const daysPassed = Math.max(0, Math.floor((new Date() - new Date(stake.startDate)) / 86400000));
-                const progress = Math.min(100, (daysPassed / stake.days) * 100);
-                const dailyYield = stake.days === 30 ? 0.08 : stake.days === 90 ? 0.12 : stake.days === 180 ? 0.18 : 0.28;
-                const totalEstReward = (parseFloat(stake.amount) * dailyYield).toFixed(2);
-                const daysRemaining = Math.max(0, stake.days - daysPassed);
-                const tierName = stake.days === 30 ? "Starter" : stake.days === 90 ? "Growth" : stake.days === 180 ? "Advanced" : "Premium";
+                const daysPassed = stake.daysPassed !== undefined ? stake.daysPassed : Math.max(0, Math.floor((new Date() - new Date(stake.startDate)) / 86400000));
+                const progress = stake.progress !== undefined ? stake.progress : Math.min(100, (daysPassed / stake.days) * 100);
+                const apy = stake.apy !== undefined ? stake.apy : (stake.days === 30 ? 10 : stake.days === 90 ? 18 : stake.days === 180 ? 22 : 28);
+                const totalEstReward = stake.estReward !== undefined ? stake.estReward.toFixed(2) : (parseFloat(stake.amount) * (apy / 100) * stake.days / 365).toFixed(2);
+                const daysRemaining = stake.daysRemaining !== undefined ? stake.daysRemaining : Math.max(0, stake.days - daysPassed);
+                const tierName = stake.tierName || (stake.days === 30 ? "Starter" : stake.days === 90 ? "Growth" : stake.days === 180 ? "Advanced" : "Premium");
 
                 return (
                   <tr key={idx} style={{ 
@@ -98,7 +104,7 @@ export default function PortfolioModal({ isOpen, onClose, user }) {
                     </td>
                     <td style={{ padding: "16px 15px", borderTop: "1px solid rgba(255,255,255,0.05)", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
                       <span style={{ fontSize: 13, fontWeight: 900, color: "#00ff00" }}>+{totalEstReward}</span>
-                      <span style={{ display: "block", fontSize: 9, color: "rgba(255,255,255,0.3)", fontWeight: 700 }}>~{(dailyYield * 100).toFixed(0)}% APR</span>
+                      <span style={{ display: "block", fontSize: 9, color: "rgba(255,255,255,0.3)", fontWeight: 700 }}>~{parseFloat(apy).toFixed(0)}% APY</span>
                     </td>
                     <td style={{ padding: "16px 15px", borderTop: "1px solid rgba(255,255,255,0.05)", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
                       <span style={{ fontSize: 13, fontWeight: 800, color: "#fff", display: "block" }}>

@@ -631,6 +631,7 @@
 }
 
 .miniChart {
+  display: flex;
   height: 4px;
   background: rgba(255,255,255,0.05);
   border-radius: 10px;
@@ -868,6 +869,7 @@
 }
 
 .miniChart {
+  display: flex;
   width: 80%;
   height: 4px;
   background: rgba(255, 255, 255, 0.1);

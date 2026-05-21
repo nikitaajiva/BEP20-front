@@ -655,6 +655,7 @@ export default function DashboardLayout({
   ledgerError,
   refreshLedgerDetails,
   portfolioDetails,
+  loadingPortfolio,
   myHorseNfts,
   refetchMyHorseNfts,
   refreshPortfolioDetails,
@@ -1373,38 +1374,23 @@ export default function DashboardLayout({
   const horseNftAvgDailyYieldPct = weightedAnnualRoiPercent / 365;
 
   // ── Aggregated Ecosystem Hub Data ──────────────────────────────────────────────
-  const allStakingPlans = [
-    ...(user?.stakingPlan?.amount ? [{ ...user.stakingPlan }] : []),
-    ...(user?.stakingPlans || [])
-  ];
-  const totalStaked = allStakingPlans.reduce((acc, p) => acc + (parseFloat(p.amount || p.stakeAmount) || 0), 0);
-  const stakingDaily = allStakingPlans.reduce((acc, p) => {
-    const amt = parseFloat(p.amount || p.stakeAmount || "0");
-    const days = p.days || 0;
-    const apy = days >= 365 ? 0.28 : days >= 180 ? 0.22 : days >= 90 ? 0.18 : 0.10;
-    const planDate = p.startDate ? new Date(p.startDate).toISOString().slice(0, 10) : "";
-    const todayDate = new Date().toISOString().slice(0, 10);
-    const isCronRun = planDate ? planDate < todayDate : false;
-    return acc + (isCronRun ? (amt * apy / 365) : 0);
-  }, 0);
-
   // combinedTotalBalance: prefer portfolioDetails.summary (from active-staking API)
-  // then fall back to staking + Horse NFT invested
+  // then fall back to only Horse NFT invested (since legacy user staking is excluded)
   const combinedTotalBalance = portfolioDetails?.summary
     ? portfolioDetails.summary.totalEcosystemAssets
-    : (totalStaked + nftBaseValue);
+    : (loadingPortfolio ? 0 : nftBaseValue);
 
   // combinedDailyRewards: staking daily + Horse NFT daily (from backend data)
   const combinedDailyRewards = portfolioDetails?.summary
     ? portfolioDetails.summary.totalDailyYield
-    : (stakingDaily + totalHorseNftDailyYield);
+    : (loadingPortfolio ? 0 : totalHorseNftDailyYield);
 
   // ecosystemYieldPercent: prefer portfolioDetails.summary, else compute from Horse NFT weighted avg
   const ecosystemYieldPercent = portfolioDetails?.summary
     ? portfolioDetails.summary.avgDailyYieldPercent.toFixed(4)
-    : (combinedTotalBalance > 0
+    : (loadingPortfolio ? "0.00" : (combinedTotalBalance > 0
       ? ((combinedDailyRewards / combinedTotalBalance) * 100).toFixed(4)
-      : "0.00");
+      : "0.00"));
   // ────────────────────────────────────────────────────────────────────────────
 
   const zeroRiskBal = parseFloat(ledgerDetails?.zeroRisk?.balance || "0");
@@ -1424,7 +1410,7 @@ export default function DashboardLayout({
     ? "MULTIPLE PACKS"
     : nftPackageRaw
       ? nftLabelMap[nftPackageRaw] || nftPackageRaw.toUpperCase()
-      : user?.stakingPlans?.length > 0
+      : (portfolioDetails?.summary?.totalStakingAssetsCount > 0)
         ? "STAKING ACTIVE"
         : "NO ACTIVE PACKAGE";
   // ────────────────────────────────────────────────────────────────────────────
@@ -1581,6 +1567,7 @@ export default function DashboardLayout({
         onRedeem={() => setIsCommunityRewardsModalOpen(true)}
         ledgerDetails={ledgerDetails}
         portfolioDetails={portfolioDetails}
+        loadingPortfolio={loadingPortfolio}
         myHorseNfts={myHorseNfts}
         orbitCard1={
           <ActionableWalletCard
@@ -1637,8 +1624,8 @@ export default function DashboardLayout({
             onViewHistory={() => window.location.href = "/dashboard/ledger"}
           /> */
           <ActiveStakesCard
-            user={user}
             portfolioDetails={portfolioDetails}
+            loading={loadingPortfolio}
             onViewHistory={() => window.location.href = "/dashboard/history/asset?type=staking"}
           />
         }

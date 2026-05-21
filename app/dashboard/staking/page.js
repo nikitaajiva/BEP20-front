@@ -40,7 +40,7 @@ ChartJS.register(
 
 const tiers = [
   { days: 30,  min: 5,  max: 10, badge: "Starter",  color: "#ff8c00", description: "Perfect for first-time stakers." },
-  { days: 90,  min: 11, max: 18, badge: "Growth",   color: "#ff6600", description: "Balance between flexibility and yield." },
+  { days: 90,  min: 11, max: 12, badge: "Growth",   color: "#ff6600", description: "Balance between flexibility and yield." },
   { days: 180, min: 19, max: 22, badge: "Advanced", color: "#ff4500", description: "Maximum yield for committed investors." },
   { days: 365, min: 23, max: 28, badge: "Premium",  color: "#e63200", description: "Top-tier APY with maximum compounding." },
 ];

@@ -21,6 +21,7 @@ const RedesignedDashboard = ({
   phantomErrorCode,
   ledgerDetails,
   portfolioDetails,
+  loadingPortfolio,
   myHorseNfts,
   orbitCard1,
   orbitCard2,
@@ -138,7 +139,7 @@ const RedesignedDashboard = ({
 
   const stakingCount = portfolioDetails?.summary 
     ? portfolioDetails.summary.totalStakingAssetsCount 
-    : (user?.stakingPlans?.length || 0);
+    : 0;
 
   const totalActiveAssets = horseNFTCount + stakingCount;
 
@@ -153,30 +154,15 @@ const RedesignedDashboard = ({
 
   const totalStakedAmount = portfolioDetails?.summary
     ? portfolioDetails.summary.totalStakedAmount
-    : (user?.stakingPlans || []).reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0);
+    : 0;
 
   const totalStakingDailyYield = portfolioDetails?.tokenStaking
     ? portfolioDetails.tokenStaking.reduce((sum, s) => sum + (parseFloat(s.dailyYield) || 0), 0)
-    : (user?.stakingPlans || []).reduce((sum, p) => {
-        const amt = parseFloat(p.amount || "0");
-        const days = p.days || 0;
-        const apy = days >= 365 ? 0.28 : days >= 180 ? 0.22 : days >= 90 ? 0.18 : 0.10;
-        
-        const planDate = p.startDate ? new Date(p.startDate).toISOString().slice(0, 10) : "";
-        const todayDate = new Date().toISOString().slice(0, 10);
-        const isCronRun = planDate ? planDate < todayDate : false;
-        
-        return sum + (isCronRun ? (amt * apy / 365) : 0);
-      }, 0);
+    : 0;
 
   const totalStakingEstReward = portfolioDetails?.tokenStaking
     ? portfolioDetails.tokenStaking.reduce((sum, s) => sum + (parseFloat(s.estReward) || 0), 0)
-    : (user?.stakingPlans || []).reduce((sum, p) => {
-        const amt = parseFloat(p.amount || "0");
-        const days = p.days || 0;
-        const apy = days >= 365 ? 0.28 : days >= 180 ? 0.22 : days >= 90 ? 0.18 : 0.10;
-        return sum + (amt * apy * days / 365);
-      }, 0);
+    : 0;
 
   const totalAssetsValue = totalNftPrice + totalStakedAmount;
   let horsePct = 0;
@@ -219,6 +205,7 @@ const RedesignedDashboard = ({
   };
 
   const totalStaked = totalStakedAmount;
+  const stakingPlans = portfolioDetails?.tokenStaking || [];
   
   const calculateTotalRewards = () => {
     return stakingPlans.reduce((acc, p) => {
@@ -581,7 +568,7 @@ const RedesignedDashboard = ({
                           </span>
                         </div>
 
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: totalStakedAmount > 0 ? '6px' : '0px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0px' }}>
                           <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.8)', display: 'flex', alignItems: 'center', gap: '6px' }}>
                             <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: '#ff5500' }}></span>
                             Token Staking:
@@ -590,23 +577,6 @@ const RedesignedDashboard = ({
                             {totalStakedAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })} USDT
                           </span>
                         </div>
-
-                        {totalStakedAmount > 0 && (
-                          <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '6px', marginTop: '6px' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                              <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.5)', paddingLeft: '12px' }}>Daily Yield:</span>
-                              <span style={{ fontSize: '10px', fontWeight: 'bold', color: '#00ff00' }}>
-                                +{formatDailyYield(totalStakingDailyYield)} USDT
-                              </span>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                              <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.5)', paddingLeft: '12px' }}>Est. Reward:</span>
-                              <span style={{ fontSize: '10px', fontWeight: 'bold', color: '#00ff00' }}>
-                                +{formatEstReward(totalStakingEstReward)} USDT
-                              </span>
-                            </div>
-                          </div>
-                        )}
 
                         <div 
                           style={{
@@ -740,7 +710,27 @@ const RedesignedDashboard = ({
 
           {/* RIGHT: Community Wallet Card / Staking Starter */}
           <div className={styles.row1Card}>
-            {totalStaked > 0 ? orbitCard3 : (
+            {loadingPortfolio ? (
+              <div className={styles.investSelectionCard} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', minHeight: '380px', border: '1px solid rgba(255, 85, 0, 0.25)', borderRadius: '32px' }}>
+                <div style={{
+                  width: '28px',
+                  height: '28px',
+                  borderRadius: '50%',
+                  border: '2px solid rgba(255, 85, 0, 0.1)',
+                  borderTopColor: '#ff5500',
+                  animation: 'spin 1s linear infinite'
+                }} />
+                <style>{`
+                  @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                  }
+                `}</style>
+                <span style={{ fontSize: '11px', fontWeight: 800, color: 'rgba(255, 255, 255, 0.5)', marginTop: '12px', letterSpacing: '1px', textTransform: 'uppercase' }}>
+                  Loading staking details...
+                </span>
+              </div>
+            ) : totalStaked > 0 ? orbitCard3 : (
               <motion.div
                 className={`${styles.investSelectionCard} ${styles.stakingCard}`}
                 onClick={() => setIsStakingModalOpen(true)}
@@ -812,6 +802,7 @@ const RedesignedDashboard = ({
           onClose={() => setIsPortfolioModalOpen(false)}
           user={user}
           portfolioDetails={portfolioDetails}
+          loading={loadingPortfolio}
         />
       )}
 

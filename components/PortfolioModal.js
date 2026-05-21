@@ -4,19 +4,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Briefcase, TrendingUp, Clock, History } from "lucide-react";
 
 
-export default function PortfolioModal({ isOpen, onClose, user, portfolioDetails }) {
+export default function PortfolioModal({ isOpen, onClose, user, portfolioDetails, loading }) {
   if (!isOpen) return null;
 
-  let allStakes = [];
-  if (portfolioDetails) {
-    allStakes = portfolioDetails.tokenStaking || [];
-  } else {
-    // Fallback to legacy client-side computation (includes all stakes immediately)
-    allStakes = [
-      ...(user?.stakingPlan?.amount ? [{ ...user.stakingPlan, isPrimary: true }] : []),
-      ...(user?.stakingPlans || [])
-    ];
-  }
+  const allStakes = portfolioDetails?.tokenStaking || [];
 
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 1001, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
@@ -69,7 +60,7 @@ export default function PortfolioModal({ isOpen, onClose, user, portfolioDetails
               {allStakes.length > 0 ? allStakes.map((stake, idx) => {
                 const daysPassed = stake.daysPassed !== undefined ? stake.daysPassed : Math.max(0, Math.floor((new Date() - new Date(stake.startDate)) / 86400000));
                 const progress = stake.progress !== undefined ? stake.progress : Math.min(100, (daysPassed / stake.days) * 100);
-                const apy = stake.apy !== undefined ? stake.apy : (stake.days === 30 ? 10 : stake.days === 90 ? 18 : stake.days === 180 ? 22 : 28);
+                const apy = stake.apy !== undefined ? (stake.apy < 1 ? stake.apy * 100 : stake.apy) : (stake.days === 30 ? 10 : stake.days === 90 ? 12 : stake.days === 180 ? 22 : 28);
                 const totalEstReward = stake.estReward !== undefined ? stake.estReward.toFixed(2) : (parseFloat(stake.amount) * (apy / 100) * stake.days / 365).toFixed(2);
                 const daysRemaining = stake.daysRemaining !== undefined ? stake.daysRemaining : Math.max(0, stake.days - daysPassed);
                 const tierName = stake.tierName || (stake.days === 30 ? "Starter" : stake.days === 90 ? "Growth" : stake.days === 180 ? "Advanced" : "Premium");
@@ -125,7 +116,7 @@ export default function PortfolioModal({ isOpen, onClose, user, portfolioDetails
               }) : (
                 <tr>
                   <td colSpan="6" style={{ textAlign: "center", padding: "60px 0", color: "rgba(255,255,255,0.2)", fontSize: 14 }}>
-                    No active staking records found
+                    {loading ? "Loading active stakes..." : "No active staking records found"}
                   </td>
                 </tr>
               )}

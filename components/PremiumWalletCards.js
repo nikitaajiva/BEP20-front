@@ -519,6 +519,7 @@ export const HorseNFTCard = ({
         nextPayoutAt: pkg.nextPayoutAt || null,
         purchaseDate: purchaseDateStr,
         displayName: pkg.displayName || packageNames[tierCode] || tier.toUpperCase(),
+        bonusTokens: pkg.bonusTokens || pkg.packageInfo?.bonusTokens || (metrics.investment / 0.01),
       };
     } else {
       // Legacy user.nftPackages object
@@ -550,6 +551,7 @@ export const HorseNFTCard = ({
         nextPayoutAt: null,
         purchaseDate: purchaseDateStr,
         displayName: packageNames[tierCode] || tier.toUpperCase(),
+        bonusTokens: pkg.bonusTokens || (metrics.investment / 0.01),
       };
     }
   };
@@ -599,7 +601,12 @@ export const HorseNFTCard = ({
                       {d.price.toLocaleString()} USDT
                     </div>
                   </div>
-                  <div className={styles.compactNftDate}>Purchased: {new Date(d.purchaseDate || Date.now()).toLocaleDateString()}</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '2px' }}>
+                    <div className={styles.compactNftDate}>Purchased: {new Date(d.purchaseDate || Date.now()).toLocaleDateString()}</div>
+                    <div style={{ fontSize: '10px', color: 'rgba(255,184,0,0.95)', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '3px' }}>
+                      <span>🪙</span> {Number(d.bonusTokens).toLocaleString()} TSC
+                    </div>
+                  </div>
                 </div>
                 <div className={styles.compactNftArrow}>
                   <ArrowRight size={14} color={d.tierColor} />
@@ -656,11 +663,16 @@ export const HorseNFTCard = ({
       <div className={styles.nftMainBalanceLarge}>
         {d.price.toLocaleString()} <span>USDT</span>
       </div>
+      <div style={{ fontSize: '13px', color: '#ffb800', marginTop: '-4px', marginBottom: '14px', fontWeight: 850, display: 'flex', alignItems: 'center', gap: '4px', justifyContent: 'center' }}>
+        <span>🪙</span> {Number(d.bonusTokens).toLocaleString()} TSC Tokens
+      </div>
 
       <div className={styles.roiProgressSection}>
         <div className={styles.roiLabelRow}>
           <span>Annual ROI Target</span>
-          <span style={{ color: '#00ff00' }}>{d.annualRoiDisplay}% / {d.estPayout} USDT</span>
+          <span style={{ color: '#00ff00' }}>
+            {Number(String(d.totalPaid).replace(/,/g, '')).toFixed(2)} USDT / {Number(String(d.estPayout).replace(/,/g, '')).toFixed(2)} USDT
+          </span>
         </div>
         <div
           className={styles.roiProgressBarWrap}
@@ -689,6 +701,12 @@ export const HorseNFTCard = ({
           </span>
         </div>
         <div className={styles.nftStatItem}>
+          <span className={styles.nftStatLabel}>Est. Monthly Yield</span>
+          <span className={styles.nftStatValue} style={{ color: "#00ff00" }}>
+            {((parseFloat(String(d.dailyYield).replace(/,/g, '')) || 0) * 30).toFixed(4)} USDT <span style={{ fontSize: '10px', color: 'rgba(0,255,0,0.75)', fontWeight: 700, marginLeft: '4px' }}>({(d.dailyRate * 100 * 30).toFixed(2)}%)</span>
+          </span>
+        </div>
+        <div className={styles.nftStatItem}>
           <span className={styles.nftStatLabel}>Est. Annual Payout</span>
           <span className={styles.nftStatValue}>
             {d.estPayout} USDT <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: 700, marginLeft: '4px' }}>({d.annualRoiDisplay}%)</span>
@@ -710,23 +728,37 @@ export const HorseNFTCard = ({
   );
 };
 
-export const ActiveStakesCard = ({ user, portfolioDetails, onViewHistory }) => {
+export const ActiveStakesCard = ({ portfolioDetails, loading, onViewHistory }) => {
   const [selectedStakeIndex, setSelectedStakeIndex] = React.useState(null);
 
-  // Use portfolioDetails tokenStaking if available (matches backend exact math)
-  let allStakes = [];
-  let isFromPortfolio = false;
-
-  if (portfolioDetails) {
-    allStakes = portfolioDetails.tokenStaking || [];
-    isFromPortfolio = true;
-  } else {
-    // Fallback to legacy client-side computation (includes all stakes immediately)
-    allStakes = [
-      ...(user?.stakingPlan?.amount ? [{ ...user.stakingPlan, isPrimary: true }] : []),
-      ...(user?.stakingPlans || [])
-    ];
+  if (loading) {
+    return (
+      <div className={styles.rwCardWrapper} style={{ border: '1px solid rgba(255, 85, 0, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '380px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+          <div style={{
+            width: '28px',
+            height: '28px',
+            borderRadius: '50%',
+            border: '2px solid rgba(255, 85, 0, 0.1)',
+            borderTopColor: '#ff5500',
+            animation: 'spin 1s linear infinite'
+          }} />
+          <style>{`
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `}</style>
+          <span style={{ fontSize: '11px', fontWeight: 800, color: 'rgba(255, 255, 255, 0.5)', letterSpacing: '1px', textTransform: 'uppercase' }}>
+            Loading active stakes...
+          </span>
+        </div>
+      </div>
+    );
   }
+
+  const allStakes = portfolioDetails?.tokenStaking || [];
+  const isFromPortfolio = true;
 
   const displayedStakes = allStakes.slice(0, 3);
 
@@ -765,7 +797,7 @@ export const ActiveStakesCard = ({ user, portfolioDetails, onViewHistory }) => {
       const daysPassed = Math.max(0, Math.floor((new Date() - new Date(stake.startDate || Date.now())) / 86400000));
       days = stake.days;
       progress = Math.min(100, (daysPassed / stake.days) * 100);
-      apy = stake.days >= 365 ? 0.28 : stake.days >= 180 ? 0.22 : stake.days >= 90 ? 0.18 : 0.10;
+      apy = stake.days >= 365 ? 0.28 : stake.days >= 180 ? 0.22 : stake.days >= 90 ? 0.12 : 0.10;
       amountVal = parseFloat(stake.amount || stake.stakeAmount || 0);
       tokenAmount = parseFloat(stake.tokenAmount || stake.tscAmount || (amountVal / 0.01) || 0);
       const planDate = stake.startDate ? new Date(stake.startDate).toISOString().slice(0, 10) : "";
@@ -910,7 +942,7 @@ export const ActiveStakesCard = ({ user, portfolioDetails, onViewHistory }) => {
               const daysPassed = Math.max(0, Math.floor((new Date() - new Date(stake.startDate)) / 86400000));
               days = stake.days;
               progress = Math.min(100, (daysPassed / stake.days) * 100);
-              apy = stake.days >= 365 ? 0.28 : stake.days >= 180 ? 0.22 : stake.days >= 90 ? 0.18 : 0.10;
+              apy = stake.days >= 365 ? 0.28 : stake.days >= 180 ? 0.22 : stake.days >= 90 ? 0.12 : 0.10;
               amountVal = parseFloat(stake.amount || stake.stakeAmount || 0);
               tokenAmount = parseFloat(stake.tokenAmount || stake.tscAmount || (amountVal / 0.01) || 0);
               dailyYield = (amountVal * apy / 365);

@@ -1430,6 +1430,7 @@ export default function DashboardPage() {
         ledgerError={ledgerError}
         refreshLedgerDetails={fetchLedgerDetails}
         portfolioDetails={portfolioDetails}
+        loadingPortfolio={loadingPortfolio}
         refreshPortfolioDetails={fetchPortfolioDetails}
         myHorseNfts={myHorseNfts}
         refetchMyHorseNfts={fetchMyHorseNfts}

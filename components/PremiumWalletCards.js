@@ -356,11 +356,17 @@ export const HorseNFTCard = ({
       return "00:00:00";
     }
 
-    const hours = Math.floor(diff / 3600000);
+    const totalHours = Math.floor(diff / 3600000);
+    if (totalHours >= 24) {
+      const days = Math.floor(totalHours / 24);
+      const remHours = totalHours % 24;
+      return `${days} Day${days > 1 ? "s" : ""}${remHours > 0 ? ` ${remHours}h` : ""}`;
+    }
+
     const minutes = Math.floor((diff % 3600000) / 60000);
     const seconds = Math.floor((diff % 60000) / 1000);
 
-    return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+    return `${String(totalHours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
   }, []);
 
   const calculateHorseNftMetrics = React.useCallback((nft, fallbacks = {}) => {
@@ -462,10 +468,15 @@ export const HorseNFTCard = ({
       nextPayout.setUTCDate(nextPayout.getUTCDate() + 1);
     }
     const diff = nextPayout - now;
-    const h = Math.floor(diff / 3600000);
+    const totalHours = Math.floor(diff / 3600000);
+    if (totalHours >= 24) {
+      const days = Math.floor(totalHours / 24);
+      const remHours = totalHours % 24;
+      return `${days} Day${days > 1 ? "s" : ""}${remHours > 0 ? ` ${remHours}h` : ""}`;
+    }
     const m = Math.floor((diff % 3600000) / 60000);
     const s = Math.floor((diff % 60000) / 1000);
-    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    return `${String(totalHours).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
   }, []);
 
   const [liveTimeLeft, setLiveTimeLeft] = React.useState('');

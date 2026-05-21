@@ -609,9 +609,9 @@ const RedesignedDashboard = ({
 
                   <button
                     className={styles.hubPortfolioBtn}
-                    onClick={() => setIsPortfolioModalOpen(true)}
+                    onClick={() => window.location.href = "/dashboard/history/asset"}
                   >
-                    <History size={12} /> MY STAKES
+                    <History size={12} /> ASSET HISTORY
                   </button>
                 </>
               </div>
@@ -626,7 +626,7 @@ const RedesignedDashboard = ({
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  UPGRADE INVESTMENT
+                  BUY / INVEST
                 </motion.button>
               </div>
             )}

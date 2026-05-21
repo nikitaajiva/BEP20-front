@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import AuthGuard from "@/components/auth/AuthGuard";
 import { useAuth } from "@/context/AuthContext";
-import { Users, Search, RefreshCw, ChevronLeft, ChevronRight, Globe } from "lucide-react";
+import { Users, Search, RefreshCw, ChevronLeft, ChevronRight, Globe, Mail, Calendar, DollarSign, X, Lock } from "lucide-react";
 import styles from "./team-referrals.module.css";
 
 const ITEMS_PER_PAGE = 10;
@@ -31,13 +31,13 @@ function Chip({ label, value, color = "#818cf8" }) {
   return (
     <div style={{ display:"flex", flexDirection:"column", alignItems:"center", padding:"6px 12px", background:`${color}11`, border:`1px solid ${color}33`, borderRadius:8, minWidth:72 }}>
       <span style={{ fontSize:10, color:"rgba(255,255,255,0.35)", fontWeight:700, textTransform:"uppercase", letterSpacing:0.8 }}>{label}</span>
-      <span style={{ fontSize:14, fontWeight:900, color }}>{value}</span>
+      <span style={{ fontSize:13, fontWeight:900, color, textAlign:"center" }}>{value}</span>
     </div>
   );
 }
 
 /* ─── Tree Node Row ─── */
-function TreeNode({ node, level, expanded, onToggle }) {
+function TreeNode({ node, level, expanded, onToggle, onSelectNode }) {
   const username = node.username || "Unknown";
   const initials = username.slice(0, 2).toUpperCase();
   const ac = getAvatar(username);
@@ -45,19 +45,27 @@ function TreeNode({ node, level, expanded, onToggle }) {
   const isOpen = expanded[node._id?.toString()];
   const levelColor = level === 1 ? "#818cf8" : level === 2 ? "#34d399" : "#f43f5e";
   const activeStakes = (node.stakingPlans || []).filter(s => s.status === "active").length || (node.stakingPlan?.amount > 0 ? 1 : 0);
+  const totalStakedAmount = (node.stakingPlans || []).reduce((acc, s) => acc + (s.amount || 0), 0) || node.stakingPlan?.amount || 0;
+  
   const nftCount = (node.nftPackages || []).length;
+  const totalNftValue = (node.nftPackages || []).reduce((acc, p) => acc + (p.mintPrice || 0), 0);
+
   return (
     <div style={{ marginBottom:8 }}>
-      <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:12, padding:"14px 16px", background:"rgba(255,255,255,0.02)", borderRadius:14, border:`1px solid ${levelColor}22`, borderLeft:`3px solid ${levelColor}`, flexWrap:"wrap" }}>
-        <div style={{ display:"flex", alignItems:"center", gap:12, flex:1, minWidth:0 }}>
+      <div className={styles.clickableNode} style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:12, padding:"14px 16px", background:"rgba(255,255,255,0.02)", borderRadius:14, border:`1px solid ${levelColor}22`, borderLeft:`3px solid ${levelColor}`, flexWrap:"wrap" }} onClick={() => onSelectNode && onSelectNode(node)}>
+        <div style={{ display:"flex", alignItems:"center", gap:12, flex:1, minWidth:0 }} onClick={(e) => e.stopPropagation()}>
           {hasChildren ? (
             <button onClick={() => onToggle(node._id?.toString())} style={{ width:28, height:28, borderRadius:8, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, border:`1px solid ${levelColor}44`, background:isOpen?`${levelColor}22`:"rgba(255,255,255,0.04)", color:levelColor, fontSize:14, fontWeight:900, cursor:"pointer" }}>
               {isOpen ? "−" : "+"}
             </button>
           ) : <div style={{ width:28, height:28, flexShrink:0 }} />}
-          <div style={{ width:40, height:40, borderRadius:"50%", flexShrink:0, background:ac.bg, color:ac.text, display:"flex", alignItems:"center", justifyContent:"center", fontSize:14, fontWeight:900, border:`2px solid ${ac.text}44` }}>{initials}</div>
-          <div style={{ minWidth:120, flex:1 }}>
-            <div style={{ fontSize:14, fontWeight:800, color:"#fff" }}>{username}</div>
+          <div style={{ width:40, height:40, borderRadius:"50%", flexShrink:0, background:ac.bg, color:ac.text, display:"flex", alignItems:"center", justifyContent:"center", fontSize:14, fontWeight:900, border:`2px solid ${ac.text}44`, cursor:"pointer" }} onClick={() => onSelectNode && onSelectNode(node)}>{initials}</div>
+          <div style={{ minWidth:120, flex:1, cursor:"pointer" }} onClick={() => onSelectNode && onSelectNode(node)}>
+            <div style={{ fontSize:14, fontWeight:800, color:"#fff", display:"flex", alignItems:"center", gap:6 }}>
+              {username}
+              {node.xRank && <span className={styles.rankBadgeX} style={{ fontSize:8, padding:"1px 4px", borderRadius:4, fontWeight:900 }}>{node.xRank}</span>}
+              {node.nodeTier && <span className={styles.rankBadgeP} style={{ fontSize:8, padding:"1px 4px", borderRadius:4, fontWeight:900 }}>{node.nodeTier}</span>}
+            </div>
             <div style={{ fontSize:10, color:"rgba(255,255,255,0.3)", fontWeight:600 }}>{node.uhid || "—"}</div>
           </div>
           <div style={{ padding:"3px 10px", borderRadius:20, background:`${levelColor}22`, border:`1px solid ${levelColor}44`, color:levelColor, fontSize:10, fontWeight:900, letterSpacing:1, flexShrink:0 }}>L{level}</div>
@@ -65,20 +73,40 @@ function TreeNode({ node, level, expanded, onToggle }) {
         <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
           <Chip label="Team"    value={node.communitySize ?? 0}   color="#818cf8" />
           <Chip label="Directs" value={node.directDownlines ?? 0} color="#06b6d4" />
-          <Chip label="Stakes"  value={activeStakes}              color="#fbbf24" />
-          <Chip label="NFTs"    value={nftCount}                  color="#34d399" />
+          <Chip label="Stakes"  value={totalStakedAmount > 0 ? `${totalStakedAmount.toLocaleString()} TSC` : activeStakes} color="#fbbf24" />
+          <Chip label="NFTs"    value={totalNftValue > 0 ? `$${totalNftValue.toLocaleString()}` : nftCount} color="#34d399" />
         </div>
       </div>
       {isOpen && hasChildren && (
         <div style={{ marginLeft:40, marginTop:6 }}>
-          {node.children.map(child => <TreeNode key={child._id} node={child} level={level + 1} expanded={expanded} onToggle={onToggle} />)}
+          {node.children.map(child => <TreeNode key={child._id} node={child} level={level + 1} expanded={expanded} onToggle={onToggle} onSelectNode={onSelectNode} />)}
         </div>
       )}
     </div>
   );
 }
 
-/* ─── Summary Banner ─── */
+function FilterPills({ activeLevel, setActiveLevel }) {
+  const pills = [
+    { label: "All", level: "all", className: styles.filterPillAll },
+    { label: "L1", level: 1, className: styles.filterPillL1 },
+    { label: "L2", level: 2, className: styles.filterPillL2 },
+  ];
+  return (
+    <div className={styles.filterPills}>
+      {pills.map(p => (
+        <div
+          key={p.label}
+          className={`${p.className} ${activeLevel === p.level || (activeLevel === "all" && p.level === "all") ? `${p.className}Active` : ''}`}
+          onClick={() => setActiveLevel(p.level)}
+        >
+          {p.label}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function SummaryBanner({ summary }) {
   if (!summary) return null;
   const items = [
@@ -89,12 +117,12 @@ function SummaryBanner({ summary }) {
     { label:"Total TSC",   value:(summary.totalTokenEarnings ?? 0).toFixed(4),       color:"#fbbf24", icon:"🏆" },
   ];
   return (
-    <div style={{ display:"grid", gridTemplateColumns:"repeat(5,1fr)", gap:12, marginBottom:24, flexWrap:"wrap" }}>
+    <div className={styles.summaryBanner}>
       {items.map(item => (
-        <div key={item.label} style={{ background:"rgba(255,255,255,0.02)", border:`1px solid ${item.color}33`, borderRadius:14, padding:"14px 16px", display:"flex", flexDirection:"column" }}>
-          <div style={{ fontSize:18, marginBottom:4 }}>{item.icon}</div>
-          <div style={{ fontSize:10, color:"rgba(255,255,255,0.35)", fontWeight:700, textTransform:"uppercase", letterSpacing:0.8 }}>{item.label}</div>
-          <div style={{ fontSize:16, fontWeight:900, color:item.color, marginTop:2 }}>{item.value}</div>
+        <div key={item.label} className={styles.summaryCard}>
+          <div className={styles.summaryCardIcon}>{item.icon}</div>
+          <div className={styles.summaryCardLabel}>{item.label}</div>
+          <div className={styles.summaryCardValue} style={{ color: item.color }}>{item.value}</div>
         </div>
       ))}
     </div>
@@ -119,7 +147,7 @@ const MEDALS = [
   { rank: 3, icon: "🥉", label: "Bronze", gradient: "linear-gradient(135deg,#cd7f32 0%,#8b4513 100%)", glow: "rgba(205,127,50,0.2)",  border: "rgba(205,127,50,0.4)"  },
 ];
 
-function TopPerformers({ nodes, loading }) {
+function TopPerformers({ nodes, loading, onSelectNode }) {
   if (loading) {
     return (
       <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:16 }}>
@@ -171,8 +199,13 @@ function TopPerformers({ nodes, loading }) {
         {scored.map((node, idx) => {
           const medal = MEDALS[idx];
           const ac    = TREE_PALETTE[node.username?.charCodeAt(0) % TREE_PALETTE.length] || TREE_PALETTE[0];
+          
+          const totalStakes = (node.stakingPlans || []).reduce((acc, s) => acc + (s.amount || 0), 0) || node.stakingPlan?.amount || 0;
+          const totalNfts   = (node.nftPackages || []).reduce((acc, p) => acc + (p.mintPrice || 0), 0);
+
           return (
-            <div key={node._id} style={{ position:"relative", background:`linear-gradient(135deg,rgba(255,255,255,0.03) 0%,rgba(255,255,255,0.01) 100%)`, border:`1px solid ${medal.border}`, borderRadius:20, padding:"20px 18px", boxShadow:`0 8px 32px ${medal.glow}`, overflow:"hidden", transition:"transform 0.2s" }}
+            <div key={node._id} className={`${styles.clickableNode}`} style={{ position:"relative", background:`linear-gradient(135deg,rgba(255,255,255,0.03) 0%,rgba(255,255,255,0.01) 100%)`, border:`1px solid ${medal.border}`, borderRadius:20, padding:"20px 18px", boxShadow:`0 8px 32px ${medal.glow}`, overflow:"hidden", transition:"transform 0.2s" }}
+              onClick={() => onSelectNode && onSelectNode(node)}
               onMouseEnter={e => e.currentTarget.style.transform = "translateY(-4px)"}
               onMouseLeave={e => e.currentTarget.style.transform = "translateY(0)"}
             >
@@ -191,7 +224,11 @@ function TopPerformers({ nodes, loading }) {
                   {(node.username || "?").slice(0,2).toUpperCase()}
                 </div>
                 <div style={{ flex:1, minWidth:0 }}>
-                  <div style={{ fontSize:14, fontWeight:900, color:"#fff", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{node.username}</div>
+                  <div style={{ fontSize:14, fontWeight:900, color:"#fff", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis", display:"flex", alignItems:"center", gap:4 }}>
+                    {node.username}
+                    {node.xRank && <span className={styles.rankBadgeX} style={{ fontSize:8, padding:"1px 4px", borderRadius:4, fontWeight:900 }}>{node.xRank}</span>}
+                    {node.nodeTier && <span className={styles.rankBadgeP} style={{ fontSize:8, padding:"1px 4px", borderRadius:4, fontWeight:900 }}>{node.nodeTier}</span>}
+                  </div>
                   <div style={{ fontSize:10, color:"rgba(255,255,255,0.3)", fontWeight:600 }}>#{node.uhid}</div>
                 </div>
               </div>
@@ -199,14 +236,14 @@ function TopPerformers({ nodes, loading }) {
               {/* Stats grid */}
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
                 {[
-                  { label:"Network",  value: node.communitySize  || 0, color:"#818cf8" },
-                  { label:"Directs",  value: node.directDownlines || 0, color:"#06b6d4" },
-                  { label:"Stakes",   value: node._stakes,             color:"#fbbf24" },
-                  { label:"NFTs",     value: node._nfts,               color:"#34d399" },
+                  { label:"Network",  value: `${node.communitySize || 0}`, color:"#818cf8" },
+                  { label:"Directs",  value: `${node.directDownlines || 0}`, color:"#06b6d4" },
+                  { label:"Staked",   value: totalStakes > 0 ? `${totalStakes.toLocaleString()}` : `${node._stakes}`, color:"#fbbf24" },
+                  { label:"NFT Value", value: totalNfts > 0 ? `$${totalNfts.toLocaleString()}` : `${node._nfts}`, color:"#34d399" },
                 ].map(stat => (
                   <div key={stat.label} style={{ background:"rgba(255,255,255,0.03)", borderRadius:10, padding:"8px 10px", border:`1px solid ${stat.color}22` }}>
                     <div style={{ fontSize:9, color:"rgba(255,255,255,0.3)", fontWeight:700, textTransform:"uppercase", letterSpacing:0.8 }}>{stat.label}</div>
-                    <div style={{ fontSize:16, fontWeight:900, color:stat.color }}>{stat.value}</div>
+                    <div style={{ fontSize:13, fontWeight:900, color:stat.color, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{stat.value}</div>
                   </div>
                 ))}
               </div>
@@ -243,8 +280,20 @@ export default function TeamReferralsPage() {
   const [treeSearch,  setTreeSearch]  = useState("");
   const [nodeSearch,  setNodeSearch]  = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [levelFilter, setLevelFilter] = useState(0); // 0 = all, 1 = L1, 2 = L2
+  const [filterLevel, setFilterLevel] = useState("all"); 
   const fetchedRef = useRef(false);
+
+  const [selectedNode, setSelectedNode] = useState(null);
+  const [drawerOpen, setDrawerOpen]     = useState(false);
+  const [drawerTab, setDrawerTab]       = useState("overview");
+
+  const handleSelectNode = useCallback((node) => {
+    setSelectedNode(node);
+    setDrawerTab("overview");
+    setDrawerOpen(true);
+  }, []);
+
+  const handleToggle = (id) => setExpanded(prev => ({ ...prev, [id]: !prev[id] }));
 
   /* ── Fetch: 2 APIs in parallel ── */
   const fetchData = useCallback(async () => {
@@ -299,19 +348,46 @@ export default function TeamReferralsPage() {
 
   /* ── Node Directory: flatten tree, filter, paginate ── */
   const allNodes = flattenTree(treeData);
-  const filteredNodes = allNodes.filter(n => {
+  const filteredFlat = allNodes.filter(node => {
+  // ...existing filter logic remains unchanged
     const matchSearch = !nodeSearch ||
-      (n.username || "").toLowerCase().includes(nodeSearch.toLowerCase()) ||
-      (n.uhid     || "").toLowerCase().includes(nodeSearch.toLowerCase());
-    const matchLevel = levelFilter === 0 || n._level === levelFilter;
+      (node.username || "").toLowerCase().includes(nodeSearch.toLowerCase()) ||
+      (node.uhid     || "").toLowerCase().includes(nodeSearch.toLowerCase());
+    const matchLevel = filterLevel === "all" || node._level === filterLevel;
     return matchSearch && matchLevel;
   });
-  const totalPages       = Math.ceil(filteredNodes.length / ITEMS_PER_PAGE);
-  const paginatedNodes   = filteredNodes.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
-  const paginationItems  = totalPages > 1 ? generatePagination(currentPage, totalPages) : [];
+  // Determine nodes for TopPerformers (use filtered list to reflect current filters)
+  const topPerformerNodes = filteredFlat;
 
-  // Top performers computed from ALL flattened nodes (no extra API)
-  const topPerformerNodes = allNodes;
+  // Pagination logic
+  const PAGE_SIZE = 12;
+  const totalPages = Math.max(1, Math.ceil(filteredFlat.length / PAGE_SIZE));
+  const paginatedNodes = filteredFlat.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const paginationItems = (() => {
+    const items = [];
+    if (totalPages <= 5) {
+      for (let i = 1; i <= totalPages; i++) items.push(i);
+    } else {
+      items.push(1);
+      if (currentPage > 3) items.push("...");
+      const start = Math.max(2, currentPage - 1);
+      const end = Math.min(totalPages - 1, currentPage + 1);
+      for (let i = start; i <= end; i++) items.push(i);
+      if (currentPage < totalPages - 2) items.push("...");
+      items.push(totalPages);
+    }
+    return items;
+  })();
+
+  const getSponsorName = useCallback((node) => {
+    if (!node || !node.sponsorId) return "None";
+    const sponsorIdStr = node.sponsorId.toString();
+    if (user && (user._id?.toString() === sponsorIdStr || user.id?.toString() === sponsorIdStr)) {
+      return user.username || "You";
+    }
+    const match = allNodes.find(n => n._id?.toString() === sponsorIdStr);
+    return match ? match.username : "Unknown";
+  }, [allNodes, user]);
 
   if (authLoading) return <div className={styles.loading}><RefreshCw size={32} className={styles.spinning} /><span>Loading...</span></div>;
   if (!user)       return <div className={styles.loading}>Session expired. Please log in.</div>;
@@ -383,7 +459,7 @@ export default function TeamReferralsPage() {
                 </div>
               ) : (
                 <div>
-                  {displayTree.map(node => <TreeNode key={node._id} node={node} level={1} expanded={expanded} onToggle={toggleNode} />)}
+                  {displayTree.map(node => <TreeNode key={node._id} node={node} level={1} expanded={expanded} onToggle={toggleNode} onSelectNode={handleSelectNode} />)}
                 </div>
               )}
               <style>{`@keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }`}</style>
@@ -394,33 +470,36 @@ export default function TeamReferralsPage() {
               <div className={styles.boxHeader}>
                 <div className={styles.headerLeft}>
                   <Users size={18} className={styles.boxIcon} />
-                  <span>Node Directory</span>
-                  <span style={{ fontSize:11, color:"rgba(255,255,255,0.3)", marginLeft:8 }}>({filteredNodes.length} nodes)</span>
+                  <span>Referral Directory</span>
+                  <span>{filteredFlat.length}</span>
                 </div>
                 <div className={styles.headerActions}>
                   {/* Level filter pills */}
                   <div style={{ display:"flex", gap:6 }}>
-                    {[0,1,2].map(lvl => (
-                      <button
-                        key={lvl}
-                        onClick={() => { setLevelFilter(lvl); setCurrentPage(1); }}
-                        style={{ padding:"5px 12px", borderRadius:8, fontSize:11, fontWeight:800, cursor:"pointer", border:"1px solid", transition:"all 0.2s",
-                          background: levelFilter === lvl ? (lvl === 0 ? "#818cf8" : lvl === 1 ? "#818cf8" : "#34d399") : "transparent",
-                          color:      levelFilter === lvl ? "#fff" : (lvl === 1 ? "#818cf8" : lvl === 2 ? "#34d399" : "rgba(255,255,255,0.4)"),
-                          borderColor: lvl === 0 ? "rgba(129,140,248,0.4)" : lvl === 1 ? "rgba(129,140,248,0.4)" : "rgba(52,211,153,0.4)",
-                        }}
-                      >
-                        {lvl === 0 ? "All" : `L${lvl}`}
-                      </button>
-                    ))}
+                    {[0,1,2].map(lvl => {
+                      const levelValue = lvl === 0 ? "all" : lvl;
+                      return (
+                        <button
+                          key={lvl}
+                          onClick={() => { setFilterLevel(levelValue); setCurrentPage(1); }}
+                          style={{ padding:"5px 12px", borderRadius:8, fontSize:11, fontWeight:800, cursor:"pointer", border:"1px solid", transition:"all 0.2s",
+                            background: filterLevel === levelValue ? (lvl === 0 ? "#818cf8" : lvl === 1 ? "#818cf8" : "#34d399") : "transparent",
+                            color:      filterLevel === levelValue ? "#fff" : (lvl === 1 ? "#818cf8" : lvl === 2 ? "#34d399" : "rgba(255,255,255,0.4)"),
+                            borderColor: lvl === 0 ? "rgba(129,140,248,0.4)" : lvl === 1 ? "rgba(129,140,248,0.4)" : "rgba(52,211,153,0.4)",
+                          }}
+                        >
+                          {lvl === 0 ? "All" : `L${lvl}`}
+                        </button>
+                      );
+                    })}
                   </div>
-                  <div className={styles.tableSearch}>
+                  <div className={styles.tableSearch} style={{ flex:1 }}>
                     <Search size={14} className={styles.tableSearchIcon} />
                     <input
                       type="text"
                       value={nodeSearch}
                       onChange={e => { setNodeSearch(e.target.value); setCurrentPage(1); }}
-                      placeholder="Find node..."
+                      placeholder="Find referral..."
                     />
                   </div>
                   <button onClick={fetchData} className={styles.refreshBtn} disabled={loading}>
@@ -437,52 +516,84 @@ export default function TeamReferralsPage() {
                   </div>
                 ) : error ? (
                   <div className={styles.tableError}>{error}</div>
+                ) : paginatedNodes.length > 0 ? (
+                  <div className={styles.directoryList}>
+                    {paginatedNodes.map(node => {
+                      const username = node.username || "Unknown";
+                      const ac = getAvatar(username);
+                      const lColor = node._level === 1 ? "#818cf8" : node._level === 2 ? "#34d399" : "#f43f5e";
+                      const levelClass = node._level === 1 ? styles.nodeCardL1 : node._level === 2 ? styles.nodeCardL2 : styles.nodeCardL3;
+                      const stakes = (node.stakingPlans || []).filter(s => s.status === "active").length || (node.stakingPlan?.amount > 0 ? 1 : 0);
+                      const nfts = (node.nftPackages || []).length;
+                      const totalStakedAmount = (node.stakingPlans || []).reduce((acc, s) => acc + (s.amount || 0), 0) || node.stakingPlan?.amount || 0;
+                      const totalNftValue = (node.nftPackages || []).reduce((acc, p) => acc + (p.mintPrice || 0), 0);
+                      return (
+                        <div
+                          key={node._id || node.uhid}
+                          className={`${styles.nodeCard} ${levelClass}`}
+                          onClick={() => handleSelectNode(node)}
+                        >
+                          {/* Avatar */}
+                          <div
+                            className={styles.nodeCardAvatar}
+                            style={{ background: ac.bg, color: ac.text, border: `2px solid ${ac.text}44` }}
+                          >
+                            {username.slice(0, 2).toUpperCase()}
+                          </div>
+
+                          {/* Identity */}
+                          <div className={styles.nodeCardIdentity}>
+                            <div className={styles.nodeCardName}>
+                              {username}
+                              {node.xRank && <span className={styles.rankBadgeX} style={{ fontSize: 8, padding: "1px 5px", borderRadius: 4, fontWeight: 900 }}>{node.xRank}</span>}
+                              {node.nodeTier && <span className={styles.rankBadgeP} style={{ fontSize: 8, padding: "1px 5px", borderRadius: 4, fontWeight: 900 }}>{node.nodeTier}</span>}
+                            </div>
+                            <div className={styles.nodeCardUhid}>#{node.uhid}</div>
+                          </div>
+
+                          {/* Level Pill */}
+                          <div
+                            className={styles.nodeCardLevel}
+                            style={{ background: `${lColor}18`, border: `1px solid ${lColor}44`, color: lColor }}
+                          >
+                            L{node._level}
+                          </div>
+
+                          {/* Stat Chips */}
+                          <div className={styles.nodeCardStats}>
+                            <div className={styles.nodeCardStat}>
+                              <span className={styles.nodeCardStatLabel}>Team</span>
+                              <span className={styles.nodeCardStatValue} style={{ color: "#FFB800" }}>{node.communitySize ?? 0}</span>
+                            </div>
+                            <div className={styles.nodeCardStat}>
+                              <span className={styles.nodeCardStatLabel}>Directs</span>
+                              <span className={styles.nodeCardStatValue} style={{ color: "#06b6d4" }}>{node.directDownlines ?? 0}</span>
+                            </div>
+                            <div className={styles.nodeCardStat}>
+                              <span className={styles.nodeCardStatLabel}>Stakes</span>
+                              <span className={styles.nodeCardStatValue} style={{ color: "#fbbf24" }}>{stakes}</span>
+                              {totalStakedAmount > 0 && <span className={styles.nodeCardStatSub}>{totalStakedAmount.toLocaleString()} TSC</span>}
+                            </div>
+                            <div className={styles.nodeCardStat}>
+                              <span className={styles.nodeCardStatLabel}>NFTs</span>
+                              <span className={styles.nodeCardStatValue} style={{ color: "#34d399" }}>{nfts}</span>
+                              {totalNftValue > 0 && <span className={styles.nodeCardStatSub}>${totalNftValue.toLocaleString()}</span>}
+                            </div>
+                          </div>
+
+                          {/* Hover Arrow */}
+                          <div className={styles.nodeCardArrow}>
+                            <ChevronRight size={14} />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 ) : (
-                  <table className={styles.premiumTable}>
-                    <thead>
-                      <tr>
-                        <th>NODE</th>
-                        <th>LEVEL</th>
-                        <th>TEAM SIZE</th>
-                        <th>DIRECTS</th>
-                        <th>STAKES</th>
-                        <th>NFTs</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {paginatedNodes.length > 0 ? paginatedNodes.map(node => {
-                        const username = node.username || "Unknown";
-                        const ac = getAvatar(username);
-                        const lColor = node._level === 1 ? "#818cf8" : node._level === 2 ? "#34d399" : "#f43f5e";
-                        const stakes = (node.stakingPlans || []).filter(s => s.status === "active").length || (node.stakingPlan?.amount > 0 ? 1 : 0);
-                        const nfts   = (node.nftPackages || []).length;
-                        return (
-                          <tr key={node._id || node.uhid}>
-                            <td>
-                              <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-                                <div style={{ width:34, height:34, borderRadius:"50%", background:ac.bg, color:ac.text, display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, fontWeight:900, flexShrink:0, border:`1.5px solid ${ac.text}44` }}>
-                                  {username.slice(0,2).toUpperCase()}
-                                </div>
-                                <div>
-                                  <div className={styles.nodeUser}>{username}</div>
-                                  <div className={styles.nodeID}>#{node.uhid}</div>
-                                </div>
-                              </div>
-                            </td>
-                            <td>
-                              <span style={{ padding:"3px 10px", borderRadius:20, background:`${lColor}22`, border:`1px solid ${lColor}44`, color:lColor, fontSize:10, fontWeight:900 }}>L{node._level}</span>
-                            </td>
-                            <td><div className={styles.sizeTag}>{node.communitySize ?? 0} Nodes</div></td>
-                            <td><span style={{ color:"#06b6d4", fontWeight:800 }}>{node.directDownlines ?? 0}</span></td>
-                            <td><span style={{ color:"#fbbf24", fontWeight:800 }}>{stakes}</span></td>
-                            <td><span style={{ color:"#34d399", fontWeight:800 }}>{nfts}</span></td>
-                          </tr>
-                        );
-                      }) : (
-                        <tr><td colSpan={6} className={styles.emptyRow}>No nodes found.</td></tr>
-                      )}
-                    </tbody>
-                  </table>
+                  <div className={styles.directoryEmpty}>
+                    <div className={styles.directoryEmptyIcon}>🔍</div>
+                    <div className={styles.directoryEmptyText}>No nodes found.</div>
+                  </div>
                 )}
               </div>
 
@@ -503,6 +614,255 @@ export default function TeamReferralsPage() {
           </div>
         </div>
       </div>
+
+      {/* Detail Drawer */}
+      {drawerOpen && selectedNode && (
+        <>
+          <div className={styles.drawerBackdrop} onClick={() => setDrawerOpen(false)} />
+          <div className={styles.drawerContainer}>
+            {/* Header */}
+            <div className={styles.drawerHeader}>
+              <div className={styles.drawerTitleContainer}>
+                <div style={{
+                  width: 50,
+                  height: 50,
+                  borderRadius: "50%",
+                  background: getAvatar(selectedNode.username || "").bg,
+                  color: getAvatar(selectedNode.username || "").text,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 18,
+                  fontWeight: 900,
+                  border: `2px solid ${getAvatar(selectedNode.username || "").text}44`,
+                  flexShrink: 0
+                }}>
+                  {(selectedNode.username || "??").slice(0, 2).toUpperCase()}
+                </div>
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <div style={{ fontSize: 18, fontWeight: 900, color: "#fff", display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                    {selectedNode.username}
+                    {selectedNode.xRank && <span className={`${styles.rankBadge} ${styles.rankBadgeX}`}>{selectedNode.xRank}</span>}
+                    {selectedNode.nodeTier && <span className={`${styles.rankBadge} ${styles.rankBadgeP}`}>{selectedNode.nodeTier}</span>}
+                  </div>
+                  <div style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", fontWeight: 600 }}>UHID: {selectedNode.uhid || "—"}</div>
+                </div>
+              </div>
+              <button className={styles.drawerCloseBtn} onClick={() => setDrawerOpen(false)}>
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className={styles.drawerBody}>
+              {/* Tab Navigation */}
+              <div className={styles.drawerTabs}>
+                <button
+                  className={`${styles.drawerTabBtn} ${drawerTab === "overview" ? styles.drawerTabBtnActive : ""}`}
+                  onClick={() => setDrawerTab("overview")}
+                >
+                  Overview
+                </button>
+                <button
+                  className={`${styles.drawerTabBtn} ${drawerTab === "nfts" ? styles.drawerTabBtnActive : ""}`}
+                  onClick={() => setDrawerTab("nfts")}
+                >
+                  NFTs ({(selectedNode.nftPackages || []).length})
+                </button>
+                <button
+                  className={`${styles.drawerTabBtn} ${drawerTab === "stakes" ? styles.drawerTabBtnActive : ""}`}
+                  onClick={() => setDrawerTab("stakes")}
+                >
+                  Stakes ({(selectedNode.stakingPlans || []).length || (selectedNode.stakingPlan?.amount > 0 ? 1 : 0)})
+                </button>
+              </div>
+
+              {/* Tab Contents */}
+              {drawerTab === "overview" && (
+                <div>
+                  {/* Contact Actions */}
+                  <div className={styles.contactSection}>
+                    {selectedNode.whatsappContact ? (
+                      <a
+                        href={`https://wa.me/${selectedNode.whatsappContact}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className={`${styles.contactBtn} ${styles.whatsappBtn}`}
+                      >
+                        WhatsApp
+                      </a>
+                    ) : (
+                      <span className={`${styles.contactBtn}`} style={{ opacity: 0.4, cursor: "not-allowed", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.4)" }}>
+                        No WhatsApp
+                      </span>
+                    )}
+                    {selectedNode.email ? (
+                      <a
+                        href={`mailto:${selectedNode.email}`}
+                        className={`${styles.contactBtn} ${styles.emailBtn}`}
+                      >
+                        <Mail size={14} /> Email
+                      </a>
+                    ) : (
+                      <span className={`${styles.contactBtn}`} style={{ opacity: 0.4, cursor: "not-allowed", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.4)" }}>
+                        No Email
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Profile Details Grid */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                    <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 16, padding: 16 }}>
+                      <span style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.8, display: "block", marginBottom: 6 }}>Email Address</span>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <span style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>{selectedNode.email || "—"}</span>
+                        {selectedNode.email && (
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText(selectedNode.email);
+                              alert("Email copied to clipboard!");
+                            }}
+                            style={{ background: "none", border: "none", color: "#FFB800", fontSize: 11, fontWeight: 800, cursor: "pointer" }}
+                          >
+                            Copy
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 16, padding: 16 }}>
+                      <span style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.8, display: "block", marginBottom: 6 }}>Sponsor</span>
+                      <span style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>{getSponsorName(selectedNode)}</span>
+                    </div>
+
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                      <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 16, padding: 16 }}>
+                        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.8, display: "block", marginBottom: 6 }}>Country</span>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                          <Globe size={14} style={{ color: "#FFB800" }} />
+                          <span style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>
+                            {selectedNode.country ? `${selectedNode.country} (${selectedNode.countryCode || ""})` : "—"}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 16, padding: 16 }}>
+                        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.8, display: "block", marginBottom: 6 }}>Join Date</span>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                          <Calendar size={14} style={{ color: "#818cf8" }} />
+                          <span style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>
+                            {selectedNode.joiningTimeStamp
+                              ? new Date(selectedNode.joiningTimeStamp).toLocaleDateString()
+                              : selectedNode.registrationTs
+                              ? new Date(selectedNode.registrationTs).toLocaleDateString()
+                              : "—"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Network Stats Cards */}
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                      <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 16, padding: 16 }}>
+                        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.8, display: "block", marginBottom: 4 }}>Team Size</span>
+                        <span style={{ fontSize: 20, fontWeight: 900, color: "#FFB800" }}>{selectedNode.communitySize ?? 0}</span>
+                      </div>
+                      <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 16, padding: 16 }}>
+                        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.8, display: "block", marginBottom: 4 }}>Direct Referrals</span>
+                        <span style={{ fontSize: 20, fontWeight: 900, color: "#06b6d4" }}>{selectedNode.directDownlines ?? 0}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {drawerTab === "nfts" && (
+                <div className={styles.portfolioGrid}>
+                  {(selectedNode.nftPackages && selectedNode.nftPackages.length > 0) ? (
+                    selectedNode.nftPackages.map((nft, index) => (
+                      <div key={index} className={styles.portfolioCard}>
+                        <div className={styles.portfolioCardHeader}>
+                          <span className={styles.portfolioCardTitle}>{nft.packageName || "NFT Package"}</span>
+                          <span className={styles.portfolioValue}>${(nft.mintPrice || 0).toLocaleString()}</span>
+                        </div>
+                        <div className={styles.portfolioCardMeta}>
+                          <span>Mint: {nft.mintPrice ? `${nft.mintPrice} USDT` : "—"}</span>
+                          {nft.purchaseDate && (
+                            <span>{new Date(nft.purchaseDate).toLocaleDateString()}</span>
+                          )}
+                        </div>
+                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, marginTop: 4, borderTop: "1px solid rgba(255,255,255,0.03)", paddingTop: 8 }}>
+                          <span style={{ color: nft.status === "active" ? "#34d399" : "rgba(255,255,255,0.3)" }}>
+                            Status: {nft.status || "active"}
+                          </span>
+                          {nft.roi !== undefined && (
+                            <span style={{ color: "#fbbf24" }}>ROI: {nft.roi}%</span>
+                          )}
+                          {nft.miningPower !== undefined && (
+                            <span style={{ color: "#06b6d4" }}>Power: {nft.miningPower} GH/s</span>
+                          )}
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div style={{ textAlign: "center", padding: "40px 20px", color: "rgba(255,255,255,0.25)" }}>
+                      <Lock size={24} style={{ marginBottom: 8, opacity: 0.4 }} />
+                      <div>No NFT packages owned.</div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {drawerTab === "stakes" && (
+                <div className={styles.portfolioGrid}>
+                  {(selectedNode.stakingPlans && selectedNode.stakingPlans.length > 0) ? (
+                    selectedNode.stakingPlans.map((stake, index) => (
+                      <div key={index} className={styles.portfolioCard}>
+                        <div className={styles.portfolioCardHeader}>
+                          <span className={styles.portfolioCardTitle}>Staking Plan</span>
+                          <span className={styles.portfolioValue}>{(stake.amount || 0).toLocaleString()} TSC</span>
+                        </div>
+                        <div className={styles.portfolioCardMeta}>
+                          <span>Period: {stake.stakingDays || stake.duration || "—"} Days</span>
+                          {stake.startDate && (
+                            <span>{new Date(stake.startDate).toLocaleDateString()}</span>
+                          )}
+                        </div>
+                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, marginTop: 4, borderTop: "1px solid rgba(255,255,255,0.03)", paddingTop: 8 }}>
+                          <span style={{ color: stake.status === "active" ? "#fbbf24" : "rgba(255,255,255,0.3)" }}>
+                            Status: {stake.status || "active"}
+                          </span>
+                          {stake.rewardPercentage !== undefined && (
+                            <span style={{ color: "#34d399" }}>Reward: {stake.rewardPercentage}%</span>
+                          )}
+                        </div>
+                      </div>
+                    ))
+                  ) : selectedNode.stakingPlan?.amount > 0 ? (
+                    <div className={styles.portfolioCard}>
+                      <div className={styles.portfolioCardHeader}>
+                        <span className={styles.portfolioCardTitle}>Primary Staking Plan</span>
+                        <span className={styles.portfolioValue}>{(selectedNode.stakingPlan.amount || 0).toLocaleString()} TSC</span>
+                      </div>
+                      <div className={styles.portfolioCardMeta}>
+                        <span>Period: {selectedNode.stakingPlan.stakingDays || selectedNode.stakingPlan.duration || "—"} Days</span>
+                        {selectedNode.stakingPlan.startDate && (
+                          <span>{new Date(selectedNode.stakingPlan.startDate).toLocaleDateString()}</span>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ textAlign: "center", padding: "40px 20px", color: "rgba(255,255,255,0.25)" }}>
+                      <Lock size={24} style={{ marginBottom: 8, opacity: 0.4 }} />
+                      <div>No active stakes found.</div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </>
+      )}
     </AuthGuard>
   );
 }

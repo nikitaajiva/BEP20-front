@@ -4,16 +4,13 @@ import { useAuth } from "@/context/AuthContext";
 
 export default function LedgerHistoryTable({ filters }) {
   const { user, API_URL, logout } = useAuth();
-  const [entries, setEntries] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [pagination, setPagination] = useState({
-    currentPage: 1,
-    totalPages: 0,
-    totalEntries: 0,
-    hasNextPage: false,
-    hasPrevPage: false,
-    limit: 10,
+  const [entries, setEntries]     = useState([]);
+  const [loading, setLoading]     = useState(true);
+  const [error, setError]         = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [limit, setLimit]             = useState(10);
+  const [paginationMeta, setPaginationMeta] = useState({
+    totalPages: 0, totalEntries: 0, hasNextPage: false, hasPrevPage: false,
   });
 
   const formatWalletName = (name) => {
@@ -31,112 +28,92 @@ export default function LedgerHistoryTable({ filters }) {
     return name.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
   };
 
-  useEffect(() => {
-    setPagination((prev) => ({ ...prev, currentPage: 1 }));
-  }, [filters]);
+  // Clean single-fetch approach: track filters ref, compute effective page locally
+  const filtersRef = React.useRef(filters);
+  const isFirstRender = React.useRef(true);
 
   useEffect(() => {
+    if (!user) return;
+
+    // Detect if filters changed vs a page/limit change
+    const filtersChanged = JSON.stringify(filters) !== JSON.stringify(filtersRef.current);
+    if (filtersChanged) {
+      filtersRef.current = filters;
+      // If we're not already on page 1, reset — this re-runs with currentPage=1
+      if (currentPage !== 1) {
+        setCurrentPage(1);
+        return; // second run will fetch with page=1
+      }
+    }
+
     const fetchLedgerHistory = async () => {
-      if (!user) return;
       setLoading(true);
-
+      setError("");
       try {
         const token = localStorage.getItem("token");
-        if (!token) {
-          throw new Error("No authentication token found");
-        }
+        if (!token) throw new Error("No authentication token found");
 
         const queryParams = new URLSearchParams({
-          page: pagination.currentPage.toString(),
-          limit: pagination.limit.toString(),
-          ...(filters.eventType &&
-            filters.eventType !== "all" && {
-              eventType: filters.eventType,
-            }),
+          page:  currentPage.toString(),
+          limit: limit.toString(),
+          ...(filters.eventType && filters.eventType !== "all" && { eventType: filters.eventType }),
           ...(filters.startDate && { startDate: filters.startDate }),
-          ...(filters.endDate && { endDate: filters.endDate }),
+          ...(filters.endDate   && { endDate:   filters.endDate   }),
         });
 
-        const apiUrl = `${API_URL}/ledger/history?${queryParams.toString()}`
-          .replace(/\/+/g, "/")
-          .replace(":/", "://");
+        const apiUrl = `${API_URL}/ledger/history?${queryParams}`
+          .replace(/\/+/g, "/").replace(":/", "://");
 
         const response = await fetch(apiUrl, {
           method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
+          headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         });
 
         if (!response.ok) {
           if (response.status === 401) {
             localStorage.removeItem("token");
+            setTimeout(() => logout(), 2000);
             throw new Error("Session expired. Please login again.");
           }
-          const errorData = await response.json().catch(() => ({}));
-          throw new Error(
-            errorData.message || `HTTP error! status: ${response.status}`
-          );
+          const errData = await response.json().catch(() => ({}));
+          throw new Error(errData.message || `HTTP error! status: ${response.status}`);
         }
 
         const data = await response.json();
-
         if (data.success) {
           setEntries(data.entries || []);
-          setPagination(
-            data.pagination || {
-              currentPage: 1,
-              totalPages: 0,
-              totalEntries: 0,
-              hasNextPage: false,
-              hasPrevPage: false,
-              limit: 10,
-            }
-          );
+          const p = data.pagination || {};
+          setPaginationMeta({
+            totalPages:   p.totalPages   ?? 0,
+            totalEntries: p.totalEntries ?? 0,
+            hasNextPage:  p.hasNextPage  ?? false,
+            hasPrevPage:  p.hasPrevPage  ?? false,
+          });
         } else {
           throw new Error(data.message || "Failed to fetch ledger history");
         }
       } catch (err) {
         console.error("Error fetching ledger history:", err);
-        setError(
-          err.message || "An error occurred while fetching ledger history"
-        );
-        if (err.message.includes("Session expired")) {
-          setTimeout(() => {
-            logout();
-          }, 2000);
-        }
+        setError(err.message || "An error occurred");
       } finally {
         setLoading(false);
       }
     };
 
-    if (user) {
-      fetchLedgerHistory();
-    }
-  }, [
-    user,
-    API_URL,
-    logout,
-    pagination.currentPage,
-    pagination.limit,
-    filters,
-  ]);
+    fetchLedgerHistory();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, API_URL, logout, filters, currentPage, limit]);
 
-  const handlePageChange = (newPage) => {
-    setPagination((prev) => ({
-      ...prev,
-      currentPage: newPage,
-    }));
-  };
+  const handlePageChange  = (newPage) => setCurrentPage(newPage);
+  const handleLimitChange = (e) => { setLimit(Number(e.target.value)); setCurrentPage(1); };
 
-  const handleLimitChange = (e) => {
-    setPagination((prev) => ({
-      ...prev,
-      limit: Number(e.target.value),
-      currentPage: 1,
-    }));
+  // Compatibility shim — lets the JSX below reference `pagination.xxx` unchanged
+  const pagination = {
+    currentPage, limit,
+    totalPages:   paginationMeta.totalPages,
+    totalEntries: paginationMeta.totalEntries,
+    hasNextPage:  paginationMeta.hasNextPage,
+    hasPrevPage:  paginationMeta.hasPrevPage,
   };
 
   // Helper function to extract details from BOOST_BONUS narrative

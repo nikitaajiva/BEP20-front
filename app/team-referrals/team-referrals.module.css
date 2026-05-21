@@ -13,6 +13,19 @@
   padding: 40px 24px;
 }
 
+.loading {
+  min-height: 100vh;
+  background: #050505;
+  color: rgba(255,255,255,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: 'Outfit', sans-serif;
+}
+
 .contentWrapper {
   max-width: 1700px;
   margin: 0 auto;
@@ -380,6 +393,39 @@
 .resDivider { width: 1px; background: rgba(255, 255, 255, 0.08); }
 
 /* ── Table Area ── */
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tableLoading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px;
+  gap: 16px;
+  color: rgba(255,255,255,0.4);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.tableError {
+  text-align: center;
+  padding: 40px;
+  color: #f43f5e;
+  font-weight: 700;
+}
+
+.emptyRow {
+  text-align: center;
+  padding: 60px !important;
+  color: rgba(255,255,255,0.3);
+  font-size: 14px;
+  font-weight: 600;
+}
+
 .headerActions {
   display: flex;
   align-items: center;

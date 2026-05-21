@@ -5,11 +5,6 @@ import { useSearchParams } from 'next/navigation';
 import LedgerHistoryTable from '@/components/LedgerHistoryTable';
 import { LEDGER_EVENT_TYPES } from '@/constants/ledgerEventTypes';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL
-  ? `${process.env.NEXT_PUBLIC_API_URL}/api`
-  : null;
-
-// Helper function to format event type strings for display
 const formatEventType = (type) => {
   if (!type) return 'All Events';
   return type
@@ -22,8 +17,10 @@ export default function LedgerPageContent() {
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [eventTypes, setEventTypes] = useState([]);
-  const eventTypeOptions = eventTypes.length ? eventTypes : LEDGER_EVENT_TYPES;
+
+  // Use local constants — no extra API call needed
+  const eventTypeOptions = LEDGER_EVENT_TYPES;
+
 
   const [filters, setFilters] = useState({
     eventType: searchParams.get('type') || 'all',
@@ -31,35 +28,6 @@ export default function LedgerPageContent() {
     endDate: '',
   });
 
-  // Fetch the available event types from the backend
-  useEffect(() => {
-    const fetchEventTypes = async () => {
-      if (!token) return;
-      if (!API_BASE) {
-        setEventTypes(LEDGER_EVENT_TYPES);
-        return;
-      }
-      try {
-        const response = await fetch(`${API_BASE}/ledger/history/event-types`, {
-          headers: { Authorization: `Bearer ${token}` },
-        } );
-        
-        if (!response.ok) {
-          throw new Error(`Failed to fetch event types (${response.status})`);
-        }
-
-        const data = await response.json();
-
-        if (data.success) {
-          setEventTypes(data.data);
-        }
-      } catch (err) {
-        console.error("Failed to fetch event types:", err);
-        setEventTypes(LEDGER_EVENT_TYPES);
-      }
-    };
-    fetchEventTypes();
-  }, [token]);
 
   const handleFilterChange = (e) => {
     setFilters({

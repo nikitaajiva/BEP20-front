@@ -179,7 +179,7 @@ export default function ReferralRewardsCard({ API_URL }) {
         {/* View Team Button */}
         <button
           id="referral-view-team-btn"
-          onClick={() => router.push("/dashboard/team-view")}
+          onClick={() => router.push("/team-referrals")}
           style={{
             ...viewBtn,
             padding: "6px 12px",

@@ -280,6 +280,33 @@ export default function DashboardPage() {
   }, [user]);
   // ──────────────────────────────────────────────────────────────────────────
 
+  // ── Mining NFT data from /api/nft/my ──────────────────────────────────────
+  const [myMiningNfts, setMyMiningNfts] = useState([]);
+  const [loadingMiningNfts, setLoadingMiningNfts] = useState(true);
+
+  const fetchMyMiningNfts = useCallback(async () => {
+    if (!user) return;
+    const token = safeStorage.getItem("token");
+    if (!token) { setLoadingMiningNfts(false); return; }
+    setLoadingMiningNfts(true);
+    try {
+      const response = await fetch(`${API_URL}/nft/my`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+      if (response.ok && data.success && Array.isArray(data.data)) {
+        setMyMiningNfts(data.data);
+      }
+    } catch (err) {
+      console.error("[DashboardPage] Mining NFT fetch error:", err.message);
+    } finally {
+      setLoadingMiningNfts(false);
+    }
+  }, [user, API_URL]);
+  // ──────────────────────────────────────────────────────────────────────────
+
   const fetchPhantomBalance = useCallback(async () => {
     if (!user?.phantomWalletAddress) {
       setPhantomBalance("0.000000");
@@ -570,6 +597,8 @@ export default function DashboardPage() {
       setPortfolioDetails(null);
       setLoadingPortfolio(true);
       setPortfolioError("");
+      setMyMiningNfts([]);
+      setLoadingMiningNfts(true);
       fetchedRef.current = false;
       return;
     }
@@ -580,13 +609,14 @@ export default function DashboardPage() {
     fetchLedgerDetails();
     fetchPortfolioDetails();
     fetchMyHorseNfts();
+    fetchMyMiningNfts();
     if (user?.phantomWalletAddress) {
       fetchPhantomBalance();
     } else {
       setPhantomBalance("0.000000");
       setPhantomBalanceLoading(false);
     }
-  }, [user?._id, user?.phantomWalletAddress, fetchLedgerDetails, fetchPortfolioDetails, fetchMyHorseNfts, fetchPhantomBalance]);
+  }, [user?._id, user?.phantomWalletAddress, fetchLedgerDetails, fetchPortfolioDetails, fetchMyHorseNfts, fetchMyMiningNfts, fetchPhantomBalance]);
 
   useEffect(() => {
     if (!user) {
@@ -599,6 +629,7 @@ export default function DashboardPage() {
       setPhantomDepositStatus("");
       setPhantomDepositError("");
       setTransactionStatus("");
+      setMyMiningNfts([]);
       stopQrPolling();
       stopDepositPolling();
       clearPendingDeposit();
@@ -1434,6 +1465,8 @@ export default function DashboardPage() {
         refreshPortfolioDetails={fetchPortfolioDetails}
         myHorseNfts={myHorseNfts}
         refetchMyHorseNfts={fetchMyHorseNfts}
+        myMiningNfts={myMiningNfts}
+        refetchMyMiningNfts={fetchMyMiningNfts}
         successModalTrigger={successModalTrigger}
         onClearSuccessModalTrigger={() => setSuccessModalTrigger(null)}
       >

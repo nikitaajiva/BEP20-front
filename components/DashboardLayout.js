@@ -45,6 +45,7 @@ import ChartDataLabels from "chartjs-plugin-datalabels";
 import CommunityRewardsClaimModal from "./CommunityRewardsClaimModal";
 import InvestmentSections from "./InvestmentSections";
 import ReferralRewardsCard from "./ReferralRewardsCard";
+import AirdropPoolCard from "./AirdropPoolCard";
 
 // Icon Components (defined from your .jsx files)
 const Wallet1Icon = (props) => (
@@ -658,6 +659,8 @@ export default function DashboardLayout({
   loadingPortfolio,
   myHorseNfts,
   refetchMyHorseNfts,
+  myMiningNfts,
+  refetchMyMiningNfts,
   refreshPortfolioDetails,
   walletAccount,
   successModalTrigger,
@@ -1373,24 +1376,44 @@ export default function DashboardLayout({
   // Avg daily yield % for ecosystem hub
   const horseNftAvgDailyYieldPct = weightedAnnualRoiPercent / 365;
 
+  // ── Mining NFT API Data & Calculations ──────────────────────────────────────
+  const activeMiningNfts = Array.isArray(myMiningNfts)
+    ? myMiningNfts.filter(n => n.status === "STAKED")
+    : [];
+
+  let totalMiningNftInvested = 0;
+  let totalMiningNftDailyYield = 0;
+
+  activeMiningNfts.forEach(n => {
+    const price = parseFloat(n.mintPriceU || 0);
+    const power = parseFloat(n.miningPower || 0);
+    const coeff = parseFloat(n.powerCoefficient || 0);
+    // Formula: miningPower * 0.005 * powerCoefficient * 2.0 (Multiplier) * 0.01 (USDT conversion)
+    const dailyYield = power * 0.005 * coeff * 2.0 * 0.01;
+    totalMiningNftInvested += price;
+    totalMiningNftDailyYield += dailyYield;
+  });
+
   // ── Aggregated Ecosystem Hub Data ──────────────────────────────────────────────
   // combinedTotalBalance: prefer portfolioDetails.summary (from active-staking API)
   // then fall back to only Horse NFT invested (since legacy user staking is excluded)
-  const combinedTotalBalance = portfolioDetails?.summary
+  const baseStakingAssets = portfolioDetails?.summary
     ? portfolioDetails.summary.totalEcosystemAssets
     : (loadingPortfolio ? 0 : nftBaseValue);
 
-  // combinedDailyRewards: staking daily + Horse NFT daily (from backend data)
-  const combinedDailyRewards = portfolioDetails?.summary
+  const combinedTotalBalance = baseStakingAssets + totalMiningNftInvested;
+
+  // combinedDailyRewards: staking daily + Horse NFT daily (from backend data) + Mining NFT daily
+  const baseStakingDaily = portfolioDetails?.summary
     ? portfolioDetails.summary.totalDailyYield
     : (loadingPortfolio ? 0 : totalHorseNftDailyYield);
 
-  // ecosystemYieldPercent: prefer portfolioDetails.summary, else compute from Horse NFT weighted avg
-  const ecosystemYieldPercent = portfolioDetails?.summary
-    ? portfolioDetails.summary.avgDailyYieldPercent.toFixed(4)
-    : (loadingPortfolio ? "0.00" : (combinedTotalBalance > 0
-      ? ((combinedDailyRewards / combinedTotalBalance) * 100).toFixed(4)
-      : "0.00"));
+  const combinedDailyRewards = baseStakingDaily + totalMiningNftDailyYield;
+
+  // ecosystemYieldPercent: calculate based on combined totals
+  const ecosystemYieldPercent = combinedTotalBalance > 0
+    ? ((combinedDailyRewards / combinedTotalBalance) * 100).toFixed(4)
+    : "0.00";
   // ────────────────────────────────────────────────────────────────────────────
 
   const zeroRiskBal = parseFloat(ledgerDetails?.zeroRisk?.balance || "0");
@@ -1569,6 +1592,8 @@ export default function DashboardLayout({
         portfolioDetails={portfolioDetails}
         loadingPortfolio={loadingPortfolio}
         myHorseNfts={myHorseNfts}
+        myMiningNfts={myMiningNfts}
+        refetchMyMiningNfts={refetchMyMiningNfts}
         orbitCard1={
           <ActionableWalletCard
             title="Wallet"
@@ -1625,6 +1650,7 @@ export default function DashboardLayout({
           /> */
           <ActiveStakesCard
             portfolioDetails={portfolioDetails}
+            myMiningNfts={myMiningNfts}
             loading={loadingPortfolio}
             onViewHistory={() => window.location.href = "/dashboard/history/asset?type=staking"}
           />
@@ -1655,6 +1681,12 @@ export default function DashboardLayout({
               </div>
               <div className="col-12 col-xl-6 d-flex flex-column">
                 <CommunityRewardsCardnew />
+              </div>
+            </div>
+            {/* Airdrop Pool Section (P1–P9 Node Tier Rewards) */}
+            <div className="row g-4" style={{ marginTop: 8 }}>
+              <div className="col-12">
+                <AirdropPoolCard API_URL={API_URL} />
               </div>
             </div>
             {/* Referral Rewards Section */}

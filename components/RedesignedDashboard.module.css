@@ -2311,8 +2311,8 @@
   border: 1px solid rgba(255, 184, 0, 0.3);
   border-radius: 32px;
   width: 100%;
-  max-width: 620px; /* Made smaller */
-  padding: 40px 30px; /* Reduced padding */
+  max-width: 680px;
+  padding: 40px 30px;
   position: relative;
   box-shadow: 0 0 100px rgba(255, 184, 0, 0.15);
 }
@@ -2352,7 +2352,7 @@
 
 .investCardsGrid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, 1fr);
   gap: 20px;
 }
 
@@ -2428,6 +2428,23 @@
 @keyframes moveHorses {
   from { background-position: center, 0 0, 0 0; }
   to { background-position: center, 120px 120px, 0 40px; }
+}
+
+/* Mining Card Variables */
+.miningCard {
+  --card-color: #bd00ff;
+  --card-glow: rgba(189, 0, 255, 0.3);
+  background-image: 
+    radial-gradient(circle at 100% 0%, rgba(189, 0, 255, 0.1), transparent 50%),
+    url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MCIgaGVpZ2h0PSI1MCIgdmlld0JveD0iMCAwIDUwIDUwIj48cGF0aCBkPSJNMjUgMThjMy44NjYgMCA3LTMuMTM0IDctN3MtMy4xMzQtNy03LTdzLTcgMy4xMzQtNyA3My4xMzQgNyA3IDd6bTAgMTJjMy44NjYgMCA3LTMuMTM0IDctN3MtMy4xMzQtNy03LTdzLTcgMy4xMzQtNyA3My4xMzQgNyA3IDd6IiBmaWxsPSJyZ2JhKDE4OSwwLDI1NSwwLjA0KSIvPjwvc3ZnPg=='),
+    linear-gradient(rgba(189, 0, 255, 0.02) 1px, transparent 1px);
+  background-size: cover, 100px 100px, 100% 4px;
+  animation: moveHammers 12s linear infinite;
+}
+
+@keyframes moveHammers {
+  from { background-position: center, 0 0, 0 0; }
+  to { background-position: center, 100px 100px, 0 40px; }
 }
 
 /* Dynamic Gradient Glow inside the card */

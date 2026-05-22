@@ -13,6 +13,27 @@ const tiers = [
   { days: 365, min: 23, max: 28, badge: "Premium",  color: "#e63200", description: "Top-tier APY with maximum compounding." },
 ];
 
+const getUnlockedNftDetails = (amount) => {
+  const amt = parseFloat(amount);
+  if (isNaN(amt) || amt < 100) return null;
+  if (amt >= 10000) {
+    return { level: "N5", name: "Master Miner", power: 10000, coeff: 1.1, color: "#bd00ff", desc: "Top-tier miner with maximum yield potential." };
+  }
+  if (amt >= 3000) {
+    return { level: "N4", name: "Elite Miner", power: 3000, coeff: 1.0, color: "#9d00ff", desc: "High-performance mining system." };
+  }
+  if (amt >= 1000) {
+    return { level: "N3", name: "Advanced Miner", power: 1000, coeff: 0.9, color: "#7d00ff", desc: "Robust power for growing staking setups." };
+  }
+  if (amt >= 500) {
+    return { level: "N2", name: "Pro Miner", power: 500, coeff: 0.8, color: "#5d00ff", desc: "Professional mining performance." };
+  }
+  if (amt >= 100) {
+    return { level: "N1", name: "Starter Miner", power: 100, coeff: 0.7, color: "#3d00ff", desc: "Ideal entry point for active yields." };
+  }
+  return null;
+};
+
 export default function StakingModal({ isOpen, onClose, ledgerDetails }) {
   const { user, stakeTokens, API_URL } = useAuth();
   const [step, setStep] = useState(0);
@@ -287,7 +308,12 @@ export default function StakingModal({ isOpen, onClose, ledgerDetails }) {
         isOpen={showSuccess} 
         onClose={() => window.location.reload()}
         title="Staking Confirmed"
-        message={`Successfully staked ${amount} USDT for ${tier?.days} days. Your yield engine is now active.`}
+        message={(() => {
+          const nft = getUnlockedNftDetails(amount);
+          return nft 
+            ? `Successfully staked ${amount} USDT for ${tier?.days} days and unlocked ${nft.name} (Level ${nft.level}). Your yield engine is now active.`
+            : `Successfully staked ${amount} USDT for ${tier?.days} days. Your yield engine is now active.`;
+        })()}
         transactionHash={successTxHash}
       />
       
@@ -508,6 +534,59 @@ export default function StakingModal({ isOpen, onClose, ledgerDetails }) {
                     {solRate ? <span style={{ color: "rgba(255,255,255,0.4)", marginLeft: 8 }}>≈ ${(currentBalanceSol * solRate).toFixed(2)} USDT</span> : null}
                   </div>
                 </div>
+
+                {/* Unlocked Mining NFT Indicator */}
+                {(() => {
+                  const nft = getUnlockedNftDetails(amount);
+                  if (!nft) return null;
+                  return (
+                    <motion.div
+                      initial={{ scale: 0.95, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      style={{
+                        background: "linear-gradient(135deg, rgba(189, 0, 255, 0.15), rgba(13, 11, 28, 0.7))",
+                        border: "1px solid rgba(189, 0, 255, 0.4)",
+                        borderRadius: 20,
+                        padding: 16,
+                        marginBottom: 16,
+                        boxShadow: "0 8px 32px rgba(189, 0, 255, 0.15)",
+                        position: "relative",
+                        overflow: "hidden"
+                      }}
+                    >
+                      <div style={{ position: "absolute", top: -20, right: -20, width: 80, height: 80, background: "rgba(189, 0, 255, 0.3)", filter: "blur(20px)", borderRadius: "50%" }} />
+                      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                        <div style={{
+                          width: 40, height: 40, borderRadius: 12,
+                          background: "rgba(189, 0, 255, 0.2)",
+                          border: "1px solid rgba(189, 0, 255, 0.4)",
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          color: "#bd00ff", fontSize: 18
+                        }}>
+                          <FaBolt />
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                            <span style={{ fontSize: 9, fontWeight: 900, color: "#bd00ff", textTransform: "uppercase", letterSpacing: 1.5 }}>Ecosystem Unlock</span>
+                            <span style={{ fontSize: 9, fontWeight: 900, background: "#bd00ff", color: "#fff", padding: "1px 5px", borderRadius: 4 }}>LEVEL {nft.level}</span>
+                          </div>
+                          <h4 style={{ fontSize: 15, fontWeight: 900, margin: "2px 0 0 0", color: "#fff", textTransform: "uppercase" }}>{nft.name}</h4>
+                        </div>
+                      </div>
+                      <p style={{ fontSize: 11, color: "rgba(255, 255, 255, 0.6)", margin: "8px 0 10px 0", lineHeight: 1.4 }}>{nft.desc}</p>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, background: "rgba(0,0,0,0.3)", padding: 8, borderRadius: 12, border: "1px solid rgba(255,255,255,0.05)" }}>
+                        <div style={{ textAlign: "center" }}>
+                          <div style={{ fontSize: 8, fontWeight: 800, color: "rgba(255,255,255,0.4)", textTransform: "uppercase" }}>Mining Power</div>
+                          <div style={{ fontSize: 11, fontWeight: 900, color: "#fff" }}>{nft.power.toLocaleString()} H/s</div>
+                        </div>
+                        <div style={{ textAlign: "center" }}>
+                          <div style={{ fontSize: 8, fontWeight: 800, color: "rgba(255,255,255,0.4)", textTransform: "uppercase" }}>Power Coeff</div>
+                          <div style={{ fontSize: 11, fontWeight: 900, color: "#bd00ff" }}>{nft.coeff}x</div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  );
+                })()}
                 
                 <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 16, padding: 20, marginBottom: 24 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12, fontSize: 13 }}>

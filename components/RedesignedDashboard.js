@@ -3,7 +3,7 @@ import React from "react";
 import styles from "./RedesignedDashboard.module.css";
 import { motion } from "framer-motion";
 import { Wallet, Droplets, TrendingUp, Activity, Plus, History, Shield, Eye, Gift, Copy, LogOut, Check } from "lucide-react";
-import { FaHorse, FaCoins, FaBitcoin, FaEthereum } from "react-icons/fa";
+import { FaHorse, FaCoins, FaBitcoin, FaEthereum, FaHammer } from "react-icons/fa";
 import Link from "next/link";
 import StakingModal from "./StakingModal";
 import NFTModal from "./NFTModal";
@@ -23,6 +23,8 @@ const RedesignedDashboard = ({
   portfolioDetails,
   loadingPortfolio,
   myHorseNfts,
+  myMiningNfts,
+  refetchMyMiningNfts,
   orbitCard1,
   orbitCard2,
   orbitCard3,
@@ -141,7 +143,12 @@ const RedesignedDashboard = ({
     ? portfolioDetails.summary.totalStakingAssetsCount 
     : 0;
 
-  const totalActiveAssets = horseNFTCount + stakingCount;
+  // Derive Mining NFT count from live Mining NFT data
+  const stakedMiningNftsCount = Array.isArray(myMiningNfts)
+    ? myMiningNfts.filter(n => n.status === "STAKED").length
+    : 0;
+
+  const totalActiveAssets = horseNFTCount + stakingCount + stakedMiningNftsCount;
 
   // Setup breakdown values for progress bar and detailed hover tooltip
   const activeHorseNfts = Array.isArray(myHorseNfts)
@@ -164,31 +171,67 @@ const RedesignedDashboard = ({
     ? portfolioDetails.tokenStaking.reduce((sum, s) => sum + (parseFloat(s.estReward) || 0), 0)
     : 0;
 
-  const totalAssetsValue = totalNftPrice + totalStakedAmount;
+  const activeMiningNfts = Array.isArray(myMiningNfts)
+    ? myMiningNfts.filter(n => n.status === "STAKED")
+    : [];
+
+  const totalMiningNftPrice = activeMiningNfts.reduce((sum, n) => sum + parseFloat(n.mintPriceU || 0), 0);
+
+  const totalAssetsValue = totalNftPrice + totalStakedAmount + totalMiningNftPrice;
   let horsePct = 0;
   let stakingPct = 0;
+  let miningPct = 0;
+
   if (totalAssetsValue > 0) {
-    if (totalNftPrice > 0 && totalStakedAmount > 0) {
-      // both exist, ensure min width of 4% for visual clarity
-      const rawHorse = (totalNftPrice / totalAssetsValue) * 100;
-      const rawStaking = (totalStakedAmount / totalAssetsValue) * 100;
-      if (rawHorse < 4) {
-        horsePct = 4;
-        stakingPct = 96;
-      } else if (rawStaking < 4) {
-        stakingPct = 4;
-        horsePct = 96;
-      } else {
-        horsePct = rawHorse;
-        stakingPct = rawStaking;
-      }
-    } else if (totalNftPrice > 0) {
-      horsePct = 100;
-      stakingPct = 0;
-    } else if (totalStakedAmount > 0) {
-      horsePct = 0;
-      stakingPct = 100;
+    // Proportional calculation
+    let rawHorse = totalNftPrice > 0 ? (totalNftPrice / totalAssetsValue) * 100 : 0;
+    let rawStaking = totalStakedAmount > 0 ? (totalStakedAmount / totalAssetsValue) * 100 : 0;
+    let rawMining = totalMiningNftPrice > 0 ? (totalMiningNftPrice / totalAssetsValue) * 100 : 0;
+
+    // Apply minimum width of 4% for active categories to ensure they are visible
+    const minWidth = 4;
+    let adjustedHorse = rawHorse;
+    let adjustedStaking = rawStaking;
+    let adjustedMining = rawMining;
+
+    let shortfall = 0;
+    let pool = 0;
+
+    if (totalNftPrice > 0 && adjustedHorse < minWidth) {
+      shortfall += minWidth - adjustedHorse;
+      adjustedHorse = minWidth;
     }
+    if (totalStakedAmount > 0 && adjustedStaking < minWidth) {
+      shortfall += minWidth - adjustedStaking;
+      adjustedStaking = minWidth;
+    }
+    if (totalMiningNftPrice > 0 && adjustedMining < minWidth) {
+      shortfall += minWidth - adjustedMining;
+      adjustedMining = minWidth;
+    }
+
+    // Distribute shortfall proportionally from segments that are above minWidth
+    if (shortfall > 0) {
+      if (totalNftPrice > 0 && rawHorse > minWidth) pool += rawHorse;
+      if (totalStakedAmount > 0 && rawStaking > minWidth) pool += rawStaking;
+      if (totalMiningNftPrice > 0 && rawMining > minWidth) pool += rawMining;
+
+      if (pool > 0) {
+        if (totalNftPrice > 0 && rawHorse > minWidth) {
+          adjustedHorse -= (rawHorse / pool) * shortfall;
+        }
+        if (totalStakedAmount > 0 && rawStaking > minWidth) {
+          adjustedStaking -= (rawStaking / pool) * shortfall;
+        }
+        if (totalMiningNftPrice > 0 && rawMining > minWidth) {
+          adjustedMining -= (rawMining / pool) * shortfall;
+        }
+      }
+    }
+
+    horsePct = adjustedHorse;
+    stakingPct = adjustedStaking;
+    miningPct = adjustedMining;
   }
 
   const formatDailyYield = (val) => {
@@ -477,20 +520,27 @@ const RedesignedDashboard = ({
                             textAlign: 'left'
                           }}
                         >
-                          <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '4px' }}>Ecosystem Assets</div>
+                          <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '4px' }}>Active Assets</div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                            <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.8)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: '#FFB800' }}></span>
+                              Horse NFTs:
+                            </span>
+                            <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#FFB800' }}>{horseNFTCount}</span>
+                          </div>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                             <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.8)', display: 'flex', alignItems: 'center', gap: '6px' }}>
                               <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: '#ff5500' }}></span>
-                              Horse NFTs:
+                              Token Staking:
                             </span>
-                            <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#ff5500' }}>{horseNFTCount}</span>
+                            <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#ff5500' }}>{stakingCount}</span>
                           </div>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.8)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                              <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: '#00ff00' }}></span>
-                              Token Staking:
+                              <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: '#bd00ff' }}></span>
+                              Mining NFTs:
                             </span>
-                            <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#00ff00' }}>{stakingCount}</span>
+                            <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#bd00ff' }}>{stakedMiningNftsCount}</span>
                           </div>
                           <div 
                             style={{
@@ -534,6 +584,15 @@ const RedesignedDashboard = ({
                           boxShadow: '0 0 8px rgba(255, 85, 0, 0.5)' 
                         }}
                       ></div>
+                      <div 
+                        className={styles.miniChartFillMining} 
+                        style={{ 
+                          width: `${miningPct}%`, 
+                          height: '100%', 
+                          background: '#bd00ff', 
+                          boxShadow: '0 0 8px rgba(189, 0, 255, 0.5)' 
+                        }}
+                      ></div>
                     </div>
                     <div className={styles.stakingDaysRemaining}>DIVERSIFIED PORTFOLIO</div>
 
@@ -568,13 +627,23 @@ const RedesignedDashboard = ({
                           </span>
                         </div>
 
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                           <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.8)', display: 'flex', alignItems: 'center', gap: '6px' }}>
                             <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: '#ff5500' }}></span>
                             Token Staking:
                           </span>
                           <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#ff5500' }}>
                             {totalStakedAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })} USDT
+                          </span>
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0px' }}>
+                          <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.8)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: '#bd00ff' }}></span>
+                            Mining NFTs:
+                          </span>
+                          <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#bd00ff' }}>
+                            {totalMiningNftPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USDT
                           </span>
                         </div>
 

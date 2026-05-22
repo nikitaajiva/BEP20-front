@@ -2,7 +2,7 @@
 import React from "react";
 import styles from "./PremiumWalletCards.module.css";
 import { ArrowRight, Plus, Gift, Rocket, Shield, MousePointer2, Users, History, TrendingUp, Wallet, Eye, Zap } from "lucide-react";
-import { FaHorse } from "react-icons/fa";
+import { FaHorse, FaHammer } from "react-icons/fa";
 import { Chart } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -739,7 +739,7 @@ export const HorseNFTCard = ({
   );
 };
 
-export const ActiveStakesCard = ({ portfolioDetails, loading, onViewHistory }) => {
+export const ActiveStakesCard = ({ portfolioDetails, myMiningNfts, loading, onViewHistory }) => {
   const [selectedStakeIndex, setSelectedStakeIndex] = React.useState(null);
 
   if (loading) {
@@ -768,9 +768,37 @@ export const ActiveStakesCard = ({ portfolioDetails, loading, onViewHistory }) =
     );
   }
 
-  const allStakes = portfolioDetails?.tokenStaking || [];
-  const isFromPortfolio = true;
+  const tokenStakes = portfolioDetails?.tokenStaking || [];
+  const miningStakes = (Array.isArray(myMiningNfts) ? myMiningNfts.filter(n => n.status === "STAKED") : []).map(nft => {
+    const miningPower = parseFloat(nft.miningPower || 0);
+    const powerCoefficient = parseFloat(nft.powerCoefficient || 1);
+    const dailyYield = miningPower * 0.005 * powerCoefficient * 2.0 * 0.01;
+    const apy = powerCoefficient * 365 * 100;
+    const stakedAt = nft.stakedAt || nft.createdAt || Date.now();
+    const daysPassed = Math.max(0, Math.floor((Date.now() - new Date(stakedAt).getTime()) / 86400000));
+    return {
+      id: nft.id || nft._id,
+      amount: parseFloat(nft.mintPriceU || 0),
+      tokenAmount: 0,
+      dailyYield: dailyYield,
+      estReward: dailyYield * 365,
+      daysRemaining: "Perpetual",
+      tierName: nft.tierName || `${nft.tierCode || 'N1'} Miner`,
+      progress: 100,
+      apy: apy,
+      days: "∞",
+      startDate: stakedAt,
+      earnedRewards: dailyYield * daysPassed,
+      isNft: true,
+      nftCode: nft.tierCode,
+      nftName: nft.tierName
+    };
+  });
 
+  const allStakes = [...tokenStakes, ...miningStakes];
+  allStakes.sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime());
+  
+  const isFromPortfolio = true;
   const displayedStakes = allStakes.slice(0, 3);
 
   const formatCryptoVal = (val, defaultDec = 2) => {
@@ -793,7 +821,18 @@ export const ActiveStakesCard = ({ portfolioDetails, loading, onViewHistory }) =
     const stake = allStakes[selectedStakeIndex];
     let amountVal, dailyYield, totalEstReward, daysRemaining, tierName, progress, apy, days, tokenAmount, earnedRewards;
 
-    if (isFromPortfolio) {
+    if (stake.isNft) {
+      amountVal = stake.amount;
+      tokenAmount = stake.tokenAmount;
+      dailyYield = stake.dailyYield;
+      totalEstReward = stake.estReward;
+      daysRemaining = stake.daysRemaining;
+      tierName = stake.tierName;
+      progress = stake.progress;
+      apy = typeof stake.apy === 'number' ? stake.apy.toFixed(1).replace(/\.0$/, '') : stake.apy;
+      days = stake.days;
+      earnedRewards = stake.earnedRewards || 0;
+    } else if (isFromPortfolio) {
       amountVal = stake.amount;
       tokenAmount = stake.tokenAmount;
       dailyYield = stake.dailyYield;
@@ -823,11 +862,11 @@ export const ActiveStakesCard = ({ portfolioDetails, loading, onViewHistory }) =
     }
 
     const startDateFormatted = new Date(stake.startDate || Date.now()).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
-    const maturityDateFormatted = new Date(new Date(stake.startDate || Date.now()).getTime() + days * 86400000).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+    const maturityDateFormatted = stake.isNft ? "Never (Perpetual)" : new Date(new Date(stake.startDate || Date.now()).getTime() + days * 86400000).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
 
     return (
-      <div className={styles.rwCardWrapper} style={{ border: '1px solid rgba(255, 85, 0, 0.25)', minHeight: '380px' }}>
-        <div className={styles.rwHeader} style={{ borderColor: 'rgba(255, 85, 0, 0.25)', padding: '16px' }}>
+      <div className={styles.rwCardWrapper} style={{ border: stake.isNft ? '1px solid rgba(189, 0, 255, 0.25)' : '1px solid rgba(255, 85, 0, 0.25)', minHeight: '380px' }}>
+        <div className={styles.rwHeader} style={{ borderColor: stake.isNft ? 'rgba(189, 0, 255, 0.25)' : 'rgba(255, 85, 0, 0.25)', padding: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <button
               onClick={() => setSelectedStakeIndex(null)}
@@ -848,9 +887,9 @@ export const ActiveStakesCard = ({ portfolioDetails, loading, onViewHistory }) =
             >
               &larr;
             </button>
-            <span className={styles.rwTitle} style={{ color: '#ff5500' }}>Stake Details</span>
+            <span className={styles.rwTitle} style={{ color: stake.isNft ? '#bd00ff' : '#ff5500' }}>{stake.isNft ? "Miner Details" : "Stake Details"}</span>
           </div>
-          <span style={{ fontSize: 8, fontWeight: 900, color: '#ff5500', background: 'rgba(255,85,0,0.1)', padding: '2px 6px', borderRadius: 4, textTransform: 'uppercase' }}>
+          <span style={{ fontSize: 8, fontWeight: 900, color: stake.isNft ? '#bd00ff' : '#ff5500', background: stake.isNft ? 'rgba(189,0,255,0.1)' : 'rgba(255,85,0,0.1)', padding: '2px 6px', borderRadius: 4, textTransform: 'uppercase' }}>
             {tierName}
           </span>
         </div>
@@ -858,7 +897,7 @@ export const ActiveStakesCard = ({ portfolioDetails, loading, onViewHistory }) =
         <div className={styles.rwBody} style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Staked Value</div>
+              <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>{stake.isNft ? "Node Value" : "Staked Value"}</div>
               <div style={{ fontSize: '24px', fontWeight: 900, color: '#fff', lineHeight: 1 }}>
                 {formatCryptoVal(amountVal, 2)} <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.5)', fontWeight: 500 }}>USDT</span>
               </div>
@@ -878,33 +917,38 @@ export const ActiveStakesCard = ({ portfolioDetails, loading, onViewHistory }) =
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9px', color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>
-              <span>MATURITY PROGRESS</span>
-              <span style={{ color: '#ff5500' }}>{progress.toFixed(0)}%</span>
+              <span>{stake.isNft ? "PERPETUAL STATUS" : "MATURITY PROGRESS"}</span>
+              <span style={{ color: stake.isNft ? '#bd00ff' : '#ff5500' }}>{stake.isNft ? "ACTIVE" : `${progress.toFixed(0)}%`}</span>
             </div>
             <div style={{ height: '5px', background: 'rgba(255,255,255,0.05)', borderRadius: '3px', overflow: 'hidden' }}>
-              <div style={{ width: `${progress}%`, height: '100%', background: 'linear-gradient(90deg, #ff5500, #ff8c00)', boxShadow: '0 0 10px rgba(255,85,0,0.6)' }}></div>
+              <div style={{ 
+                width: `${progress}%`, 
+                height: '100%', 
+                background: stake.isNft ? 'linear-gradient(90deg, #bd00ff, #f038ff)' : 'linear-gradient(90deg, #ff5500, #ff8c00)', 
+                boxShadow: stake.isNft ? '0 0 10px rgba(189,0,255,0.6)' : '0 0 10px rgba(255,85,0,0.6)' 
+              }}></div>
             </div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '12px', padding: '10px' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
               <span style={{ fontSize: '8px', color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase' }}>Duration</span>
-              <span style={{ fontSize: '12px', fontWeight: 800, color: '#fff' }}>{days} Days</span>
+              <span style={{ fontSize: '12px', fontWeight: 800, color: '#fff' }}>{days === "∞" ? "Perpetual" : `${days} Days`}</span>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
               <span style={{ fontSize: '8px', color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase' }}>APY Rate</span>
-              <span style={{ fontSize: '12px', fontWeight: 800, color: '#ff5500' }}>{apy}% APY</span>
+              <span style={{ fontSize: '12px', fontWeight: 800, color: stake.isNft ? '#bd00ff' : '#ff5500' }}>{apy}% APY</span>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', borderTop: '1px dashed rgba(255,255,255,0.06)', paddingTop: '6px' }}>
               <span style={{ fontSize: '8px', color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase' }}>Daily Yield</span>
               <span style={{ fontSize: '12px', fontWeight: 900, color: '#00ff00' }}>+{formatCryptoVal(dailyYield, 4)} USDT</span>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', borderTop: '1px dashed rgba(255,255,255,0.06)', paddingTop: '6px' }}>
-              <span style={{ fontSize: '8px', color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase' }}>Est. Reward</span>
+              <span style={{ fontSize: '8px', color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase' }}>{stake.isNft ? "Est. Annual Reward" : "Est. Reward"}</span>
               <span style={{ fontSize: '12px', fontWeight: 900, color: '#00ff00' }}>+{formatCryptoVal(totalEstReward, 2)} USDT</span>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', borderTop: '1px dashed rgba(255,255,255,0.06)', paddingTop: '6px' }}>
-              <span style={{ fontSize: '8px', color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase' }}>Start Date</span>
+              <span style={{ fontSize: '8px', color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase' }}>Staked Date</span>
               <span style={{ fontSize: '11px', fontWeight: 800, color: 'rgba(255,255,255,0.8)' }}>{startDateFormatted}</span>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', borderTop: '1px dashed rgba(255,255,255,0.06)', paddingTop: '6px' }}>
@@ -915,7 +959,9 @@ export const ActiveStakesCard = ({ portfolioDetails, loading, onViewHistory }) =
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginTop: 'auto' }}>
             <span>Remaining Timeline:</span>
-            <span style={{ fontWeight: 850, color: daysRemaining < 5 ? '#ff5500' : '#fff' }}>{daysRemaining} Days left</span>
+            <span style={{ fontWeight: 850, color: stake.isNft ? '#bd00ff' : (daysRemaining < 5 ? '#ff5500' : '#fff') }}>
+              {stake.isNft ? "Active Forever" : `${daysRemaining} Days left`}
+            </span>
           </div>
         </div>
       </div>
@@ -938,7 +984,18 @@ export const ActiveStakesCard = ({ portfolioDetails, loading, onViewHistory }) =
           displayedStakes.map((stake, idx) => {
             let amountVal, dailyYield, totalEstReward, daysRemaining, tierName, progress, apy, days, tokenAmount, earnedRewards;
 
-            if (isFromPortfolio) {
+            if (stake.isNft) {
+              amountVal = stake.amount;
+              tokenAmount = stake.tokenAmount;
+              dailyYield = stake.dailyYield;
+              totalEstReward = stake.estReward;
+              daysRemaining = stake.daysRemaining;
+              tierName = stake.tierName;
+              progress = stake.progress;
+              apy = typeof stake.apy === 'number' ? stake.apy.toFixed(1).replace(/\.0$/, '') : stake.apy;
+              days = stake.days;
+              earnedRewards = stake.earnedRewards || 0;
+            } else if (isFromPortfolio) {
               amountVal = stake.amount;
               tokenAmount = stake.tokenAmount;
               dailyYield = stake.dailyYield;
@@ -960,7 +1017,7 @@ export const ActiveStakesCard = ({ portfolioDetails, loading, onViewHistory }) =
               totalEstReward = (amountVal * apy * stake.days / 365);
               daysRemaining = Math.max(0, stake.days - daysPassed);
               tierName = stake.days >= 365 ? "Premium" : stake.days >= 180 ? "Advanced" : stake.days >= 90 ? "Growth" : "Starter";
-              apy = apy * 100; // convert to percentage for display
+              apy = apy * 100;
               earnedRewards = dailyYield * daysPassed;
             }
 
@@ -980,8 +1037,8 @@ export const ActiveStakesCard = ({ portfolioDetails, loading, onViewHistory }) =
                   cursor: 'pointer'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(255,85,0,0.04)';
-                  e.currentTarget.style.borderColor = 'rgba(255,85,0,0.2)';
+                  e.currentTarget.style.background = stake.isNft ? 'rgba(189,0,255,0.04)' : 'rgba(255,85,0,0.04)';
+                  e.currentTarget.style.borderColor = stake.isNft ? 'rgba(189,0,255,0.2)' : 'rgba(255,85,0,0.2)';
                   e.currentTarget.style.transform = 'translateY(-1px)';
                 }}
                 onMouseLeave={(e) => {
@@ -993,8 +1050,17 @@ export const ActiveStakesCard = ({ portfolioDetails, loading, onViewHistory }) =
                 {/* Top Row: Amount & Tier */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <div style={{ width: 24, height: 24, borderRadius: 6, background: 'rgba(255,85,0,0.1)', color: '#ff5500', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <TrendingUp size={12} />
+                    <div style={{ 
+                      width: 24, 
+                      height: 24, 
+                      borderRadius: 6, 
+                      background: stake.isNft ? 'rgba(189,0,255,0.1)' : 'rgba(255,85,0,0.1)', 
+                      color: stake.isNft ? '#bd00ff' : '#ff5500', 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center' 
+                    }}>
+                      {stake.isNft ? <FaHammer size={12} style={{ transform: 'rotate(-45deg)' }} /> : <TrendingUp size={12} />}
                     </div>
                     <div>
                       <span style={{ fontSize: 14, fontWeight: 900, color: '#fff' }}>
@@ -1007,22 +1073,32 @@ export const ActiveStakesCard = ({ portfolioDetails, loading, onViewHistory }) =
                       )}
                     </div>
                   </div>
-                  <span style={{ fontSize: 8, fontWeight: 900, color: '#ff5500', background: 'rgba(255,85,0,0.1)', padding: '2px 6px', borderRadius: 4, textTransform: 'uppercase' }}>
+                  <span style={{ 
+                    fontSize: 8, 
+                    fontWeight: 900, 
+                    color: stake.isNft ? '#bd00ff' : '#ff5500', 
+                    background: stake.isNft ? 'rgba(189,0,255,0.1)' : 'rgba(255,85,0,0.1)', 
+                    padding: '2px 6px', 
+                    borderRadius: 4, 
+                    textTransform: 'uppercase' 
+                  }}>
                     {tierName}
                   </span>
                 </div>
 
-                {/* Middle Section: Elegant 2-row structured layout to prevent overlap on tight widths */}
+                {/* Middle Section Layout */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                   {/* Row 1: Duration & Maturity */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 11, borderBottom: '1px dashed rgba(255,255,255,0.06)', paddingBottom: '6px' }}>
                     <div>
                       <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.35)', fontWeight: 700, textTransform: 'uppercase', marginRight: '4px' }}>Duration:</span>
-                      <span style={{ fontWeight: 800, color: '#fff' }}>{days} Days <span style={{ fontSize: '8px', color: '#ff5500', fontWeight: 800 }}>({apy}% APY)</span></span>
+                      <span style={{ fontWeight: 800, color: '#fff' }}>{days === "∞" ? "Perpetual" : `${days} Days`} <span style={{ fontSize: '8px', color: stake.isNft ? '#bd00ff' : '#ff5500', fontWeight: 800 }}>({apy}% APY)</span></span>
                     </div>
                     <div style={{ textAlign: 'right' }}>
                       <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.35)', fontWeight: 700, textTransform: 'uppercase', marginRight: '4px' }}>Maturity:</span>
-                      <span style={{ fontWeight: 800, color: daysRemaining < 5 ? '#ff5500' : '#fff' }}>{daysRemaining}d left</span>
+                      <span style={{ fontWeight: 800, color: (daysRemaining < 5 && !stake.isNft) ? '#ff5500' : '#fff' }}>
+                        {stake.isNft ? "Perpetual" : `${daysRemaining}d left`}
+                      </span>
                     </div>
                   </div>
 
@@ -1037,7 +1113,7 @@ export const ActiveStakesCard = ({ portfolioDetails, loading, onViewHistory }) =
                       <span style={{ fontWeight: 950, color: '#00ff00' }}>+{formatCryptoVal(earnedRewards, 4)} USDT</span>
                     </div>
                     <div style={{ textAlign: 'right' }}>
-                      <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.35)', fontWeight: 700, textTransform: 'uppercase', marginRight: '4px' }}>Est. Reward:</span>
+                      <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.35)', fontWeight: 700, textTransform: 'uppercase', marginRight: '4px' }}>{stake.isNft ? "Est. Annual:" : "Est. Reward:"}</span>
                       <span style={{ fontWeight: 950, color: '#00ff00' }}>+{formatCryptoVal(totalEstReward, 2)} USDT</span>
                     </div>
                   </div>
@@ -1046,9 +1122,16 @@ export const ActiveStakesCard = ({ portfolioDetails, loading, onViewHistory }) =
                 {/* Bottom Row: Progress Bar */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: '2px' }}>
                   <div style={{ flex: 1, height: 4, background: 'rgba(255,255,255,0.05)', borderRadius: 2, overflow: 'hidden' }}>
-                    <div style={{ width: `${progress}%`, height: '100%', background: '#ff5500', boxShadow: '0 0 8px rgba(255,85,0,0.5)' }}></div>
+                    <div style={{ 
+                      width: `${progress}%`, 
+                      height: '100%', 
+                      background: stake.isNft ? '#bd00ff' : '#ff5500', 
+                      boxShadow: stake.isNft ? '0 0 8px rgba(189,0,255,0.5)' : '0 0 8px rgba(255,85,0,0.5)' 
+                    }}></div>
                   </div>
-                  <span style={{ fontSize: 9, fontWeight: 900, color: 'rgba(255,255,255,0.3)' }}>{progress.toFixed(0)}%</span>
+                  <span style={{ fontSize: 9, fontWeight: 900, color: 'rgba(255,255,255,0.3)' }}>
+                    {stake.isNft ? "∞" : `${progress.toFixed(0)}%`}
+                  </span>
                 </div>
               </div>
             );

@@ -464,12 +464,12 @@
   padding: 10px 14px 10px 36px;
   color: #fff;
   font-size: 13px;
-  width: 240px;
+  width: 280px;
   outline: none;
   transition: all 0.3s;
 }
 
-.tableSearch input:focus { width: 300px; border-color: rgba(255, 184, 0, 0.4); }
+.tableSearch input:focus { width: 350px; border-color: rgba(255, 184, 0, 0.4); }
 
 .refreshBtn {
   width: 42px;
@@ -923,7 +923,6 @@
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.04);
   border-radius: 16px;
-  cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
@@ -957,17 +956,10 @@
 
 .nodeCard:hover {
   background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(255, 184, 0, 0.15);
-  transform: translateX(4px) translateY(-2px);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 184, 0, 0.08);
 }
 
 .nodeCard:hover::before {
   width: 4px;
-}
-
-.nodeCard:active {
-  transform: translateX(2px) scale(0.995);
 }
 
 /* Avatar inside card */

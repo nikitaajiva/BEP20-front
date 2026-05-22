@@ -24,7 +24,7 @@ const AppLayout = ({ children }) => {
     // { href: "/dashboard/staking", label: "Token Staking", icon: "ri-fire-fill" },
     // { href: "/dashboard/nft-packages", label: "Horse NFT Packages", icon: "ri-nft-fill" },
     { href: "/team-referrals", label: "Community", icon: "ri-group-2-fill" },
-    { href: "/dashboard/ledger", label: "Ledger History", icon: "ri-file-list-3-fill" },
+    { href: "/dashboard/ledger", label: "Ledger", icon: "ri-file-list-3-fill" },
   ];
 
   // Super Admin link moved to footer next to logout

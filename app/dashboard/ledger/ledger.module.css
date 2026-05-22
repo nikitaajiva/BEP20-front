@@ -205,9 +205,15 @@
   color-scheme: dark;
 }
 
-.ledger_filterSelect:focus, .ledger_filterInput:focus {
-  border-color: rgba(255, 184, 0, 0.4);
+.ledger_filterInput:hover {
+  border-color: rgba(255, 184, 0, 0.25);
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.ledger_filterInput:focus {
+  border-color: #FFB800;
   background: rgba(0, 0, 0, 0.6);
+  box-shadow: 0 0 15px rgba(255, 184, 0, 0.2), inset 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .ledger_clearBtn {
@@ -246,26 +252,6 @@
   font-weight: 800;
   margin: 0;
   color: #fff;
-}
-
-.ledger_tableLegend {
-  display: flex;
-  gap: 20px;
-}
-
-.ledger_legendItem {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11px;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.4);
-}
-
-.ledger_legendDot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
 }
 
 /* ── Loading / State ── */
@@ -334,4 +320,142 @@
   .ledger_heroOverlay { padding: 0 24px; }
   .ledger_heroBadge { margin-bottom: 10px; }
   .ledger_hero { height: 260px; border-radius: 24px; }
+}
+
+/* Custom Dropdown Styles */
+.ledger_customSelectWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.ledger_customSelectTrigger {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 14px 20px;
+  color: #fff;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+  height: 52px;
+}
+
+.ledger_customSelectTrigger:hover, .ledger_customSelectTrigger:focus {
+  border-color: rgba(255, 184, 0, 0.4);
+  background: rgba(0, 0, 0, 0.65);
+  box-shadow: 0 0 12px rgba(255, 184, 0, 0.15), inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.ledger_customSelectTriggerActive {
+  border-color: #FFB800 !important;
+  box-shadow: 0 0 15px rgba(255, 184, 0, 0.25) !important;
+}
+
+.ledger_chevron {
+  transition: transform 0.3s ease;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.ledger_chevronOpen {
+  transform: rotate(180deg);
+  color: #FFB800;
+}
+
+.ledger_customDropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 100%;
+  background: rgba(15, 15, 15, 0.96);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 184, 0, 0.25);
+  border-radius: 18px;
+  margin: 0;
+  padding: 8px;
+  list-style: none;
+  z-index: 9999;
+  max-height: 280px;
+  overflow-y: auto;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8), 0 0 30px rgba(255, 184, 0, 0.05);
+  animation: ledger_slideDown 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Custom Scrollbar for Dropdown */
+.ledger_customDropdown::-webkit-scrollbar {
+  width: 6px;
+}
+.ledger_customDropdown::-webkit-scrollbar-track {
+  background: transparent;
+}
+.ledger_customDropdown::-webkit-scrollbar-thumb {
+  background: rgba(255, 184, 0, 0.2);
+  border-radius: 10px;
+}
+.ledger_customDropdown::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 184, 0, 0.4);
+}
+
+@keyframes ledger_slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.ledger_dropdownItem {
+  padding: 12px 16px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ledger_dropdownItem:hover {
+  background: rgba(255, 184, 0, 0.08);
+  color: #FFB800;
+  padding-left: 20px;
+}
+
+.ledger_dropdownItemActive {
+  background: rgba(255, 184, 0, 0.15) !important;
+  color: #FFD700 !important;
+  border: 1px solid rgba(255, 184, 0, 0.2);
+}
+
+.ledger_classificationDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.2);
+}
+
+/* Custom date picker icon styling */
+.ledger_filterInput::-webkit-calendar-picker-indicator {
+  filter: brightness(0) invert(1);
+  cursor: pointer;
+  opacity: 0.85;
+  transition: all 0.2s ease;
+}
+
+.ledger_filterInput::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+  filter: brightness(0) invert(1) drop-shadow(0 0 4px rgba(255, 255, 255, 0.5));
 }

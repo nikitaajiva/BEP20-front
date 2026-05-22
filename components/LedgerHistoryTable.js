@@ -1,6 +1,46 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { Copy, Check } from "lucide-react";
+
+const CopyableId = ({ id }) => {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = async (e) => {
+    e.stopPropagation();
+    if (!id) return;
+    try {
+      await navigator.clipboard.writeText(id);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch (err) {
+      console.error("Failed to copy text: ", err);
+    }
+  };
+  if (!id) return <span>-</span>;
+  const shortId = id.length > 12 ? `${id.slice(0, 6)}...${id.slice(-4)}` : id;
+  return (
+    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontFamily: 'monospace' }}>
+      <span style={{ color: '#fff', fontSize: '0.85rem' }}>{shortId}</span>
+      <button
+        onClick={handleCopy}
+        style={{
+          background: 'none',
+          border: 'none',
+          color: copied ? '#7FFF4C' : 'rgba(255, 215, 0, 0.4)',
+          cursor: 'pointer',
+          padding: '2px',
+          display: 'flex',
+          alignItems: 'center',
+          transition: 'color 0.2s',
+          outline: 'none'
+        }}
+        title={copied ? "Copied!" : "Copy ID"}
+      >
+        {copied ? <Check size={13} /> : <Copy size={13} />}
+      </button>
+    </div>
+  );
+};
 
 export default function LedgerHistoryTable({ filters }) {
   const { user, API_URL, logout } = useAuth();
@@ -21,7 +61,7 @@ export default function LedgerHistoryTable({ filters }) {
     if (formatted === "ZERO_RISK") return "Stable Pool";
     if (formatted === "AIRDROP") return "Airdrop Node";
     if (formatted === "BOOST") return "Booster Pool";
-    if (formatted === "COMMUNITY_REWARDS") return "Ecosystem Rewards";
+    if (formatted === "COMMUNITY_REWARDS") return "Community Rewards";
     if (formatted === "STAKING_HUB") return "Staking Hub";
     if (formatted === "HORSE_NFT") return "Horse NFT Assets";
     if (formatted === "NFT_MINT") return "NFT Mining Vault";
@@ -143,14 +183,30 @@ export default function LedgerHistoryTable({ filters }) {
         return "#7FFF4C";
       case "WITHDRAWAL":
         return "#ff4d4d";
-      case "TRANSFER":
-        return "#4f8cff";
-      case "REWARD":
-        return "#FFD700";
       case "STAKING_DEPOSIT":
         return "#4cc9f0";
       case "NFT_PURCHASE":
+      case "HORSE_NFT_PURCHASE":
         return "#f038ff";
+      case "ROI_CREDIT":
+      case "HORSE_NFT_PAYOUT":
+        return "#FFB800";
+      case "BOOST_BONUS":
+        return "#FF6200";
+      case "AUTOPOSITIONING":
+        return "#00E5A0";
+      case "REWARDS_REDEEMED":
+        return "#ffd700";
+      case "AIRDROP_ACTIVATION":
+        return "#e1f371";
+      case "LP_DEPOSIT_FROM_USDT":
+        return "#a371f3";
+      case "SWIFT_TRANSFER_IN":
+      case "SWIFT_TRANSFER_OUT":
+      case "TRANSFER":
+        return "#4f8cff";
+      case "MANUAL_AIRDROP":
+        return "#9a00e5";
       default:
         return "#FFFFFF";
     }
@@ -171,7 +227,7 @@ export default function LedgerHistoryTable({ filters }) {
           className="fw-bold mb-4"
           style={{ fontSize: "1.25rem", color: "#fff" }}
         >
-          Ledger History
+          Ledger
         </h4>
         <div
           className="table-loading-state"
@@ -198,7 +254,7 @@ export default function LedgerHistoryTable({ filters }) {
           className="fw-bold mb-4"
           style={{ fontSize: "1.25rem", color: "#fff" }}
         >
-          Ledger History
+          Ledger
         </h4>
         <div
           className="table-error-state"
@@ -225,7 +281,7 @@ export default function LedgerHistoryTable({ filters }) {
           className="fw-bold mb-4"
           style={{ fontSize: "1.25rem", color: "#fff" }}
         >
-          Ledger History
+          Ledger
         </h4>
         <div
           className="table-empty-state"
@@ -270,7 +326,7 @@ export default function LedgerHistoryTable({ filters }) {
         {/* Desktop Table View */}
         <div
           className="table-responsive desktop-table"
-          style={{ borderRadius: "16px", overflowX: "auto", border: '1px solid rgba(255,215,0,0.1)' }}
+          style={{ overflowX: "auto" }}
         >
           <table
             className="table table-dark align-middle mb-0"
@@ -283,13 +339,12 @@ export default function LedgerHistoryTable({ filters }) {
               }}
             >
               <tr>
-                <th style={{ padding: "1.25rem 1rem", border: "none", color: "#ffd700", fontWeight: 800, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "1.5px", minWidth: "160px" }}>Date Epoch</th>
-                <th style={{ padding: "1.25rem 1rem", border: "none", color: "#ffd700", fontWeight: 800, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "1.5px", minWidth: "140px" }}>Category</th>
-                <th style={{ padding: "1.25rem 1rem", border: "none", color: "#ffd700", fontWeight: 800, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "1.5px", minWidth: "150px" }}>Source Node</th>
-                <th style={{ padding: "1.25rem 1rem", border: "none", color: "#ffd700", fontWeight: 800, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "1.5px", minWidth: "150px" }}>Target Node</th>
-                <th style={{ padding: "1.25rem 1rem", border: "none", color: "#ffd700", fontWeight: 800, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "1.5px", textAlign: "right", minWidth: "160px" }}>Ecosystem Value</th>
-                <th style={{ padding: "1.25rem 1rem", border: "none", color: "#FFB800", fontWeight: 800, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "1.5px", textAlign: "right", minWidth: "140px" }}>TSC Value</th>
-                <th style={{ padding: "1.25rem 1rem", border: "none", color: "#ffd700", fontWeight: 800, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "1.5px", textAlign: "right", minWidth: "100px" }}>Yield %</th>
+                <th style={{ padding: "1.25rem 1rem 1.25rem 2rem", border: "none", color: "#ffd700", fontWeight: 800, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "1.5px", minWidth: "150px" }}>Referral ID</th>
+                <th style={{ padding: "1.25rem 1rem", border: "none", color: "#ffd700", fontWeight: 800, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "1.5px", minWidth: "130px" }}>Event Type</th>
+                <th style={{ padding: "1.25rem 1rem", border: "none", color: "#ffd700", fontWeight: 800, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "1.5px", minWidth: "200px" }}>Description</th>
+                <th style={{ padding: "1.25rem 1rem", border: "none", color: "#ffd700", fontWeight: 800, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "1.5px", textAlign: "left", minWidth: "140px" }}>Amount (USDT/SOL)</th>
+                <th style={{ padding: "1.25rem 1rem", border: "none", color: "#FFB800", fontWeight: 800, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "1.5px", textAlign: "left", minWidth: "120px" }}>TSC Amount</th>
+                <th style={{ padding: "1.25rem 2rem 1.25rem 1rem", border: "none", color: "#ffd700", fontWeight: 800, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "1.5px", textAlign: "right", minWidth: "130px" }}>Rate Percentage</th>
               </tr>
             </thead>
             <tbody>
@@ -298,23 +353,24 @@ export default function LedgerHistoryTable({ filters }) {
                 const isNegative = amountVal < 0;
                 return (
                   <tr key={index} style={{ borderBottom: "1px solid rgba(255, 215, 0, 0.05)", transition: "all 0.2s ease" }}>
-                    <td style={{ padding: "1.25rem 1rem", border: "none", fontSize: "0.9rem", color: "#fff", fontWeight: 500 }}>{formatDate(entry.ts)}</td>
+                    <td style={{ padding: "1.25rem 1rem 1.25rem 2rem", border: "none" }}>
+                      <CopyableId id={entry.refId} />
+                    </td>
                     <td style={{ padding: "1.25rem 1rem", border: "none" }}>
                       <span style={{ color: getEventTypeColor(entry.eventType), fontWeight: 700, fontSize: "0.75rem", padding: "0.4rem 0.8rem", background: `${getEventTypeColor(entry.eventType)}10`, borderRadius: "8px", display: "inline-block", border: `1px solid ${getEventTypeColor(entry.eventType)}40`, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                         {entry.eventType.replace(/_/g, " ")}
                       </span>
                     </td>
-                    <td style={{ padding: "1.25rem 1rem", border: "none", fontSize: "0.9rem", color: "#ffd700", fontWeight: 700 }}>
-                      {entry.eventType === "BOOST_BONUS" ? parseBoostBonusNarrative(entry.narrative).from : formatWalletName(entry.walletFrom)}
+                    <td style={{ padding: "1.25rem 1rem", border: "none", fontSize: "0.85rem", color: "#b3baff", fontWeight: 500, whiteSpace: "normal", wordBreak: "break-word" }}>
+                      {entry.narrative || "-"}
                     </td>
-                    <td style={{ padding: "1.25rem 1rem", border: "none", fontSize: "0.9rem", color: "#ffd700", fontWeight: 700 }}>{formatWalletName(entry.walletTo)}</td>
-                    <td style={{ padding: "1.25rem 1rem", border: "none", color: isNegative ? "#ff4d4d" : "#7FFF4C", fontWeight: 800, fontSize: "15px", textAlign: "right" }}>
+                    <td style={{ padding: "1.25rem 1rem", border: "none", color: isNegative ? "#ff4d4d" : "#7FFF4C", fontWeight: 800, fontSize: "15px", textAlign: "left" }}>
                       {amountVal.toLocaleString(undefined, { minimumFractionDigits: 4, maximumFractionDigits: 6 })}
                     </td>
-                    <td style={{ padding: "1.25rem 1rem", border: "none", color: "#FFB800", fontWeight: 800, fontSize: "15px", textAlign: "right" }}>
+                    <td style={{ padding: "1.25rem 1rem", border: "none", color: "#FFB800", fontWeight: 800, fontSize: "15px", textAlign: "left" }}>
                       {entry.tscAmount ? parseFloat(entry.tscAmount.$numberDecimal || entry.tscAmount).toLocaleString() : "-"}
                     </td>
-                    <td style={{ padding: "1.25rem 1rem", border: "none", fontSize: "0.9rem", color: "#fff", fontWeight: 700, textAlign: "right" }}>
+                    <td style={{ padding: "1.25rem 2rem 1.25rem 1rem", border: "none", fontSize: "0.9rem", color: "#fff", fontWeight: 700, textAlign: "right" }}>
                       {entry.eventType === "BOOST_BONUS" ? `${parseBoostBonusNarrative(entry.narrative).rate}%` : entry.ratePct ? `${entry.ratePct}%` : "-"}
                     </td>
                   </tr>
@@ -345,7 +401,10 @@ export default function LedgerHistoryTable({ filters }) {
                 }}
               >
                 <div className="d-flex justify-content-between align-items-center mb-4">
-                  <span style={{ fontSize: "12px", color: "#666", fontWeight: "800", letterSpacing: '1px' }}>{formatDate(entry.ts)}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: "12px", color: "#666", fontWeight: "800", letterSpacing: '1px' }}>Referral ID:</span>
+                    <CopyableId id={entry.refId} />
+                  </div>
                   <span style={{ 
                     color: getEventTypeColor(entry.eventType), 
                     fontWeight: 900, 
@@ -360,18 +419,27 @@ export default function LedgerHistoryTable({ filters }) {
                     {entry.eventType.replace(/_/g, " ")}
                   </span>
                 </div>
+
+                {entry.narrative && (
+                  <div className="mb-4 p-3" style={{ background: 'rgba(255, 255, 255, 0.02)', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                    <div style={{ fontSize: '10px', color: '#555', fontWeight: '800', textTransform: 'uppercase', marginBottom: '4px' }}>Description</div>
+                    <span style={{ fontSize: "14px", fontWeight: "600", color: "#ddd" }}>
+                      {entry.narrative}
+                    </span>
+                  </div>
+                )}
                 
-                <div className="mb-4 p-3" style={{ background: 'rgba(255, 215, 0, 0.03)', borderRadius: '16px', border: '1px solid rgba(255,215,0,0.1)' }}>
+                <div className="mb-0 p-3" style={{ background: 'rgba(255, 215, 0, 0.03)', borderRadius: '16px', border: '1px solid rgba(255,215,0,0.1)' }}>
                   <div className="d-flex justify-content-between align-items-center mb-3">
                     <div>
-                      <div style={{ fontSize: '10px', color: '#555', fontWeight: '800', textTransform: 'uppercase', marginBottom: '4px' }}>Value Transfer</div>
+                      <div style={{ fontSize: '10px', color: '#555', fontWeight: '800', textTransform: 'uppercase', marginBottom: '4px' }}>Amount (USDT/SOL)</div>
                       <span style={{ fontSize: "20px", fontWeight: "900", color: parseFloat(entry.amount?.$numberDecimal || entry.amount) >= 0 ? "#7FFF4C" : "#ff4d4d", letterSpacing: '-1px' }}>
                         {parseFloat(entry.amount?.$numberDecimal || entry.amount).toLocaleString(undefined, { minimumFractionDigits: 4, maximumFractionDigits: 6 })} <small style={{ fontSize: '12px', opacity: 0.6 }}>USDT/SOL</small>
                       </span>
                     </div>
                     {hasYield && (
                       <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: '10px', color: '#555', fontWeight: '800', textTransform: 'uppercase', marginBottom: '4px' }}>Yield</div>
+                        <div style={{ fontSize: '10px', color: '#555', fontWeight: '800', textTransform: 'uppercase', marginBottom: '4px' }}>Rate Percentage</div>
                         <div style={{ fontSize: "16px", fontWeight: "900", color: "#fff" }}>{yieldVal}%</div>
                       </div>
                     )}
@@ -379,24 +447,12 @@ export default function LedgerHistoryTable({ filters }) {
 
                   {tscVal && (
                     <div style={{ borderTop: '1px solid rgba(255,184,0,0.1)', paddingTop: '10px' }}>
-                      <div style={{ fontSize: '10px', color: '#555', fontWeight: '800', textTransform: 'uppercase', marginBottom: '2px' }}>Token Equivalence</div>
+                      <div style={{ fontSize: '10px', color: '#555', fontWeight: '800', textTransform: 'uppercase', marginBottom: '2px' }}>TSC Amount</div>
                       <div style={{ fontSize: "16px", fontWeight: "900", color: "#FFB800" }}>
                         {tscVal.toLocaleString()} <span style={{ fontSize: '10px', opacity: 0.8 }}>TSC</span>
                       </div>
                     </div>
                   )}
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', background: 'rgba(255,255,255,0.02)', padding: '15px', borderRadius: '12px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ color: '#444', fontWeight: '800', textTransform: 'uppercase', fontSize: '10px', letterSpacing: '0.5px' }}>Source Node</span>
-                    <span style={{ color: '#ffd700', fontWeight: '700', fontSize: '14px' }}>{entry.eventType === "BOOST_BONUS" ? parseBoostBonusNarrative(entry.narrative).from : formatWalletName(entry.walletFrom)}</span>
-                  </div>
-                  <div style={{ height: '1px', background: 'rgba(255,215,0,0.1)', width: '100%' }}></div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ color: '#444', fontWeight: '800', textTransform: 'uppercase', fontSize: '10px', letterSpacing: '0.5px' }}>Target Account</span>
-                    <span style={{ color: '#ffd700', fontWeight: '700', fontSize: '14px' }}>{formatWalletName(entry.walletTo)}</span>
-                  </div>
                 </div>
               </div>
             );

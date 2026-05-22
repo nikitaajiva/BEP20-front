@@ -176,7 +176,7 @@ export default function CommunityRewardsPopup({
                     <tr>
                       <th style={{ padding: "16px 20px", color: "rgba(255,255,255,0.5)", fontWeight: "600", borderBottom: "1px solid rgba(255, 255, 255, 0.05)", textAlign: "center", width: "60px" }}>Idx</th>
                       <th style={{ padding: "16px 20px", color: "rgba(255,255,255,0.5)", fontWeight: "600", borderBottom: "1px solid rgba(255, 255, 255, 0.05)", textAlign: "left" }}>Reward Type</th>
-                      <th style={{ padding: "16px 20px", color: "rgba(255,255,255,0.5)", fontWeight: "600", borderBottom: "1px solid rgba(255, 255, 255, 0.05)", textAlign: "left" }}>Narrative</th>
+                      <th style={{ padding: "16px 20px", color: "rgba(255,255,255,0.5)", fontWeight: "600", borderBottom: "1px solid rgba(255, 255, 255, 0.05)", textAlign: "left" }}>Description</th>
                       <th style={{ padding: "16px 20px", color: "rgba(255,255,255,0.5)", fontWeight: "600", borderBottom: "1px solid rgba(255, 255, 255, 0.05)", textAlign: "right" }}>Reward</th>
                     </tr>
                   ) : (

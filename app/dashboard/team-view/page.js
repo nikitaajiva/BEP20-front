@@ -44,7 +44,10 @@ function TreeNode({ node, level, expanded, onToggle }) {
 
   const activeStakes = (node.stakingPlans || []).filter(s => s.status === "active").length
     || (node.stakingPlan?.amount > 0 ? 1 : 0);
+  const totalStakedAmount = (node.stakingPlans || []).reduce((acc, s) => acc + (s.amount || 0), 0) || node.stakingPlan?.amount || 0;
+  
   const nftCount = (node.nftPackages || []).length;
+  const totalNftValue = (node.nftPackages || []).reduce((acc, p) => acc + (p.mintPrice || 0), 0);
 
   return (
     <div style={{ marginBottom: 8 }}>
@@ -99,8 +102,8 @@ function TreeNode({ node, level, expanded, onToggle }) {
         <div className="node-stats-group">
           <Chip label="Team" value={node.communitySize ?? 0} color="#b3baff" />
           <Chip label="Directs" value={node.directDownlines ?? 0} color="rgb(127,255,76)" />
-          <Chip label="Stakes" value={activeStakes} color="#FFD700" />
-          <Chip label="NFTs" value={nftCount} color="rgb(127,255,76)" />
+          <Chip label="Stakes" value={(node.teamStakes !== undefined && node.teamStakes > 0) ? `${node.teamStakes.toLocaleString()} TSC` : (totalStakedAmount > 0 ? `${totalStakedAmount.toLocaleString()} TSC` : activeStakes)} color="#FFD700" />
+          <Chip label="NFTs" value={(node.teamNfts !== undefined && node.teamNfts > 0) ? `$${node.teamNfts.toLocaleString()}` : (totalNftValue > 0 ? `$${totalNftValue.toLocaleString()}` : nftCount)} color="rgb(127,255,76)" />
         </div>
       </div>
 
@@ -185,7 +188,34 @@ export default function TeamViewPage() {
       });
       const json = await res.json();
       if (!res.ok || !json.success) throw new Error(json.message || "Failed to load team tree.");
-      setTree(json.tree || []);
+      
+      const enrichTree = (nodes) => {
+        return nodes.map(node => {
+          let teamStakes = 0;
+          let teamNfts = 0;
+          let enrichedChildren = [];
+
+          if (node.children && node.children.length > 0) {
+            enrichedChildren = enrichTree(node.children);
+            enrichedChildren.forEach(child => {
+              const childOwnStakes = (child.stakingPlans || []).reduce((acc, s) => acc + (s.amount || 0), 0) || child.stakingPlan?.amount || 0;
+              const childOwnNfts = (child.nftPackages || []).reduce((acc, p) => acc + (p.mintPrice || 0), 0);
+
+              teamStakes += childOwnStakes + (child.teamStakes || 0);
+              teamNfts += childOwnNfts + (child.teamNfts || 0);
+            });
+          }
+
+          return {
+            ...node,
+            children: enrichedChildren,
+            teamStakes,
+            teamNfts
+          };
+        });
+      };
+
+      setTree(enrichTree(json.tree || []));
       setSummaryData(json.summary);
     } catch (e) {
       setError(e.message);

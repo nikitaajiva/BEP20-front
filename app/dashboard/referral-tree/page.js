@@ -47,7 +47,10 @@ function TreeNode({ node, level, expanded, onToggle }) {
 
   const activeStakes = (node.stakingPlans || []).filter(s => s.status === "active").length
     || (node.stakingPlan?.amount > 0 ? 1 : 0);
+  const totalStakedAmount = (node.stakingPlans || []).reduce((acc, s) => acc + (s.amount || 0), 0) || node.stakingPlan?.amount || 0;
+  
   const nftCount = (node.nftPackages || []).length;
+  const totalNftValue = (node.nftPackages || []).reduce((acc, p) => acc + (p.mintPrice || 0), 0);
 
   return (
     <div style={{ marginBottom: 8 }}>
@@ -116,8 +119,8 @@ function TreeNode({ node, level, expanded, onToggle }) {
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           <Chip label="Team" value={node.communitySize ?? 0} color="#818cf8" />
           <Chip label="Directs" value={node.directDownlines ?? 0} color="#06b6d4" />
-          <Chip label="Stakes" value={activeStakes} color="#fbbf24" />
-          <Chip label="NFTs" value={nftCount} color="#34d399" />
+          <Chip label="Stakes" value={(node.teamStakes !== undefined && node.teamStakes > 0) ? `${node.teamStakes.toLocaleString()} TSC` : (totalStakedAmount > 0 ? `${totalStakedAmount.toLocaleString()} TSC` : activeStakes)} color="#fbbf24" />
+          <Chip label="NFTs" value={(node.teamNfts !== undefined && node.teamNfts > 0) ? `$${node.teamNfts.toLocaleString()}` : (totalNftValue > 0 ? `$${totalNftValue.toLocaleString()}` : nftCount)} color="#34d399" />
         </div>
       </div>
 
@@ -197,7 +200,34 @@ export default function ReferralTreePage() {
       });
       const treeJson = await treeRes.json();
       if (!treeRes.ok || !treeJson.success) throw new Error(treeJson.message || "Failed to load team tree.");
-      setTree(treeJson.tree || []);
+      
+      const enrichTree = (nodes) => {
+        return nodes.map(node => {
+          let teamStakes = 0;
+          let teamNfts = 0;
+          let enrichedChildren = [];
+
+          if (node.children && node.children.length > 0) {
+            enrichedChildren = enrichTree(node.children);
+            enrichedChildren.forEach(child => {
+              const childOwnStakes = (child.stakingPlans || []).reduce((acc, s) => acc + (s.amount || 0), 0) || child.stakingPlan?.amount || 0;
+              const childOwnNfts = (child.nftPackages || []).reduce((acc, p) => acc + (p.mintPrice || 0), 0);
+
+              teamStakes += childOwnStakes + (child.teamStakes || 0);
+              teamNfts += childOwnNfts + (child.teamNfts || 0);
+            });
+          }
+
+          return {
+            ...node,
+            children: enrichedChildren,
+            teamStakes,
+            teamNfts
+          };
+        });
+      };
+
+      setTree(enrichTree(treeJson.tree || []));
 
       // Fetch Summary Data
       const summaryRes = await fetch(`${API_URL}/referral-rewards/summary`, {

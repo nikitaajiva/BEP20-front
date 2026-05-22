@@ -281,21 +281,21 @@ function LedgerRows() {
                                         </div>
                                         
                                         <div className={styles.tMetric}>
-                                            <span className={styles.tMetricLabel}>Source Node</span>
+                                            <span className={styles.tMetricLabel}>From</span>
                                             <span className={styles.tMetricVal} style={{ fontSize: 11, color:'rgba(255,255,255,0.6)', fontWeight:700 }}>
                                                 {row.eventType === 'BOOST_BONUS' ? boostDetails.from : (row.walletFrom || 'SYSTEM CORE')}
                                             </span>
                                         </div>
                                         
                                         <div className={styles.tMetric}>
-                                            <span className={styles.tMetricLabel}>Target Node</span>
+                                            <span className={styles.tMetricLabel}>To</span>
                                             <span className={styles.tMetricVal} style={{ fontSize: 11, color:'rgba(255,255,255,0.6)', fontWeight:700 }}>
                                                 {row.walletTo || 'SYSTEM CORE'}
                                             </span>
                                         </div>
 
                                         <div className={styles.tMetric}>
-                                            <span className={styles.tMetricLabel}>Calculated Yield</span>
+                                            <span className={styles.tMetricLabel}>Rate Percentage</span>
                                             <span className={styles.tMetricVal}>
                                                 <span className={styles.tMetricValYield}>{row.eventType === 'BOOST_BONUS' ? boostDetails.rate : (row.ratePct || '0')}%</span>
                                             </span>

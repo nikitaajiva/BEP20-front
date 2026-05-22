@@ -15,7 +15,8 @@ import {
   Search,
   FilterX,
   ShieldCheck,
-  Zap
+  Zap,
+  ChevronDown
 } from "lucide-react";
 import styles from "./ledger.module.css";
 
@@ -24,15 +25,49 @@ const formatEventType = (type) => {
   return type.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
 };
 
+const getEventColor = (eventType) => {
+  switch (eventType) {
+    case "DEPOSIT":
+      return "#7FFF4C";
+    case "WITHDRAWAL":
+      return "#ff4d4d";
+    case "STAKING_DEPOSIT":
+      return "#4cc9f0";
+    case "NFT_PURCHASE":
+      return "#f038ff";
+    case "ROI_CREDIT":
+      return "#FFB800";
+    case "BOOST_BONUS":
+      return "#FF6200";
+    case "AUTOPOSITIONING":
+      return "#00E5A0";
+    case "REWARDS_REDEEMED":
+      return "#ffd700";
+    case "AIRDROP_ACTIVATION":
+      return "#e1f371";
+    case "LP_DEPOSIT_FROM_USDT":
+      return "#a371f3";
+    case "SWIFT_TRANSFER_IN":
+      return "#4f8cff";
+    case "SWIFT_TRANSFER_OUT":
+      return "#4f8cff";
+    case "MANUAL_AIRDROP":
+      return "#9a00e5";
+    default:
+      return "rgba(255, 255, 255, 0.4)";
+  }
+};
+
 export default function LedgerPageContent() {
   const { user, token } = useAuth();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = React.useRef(null);
 
   // Use local constants — no extra API call needed
   const eventTypeOptions = LEDGER_EVENT_TYPES;
-
 
   const [filters, setFilters] = useState({
     eventType: searchParams.get("type") || "all",
@@ -40,6 +75,15 @@ export default function LedgerPageContent() {
     endDate: "",
   });
 
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleFilterChange = (e) => {
     setFilters({ ...filters, [e.target.name]: e.target.value });
@@ -98,7 +142,7 @@ export default function LedgerPageContent() {
             IMMUTABLE LEDGER
           </div>
           <h1 className={styles.ledger_heroTitle}>
-            Ecosystem <span>Ledger</span>
+            <span>Ledger</span>
           </h1>
           <p className={styles.ledger_heroSubtitle}>
             Reviewing cryptographically secured transaction history and protocol settlements.
@@ -118,20 +162,52 @@ export default function LedgerPageContent() {
           <div className={styles.ledger_filterGrid}>
             <div className={styles.ledger_filterGroup}>
               <label className={styles.ledger_filterLabel}>Log Classification</label>
-              <select
-                id="eventType"
-                name="eventType"
-                className={styles.ledger_filterSelect}
-                value={filters.eventType}
-                onChange={handleFilterChange}
-              >
-                <option value="all">Comprehensive System View</option>
-                {eventTypeOptions.map((type) => (
-                  <option key={type} value={type}>
-                    {formatEventType(type)}
-                  </option>
-                ))}
-              </select>
+              <div className={styles.ledger_customSelectWrapper} ref={dropdownRef}>
+                <button
+                  type="button"
+                  className={`${styles.ledger_customSelectTrigger} ${dropdownOpen ? styles.ledger_customSelectTriggerActive : ""}`}
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                >
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <span
+                      className={styles.ledger_classificationDot}
+                      style={{ background: getEventColor(filters.eventType === "all" ? "" : filters.eventType) }}
+                    />
+                    {filters.eventType === "all" ? "Comprehensive System View" : formatEventType(filters.eventType)}
+                  </span>
+                  <ChevronDown
+                    size={16}
+                    className={`${styles.ledger_chevron} ${dropdownOpen ? styles.ledger_chevronOpen : ""}`}
+                  />
+                </button>
+                {dropdownOpen && (
+                  <ul className={styles.ledger_customDropdown}>
+                    <li
+                      className={`${styles.ledger_dropdownItem} ${filters.eventType === "all" ? styles.ledger_dropdownItemActive : ""}`}
+                      onClick={() => {
+                        setFilters({ ...filters, eventType: "all" });
+                        setDropdownOpen(false);
+                      }}
+                    >
+                      <span className={styles.ledger_classificationDot} style={{ background: 'rgba(255,255,255,0.4)' }} />
+                      Comprehensive System View
+                    </li>
+                    {eventTypeOptions.map((type) => (
+                      <li
+                        key={type}
+                        className={`${styles.ledger_dropdownItem} ${filters.eventType === type ? styles.ledger_dropdownItemActive : ""}`}
+                        onClick={() => {
+                          setFilters({ ...filters, eventType: type });
+                          setDropdownOpen(false);
+                        }}
+                      >
+                        <span className={styles.ledger_classificationDot} style={{ background: getEventColor(type) }} />
+                        {formatEventType(type)}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             </div>
 
             <div className={styles.ledger_filterGroup}>
@@ -158,30 +234,20 @@ export default function LedgerPageContent() {
 
             <button className={styles.ledger_clearBtn} onClick={clearFilters}>
               <FilterX size={18} />
-              Reset Archives
+              Reset
             </button>
           </div>
         </div>
 
-        {/* ── DATA TABLE GLASS CARD ── */}
-        <div className={`${styles.ledger_glassCard} ${styles.ledger_tableBox}`}>
-          <div className={styles.ledger_tableHeader}>
+        {/* ── DATA TABLE WITHOUT GLASS CARD WRAPPER ── */}
+        <div className={styles.ledger_tableBox} style={{ padding: '0 24px 24px' }}>
+          <div className={styles.ledger_tableHeader} style={{ borderBottom: 'none', paddingLeft: '12px', paddingRight: '12px', paddingTop: '20px', paddingBottom: '15px' }}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <History size={18} className={styles.ledger_boxIcon} style={{ marginRight: '10px' }} />
               <span className={styles.ledger_tableTitle}>Transaction Archives</span>
             </div>
-            <div className={styles.ledger_tableLegend}>
-              <div className={styles.ledger_legendItem}>
-                <div className={styles.ledger_legendDot} style={{ background: '#00E5A0' }} />
-                <span>CREDIT</span>
-              </div>
-              <div className={styles.ledger_legendItem}>
-                <div className={styles.ledger_legendDot} style={{ background: '#FF4D6A' }} />
-                <span>DEBIT</span>
-              </div>
-            </div>
           </div>
-          <div style={{ padding: '20px' }}>
+          <div style={{ padding: '0' }}>
              <LedgerHistoryTable filters={filters} />
           </div>
         </div>

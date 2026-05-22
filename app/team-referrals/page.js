@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import AuthGuard from "@/components/auth/AuthGuard";
 import { useAuth } from "@/context/AuthContext";
-import { Users, Search, RefreshCw, ChevronLeft, ChevronRight, Globe, Mail, Calendar, DollarSign, X, Lock } from "lucide-react";
+import { Users, Search, RefreshCw, ChevronLeft, ChevronRight } from "lucide-react";
 import styles from "./team-referrals.module.css";
 
 const ITEMS_PER_PAGE = 10;
@@ -37,7 +37,7 @@ function Chip({ label, value, color = "#818cf8" }) {
 }
 
 /* ─── Tree Node Row ─── */
-function TreeNode({ node, level, expanded, onToggle, onSelectNode }) {
+function TreeNode({ node, level, expanded, onToggle }) {
   const username = node.username || "Unknown";
   const initials = username.slice(0, 2).toUpperCase();
   const ac = getAvatar(username);
@@ -52,15 +52,15 @@ function TreeNode({ node, level, expanded, onToggle, onSelectNode }) {
 
   return (
     <div style={{ marginBottom:8 }}>
-      <div className={styles.clickableNode} style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:12, padding:"14px 16px", background:"rgba(255,255,255,0.02)", borderRadius:14, border:`1px solid ${levelColor}22`, borderLeft:`3px solid ${levelColor}`, flexWrap:"wrap" }} onClick={() => onSelectNode && onSelectNode(node)}>
-        <div style={{ display:"flex", alignItems:"center", gap:12, flex:1, minWidth:0 }} onClick={(e) => e.stopPropagation()}>
+      <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:12, padding:"14px 16px", background:"rgba(255,255,255,0.02)", borderRadius:14, border:`1px solid ${levelColor}22`, borderLeft:`3px solid ${levelColor}`, flexWrap:"wrap" }}>
+        <div style={{ display:"flex", alignItems:"center", gap:12, flex:1, minWidth:0 }}>
           {hasChildren ? (
             <button onClick={() => onToggle(node._id?.toString())} style={{ width:28, height:28, borderRadius:8, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, border:`1px solid ${levelColor}44`, background:isOpen?`${levelColor}22`:"rgba(255,255,255,0.04)", color:levelColor, fontSize:14, fontWeight:900, cursor:"pointer" }}>
               {isOpen ? "−" : "+"}
             </button>
           ) : <div style={{ width:28, height:28, flexShrink:0 }} />}
-          <div style={{ width:40, height:40, borderRadius:"50%", flexShrink:0, background:ac.bg, color:ac.text, display:"flex", alignItems:"center", justifyContent:"center", fontSize:14, fontWeight:900, border:`2px solid ${ac.text}44`, cursor:"pointer" }} onClick={() => onSelectNode && onSelectNode(node)}>{initials}</div>
-          <div style={{ minWidth:120, flex:1, cursor:"pointer" }} onClick={() => onSelectNode && onSelectNode(node)}>
+          <div style={{ width:40, height:40, borderRadius:"50%", flexShrink:0, background:ac.bg, color:ac.text, display:"flex", alignItems:"center", justifyContent:"center", fontSize:14, fontWeight:900, border:`2px solid ${ac.text}44` }}>{initials}</div>
+          <div style={{ minWidth:120, flex:1 }}>
             <div style={{ fontSize:14, fontWeight:800, color:"#fff", display:"flex", alignItems:"center", gap:6 }}>
               {username}
               {node.xRank && <span className={styles.rankBadgeX} style={{ fontSize:8, padding:"1px 4px", borderRadius:4, fontWeight:900 }}>{node.xRank}</span>}
@@ -73,13 +73,13 @@ function TreeNode({ node, level, expanded, onToggle, onSelectNode }) {
         <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
           <Chip label="Team"    value={node.communitySize ?? 0}   color="#818cf8" />
           <Chip label="Directs" value={node.directDownlines ?? 0} color="#06b6d4" />
-          <Chip label="Stakes"  value={totalStakedAmount > 0 ? `${totalStakedAmount.toLocaleString()} TSC` : activeStakes} color="#fbbf24" />
-          <Chip label="NFTs"    value={totalNftValue > 0 ? `$${totalNftValue.toLocaleString()}` : nftCount} color="#34d399" />
+          <Chip label="Stakes"  value={(node.teamStakes !== undefined && node.teamStakes > 0) ? `${node.teamStakes.toLocaleString()} TSC` : (totalStakedAmount > 0 ? `${totalStakedAmount.toLocaleString()} TSC` : activeStakes)} color="#fbbf24" />
+          <Chip label="NFTs"    value={(node.teamNfts !== undefined && node.teamNfts > 0) ? `$${node.teamNfts.toLocaleString()}` : (totalNftValue > 0 ? `$${totalNftValue.toLocaleString()}` : nftCount)} color="#34d399" />
         </div>
       </div>
       {isOpen && hasChildren && (
         <div style={{ marginLeft:40, marginTop:6 }}>
-          {node.children.map(child => <TreeNode key={child._id} node={child} level={level + 1} expanded={expanded} onToggle={onToggle} onSelectNode={onSelectNode} />)}
+          {node.children.map(child => <TreeNode key={child._id} node={child} level={level + 1} expanded={expanded} onToggle={onToggle} />)}
         </div>
       )}
     </div>
@@ -204,11 +204,7 @@ function TopPerformers({ nodes, loading, onSelectNode }) {
           const totalNfts   = (node.nftPackages || []).reduce((acc, p) => acc + (p.mintPrice || 0), 0);
 
           return (
-            <div key={node._id} className={`${styles.clickableNode}`} style={{ position:"relative", background:`linear-gradient(135deg,rgba(255,255,255,0.03) 0%,rgba(255,255,255,0.01) 100%)`, border:`1px solid ${medal.border}`, borderRadius:20, padding:"20px 18px", boxShadow:`0 8px 32px ${medal.glow}`, overflow:"hidden", transition:"transform 0.2s" }}
-              onClick={() => onSelectNode && onSelectNode(node)}
-              onMouseEnter={e => e.currentTarget.style.transform = "translateY(-4px)"}
-              onMouseLeave={e => e.currentTarget.style.transform = "translateY(0)"}
-            >
+            <div key={node._id} style={{ position:"relative", background:`linear-gradient(135deg,rgba(255,255,255,0.03) 0%,rgba(255,255,255,0.01) 100%)`, border:`1px solid ${medal.border}`, borderRadius:20, padding:"20px 18px", boxShadow:`0 8px 32px ${medal.glow}`, overflow:"hidden" }}>
               {/* Glow orb */}
               <div style={{ position:"absolute", top:-30, right:-30, width:100, height:100, borderRadius:"50%", background:medal.glow, filter:"blur(20px)", pointerEvents:"none" }} />
 
@@ -283,15 +279,7 @@ export default function TeamReferralsPage() {
   const [filterLevel, setFilterLevel] = useState("all"); 
   const fetchedRef = useRef(false);
 
-  const [selectedNode, setSelectedNode] = useState(null);
-  const [drawerOpen, setDrawerOpen]     = useState(false);
-  const [drawerTab, setDrawerTab]       = useState("overview");
 
-  const handleSelectNode = useCallback((node) => {
-    setSelectedNode(node);
-    setDrawerTab("overview");
-    setDrawerOpen(true);
-  }, []);
 
   const handleToggle = (id) => setExpanded(prev => ({ ...prev, [id]: !prev[id] }));
 
@@ -379,15 +367,7 @@ export default function TeamReferralsPage() {
     return items;
   })();
 
-  const getSponsorName = useCallback((node) => {
-    if (!node || !node.sponsorId) return "None";
-    const sponsorIdStr = node.sponsorId.toString();
-    if (user && (user._id?.toString() === sponsorIdStr || user.id?.toString() === sponsorIdStr)) {
-      return user.username || "You";
-    }
-    const match = allNodes.find(n => n._id?.toString() === sponsorIdStr);
-    return match ? match.username : "Unknown";
-  }, [allNodes, user]);
+
 
   if (authLoading) return <div className={styles.loading}><RefreshCw size={32} className={styles.spinning} /><span>Loading...</span></div>;
   if (!user)       return <div className={styles.loading}>Session expired. Please log in.</div>;
@@ -459,7 +439,7 @@ export default function TeamReferralsPage() {
                 </div>
               ) : (
                 <div>
-                  {displayTree.map(node => <TreeNode key={node._id} node={node} level={1} expanded={expanded} onToggle={toggleNode} onSelectNode={handleSelectNode} />)}
+                  {displayTree.map(node => <TreeNode key={node._id} node={node} level={1} expanded={expanded} onToggle={toggleNode} />)}
                 </div>
               )}
               <style>{`@keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }`}</style>
@@ -493,18 +473,22 @@ export default function TeamReferralsPage() {
                       );
                     })}
                   </div>
-                  <div className={styles.tableSearch} style={{ flex:1 }}>
-                    <Search size={14} className={styles.tableSearchIcon} />
-                    <input
-                      type="text"
-                      value={nodeSearch}
-                      onChange={e => { setNodeSearch(e.target.value); setCurrentPage(1); }}
-                      placeholder="Find referral..."
-                    />
-                  </div>
                   <button onClick={fetchData} className={styles.refreshBtn} disabled={loading}>
                     <RefreshCw size={16} className={loading ? styles.spinning : ""} />
                   </button>
+                </div>
+              </div>
+
+              {/* Search Bar Row (left aligned, full row width) */}
+              <div style={{ display:"flex", marginBottom:20, width:"100%" }}>
+                <div className={styles.tableSearch}>
+                  <Search size={14} className={styles.tableSearchIcon} />
+                  <input
+                    type="text"
+                    value={nodeSearch}
+                    onChange={e => { setNodeSearch(e.target.value); setCurrentPage(1); }}
+                    placeholder="Find referral..."
+                  />
                 </div>
               </div>
 
@@ -531,7 +515,6 @@ export default function TeamReferralsPage() {
                         <div
                           key={node._id || node.uhid}
                           className={`${styles.nodeCard} ${levelClass}`}
-                          onClick={() => handleSelectNode(node)}
                         >
                           {/* Avatar */}
                           <div
@@ -571,20 +554,24 @@ export default function TeamReferralsPage() {
                             </div>
                             <div className={styles.nodeCardStat}>
                               <span className={styles.nodeCardStatLabel}>Stakes</span>
-                              <span className={styles.nodeCardStatValue} style={{ color: "#fbbf24" }}>{stakes}</span>
-                              {totalStakedAmount > 0 && <span className={styles.nodeCardStatSub}>{totalStakedAmount.toLocaleString()} TSC</span>}
+                              <span className={styles.nodeCardStatValue} style={{ color: "#fbbf24" }}>
+                                {(node.teamStakes !== undefined && node.teamStakes > 0) ? `${node.teamStakes.toLocaleString()} TSC` : (totalStakedAmount > 0 ? `${totalStakedAmount.toLocaleString()} TSC` : stakes)}
+                              </span>
+                              {node.teamStakes > 0 && totalStakedAmount > 0 && (
+                                <span className={styles.nodeCardStatSub}>Own: {totalStakedAmount.toLocaleString()} TSC</span>
+                              )}
                             </div>
                             <div className={styles.nodeCardStat}>
                               <span className={styles.nodeCardStatLabel}>NFTs</span>
-                              <span className={styles.nodeCardStatValue} style={{ color: "#34d399" }}>{nfts}</span>
-                              {totalNftValue > 0 && <span className={styles.nodeCardStatSub}>${totalNftValue.toLocaleString()}</span>}
+                              <span className={styles.nodeCardStatValue} style={{ color: "#34d399" }}>
+                                {(node.teamNfts !== undefined && node.teamNfts > 0) ? `$${node.teamNfts.toLocaleString()}` : (totalNftValue > 0 ? `$${totalNftValue.toLocaleString()}` : nfts)}
+                              </span>
+                              {node.teamNfts > 0 && totalNftValue > 0 && (
+                                <span className={styles.nodeCardStatSub}>Own: ${totalNftValue.toLocaleString()}</span>
+                              )}
                             </div>
                           </div>
 
-                          {/* Hover Arrow */}
-                          <div className={styles.nodeCardArrow}>
-                            <ChevronRight size={14} />
-                          </div>
                         </div>
                       );
                     })}
@@ -614,255 +601,6 @@ export default function TeamReferralsPage() {
           </div>
         </div>
       </div>
-
-      {/* Detail Drawer */}
-      {drawerOpen && selectedNode && (
-        <>
-          <div className={styles.drawerBackdrop} onClick={() => setDrawerOpen(false)} />
-          <div className={styles.drawerContainer}>
-            {/* Header */}
-            <div className={styles.drawerHeader}>
-              <div className={styles.drawerTitleContainer}>
-                <div style={{
-                  width: 50,
-                  height: 50,
-                  borderRadius: "50%",
-                  background: getAvatar(selectedNode.username || "").bg,
-                  color: getAvatar(selectedNode.username || "").text,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 18,
-                  fontWeight: 900,
-                  border: `2px solid ${getAvatar(selectedNode.username || "").text}44`,
-                  flexShrink: 0
-                }}>
-                  {(selectedNode.username || "??").slice(0, 2).toUpperCase()}
-                </div>
-                <div style={{ minWidth: 0, flex: 1 }}>
-                  <div style={{ fontSize: 18, fontWeight: 900, color: "#fff", display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-                    {selectedNode.username}
-                    {selectedNode.xRank && <span className={`${styles.rankBadge} ${styles.rankBadgeX}`}>{selectedNode.xRank}</span>}
-                    {selectedNode.nodeTier && <span className={`${styles.rankBadge} ${styles.rankBadgeP}`}>{selectedNode.nodeTier}</span>}
-                  </div>
-                  <div style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", fontWeight: 600 }}>UHID: {selectedNode.uhid || "—"}</div>
-                </div>
-              </div>
-              <button className={styles.drawerCloseBtn} onClick={() => setDrawerOpen(false)}>
-                <X size={18} />
-              </button>
-            </div>
-
-            {/* Body */}
-            <div className={styles.drawerBody}>
-              {/* Tab Navigation */}
-              <div className={styles.drawerTabs}>
-                <button
-                  className={`${styles.drawerTabBtn} ${drawerTab === "overview" ? styles.drawerTabBtnActive : ""}`}
-                  onClick={() => setDrawerTab("overview")}
-                >
-                  Overview
-                </button>
-                <button
-                  className={`${styles.drawerTabBtn} ${drawerTab === "nfts" ? styles.drawerTabBtnActive : ""}`}
-                  onClick={() => setDrawerTab("nfts")}
-                >
-                  NFTs ({(selectedNode.nftPackages || []).length})
-                </button>
-                <button
-                  className={`${styles.drawerTabBtn} ${drawerTab === "stakes" ? styles.drawerTabBtnActive : ""}`}
-                  onClick={() => setDrawerTab("stakes")}
-                >
-                  Stakes ({(selectedNode.stakingPlans || []).length || (selectedNode.stakingPlan?.amount > 0 ? 1 : 0)})
-                </button>
-              </div>
-
-              {/* Tab Contents */}
-              {drawerTab === "overview" && (
-                <div>
-                  {/* Contact Actions */}
-                  <div className={styles.contactSection}>
-                    {selectedNode.whatsappContact ? (
-                      <a
-                        href={`https://wa.me/${selectedNode.whatsappContact}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className={`${styles.contactBtn} ${styles.whatsappBtn}`}
-                      >
-                        WhatsApp
-                      </a>
-                    ) : (
-                      <span className={`${styles.contactBtn}`} style={{ opacity: 0.4, cursor: "not-allowed", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.4)" }}>
-                        No WhatsApp
-                      </span>
-                    )}
-                    {selectedNode.email ? (
-                      <a
-                        href={`mailto:${selectedNode.email}`}
-                        className={`${styles.contactBtn} ${styles.emailBtn}`}
-                      >
-                        <Mail size={14} /> Email
-                      </a>
-                    ) : (
-                      <span className={`${styles.contactBtn}`} style={{ opacity: 0.4, cursor: "not-allowed", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.4)" }}>
-                        No Email
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Profile Details Grid */}
-                  <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                    <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 16, padding: 16 }}>
-                      <span style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.8, display: "block", marginBottom: 6 }}>Email Address</span>
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                        <span style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>{selectedNode.email || "—"}</span>
-                        {selectedNode.email && (
-                          <button
-                            onClick={() => {
-                              navigator.clipboard.writeText(selectedNode.email);
-                              alert("Email copied to clipboard!");
-                            }}
-                            style={{ background: "none", border: "none", color: "#FFB800", fontSize: 11, fontWeight: 800, cursor: "pointer" }}
-                          >
-                            Copy
-                          </button>
-                        )}
-                      </div>
-                    </div>
-
-                    <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 16, padding: 16 }}>
-                      <span style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.8, display: "block", marginBottom: 6 }}>Sponsor</span>
-                      <span style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>{getSponsorName(selectedNode)}</span>
-                    </div>
-
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                      <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 16, padding: 16 }}>
-                        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.8, display: "block", marginBottom: 6 }}>Country</span>
-                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                          <Globe size={14} style={{ color: "#FFB800" }} />
-                          <span style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>
-                            {selectedNode.country ? `${selectedNode.country} (${selectedNode.countryCode || ""})` : "—"}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 16, padding: 16 }}>
-                        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.8, display: "block", marginBottom: 6 }}>Join Date</span>
-                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                          <Calendar size={14} style={{ color: "#818cf8" }} />
-                          <span style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>
-                            {selectedNode.joiningTimeStamp
-                              ? new Date(selectedNode.joiningTimeStamp).toLocaleDateString()
-                              : selectedNode.registrationTs
-                              ? new Date(selectedNode.registrationTs).toLocaleDateString()
-                              : "—"}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Network Stats Cards */}
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                      <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 16, padding: 16 }}>
-                        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.8, display: "block", marginBottom: 4 }}>Team Size</span>
-                        <span style={{ fontSize: 20, fontWeight: 900, color: "#FFB800" }}>{selectedNode.communitySize ?? 0}</span>
-                      </div>
-                      <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 16, padding: 16 }}>
-                        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.8, display: "block", marginBottom: 4 }}>Direct Referrals</span>
-                        <span style={{ fontSize: 20, fontWeight: 900, color: "#06b6d4" }}>{selectedNode.directDownlines ?? 0}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {drawerTab === "nfts" && (
-                <div className={styles.portfolioGrid}>
-                  {(selectedNode.nftPackages && selectedNode.nftPackages.length > 0) ? (
-                    selectedNode.nftPackages.map((nft, index) => (
-                      <div key={index} className={styles.portfolioCard}>
-                        <div className={styles.portfolioCardHeader}>
-                          <span className={styles.portfolioCardTitle}>{nft.packageName || "NFT Package"}</span>
-                          <span className={styles.portfolioValue}>${(nft.mintPrice || 0).toLocaleString()}</span>
-                        </div>
-                        <div className={styles.portfolioCardMeta}>
-                          <span>Mint: {nft.mintPrice ? `${nft.mintPrice} USDT` : "—"}</span>
-                          {nft.purchaseDate && (
-                            <span>{new Date(nft.purchaseDate).toLocaleDateString()}</span>
-                          )}
-                        </div>
-                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, marginTop: 4, borderTop: "1px solid rgba(255,255,255,0.03)", paddingTop: 8 }}>
-                          <span style={{ color: nft.status === "active" ? "#34d399" : "rgba(255,255,255,0.3)" }}>
-                            Status: {nft.status || "active"}
-                          </span>
-                          {nft.roi !== undefined && (
-                            <span style={{ color: "#fbbf24" }}>ROI: {nft.roi}%</span>
-                          )}
-                          {nft.miningPower !== undefined && (
-                            <span style={{ color: "#06b6d4" }}>Power: {nft.miningPower} GH/s</span>
-                          )}
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div style={{ textAlign: "center", padding: "40px 20px", color: "rgba(255,255,255,0.25)" }}>
-                      <Lock size={24} style={{ marginBottom: 8, opacity: 0.4 }} />
-                      <div>No NFT packages owned.</div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {drawerTab === "stakes" && (
-                <div className={styles.portfolioGrid}>
-                  {(selectedNode.stakingPlans && selectedNode.stakingPlans.length > 0) ? (
-                    selectedNode.stakingPlans.map((stake, index) => (
-                      <div key={index} className={styles.portfolioCard}>
-                        <div className={styles.portfolioCardHeader}>
-                          <span className={styles.portfolioCardTitle}>Staking Plan</span>
-                          <span className={styles.portfolioValue}>{(stake.amount || 0).toLocaleString()} TSC</span>
-                        </div>
-                        <div className={styles.portfolioCardMeta}>
-                          <span>Period: {stake.stakingDays || stake.duration || "—"} Days</span>
-                          {stake.startDate && (
-                            <span>{new Date(stake.startDate).toLocaleDateString()}</span>
-                          )}
-                        </div>
-                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, marginTop: 4, borderTop: "1px solid rgba(255,255,255,0.03)", paddingTop: 8 }}>
-                          <span style={{ color: stake.status === "active" ? "#fbbf24" : "rgba(255,255,255,0.3)" }}>
-                            Status: {stake.status || "active"}
-                          </span>
-                          {stake.rewardPercentage !== undefined && (
-                            <span style={{ color: "#34d399" }}>Reward: {stake.rewardPercentage}%</span>
-                          )}
-                        </div>
-                      </div>
-                    ))
-                  ) : selectedNode.stakingPlan?.amount > 0 ? (
-                    <div className={styles.portfolioCard}>
-                      <div className={styles.portfolioCardHeader}>
-                        <span className={styles.portfolioCardTitle}>Primary Staking Plan</span>
-                        <span className={styles.portfolioValue}>{(selectedNode.stakingPlan.amount || 0).toLocaleString()} TSC</span>
-                      </div>
-                      <div className={styles.portfolioCardMeta}>
-                        <span>Period: {selectedNode.stakingPlan.stakingDays || selectedNode.stakingPlan.duration || "—"} Days</span>
-                        {selectedNode.stakingPlan.startDate && (
-                          <span>{new Date(selectedNode.stakingPlan.startDate).toLocaleDateString()}</span>
-                        )}
-                      </div>
-                    </div>
-                  ) : (
-                    <div style={{ textAlign: "center", padding: "40px 20px", color: "rgba(255,255,255,0.25)" }}>
-                      <Lock size={24} style={{ marginBottom: 8, opacity: 0.4 }} />
-                      <div>No active stakes found.</div>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-        </>
-      )}
     </AuthGuard>
   );
 }

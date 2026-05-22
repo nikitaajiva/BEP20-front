@@ -96,7 +96,7 @@ const AppLayout = ({ children }) => {
                   className={`${styles.navLink} ${isActive ? styles.navLinkActive : ""}`}
                   title={link.label}
                 >
-                  <i className={link.icon} style={{ fontSize: "20px" }}></i>
+                  <i className={link.icon} style={{ fontSize: "20px", minWidth: "20px", display: "inline-block", textAlign: "center" }}></i>
                   <span className={styles.navLabel}>{link.label}</span>
                 </Link>
               </li>
@@ -116,24 +116,24 @@ const AppLayout = ({ children }) => {
             </div>
           </div>
 
-          <div className={styles.footerButtonsContainer} style={{ display: "flex", width: "100%" }}>
+          <div className={styles.footerButtonsContainer}>
             <button
               onClick={logout}
               className={styles.navLink}
               title="Logout"
-              style={{ flex: 1, background: "transparent", border: "none", cursor: "pointer", display: "flex", justifyContent: "center" }}
+              style={{ background: "transparent", border: "none", cursor: "pointer" }}
             >
-              <LogOut size={20} />
+              <LogOut size={20} style={{ minWidth: "20px" }} />
               <span className={styles.navLabel}>Logout</span>
             </button>
             {user?.userType === "superadmin" && (
               <Link
                 href="/admin/dashboard"
-                className={styles.navLink}
+                className={`${styles.navLink} ${styles.adminLink}`}
                 title="Super Admin Dashboard"
-                style={{ padding: "12px", background: "rgba(255, 102, 0, 0.1)", border: "1px solid rgba(255, 102, 0, 0.2)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "12px" }}
               >
-                <i className="ri-admin-fill" style={{ fontSize: "20px", color: "#ff6600", margin: 0 }}></i>
+                <i className="ri-admin-fill" style={{ fontSize: "20px", minWidth: "20px" }}></i>
+                <span className={styles.navLabel}>Admin Panel</span>
               </Link>
             )}
           </div>

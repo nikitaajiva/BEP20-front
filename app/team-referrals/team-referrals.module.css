@@ -93,6 +93,13 @@
   grid-column: span 4;
 }
 
+.bentoBox.bentoTableBox:hover {
+  transform: none;
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+}
+
 /* ── Hero Component ── */
 .heroImage {
   object-fit: cover;
@@ -1157,7 +1164,7 @@
 
 .summaryBanner {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 12px;
   margin-bottom: 24px;
 }

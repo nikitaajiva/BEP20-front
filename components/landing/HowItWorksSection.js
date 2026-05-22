@@ -1,7 +1,9 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
+import safeStorage from "@/utils/safeStorage";
 
 // ── Step Card Component ──────────────────────────────────────────────────
 const StepCard = ({ num, icon, title, desc, delay }) => (
@@ -27,6 +29,15 @@ const StepCard = ({ num, icon, title, desc, delay }) => (
 );
 
 const HowItWorksSection = () => {
+  const { user } = useAuth();
+  const [mounted, setMounted] = useState(false);
+  const [hasToken, setHasToken] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    setHasToken(!!safeStorage.getItem("token"));
+  }, []);
+
   const steps = [
     { num: "01", icon: "ri-user-add-line", title: "Join the Track", desc: "Create your secure member profile in under 60 seconds and gain immediate access to the elite dashboard." },
     { num: "02", icon: "ri-flag-2-line", title: "Choose Your Race", desc: "Select from professional-grade races happening 24/7 across the globe, verified for transparency." },
@@ -90,7 +101,7 @@ const HowItWorksSection = () => {
 
         {/* Final Action */}
         <div className="process-cta">
-          <Link href="/sign-up" className="no-underline">
+          <Link href={mounted && (user || hasToken) ? "/dashboard" : "/sign-up"} className="no-underline">
             <motion.button 
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}

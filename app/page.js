@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import LandingNavbar from "../components/landing/LandingNavbar";
 import HeroSection from "../components/landing/HeroSection";
 import AboutBEPVaultSection from "../components/landing/AboutBEPVaultSection";
@@ -10,6 +10,8 @@ import FAQSection from "../components/landing/FAQSection";
 import LandingFooter from "../components/landing/LandingFooter";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useAuth } from "@/context/AuthContext";
+import safeStorage from "../utils/safeStorage";
 
 // ── Particle Canvas Background ──────────────────────────────────────────────
 const ParticleBackground = () => {
@@ -112,6 +114,15 @@ const Divider = () => (
 
 // ── Main Landing Page ───────────────────────────────────────────────────────
 export default function LandingPage() {
+  const { user } = useAuth();
+  const [mounted, setMounted] = useState(false);
+  const [hasToken, setHasToken] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    setHasToken(!!safeStorage.getItem("token"));
+  }, []);
+
   return (
     <div className="bg-[#030303] text-white font-inter relative overflow-x-hidden">
       {/* Canvas Particle BG */}
@@ -218,7 +229,7 @@ export default function LandingPage() {
                   </p>
                   
                   <div className="cta-hero-actions">
-                    <Link href="/sign-up" className="no-underline">
+                    <Link href={mounted && (user || hasToken) ? "/dashboard" : "/sign-up"} className="no-underline">
                       <button className="btn-primary-fire">GET STARTED NOW</button>
                     </Link>
                     <Link href="https://linktr.ee/TokingHoofbornOfficial" target="_blank" className="no-underline">

@@ -50,59 +50,72 @@ function TreeNode({ node, level, expanded, onToggle }) {
 
   return (
     <div style={{ marginBottom: 8 }}>
-      <div className="node-row" style={{
+      <div style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 10,
+        padding: "14px 16px",
+        background: "rgba(255,255,255,0.02)",
+        borderRadius: 14,
         border: `1px solid ${levelColor}22`,
-        borderLeft: `3px solid ${levelColor}`,
+        borderLeft: `3px solid ${levelColor}`
       }}>
-        <div className="node-info-group">
-          {hasChildren ? (
-            <button
-              onClick={() => onToggle(node._id?.toString())}
-              className="node-toggle-btn"
-              style={{
-                background: isOpen ? `${levelColor}22` : "rgba(255,255,255,0.04)",
-                border: `1px solid ${levelColor}44`,
-                color: levelColor,
-              }}
-            >
-              {isOpen ? "−" : "+"}
-            </button>
-          ) : (
-            <div className="node-toggle-spacer" />
-          )}
+        {/* Top Part: User Details & Chips */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, width: "100%", flexWrap: "wrap" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, flex: 1, minWidth: 0 }}>
+            {hasChildren ? (
+              <button
+                onClick={() => onToggle(node._id?.toString())}
+                className="node-toggle-btn"
+                style={{
+                  background: isOpen ? `${levelColor}22` : "rgba(255,255,255,0.04)",
+                  border: `1px solid ${levelColor}44`,
+                  color: levelColor,
+                }}
+              >
+                {isOpen ? "−" : "+"}
+              </button>
+            ) : (
+              <div className="node-toggle-spacer" />
+            )}
 
-          <div style={{
-            width: 40, height: 40, borderRadius: "50%", flexShrink: 0,
-            background: ac.bg, color: ac.text,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 14, fontWeight: 900,
-            border: `2px solid ${ac.text}44`,
-          }}>
-            {initials}
-          </div>
+            <div style={{
+              width: 40, height: 40, borderRadius: "50%", flexShrink: 0,
+              background: ac.bg, color: ac.text,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 14, fontWeight: 900,
+              border: `2px solid ${ac.text}44`,
+            }}>
+              {initials}
+            </div>
 
-          <div style={{ minWidth: 120, flex: 1 }}>
-            <div style={{ fontSize: 14, fontWeight: 800, color: "#fff" }}>{username}</div>
-            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", fontWeight: 600 }}>
-              {node.uhid || "—"}
+            <div style={{ minWidth: 120, flex: 1 }}>
+              <div style={{ fontSize: 14, fontWeight: 800, color: "#fff" }}>{username}</div>
+              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", fontWeight: 600 }}>
+                {node.uhid || "—"}
+              </div>
+            </div>
+
+            <div style={{
+              padding: "3px 10px", borderRadius: 20,
+              background: `${levelColor}22`, border: `1px solid ${levelColor}44`,
+              color: levelColor, fontSize: 10, fontWeight: 900, letterSpacing: 1,
+              flexShrink: 0,
+            }}>
+              L{level}
             </div>
           </div>
 
-          <div style={{
-            padding: "3px 10px", borderRadius: 20,
-            background: `${levelColor}22`, border: `1px solid ${levelColor}44`,
-            color: levelColor, fontSize: 10, fontWeight: 900, letterSpacing: 1,
-            flexShrink: 0,
-          }}>
-            L{level}
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <Chip label="Team" value={node.communitySize ?? 0} color="#818cf8" />
+            <Chip label="Directs" value={node.directDownlines ?? 0} color="#06b6d4" />
+            <Chip label="Stakes" value={(node.teamStakes !== undefined && node.teamStakes > 0) ? `${node.teamStakes.toLocaleString()} TSC` : (totalStakedAmount > 0 ? `${totalStakedAmount.toLocaleString()} TSC` : activeStakes)} color="#fbbf24" />
+            <Chip label="NFTs" value={(node.teamNfts !== undefined && node.teamNfts > 0) ? `$${node.teamNfts.toLocaleString()}` : (totalNftValue > 0 ? `$${totalNftValue.toLocaleString()}` : nftCount)} color="#34d399" />
+            <Chip label="My Stake" value={"$" + (node.personalStaking || 0).toLocaleString() + " USDT"} color="#fbbf24" />
+            <Chip label="My NFT" value={"$" + (node.personalHorseNft || 0).toLocaleString() + " USDT"} color="#34d399" />
+            <Chip label="Parent Earned" value={"$" + (node.commissionToParent || 0).toFixed(4) + " USDT"} color="#06b6d4" />
+            <Chip label="Today's Earned" value={"$" + (node.todaysEarnings?.usdt || 0).toFixed(4) + " USDT / " + (node.todaysEarnings?.tsc || 0).toFixed(4) + " TSC"} color="#a78bfa" />
           </div>
-        </div>
-
-        <div className="node-stats-group">
-          <Chip label="Team" value={node.communitySize ?? 0} color="#818cf8" />
-          <Chip label="Directs" value={node.directDownlines ?? 0} color="#06b6d4" />
-          <Chip label="Stakes" value={(node.teamStakes !== undefined && node.teamStakes > 0) ? `${node.teamStakes.toLocaleString()} TSC` : (totalStakedAmount > 0 ? `${totalStakedAmount.toLocaleString()} TSC` : activeStakes)} color="#fbbf24" />
-          <Chip label="NFTs" value={(node.teamNfts !== undefined && node.teamNfts > 0) ? `$${node.teamNfts.toLocaleString()}` : (totalNftValue > 0 ? `$${totalNftValue.toLocaleString()}` : nftCount)} color="#34d399" />
         </div>
       </div>
 
@@ -135,8 +148,12 @@ function SummaryBanner({ summary }) {
         { label: "L1 TSC", value: `${(summary.l1?.tokenEarnings ?? 0).toFixed(4)}`, color: "#818cf8", icon: "💎" },
         { label: "L2 TSC", value: `${(summary.l2?.tokenEarnings ?? 0).toFixed(4)}`, color: "#34d399", icon: "💎" },
         { label: "Total TSC", value: `${(summary.totalTokenEarnings ?? 0).toFixed(4)}`, color: "#fbbf24", icon: "🏆" },
+        { label: "Self Stake", value: `${(summary.selfStaking ?? 0).toLocaleString()} TSC`, color: "#a78bfa", icon: "⚡" },
+        { label: "Self NFT", value: `$${(summary.selfHorseNft ?? 0).toLocaleString()}`, color: "#38bdf8", icon: "🐴" },
+        { label: "Team Stake", value: `${(summary.teamStaking ?? 0).toLocaleString()} TSC`, color: "#fbbf24", icon: "🛡️" },
+        { label: "Team NFT", value: `$${(summary.teamHorseNft ?? 0).toLocaleString()}`, color: "#ec4899", icon: "👑" },
       ].map((item, idx) => (
-        <div key={item.label} className={`summary-card ${idx === 4 ? "summary-card-total" : ""}`} style={{
+        <div key={item.label} className="summary-card" style={{
           border: `1px solid ${item.color}33`,
         }}>
           <div style={{ fontSize: 18, marginBottom: 4 }}>{item.icon}</div>
@@ -255,7 +272,7 @@ export default function ReferralTreeModal({ isOpen, onClose, API_URL, summaryDat
         /* --- General layout responsive improvements --- */
         .summary-grid {
           display: grid;
-          grid-template-columns: repeat(5, 1fr);
+          grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
           gap: 12px;
           margin-bottom: 24px;
         }

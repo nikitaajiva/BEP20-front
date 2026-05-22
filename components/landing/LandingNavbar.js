@@ -3,6 +3,8 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "@/context/AuthContext";
+import safeStorage from "@/utils/safeStorage";
 
 // ── Top Ticker Bar ────────────────────────────────────────────────────────
 const TopTicker = () => {
@@ -36,8 +38,16 @@ const TopTicker = () => {
 
 // ── Main Navbar ─────────────────────────────────────────────────────────────
 const LandingNavbar = () => {
+  const { user } = useAuth();
+  const [mounted, setMounted] = useState(false);
+  const [hasToken, setHasToken] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    setHasToken(!!safeStorage.getItem("token"));
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -105,17 +115,28 @@ const LandingNavbar = () => {
 
           {/* Desktop Actions */}
           <div className="navbar-actions">
-            <Link href="/login" className="no-underline">
-              <button className="nav-btn-ghost">
-                <span>LOGIN</span>
-              </button>
-            </Link>
-            <Link href="/sign-up" className="no-underline">
-              <button className="nav-btn-fire">
-                GET STARTED
-                <div className="btn-glow-pulse" />
-              </button>
-            </Link>
+            {mounted && (user || hasToken) ? (
+              <Link href="/dashboard" className="no-underline">
+                <button className="nav-btn-fire">
+                  GET STARTED
+                  <div className="btn-glow-pulse" />
+                </button>
+              </Link>
+            ) : (
+              <>
+                <Link href="/login" className="no-underline">
+                  <button className="nav-btn-ghost">
+                    <span>LOGIN</span>
+                  </button>
+                </Link>
+                <Link href="/sign-up" className="no-underline">
+                  <button className="nav-btn-fire">
+                    GET STARTED
+                    <div className="btn-glow-pulse" />
+                  </button>
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -174,18 +195,26 @@ const LandingNavbar = () => {
                         className="drawer-link"
                       >
                         <span className="drawer-link-text">{l.label}</span>
-                        <i className="ri-arrow-right-up-line" />
+                        <i className="ri-arrow-right-line" />
                       </motion.a>
                     ))}
                   </div>
 
                   <div className="drawer-footer">
-                    <Link href="/login" className="no-underline w-full" onClick={() => setMenuOpen(false)}>
-                      <button className="nav-btn-ghost w-full py-4 text-sm font-bold">LOGIN</button>
-                    </Link>
-                    <Link href="/sign-up" className="no-underline w-full" onClick={() => setMenuOpen(false)}>
-                      <button className="nav-btn-fire w-full py-4 text-sm font-black">GET STARTED</button>
-                    </Link>
+                    {mounted && (user || hasToken) ? (
+                      <Link href="/dashboard" className="no-underline w-full" onClick={() => setMenuOpen(false)}>
+                        <button className="nav-btn-fire w-full py-4 text-sm font-black">GET STARTED</button>
+                      </Link>
+                    ) : (
+                      <>
+                        <Link href="/login" className="no-underline w-full" onClick={() => setMenuOpen(false)}>
+                          <button className="nav-btn-ghost w-full py-4 text-sm font-bold">LOGIN</button>
+                        </Link>
+                        <Link href="/sign-up" className="no-underline w-full" onClick={() => setMenuOpen(false)}>
+                          <button className="nav-btn-fire w-full py-4 text-sm font-black">GET STARTED</button>
+                        </Link>
+                      </>
+                    )}
                   </div>
                 </div>
               </motion.div>

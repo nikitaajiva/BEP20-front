@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { motion } from "framer-motion";
-import { FaTimes, FaCoins, FaBitcoin, FaEthereum, FaClock, FaShieldAlt, FaBolt, FaChartLine, FaCheckCircle, FaQrcode, FaCopy, FaSpinner, FaWallet } from "react-icons/fa";
+import { FaTimes, FaCoins, FaBitcoin, FaEthereum, FaClock, FaShieldAlt, FaBolt, FaChartLine, FaCheckCircle, FaQrcode, FaCopy, FaSpinner, FaWallet, FaInfoCircle } from "react-icons/fa";
 import { useAuth } from "@/context/AuthContext";
 import SuccessModal from "./SuccessModal";
 import QRCode from "qrcode";
@@ -13,23 +13,57 @@ const tiers = [
   { days: 365, min: 23, max: 28, badge: "Premium",  color: "#e63200", description: "Top-tier APY with maximum compounding." },
 ];
 
-const getUnlockedNftDetails = (amount) => {
+const getUnlockedNftDetails = (amount, customTiers = []) => {
   const amt = parseFloat(amount);
-  if (isNaN(amt) || amt < 100) return null;
+  if (isNaN(amt)) return null;
+
+  if (customTiers && customTiers.length > 0) {
+    const sortedTiers = [...customTiers].sort((a, b) => parseFloat(b.mintPriceU) - parseFloat(a.mintPriceU));
+    const matched = sortedTiers.find(tier => amt >= parseFloat(tier.mintPriceU));
+    if (matched) {
+      const levelColors = {
+        N1: "#3d00ff",
+        N2: "#5d00ff",
+        N3: "#7d00ff",
+        N4: "#9d00ff",
+        N5: "#bd00ff"
+      };
+      const levelDescs = {
+        N1: "Ideal entry point for active yields.",
+        N2: "Professional mining performance.",
+        N3: "Robust power for growing staking setups.",
+        N4: "High-performance mining system.",
+        N5: "Top-tier miner with maximum yield potential."
+      };
+      return {
+        level: matched.code,
+        name: matched.name,
+        power: parseFloat(matched.miningPower),
+        coeff: parseFloat(matched.powerCoefficient),
+        color: levelColors[matched.code] || "#bd00ff",
+        desc: levelDescs[matched.code] || "Ecosystem unlocked miner.",
+        mintPriceU: parseFloat(matched.mintPriceU),
+        dailyYield: parseFloat(matched.dailyYieldRatePercent)
+      };
+    }
+    return null;
+  }
+
+  if (amt < 100) return null;
   if (amt >= 10000) {
-    return { level: "N5", name: "Master Miner", power: 10000, coeff: 1.1, color: "#bd00ff", desc: "Top-tier miner with maximum yield potential." };
+    return { level: "N5", name: "Master Miner", power: 10000, coeff: 1.1, color: "#bd00ff", desc: "Top-tier miner with maximum yield potential.", mintPriceU: 10000, dailyYield: 0.1 };
   }
   if (amt >= 3000) {
-    return { level: "N4", name: "Elite Miner", power: 3000, coeff: 1.0, color: "#9d00ff", desc: "High-performance mining system." };
+    return { level: "N4", name: "Elite Miner", power: 3000, coeff: 1.0, color: "#9d00ff", desc: "High-performance mining system.", mintPriceU: 3000, dailyYield: 0.08 };
   }
   if (amt >= 1000) {
-    return { level: "N3", name: "Advanced Miner", power: 1000, coeff: 0.9, color: "#7d00ff", desc: "Robust power for growing staking setups." };
+    return { level: "N3", name: "Advanced Miner", power: 1000, coeff: 0.9, color: "#7d00ff", desc: "Robust power for growing staking setups.", mintPriceU: 1000, dailyYield: 0.06 };
   }
   if (amt >= 500) {
-    return { level: "N2", name: "Pro Miner", power: 500, coeff: 0.8, color: "#5d00ff", desc: "Professional mining performance." };
+    return { level: "N2", name: "Pro Miner", power: 500, coeff: 0.8, color: "#5d00ff", desc: "Professional mining performance.", mintPriceU: 500, dailyYield: 0.05 };
   }
   if (amt >= 100) {
-    return { level: "N1", name: "Starter Miner", power: 100, coeff: 0.7, color: "#3d00ff", desc: "Ideal entry point for active yields." };
+    return { level: "N1", name: "Starter Miner", power: 100, coeff: 0.7, color: "#3d00ff", desc: "Ideal entry point for active yields.", mintPriceU: 100, dailyYield: 0.04 };
   }
   return null;
 };
@@ -43,6 +77,9 @@ export default function StakingModal({ isOpen, onClose, ledgerDetails }) {
   const [showSuccess, setShowSuccess] = useState(false);
   const [successTxHash, setSuccessTxHash] = useState("");
   const [activationError, setActivationError] = useState("");
+  const [nftTiers, setNftTiers] = useState([]);
+  const [loadingTiers, setLoadingTiers] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
 
   // SOL/USDT Conversion
   const [solRate, setSolRate] = useState(null);
@@ -265,6 +302,32 @@ export default function StakingModal({ isOpen, onClose, ledgerDetails }) {
     await processStaking();
   };
 
+  // Fetch dynamic NFT tiers from API
+  useEffect(() => {
+    const fetchTiers = async () => {
+      if (!isOpen || !API_URL) return;
+      setLoadingTiers(true);
+      try {
+        const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+        const headers = {};
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
+        const res = await fetch(`${API_URL}/nft/tiers`, { headers });
+        const data = await res.json();
+        if (data.success && Array.isArray(data.data)) {
+          const sorted = data.data.sort((a, b) => (Number(a.sortOrder) || 0) - (Number(b.sortOrder) || 0));
+          setNftTiers(sorted);
+        }
+      } catch (err) {
+        console.error("Failed to fetch NFT tiers:", err);
+      } finally {
+        setLoadingTiers(false);
+      }
+    };
+    fetchTiers();
+  }, [isOpen, API_URL]);
+
   // Clean state on open/close
   useEffect(() => {
     if (!isOpen) {
@@ -300,6 +363,71 @@ export default function StakingModal({ isOpen, onClose, ledgerDetails }) {
 
   if (!isOpen) return null;
 
+  const renderTooltip = (currentNft) => {
+    const list = nftTiers.length > 0 ? nftTiers : [
+      { code: "N1", name: "Starter Miner", mintPriceU: 100, miningPower: 100, powerCoefficient: 0.7, dailyYieldRatePercent: 0.04 },
+      { code: "N2", name: "Pro Miner", mintPriceU: 500, miningPower: 500, powerCoefficient: 0.8, dailyYieldRatePercent: 0.05 },
+      { code: "N3", name: "Advanced Miner", mintPriceU: 1000, miningPower: 1000, powerCoefficient: 0.9, dailyYieldRatePercent: 0.06 },
+      { code: "N4", name: "Elite Miner", mintPriceU: 3000, miningPower: 3000, powerCoefficient: 1.0, dailyYieldRatePercent: 0.08 },
+      { code: "N5", name: "Master Miner", mintPriceU: 10000, miningPower: 10000, powerCoefficient: 1.1, dailyYieldRatePercent: 0.1 }
+    ];
+
+    return (
+      <div style={{
+        position: "absolute",
+        bottom: "calc(100% + 10px)",
+        left: 0,
+        right: 0,
+        background: "rgba(10, 8, 14, 0.98)",
+        backdropFilter: "blur(20px)",
+        border: "1px solid rgba(189, 0, 255, 0.35)",
+        borderRadius: 16,
+        padding: 16,
+        zIndex: 99,
+        boxShadow: "0 -10px 30px rgba(0, 0, 0, 0.8), 0 0 25px rgba(189, 0, 255, 0.15)",
+        pointerEvents: "none"
+      }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, borderBottom: "1px solid rgba(255,255,255,0.08)", paddingBottom: 8 }}>
+          <span style={{ fontSize: 11, fontWeight: 900, color: "#bd00ff", textTransform: "uppercase", letterSpacing: 1 }}>Mining Tiers &amp; Rewards</span>
+          <span style={{ fontSize: 9, color: "rgba(255,255,255,0.4)" }}>USDT Stake Threshold</span>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {list.map((tierItem) => {
+            const isCurrent = currentNft?.level === tierItem.code;
+            return (
+              <div 
+                key={tierItem.code} 
+                style={{ 
+                  display: "flex", 
+                  alignItems: "center", 
+                  justifyContent: "space-between", 
+                  padding: "8px 12px", 
+                  borderRadius: 10, 
+                  background: isCurrent ? "rgba(189, 0, 255, 0.12)" : "rgba(255,255,255,0.02)",
+                  border: isCurrent ? "1px solid rgba(189, 0, 255, 0.4)" : "1px solid rgba(255,255,255,0.05)"
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontSize: 9, fontWeight: 900, background: isCurrent ? "#bd00ff" : "rgba(255,255,255,0.1)", color: "#fff", padding: "2px 5px", borderRadius: 4 }}>
+                    {tierItem.code}
+                  </span>
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 800, color: "#fff" }}>{tierItem.name}</div>
+                    <div style={{ fontSize: 9, color: "rgba(255,255,255,0.4)" }}>Min: {parseFloat(tierItem.mintPriceU).toLocaleString()} USDT</div>
+                  </div>
+                </div>
+                <div style={{ textAlign: "right" }}>
+                  <div style={{ fontSize: 11, fontWeight: 900, color: "#bd00ff" }}>{parseFloat(tierItem.miningPower).toLocaleString()} H/s</div>
+                  <div style={{ fontSize: 9, color: "rgba(255,255,255,0.5)" }}>Coeff: {parseFloat(tierItem.powerCoefficient)}x ({parseFloat(tierItem.dailyYieldRatePercent || 0)}%/d)</div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
   const currentBalanceSol = parseFloat(ledgerDetails?.solWallet?.balance || "0");
 
   return (
@@ -309,7 +437,7 @@ export default function StakingModal({ isOpen, onClose, ledgerDetails }) {
         onClose={() => window.location.reload()}
         title="Staking Confirmed"
         message={(() => {
-          const nft = getUnlockedNftDetails(amount);
+          const nft = getUnlockedNftDetails(amount, nftTiers);
           return nft 
             ? `Successfully staked ${amount} USDT for ${tier?.days} days and unlocked ${nft.name} (Level ${nft.level}). Your yield engine is now active.`
             : `Successfully staked ${amount} USDT for ${tier?.days} days. Your yield engine is now active.`;
@@ -537,54 +665,119 @@ export default function StakingModal({ isOpen, onClose, ledgerDetails }) {
 
                 {/* Unlocked Mining NFT Indicator */}
                 {(() => {
-                  const nft = getUnlockedNftDetails(amount);
-                  if (!nft) return null;
-                  return (
-                    <motion.div
-                      initial={{ scale: 0.95, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      style={{
-                        background: "linear-gradient(135deg, rgba(189, 0, 255, 0.15), rgba(13, 11, 28, 0.7))",
-                        border: "1px solid rgba(189, 0, 255, 0.4)",
-                        borderRadius: 20,
-                        padding: 16,
-                        marginBottom: 16,
-                        boxShadow: "0 8px 32px rgba(189, 0, 255, 0.15)",
-                        position: "relative",
-                        overflow: "hidden"
-                      }}
-                    >
-                      <div style={{ position: "absolute", top: -20, right: -20, width: 80, height: 80, background: "rgba(189, 0, 255, 0.3)", filter: "blur(20px)", borderRadius: "50%" }} />
-                      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                        <div style={{
-                          width: 40, height: 40, borderRadius: 12,
-                          background: "rgba(189, 0, 255, 0.2)",
-                          border: "1px solid rgba(189, 0, 255, 0.4)",
-                          display: "flex", alignItems: "center", justifyContent: "center",
-                          color: "#bd00ff", fontSize: 18
-                        }}>
-                          <FaBolt />
-                        </div>
-                        <div style={{ flex: 1 }}>
-                          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                            <span style={{ fontSize: 9, fontWeight: 900, color: "#bd00ff", textTransform: "uppercase", letterSpacing: 1.5 }}>Ecosystem Unlock</span>
-                            <span style={{ fontSize: 9, fontWeight: 900, background: "#bd00ff", color: "#fff", padding: "1px 5px", borderRadius: 4 }}>LEVEL {nft.level}</span>
+                  const nft = getUnlockedNftDetails(amount, nftTiers);
+                  
+                  if (!nft) {
+                    return (
+                      <div style={{ position: "relative" }}>
+                        <motion.div
+                          initial={{ scale: 0.95, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          style={{
+                            background: "rgba(255,255,255,0.01)",
+                            border: "1px dashed rgba(255,255,255,0.12)",
+                            borderRadius: 20,
+                            padding: 16,
+                            marginBottom: 16,
+                            position: "relative",
+                            overflow: "visible"
+                          }}
+                        >
+                          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                            <div style={{
+                              width: 40, height: 40, borderRadius: 12,
+                              background: "rgba(255,255,255,0.03)",
+                              border: "1px dashed rgba(255,255,255,0.1)",
+                              display: "flex", alignItems: "center", justifyContent: "center",
+                              color: "rgba(255,255,255,0.2)", fontSize: 18
+                            }}>
+                              <FaShieldAlt style={{ opacity: 0.4 }} />
+                            </div>
+                            <div style={{ flex: 1 }}>
+                              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                                <span style={{ fontSize: 9, fontWeight: 900, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: 1.5, display: "flex", alignItems: "center", gap: 4 }}>
+                                  Ecosystem Unlock
+                                  <span 
+                                    onMouseEnter={() => setShowTooltip(true)}
+                                    onMouseLeave={() => setShowTooltip(false)}
+                                    style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", color: "rgba(255,255,255,0.3)", transition: "color 0.2s" }}
+                                  >
+                                    <FaInfoCircle size={11} />
+                                  </span>
+                                </span>
+                                <span style={{ fontSize: 9, fontWeight: 900, background: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.3)", padding: "1px 5px", borderRadius: 4 }}>LOCKED</span>
+                              </div>
+                              <h4 style={{ fontSize: 13, fontWeight: 800, margin: "2px 0 0 0", color: "rgba(255,255,255,0.4)" }}>STAKE &ge; 100 USDT TO UNLOCK MINING</h4>
+                            </div>
                           </div>
-                          <h4 style={{ fontSize: 15, fontWeight: 900, margin: "2px 0 0 0", color: "#fff", textTransform: "uppercase" }}>{nft.name}</h4>
-                        </div>
+
+                          {/* Tooltip Overlay */}
+                          {showTooltip && renderTooltip(null)}
+                        </motion.div>
                       </div>
-                      <p style={{ fontSize: 11, color: "rgba(255, 255, 255, 0.6)", margin: "8px 0 10px 0", lineHeight: 1.4 }}>{nft.desc}</p>
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, background: "rgba(0,0,0,0.3)", padding: 8, borderRadius: 12, border: "1px solid rgba(255,255,255,0.05)" }}>
-                        <div style={{ textAlign: "center" }}>
-                          <div style={{ fontSize: 8, fontWeight: 800, color: "rgba(255,255,255,0.4)", textTransform: "uppercase" }}>Mining Power</div>
-                          <div style={{ fontSize: 11, fontWeight: 900, color: "#fff" }}>{nft.power.toLocaleString()} H/s</div>
+                    );
+                  }
+
+                  return (
+                    <div style={{ position: "relative" }}>
+                      <motion.div
+                        initial={{ scale: 0.95, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        style={{
+                          background: "linear-gradient(135deg, rgba(189, 0, 255, 0.15), rgba(13, 11, 28, 0.7))",
+                          border: "1px solid rgba(189, 0, 255, 0.4)",
+                          borderRadius: 20,
+                          padding: 16,
+                          marginBottom: 16,
+                          boxShadow: "0 8px 32px rgba(189, 0, 255, 0.15)",
+                          position: "relative",
+                          overflow: "visible"
+                        }}
+                      >
+                        <div style={{ position: "absolute", top: -20, right: -20, width: 80, height: 80, background: "rgba(189, 0, 255, 0.3)", filter: "blur(20px)", borderRadius: "50%" }} />
+                        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                          <div style={{
+                            width: 40, height: 40, borderRadius: 12,
+                            background: "rgba(189, 0, 255, 0.2)",
+                            border: "1px solid rgba(189, 0, 255, 0.4)",
+                            display: "flex", alignItems: "center", justifyContent: "center",
+                            color: "#bd00ff", fontSize: 18
+                          }}>
+                            <FaBolt />
+                          </div>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                              <span style={{ fontSize: 9, fontWeight: 900, color: "#bd00ff", textTransform: "uppercase", letterSpacing: 1.5, display: "flex", alignItems: "center", gap: 4 }}>
+                                Ecosystem Unlock
+                                <span 
+                                  onMouseEnter={() => setShowTooltip(true)}
+                                  onMouseLeave={() => setShowTooltip(false)}
+                                  style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", color: "rgba(189, 0, 255, 0.7)", transition: "color 0.2s" }}
+                                >
+                                  <FaInfoCircle size={11} />
+                                </span>
+                              </span>
+                              <span style={{ fontSize: 9, fontWeight: 900, background: "#bd00ff", color: "#fff", padding: "1px 5px", borderRadius: 4 }}>LEVEL {nft.level}</span>
+                            </div>
+                            <h4 style={{ fontSize: 15, fontWeight: 900, margin: "2px 0 0 0", color: "#fff", textTransform: "uppercase" }}>{nft.name}</h4>
+                          </div>
                         </div>
-                        <div style={{ textAlign: "center" }}>
-                          <div style={{ fontSize: 8, fontWeight: 800, color: "rgba(255,255,255,0.4)", textTransform: "uppercase" }}>Power Coeff</div>
-                          <div style={{ fontSize: 11, fontWeight: 900, color: "#bd00ff" }}>{nft.coeff}x</div>
+                        <p style={{ fontSize: 11, color: "rgba(255, 255, 255, 0.6)", margin: "8px 0 10px 0", lineHeight: 1.4 }}>{nft.desc}</p>
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, background: "rgba(0,0,0,0.3)", padding: 8, borderRadius: 12, border: "1px solid rgba(255,255,255,0.05)" }}>
+                          <div style={{ textAlign: "center" }}>
+                            <div style={{ fontSize: 8, fontWeight: 800, color: "rgba(255,255,255,0.4)", textTransform: "uppercase" }}>Mining Power</div>
+                            <div style={{ fontSize: 11, fontWeight: 900, color: "#fff" }}>{nft.power.toLocaleString()} H/s</div>
+                          </div>
+                          <div style={{ textAlign: "center" }}>
+                            <div style={{ fontSize: 8, fontWeight: 800, color: "rgba(255,255,255,0.4)", textTransform: "uppercase" }}>Power Coeff</div>
+                            <div style={{ fontSize: 11, fontWeight: 900, color: "#bd00ff" }}>{nft.coeff}x</div>
+                          </div>
                         </div>
-                      </div>
-                    </motion.div>
+
+                        {/* Tooltip Overlay */}
+                        {showTooltip && renderTooltip(nft)}
+                      </motion.div>
+                    </div>
                   );
                 })()}
                 

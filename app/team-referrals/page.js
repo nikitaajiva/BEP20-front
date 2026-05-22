@@ -52,29 +52,36 @@ function TreeNode({ node, level, expanded, onToggle }) {
 
   return (
     <div style={{ marginBottom:8 }}>
-      <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:12, padding:"14px 16px", background:"rgba(255,255,255,0.02)", borderRadius:14, border:`1px solid ${levelColor}22`, borderLeft:`3px solid ${levelColor}`, flexWrap:"wrap" }}>
-        <div style={{ display:"flex", alignItems:"center", gap:12, flex:1, minWidth:0 }}>
-          {hasChildren ? (
-            <button onClick={() => onToggle(node._id?.toString())} style={{ width:28, height:28, borderRadius:8, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, border:`1px solid ${levelColor}44`, background:isOpen?`${levelColor}22`:"rgba(255,255,255,0.04)", color:levelColor, fontSize:14, fontWeight:900, cursor:"pointer" }}>
-              {isOpen ? "−" : "+"}
-            </button>
-          ) : <div style={{ width:28, height:28, flexShrink:0 }} />}
-          <div style={{ width:40, height:40, borderRadius:"50%", flexShrink:0, background:ac.bg, color:ac.text, display:"flex", alignItems:"center", justifyContent:"center", fontSize:14, fontWeight:900, border:`2px solid ${ac.text}44` }}>{initials}</div>
-          <div style={{ minWidth:120, flex:1 }}>
-            <div style={{ fontSize:14, fontWeight:800, color:"#fff", display:"flex", alignItems:"center", gap:6 }}>
-              {username}
-              {node.xRank && <span className={styles.rankBadgeX} style={{ fontSize:8, padding:"1px 4px", borderRadius:4, fontWeight:900 }}>{node.xRank}</span>}
-              {node.nodeTier && <span className={styles.rankBadgeP} style={{ fontSize:8, padding:"1px 4px", borderRadius:4, fontWeight:900 }}>{node.nodeTier}</span>}
+      <div style={{ display:"flex", flexDirection:"column", gap:10, padding:"14px 16px", background:"rgba(255,255,255,0.02)", borderRadius:14, border:`1px solid ${levelColor}22`, borderLeft:`3px solid ${levelColor}` }}>
+        {/* Top Part: User Details & Chips */}
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:12, width: "100%", flexWrap:"wrap" }}>
+          <div style={{ display:"flex", alignItems:"center", gap:12, flex:1, minWidth:0 }}>
+            {hasChildren ? (
+              <button onClick={() => onToggle(node._id?.toString())} style={{ width:28, height:28, borderRadius:8, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, border:`1px solid ${levelColor}44`, background:isOpen?`${levelColor}22`:"rgba(255,255,255,0.04)", color:levelColor, fontSize:14, fontWeight:900, cursor:"pointer" }}>
+                {isOpen ? "−" : "+"}
+              </button>
+            ) : <div style={{ width:28, height:28, flexShrink:0 }} />}
+            <div style={{ width:40, height:40, borderRadius:"50%", flexShrink:0, background:ac.bg, color:ac.text, display:"flex", alignItems:"center", justifyContent:"center", fontSize:14, fontWeight:900, border:`2px solid ${ac.text}44` }}>{initials}</div>
+            <div style={{ minWidth:120, flex:1 }}>
+              <div style={{ fontSize:14, fontWeight:800, color:"#fff", display:"flex", alignItems:"center", gap:6 }}>
+                {username}
+                {node.xRank && <span className={styles.rankBadgeX} style={{ fontSize:8, padding:"1px 4px", borderRadius:4, fontWeight:900 }}>{node.xRank}</span>}
+                {node.nodeTier && <span className={styles.rankBadgeP} style={{ fontSize:8, padding:"1px 4px", borderRadius:4, fontWeight:900 }}>{node.nodeTier}</span>}
+              </div>
+              <div style={{ fontSize:10, color:"rgba(255,255,255,0.3)", fontWeight:600 }}>{node.uhid || "—"}</div>
             </div>
-            <div style={{ fontSize:10, color:"rgba(255,255,255,0.3)", fontWeight:600 }}>{node.uhid || "—"}</div>
+            <div style={{ padding:"3px 10px", borderRadius:20, background:`${levelColor}22`, border:`1px solid ${levelColor}44`, color:levelColor, fontSize:10, fontWeight:900, letterSpacing:1, flexShrink:0 }}>L{level}</div>
           </div>
-          <div style={{ padding:"3px 10px", borderRadius:20, background:`${levelColor}22`, border:`1px solid ${levelColor}44`, color:levelColor, fontSize:10, fontWeight:900, letterSpacing:1, flexShrink:0 }}>L{level}</div>
-        </div>
-        <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
-          <Chip label="Team"    value={node.communitySize ?? 0}   color="#818cf8" />
-          <Chip label="Directs" value={node.directDownlines ?? 0} color="#06b6d4" />
-          <Chip label="Stakes"  value={(node.teamStakes !== undefined && node.teamStakes > 0) ? `${node.teamStakes.toLocaleString()} TSC` : (totalStakedAmount > 0 ? `${totalStakedAmount.toLocaleString()} TSC` : activeStakes)} color="#fbbf24" />
-          <Chip label="NFTs"    value={(node.teamNfts !== undefined && node.teamNfts > 0) ? `$${node.teamNfts.toLocaleString()}` : (totalNftValue > 0 ? `$${totalNftValue.toLocaleString()}` : nftCount)} color="#34d399" />
+          <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
+            <Chip label="Team"    value={node.communitySize ?? 0}   color="#818cf8" />
+            <Chip label="Directs" value={node.directDownlines ?? 0} color="#06b6d4" />
+            <Chip label="Stakes"  value={(node.teamStakes !== undefined && node.teamStakes > 0) ? `${node.teamStakes.toLocaleString()} TSC` : (totalStakedAmount > 0 ? `${totalStakedAmount.toLocaleString()} TSC` : activeStakes)} color="#fbbf24" />
+            <Chip label="NFTs"    value={(node.teamNfts !== undefined && node.teamNfts > 0) ? `$${node.teamNfts.toLocaleString()}` : (totalNftValue > 0 ? `$${totalNftValue.toLocaleString()}` : nftCount)} color="#34d399" />
+            <Chip label="My Stake" value={"$" + (node.personalStaking || 0).toLocaleString() + " USDT"} color="#fbbf24" />
+            <Chip label="My NFT" value={"$" + (node.personalHorseNft || 0).toLocaleString() + " USDT"} color="#34d399" />
+            <Chip label="Parent Earned" value={"$" + (node.commissionToParent || 0).toFixed(4) + " USDT"} color="#06b6d4" />
+            <Chip label="Today's Earned" value={"$" + (node.todaysEarnings?.usdt || 0).toFixed(4) + " USDT / " + (node.todaysEarnings?.tsc || 0).toFixed(4) + " TSC"} color="#a78bfa" />
+          </div>
         </div>
       </div>
       {isOpen && hasChildren && (
@@ -115,11 +122,15 @@ function SummaryBanner({ summary }) {
     { label:"L1 TSC",      value:(summary.l1?.tokenEarnings ?? 0).toFixed(4),        color:"#818cf8", icon:"💎" },
     { label:"L2 TSC",      value:(summary.l2?.tokenEarnings ?? 0).toFixed(4),        color:"#34d399", icon:"💎" },
     { label:"Total TSC",   value:(summary.totalTokenEarnings ?? 0).toFixed(4),       color:"#fbbf24", icon:"🏆" },
+    { label:"Self Stake",  value:`${(summary.selfStaking ?? 0).toLocaleString()} TSC`, color:"#a78bfa", icon:"⚡" },
+    { label:"Self NFT",    value:`$${(summary.selfHorseNft ?? 0).toLocaleString()}`, color:"#38bdf8", icon:"🐴" },
+    { label:"Team Stake",  value:`${(summary.teamStaking ?? 0).toLocaleString()} TSC`, color:"#fbbf24", icon:"🛡️" },
+    { label:"Team NFT",    value:`$${(summary.teamHorseNft ?? 0).toLocaleString()}`, color:"#ec4899", icon:"👑" },
   ];
   return (
     <div className={styles.summaryBanner}>
       {items.map(item => (
-        <div key={item.label} className={styles.summaryCard}>
+        <div key={item.label} className={styles.summaryCard} style={{ border: `1px solid ${item.color}22` }}>
           <div className={styles.summaryCardIcon}>{item.icon}</div>
           <div className={styles.summaryCardLabel}>{item.label}</div>
           <div className={styles.summaryCardValue} style={{ color: item.color }}>{item.value}</div>
@@ -277,6 +288,7 @@ export default function TeamReferralsPage() {
   const [nodeSearch,  setNodeSearch]  = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [filterLevel, setFilterLevel] = useState("all"); 
+  const [isTopPerformersOpen, setIsTopPerformersOpen] = useState(false);
   const fetchedRef = useRef(false);
 
 
@@ -378,21 +390,6 @@ export default function TeamReferralsPage() {
         <div className={styles.contentWrapper}>
           <div className={styles.bentoGrid}>
 
-            {/* ══ TOP PERFORMERS ══ */}
-            <div className={`${styles.bentoBox} ${styles.bentoTableBox}`}>
-              <div className={styles.boxHeader} style={{ marginBottom:20 }}>
-                <div className={styles.headerLeft}>
-                  <span style={{ fontSize:22 }}>🏆</span>
-                  <div>
-                    <span style={{ fontSize:15, fontWeight:900, color:"#fff", display:"block" }}>Top Performers</span>
-                    <span style={{ fontSize:11, color:"rgba(255,255,255,0.35)" }}>Highest-impact nodes in your network</span>
-                  </div>
-                </div>
-              </div>
-              <TopPerformers nodes={topPerformerNodes} loading={loading} />
-              <style>{`@keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }`}</style>
-            </div>
-
             {/* ══ MY REFERRAL TREE ══ */}
             <div className={`${styles.bentoBox} ${styles.bentoTableBox}`}>
               <div className={styles.boxHeader}>
@@ -403,9 +400,31 @@ export default function TeamReferralsPage() {
                     <span style={{ fontSize:11, color:"rgba(255,255,255,0.35)" }}>Your L1 + L2 network</span>
                   </div>
                 </div>
-                <button onClick={fetchData} style={{ width:38, height:38, borderRadius:12, background:"rgba(129,140,248,0.1)", border:"1px solid rgba(129,140,248,0.3)", color:"#818cf8", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>
-                  <RefreshCw size={15} className={loading ? styles.spinning : ""} />
-                </button>
+                <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                  <button
+                    onClick={() => setIsTopPerformersOpen(true)}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                      padding: "8px 16px",
+                      background: "linear-gradient(135deg, rgba(255, 184, 0, 0.15) 0%, rgba(255, 98, 0, 0.15) 100%)",
+                      border: "1px solid rgba(255, 184, 0, 0.3)",
+                      borderRadius: 12,
+                      color: "#FFB800",
+                      fontSize: 12,
+                      fontWeight: 800,
+                      cursor: "pointer",
+                      boxShadow: "0 4px 15px rgba(255, 184, 0, 0.1)",
+                      transition: "all 0.2s ease"
+                    }}
+                  >
+                    <span>🏆</span> Top Performers
+                  </button>
+                  <button onClick={fetchData} style={{ width:38, height:38, borderRadius:12, background:"rgba(129,140,248,0.1)", border:"1px solid rgba(129,140,248,0.3)", color:"#818cf8", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                    <RefreshCw size={15} className={loading ? styles.spinning : ""} />
+                  </button>
+                </div>
               </div>
 
               <SummaryBanner summary={summary} />
@@ -515,60 +534,90 @@ export default function TeamReferralsPage() {
                         <div
                           key={node._id || node.uhid}
                           className={`${styles.nodeCard} ${levelClass}`}
+                          style={{ flexDirection: "column", alignItems: "stretch", gap: 12 }}
                         >
-                          {/* Avatar */}
-                          <div
-                            className={styles.nodeCardAvatar}
-                            style={{ background: ac.bg, color: ac.text, border: `2px solid ${ac.text}44` }}
-                          >
-                            {username.slice(0, 2).toUpperCase()}
-                          </div>
+                          {/* Top Row: Avatar, Identity, Level, Stats */}
+                          <div style={{ display: "flex", alignItems: "center", gap: 16, width: "100%", justifyContent: "space-between", flexWrap: "wrap" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 16, flex: 1, minWidth: 0 }}>
+                              {/* Avatar */}
+                              <div
+                                className={styles.nodeCardAvatar}
+                                style={{ background: ac.bg, color: ac.text, border: `2px solid ${ac.text}44` }}
+                              >
+                                {username.slice(0, 2).toUpperCase()}
+                              </div>
 
-                          {/* Identity */}
-                          <div className={styles.nodeCardIdentity}>
-                            <div className={styles.nodeCardName}>
-                              {username}
-                              {node.xRank && <span className={styles.rankBadgeX} style={{ fontSize: 8, padding: "1px 5px", borderRadius: 4, fontWeight: 900 }}>{node.xRank}</span>}
-                              {node.nodeTier && <span className={styles.rankBadgeP} style={{ fontSize: 8, padding: "1px 5px", borderRadius: 4, fontWeight: 900 }}>{node.nodeTier}</span>}
+                              {/* Identity */}
+                              <div className={styles.nodeCardIdentity}>
+                                <div className={styles.nodeCardName}>
+                                  {username}
+                                  {node.xRank && <span className={styles.rankBadgeX} style={{ fontSize: 8, padding: "1px 5px", borderRadius: 4, fontWeight: 900 }}>{node.xRank}</span>}
+                                  {node.nodeTier && <span className={styles.rankBadgeP} style={{ fontSize: 8, padding: "1px 5px", borderRadius: 4, fontWeight: 900 }}>{node.nodeTier}</span>}
+                                </div>
+                                <div className={styles.nodeCardUhid}>#{node.uhid}</div>
+                              </div>
                             </div>
-                            <div className={styles.nodeCardUhid}>#{node.uhid}</div>
-                          </div>
 
-                          {/* Level Pill */}
-                          <div
-                            className={styles.nodeCardLevel}
-                            style={{ background: `${lColor}18`, border: `1px solid ${lColor}44`, color: lColor }}
-                          >
-                            L{node._level}
-                          </div>
+                            {/* Level Pill */}
+                            <div
+                              className={styles.nodeCardLevel}
+                              style={{ background: `${lColor}18`, border: `1px solid ${lColor}44`, color: lColor }}
+                            >
+                              L{node._level}
+                            </div>
 
-                          {/* Stat Chips */}
-                          <div className={styles.nodeCardStats}>
-                            <div className={styles.nodeCardStat}>
-                              <span className={styles.nodeCardStatLabel}>Team</span>
-                              <span className={styles.nodeCardStatValue} style={{ color: "#FFB800" }}>{node.communitySize ?? 0}</span>
-                            </div>
-                            <div className={styles.nodeCardStat}>
-                              <span className={styles.nodeCardStatLabel}>Directs</span>
-                              <span className={styles.nodeCardStatValue} style={{ color: "#06b6d4" }}>{node.directDownlines ?? 0}</span>
-                            </div>
-                            <div className={styles.nodeCardStat}>
-                              <span className={styles.nodeCardStatLabel}>Stakes</span>
-                              <span className={styles.nodeCardStatValue} style={{ color: "#fbbf24" }}>
-                                {(node.teamStakes !== undefined && node.teamStakes > 0) ? `${node.teamStakes.toLocaleString()} TSC` : (totalStakedAmount > 0 ? `${totalStakedAmount.toLocaleString()} TSC` : stakes)}
-                              </span>
-                              {node.teamStakes > 0 && totalStakedAmount > 0 && (
-                                <span className={styles.nodeCardStatSub}>Own: {totalStakedAmount.toLocaleString()} TSC</span>
-                              )}
-                            </div>
-                            <div className={styles.nodeCardStat}>
-                              <span className={styles.nodeCardStatLabel}>NFTs</span>
-                              <span className={styles.nodeCardStatValue} style={{ color: "#34d399" }}>
-                                {(node.teamNfts !== undefined && node.teamNfts > 0) ? `$${node.teamNfts.toLocaleString()}` : (totalNftValue > 0 ? `$${totalNftValue.toLocaleString()}` : nfts)}
-                              </span>
-                              {node.teamNfts > 0 && totalNftValue > 0 && (
-                                <span className={styles.nodeCardStatSub}>Own: ${totalNftValue.toLocaleString()}</span>
-                              )}
+                            {/* Stat Chips */}
+                            <div className={styles.nodeCardStats} style={{ flexWrap: "wrap" }}>
+                              <div className={styles.nodeCardStat}>
+                                <span className={styles.nodeCardStatLabel}>Team</span>
+                                <span className={styles.nodeCardStatValue} style={{ color: "#FFB800" }}>{node.communitySize ?? 0}</span>
+                              </div>
+                              <div className={styles.nodeCardStat}>
+                                <span className={styles.nodeCardStatLabel}>Directs</span>
+                                <span className={styles.nodeCardStatValue} style={{ color: "#06b6d4" }}>{node.directDownlines ?? 0}</span>
+                              </div>
+                              <div className={styles.nodeCardStat}>
+                                <span className={styles.nodeCardStatLabel}>Stakes</span>
+                                <span className={styles.nodeCardStatValue} style={{ color: "#fbbf24" }}>
+                                  {(node.teamStakes !== undefined && node.teamStakes > 0) ? `${node.teamStakes.toLocaleString()} TSC` : (totalStakedAmount > 0 ? `${totalStakedAmount.toLocaleString()} TSC` : stakes)}
+                                </span>
+                                {node.teamStakes > 0 && totalStakedAmount > 0 && (
+                                  <span className={styles.nodeCardStatSub}>Own: {totalStakedAmount.toLocaleString()} TSC</span>
+                                )}
+                              </div>
+                              <div className={styles.nodeCardStat}>
+                                <span className={styles.nodeCardStatLabel}>NFTs</span>
+                                <span className={styles.nodeCardStatValue} style={{ color: "#34d399" }}>
+                                  {(node.teamNfts !== undefined && node.teamNfts > 0) ? `$${node.teamNfts.toLocaleString()}` : (totalNftValue > 0 ? `$${totalNftValue.toLocaleString()}` : nfts)}
+                                </span>
+                                {node.teamNfts > 0 && totalNftValue > 0 && (
+                                  <span className={styles.nodeCardStatSub}>Own: ${totalNftValue.toLocaleString()}</span>
+                                )}
+                              </div>
+                              <div className={styles.nodeCardStat}>
+                                <span className={styles.nodeCardStatLabel}>My Stake</span>
+                                <span className={styles.nodeCardStatValue} style={{ color: "#fbbf24" }}>
+                                  {"$" + (node.personalStaking || 0).toLocaleString() + " USDT"}
+                                </span>
+                              </div>
+                              <div className={styles.nodeCardStat}>
+                                <span className={styles.nodeCardStatLabel}>My NFT</span>
+                                <span className={styles.nodeCardStatValue} style={{ color: "#34d399" }}>
+                                  {"$" + (node.personalHorseNft || 0).toLocaleString() + " USDT"}
+                                </span>
+                              </div>
+                              <div className={styles.nodeCardStat}>
+                                <span className={styles.nodeCardStatLabel}>Parent Earned</span>
+                                <span className={styles.nodeCardStatValue} style={{ color: "#06b6d4" }}>
+                                  {"$" + (node.commissionToParent || 0).toFixed(4) + " USDT"}
+                                </span>
+                              </div>
+                              <div className={styles.nodeCardStat}>
+                                <span className={styles.nodeCardStatLabel}>Today's Earned</span>
+                                <span className={styles.nodeCardStatValue} style={{ color: "#a78bfa" }}>
+                                  {"$" + (node.todaysEarnings?.usdt || 0).toFixed(4) + " USDT / " + (node.todaysEarnings?.tsc || 0).toFixed(4) + " TSC"}
+                                </span>
+                              </div>
                             </div>
                           </div>
 
@@ -601,6 +650,87 @@ export default function TeamReferralsPage() {
           </div>
         </div>
       </div>
+
+      {/* ══ TOP PERFORMERS MODAL ══ */}
+      {isTopPerformersOpen && (
+        <div 
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 9999,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: "rgba(0, 0, 0, 0.75)",
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
+            padding: 20
+          }}
+          onClick={() => setIsTopPerformersOpen(false)}
+        >
+          <div 
+            style={{
+              width: "100%",
+              maxWidth: 900,
+              background: "#0c0c0c",
+              border: "1px solid rgba(255, 184, 0, 0.2)",
+              boxShadow: "0 24px 64px rgba(0, 0, 0, 0.8), 0 0 40px rgba(255, 184, 0, 0.05)",
+              borderRadius: 32,
+              padding: 32,
+              position: "relative",
+              overflow: "hidden"
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Background design elements */}
+            <div style={{ position: "absolute", top: -100, right: -100, width: 300, height: 300, borderRadius: "50%", background: "rgba(255, 184, 0, 0.03)", filter: "blur(50px)", pointerEvents: "none" }} />
+            
+            {/* Header */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
+              <div>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span style={{ fontSize: 28 }}>🏆</span>
+                  <h2 style={{ fontSize: 24, fontWeight: 900, margin: 0, background: "linear-gradient(90deg, #ffd700 0%, #ff8c00 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                    Top Performers
+                  </h2>
+                </div>
+                <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 13, margin: "6px 0 0 0" }}>
+                  Highest-impact nodes in your network calculated by size, directs, and staking metrics.
+                </p>
+              </div>
+              
+              <button 
+                onClick={() => setIsTopPerformersOpen(false)}
+                style={{
+                  background: "rgba(255, 255, 255, 0.05)",
+                  border: "1px solid rgba(255, 255, 255, 0.1)",
+                  borderRadius: 12,
+                  color: "rgba(255,255,255,0.5)",
+                  fontSize: 16,
+                  fontWeight: 900,
+                  width: 36,
+                  height: 36,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                  transition: "all 0.2s"
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.1)"; e.currentTarget.style.color = "#fff"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255, 255, 255, 0.05)"; e.currentTarget.style.color = "rgba(255,255,255,0.5)"; }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Content */}
+            <div style={{ position: "relative", zIndex: 1 }}>
+              <TopPerformers nodes={topPerformerNodes} loading={loading} />
+            </div>
+            <style>{`@keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }`}</style>
+          </div>
+        </div>
+      )}
     </AuthGuard>
   );
 }

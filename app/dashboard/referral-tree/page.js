@@ -56,71 +56,78 @@ function TreeNode({ node, level, expanded, onToggle }) {
     <div style={{ marginBottom: 8 }}>
       <div style={{
         display: "flex",
-        alignItems: "center",
-        gap: 12,
+        flexDirection: "column",
+        gap: 10,
         padding: "14px 16px",
         background: "rgba(255,255,255,0.02)",
         border: `1px solid ${levelColor}22`,
         borderLeft: `3px solid ${levelColor}`,
         borderRadius: 14,
-        flexWrap: "wrap",
-        transition: "border-color 0.2s",
       }}>
-        {/* Toggle */}
-        {hasChildren ? (
-          <button
-            onClick={() => onToggle(node._id?.toString())}
-            style={{
-              width: 28, height: 28, borderRadius: 8,
-              background: isOpen ? `${levelColor}22` : "rgba(255,255,255,0.04)",
-              border: `1px solid ${levelColor}44`,
-              color: levelColor, cursor: "pointer",
-              fontSize: 14, fontWeight: 900,
+        {/* Top Part: User Details & Chips */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, width: "100%", flexWrap: "wrap" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, flex: 1, minWidth: 0 }}>
+            {/* Toggle */}
+            {hasChildren ? (
+              <button
+                onClick={() => onToggle(node._id?.toString())}
+                style={{
+                  width: 28, height: 28, borderRadius: 8,
+                  background: isOpen ? `${levelColor}22` : "rgba(255,255,255,0.04)",
+                  border: `1px solid ${levelColor}44`,
+                  color: levelColor, cursor: "pointer",
+                  fontSize: 14, fontWeight: 900,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  flexShrink: 0, transition: "all 0.2s",
+                }}
+              >
+                {isOpen ? "−" : "+"}
+              </button>
+            ) : (
+              <div style={{ width: 28, height: 28, flexShrink: 0 }} />
+            )}
+
+            {/* Avatar */}
+            <div style={{
+              width: 40, height: 40, borderRadius: "50%", flexShrink: 0,
+              background: ac.bg, color: ac.text,
               display: "flex", alignItems: "center", justifyContent: "center",
-              flexShrink: 0, transition: "all 0.2s",
-            }}
-          >
-            {isOpen ? "−" : "+"}
-          </button>
-        ) : (
-          <div style={{ width: 28, height: 28, flexShrink: 0 }} />
-        )}
+              fontSize: 14, fontWeight: 900,
+              border: `2px solid ${ac.text}44`,
+            }}>
+              {initials}
+            </div>
 
-        {/* Avatar */}
-        <div style={{
-          width: 40, height: 40, borderRadius: "50%", flexShrink: 0,
-          background: ac.bg, color: ac.text,
-          display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 14, fontWeight: 900,
-          border: `2px solid ${ac.text}44`,
-        }}>
-          {initials}
-        </div>
+            {/* Identity */}
+            <div style={{ minWidth: 120, flex: 1 }}>
+              <div style={{ fontSize: 14, fontWeight: 800, color: "#fff" }}>{username}</div>
+              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", fontWeight: 600 }}>
+                {node.uhid || "—"}
+              </div>
+            </div>
 
-        {/* Identity */}
-        <div style={{ minWidth: 120, flex: 1 }}>
-          <div style={{ fontSize: 14, fontWeight: 800, color: "#fff" }}>{username}</div>
-          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", fontWeight: 600 }}>
-            {node.uhid || "—"}
+            {/* Level badge */}
+            <div style={{
+              padding: "3px 10px", borderRadius: 20,
+              background: `${levelColor}22`, border: `1px solid ${levelColor}44`,
+              color: levelColor, fontSize: 10, fontWeight: 900, letterSpacing: 1,
+              flexShrink: 0,
+            }}>
+              L{level}
+            </div>
           </div>
-        </div>
 
-        {/* Level badge */}
-        <div style={{
-          padding: "3px 10px", borderRadius: 20,
-          background: `${levelColor}22`, border: `1px solid ${levelColor}44`,
-          color: levelColor, fontSize: 10, fontWeight: 900, letterSpacing: 1,
-          flexShrink: 0,
-        }}>
-          L{level}
-        </div>
-
-        {/* Stats */}
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          <Chip label="Team" value={node.communitySize ?? 0} color="#818cf8" />
-          <Chip label="Directs" value={node.directDownlines ?? 0} color="#06b6d4" />
-          <Chip label="Stakes" value={(node.teamStakes !== undefined && node.teamStakes > 0) ? `${node.teamStakes.toLocaleString()} TSC` : (totalStakedAmount > 0 ? `${totalStakedAmount.toLocaleString()} TSC` : activeStakes)} color="#fbbf24" />
-          <Chip label="NFTs" value={(node.teamNfts !== undefined && node.teamNfts > 0) ? `$${node.teamNfts.toLocaleString()}` : (totalNftValue > 0 ? `$${totalNftValue.toLocaleString()}` : nftCount)} color="#34d399" />
+          {/* Stats */}
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <Chip label="Team" value={node.communitySize ?? 0} color="#818cf8" />
+            <Chip label="Directs" value={node.directDownlines ?? 0} color="#06b6d4" />
+            <Chip label="Stakes" value={(node.teamStakes !== undefined && node.teamStakes > 0) ? `${node.teamStakes.toLocaleString()} TSC` : (totalStakedAmount > 0 ? `${totalStakedAmount.toLocaleString()} TSC` : activeStakes)} color="#fbbf24" />
+            <Chip label="NFTs" value={(node.teamNfts !== undefined && node.teamNfts > 0) ? `$${node.teamNfts.toLocaleString()}` : (totalNftValue > 0 ? `$${totalNftValue.toLocaleString()}` : nftCount)} color="#34d399" />
+            <Chip label="My Stake" value={"$" + (node.personalStaking || 0).toLocaleString() + " USDT"} color="#fbbf24" />
+            <Chip label="My NFT" value={"$" + (node.personalHorseNft || 0).toLocaleString() + " USDT"} color="#34d399" />
+            <Chip label="Parent Earned" value={"$" + (node.commissionToParent || 0).toFixed(4) + " USDT"} color="#06b6d4" />
+            <Chip label="Today's Earned" value={"$" + (node.todaysEarnings?.usdt || 0).toFixed(4) + " USDT / " + (node.todaysEarnings?.tsc || 0).toFixed(4) + " TSC"} color="#a78bfa" />
+          </div>
         </div>
       </div>
 
@@ -156,6 +163,10 @@ function SummaryBanner({ summary }) {
         { label: "L1 TSC", value: `${(summary.l1?.tokenEarnings ?? 0).toFixed(4)}`, color: "#818cf8", icon: "💎" },
         { label: "L2 TSC", value: `${(summary.l2?.tokenEarnings ?? 0).toFixed(4)}`, color: "#34d399", icon: "💎" },
         { label: "Total TSC", value: `${(summary.totalTokenEarnings ?? 0).toFixed(4)}`, color: "#fbbf24", icon: "🏆" },
+        { label: "Self Stake", value: `${(summary.selfStaking ?? 0).toLocaleString()} TSC`, color: "#a78bfa", icon: "⚡" },
+        { label: "Self NFT", value: `$${(summary.selfHorseNft ?? 0).toLocaleString()}`, color: "#38bdf8", icon: "🐴" },
+        { label: "Team Stake", value: `${(summary.teamStaking ?? 0).toLocaleString()} TSC`, color: "#fbbf24", icon: "🛡️" },
+        { label: "Team NFT", value: `$${(summary.teamHorseNft ?? 0).toLocaleString()}`, color: "#ec4899", icon: "👑" },
       ].map(item => (
         <div key={item.label} style={{
           flex: "1 1 180px",

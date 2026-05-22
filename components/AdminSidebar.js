@@ -48,8 +48,8 @@ export default function AdminSidebar() {
                 href={link.href}
                 className={`${styles.navLink} ${isActive ? styles.navLinkActive : ""}`}
               >
-                <Icon size={18} style={{ minWidth: "18px" }} />
-                <span style={{ whiteSpace: "nowrap" }}>{link.name}</span>
+                <Icon size={20} style={{ minWidth: "20px" }} />
+                <span className={styles.navLabel}>{link.name}</span>
               </Link>
             </li>
           );
@@ -63,30 +63,24 @@ export default function AdminSidebar() {
             style={{
               width: "100%",
               cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: 0,
             }}
           >
-            <span style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <BarChart2 size={18} style={{ minWidth: "18px" }} />
-              <span style={{ whiteSpace: "nowrap" }}>System Report</span>
-            </span>
+            <BarChart2 size={20} style={{ minWidth: "20px" }} />
+            <span className={styles.navLabel}>System Report</span>
             <ChevronDown
               size={14}
+              className={styles.chevronIcon}
               style={{
                 transition: "transform 0.25s ease",
                 transform: sysOpen ? "rotate(180deg)" : "rotate(0deg)",
-                opacity: 0.5,
-                flexShrink: 0,
+                marginLeft: "auto",
               }}
             />
           </button>
 
           {/* Sub-links */}
           {sysOpen && (
-            <ul style={{ listStyle: "none", padding: "4px 0 4px 18px", margin: 0, display: "flex", flexDirection: "column", gap: 2 }}>
+            <ul className={styles.submenuList} style={{ listStyle: "none", padding: "4px 0 4px 18px", margin: 0, flexDirection: "column", gap: 2 }}>
               {systemReportLinks.map((sub) => {
                 const SubIcon = sub.icon;
                 // match active: check href + optional ?tab
@@ -132,8 +126,8 @@ export default function AdminSidebar() {
             href={settingsPath}
             className={`${styles.navLink} ${pathname === settingsPath ? styles.navLinkActive : ""}`}
           >
-            <Settings size={18} />
-            Settings
+            <Settings size={20} style={{ minWidth: "20px" }} />
+            <span className={styles.navLabel}>Settings</span>
           </Link>
         </div>
         <div className={styles.navItem}>
@@ -141,8 +135,8 @@ export default function AdminSidebar() {
             href="/dashboard"
             className={styles.navLink}
           >
-            <ArrowLeftCircle size={18} />
-            Switch to User View
+            <ArrowLeftCircle size={20} style={{ minWidth: "20px" }} />
+            <span className={styles.navLabel}>Switch to User View</span>
           </Link>
         </div>
         <button
@@ -150,8 +144,8 @@ export default function AdminSidebar() {
           className={styles.navLink}
           style={{ width: "100%", background: "transparent", cursor: "pointer", marginTop: "10px" }}
         >
-          <LogOut size={18} />
-          Sign Out
+          <LogOut size={20} style={{ minWidth: "20px" }} />
+          <span className={styles.navLabel}>Sign Out</span>
         </button>
       </div>
     </aside>

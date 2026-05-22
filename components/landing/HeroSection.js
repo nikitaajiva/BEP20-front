@@ -2,6 +2,9 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
+import safeStorage from "@/utils/safeStorage";
 
 // ── Live Race Stats Component ─────────────────────────────────────────────
 const LiveRaceStats = () => {
@@ -41,6 +44,15 @@ const LiveRaceStats = () => {
 };
 
 const HeroSection = () => {
+  const { user } = useAuth();
+  const [mounted, setMounted] = useState(false);
+  const [hasToken, setHasToken] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    setHasToken(!!safeStorage.getItem("token"));
+  }, []);
+
   return (
     <section className="hero-section">
       {/* Background Cinematic Image */}
@@ -81,13 +93,17 @@ const HeroSection = () => {
               </p>
 
               <div className="hero-action-group">
-                <button className="hero-btn hero-btn-gold">
-                  <span>START RACING NOW</span>
-                  <i className="ri-arrow-right-line" />
-                </button>
-                <button className="hero-btn hero-btn-glass">
-                  VIEW SCHEDULE
-                </button>
+                <Link href={mounted && (user || hasToken) ? "/dashboard" : "/sign-up"} className="no-underline">
+                  <button className="hero-btn hero-btn-gold">
+                    <span>START RACING NOW</span>
+                    <i className="ri-arrow-right-line" />
+                  </button>
+                </Link>
+                <Link href="#how-it-works" className="no-underline">
+                  <button className="hero-btn hero-btn-glass">
+                    VIEW SCHEDULE
+                  </button>
+                </Link>
               </div>
 
               <LiveRaceStats />

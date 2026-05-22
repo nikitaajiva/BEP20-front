@@ -3,6 +3,7 @@
 export const dynamic = "force-dynamic";
 
 import React, { Suspense } from "react";
+import { useRouter } from "next/navigation";
 import AuthGuard from "@/components/auth/AuthGuard";
 import DashboardNavbar from "@/components/DashboardNavbar";
 import { useAuth } from "@/context/AuthContext";
@@ -11,6 +12,7 @@ import styles from "../[walletType]/ledger.module.css";
 
 export default function AssetHistoryPage() {
   const { user, loading: authLoading, logout } = useAuth();
+  const router = useRouter();
 
   if (authLoading) {
     return <div className={styles.loading}>Loading user data...</div>;
@@ -30,6 +32,30 @@ export default function AssetHistoryPage() {
           <div className={styles.contentWrapper}>
             <main className={styles.mainContent}>
               <div className="container-fluid flex-grow-1 container-p-y py-4 px-0">
+                <div className="d-flex justify-content-start mb-3" style={{ paddingLeft: "15px" }}>
+                  <button onClick={() => router.back()} style={{
+                    background: "rgba(255,102,0,0.12)",
+                    border: "1px solid rgba(255,102,0,0.3)",
+                    color: "#ff6600",
+                    padding: "8px 16px",
+                    borderRadius: 10,
+                    cursor: "pointer",
+                    fontSize: "13px",
+                    fontWeight: 700,
+                    transition: "all 0.2s",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px"
+                  }} onMouseEnter={e => {
+                    e.currentTarget.style.background = "rgba(255,102,0,0.25)";
+                    e.currentTarget.style.borderColor = "rgba(255,102,0,0.5)";
+                  }} onMouseLeave={e => {
+                    e.currentTarget.style.background = "rgba(255,102,0,0.12)";
+                    e.currentTarget.style.borderColor = "rgba(255,102,0,0.3)";
+                  }}>
+                    ← Back
+                  </button>
+                </div>
                 <div className="row mb-4">
                   <div className="col-12">
                     <div className="d-flex justify-content-center align-items-center mb-2" style={{ gap: "8px" }}>

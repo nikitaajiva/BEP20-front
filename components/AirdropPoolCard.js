@@ -46,7 +46,7 @@ function AirdropHistoryModal({ isOpen, onClose, API_URL }) {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${API_URL}/api/rewards/airdrop-pool/history?page=${pg}&limit=20`, {
+      const res = await fetch(`${API_URL}/rewards/airdrop-pool/history?page=${pg}&limit=20`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
@@ -270,25 +270,110 @@ function AirdropHistoryModal({ isOpen, onClose, API_URL }) {
   );
 }
 
+/* ─── countUp animation hook ─────────────────────────────────────────────── */
+function useCountUp(target, duration = 1200) {
+  const [value, setValue] = useState(0);
+  useEffect(() => {
+    if (!target || target === 0) { setValue(0); return; }
+    let start = 0;
+    const step = target / (duration / 16);
+    const timer = setInterval(() => {
+      start = Math.min(start + step, target);
+      setValue(start);
+      if (start >= target) clearInterval(timer);
+    }, 16);
+    return () => clearInterval(timer);
+  }, [target, duration]);
+  return value;
+}
+
+/* ─── Stat Pill ──────────────────────────────────────────────────────────── */
+function StatPill({ label, value, accent, sub, isCurrency = true }) {
+  const animated = useCountUp(parseFloat(value) || 0);
+  return (
+    <div style={{
+      flex: 1,
+      minWidth: 130,
+      background: "rgba(255,255,255,0.03)",
+      border: `1px solid ${accent}33`,
+      borderRadius: 12,
+      padding: "12px 14px",
+      display: "flex",
+      flexDirection: "column",
+      gap: 3,
+    }}>
+      <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.4)", letterSpacing: 1.1, textTransform: "uppercase" }}>
+        {label}
+      </span>
+      <span style={{ fontSize: 19, fontWeight: 900, color: accent, fontVariantNumeric: "tabular-nums" }}>
+        {isCurrency ? "$" : ""}{isCurrency ? animated.toFixed(4) : Math.round(animated)}
+      </span>
+      {sub && (
+        <span style={{ fontSize: 9, color: "rgba(255,255,255,0.3)", fontWeight: 600 }}>{sub}</span>
+      )}
+    </div>
+  );
+}
+
+/* ─── Tier Badge ─────────────────────────────────────────────────────────── */
+function TierBadge({ tier, sharePct }) {
+  const accent = tier ? (TIER_CONFIG[tier]?.color || "#69F0AE") : "rgba(255,255,255,0.3)";
+  const label = tier ? `Qualified Tier: ${tier}` : "Not Qualified";
+  const sub = tier ? `${sharePct}% pool share` : "Grow mining power to qualify";
+  
+  return (
+    <div style={{
+      display: "flex",
+      alignItems: "center",
+      gap: 8,
+      background: tier ? `${accent}11` : "rgba(255,255,255,0.02)",
+      border: `1px solid ${accent}33`,
+      borderRadius: 8,
+      padding: "6px 11px",
+    }}>
+      <div style={{
+        width: 28, height: 28, borderRadius: "50%",
+        background: tier ? `${accent}22` : "rgba(255,255,255,0.05)",
+        border: `2px solid ${accent}`,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        fontSize: 11, fontWeight: 900, color: accent,
+      }}>
+        {tier || "—"}
+      </div>
+      <div>
+        <div style={{ fontSize: 12, fontWeight: 800, color: tier ? "#fff" : "rgba(255,255,255,0.5)" }}>
+          {label}
+        </div>
+        <div style={{ fontSize: 9, color: "rgba(255,255,255,0.4)", fontWeight: 600 }}>
+          {sub}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Card ───────────────────────────────────────────────────────────────
 export default function AirdropPoolCard({ API_URL }) {
   const { user } = useAuth();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [showHistory, setShowHistory] = useState(false);
 
   const fetchStats = useCallback(async () => {
     if (!user) return;
     setLoading(true);
+    setError("");
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${API_URL}/api/rewards/airdrop-pool`, {
+      const res = await fetch(`${API_URL}/rewards/airdrop-pool`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      const data = await res.json();
-      if (data.success) setStats(data.data);
+      const json = await res.json();
+      if (!res.ok || !json.success) throw new Error(json.message || "Failed to load stats.");
+      setStats(json.data);
     } catch (err) {
-      console.error("[AirdropPoolCard] fetch error:", err);
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -298,7 +383,31 @@ export default function AirdropPoolCard({ API_URL }) {
 
   const tier = stats?.nodeTier || null;
   const tierCfg = tier ? TIER_CONFIG[tier] : null;
-  const hasEarnings = (stats?.lifetimeEarnings || 0) > 0;
+
+  /* ── Skeleton ── */
+  if (loading) {
+    return (
+      <div style={cardWrap}>
+        <div style={shimmerBar(200)} />
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 20 }}>
+          <div style={{ flex: 1, minWidth: 130, height: 80, borderRadius: 12, background: "rgba(255,255,255,0.02)" }} />
+          <div style={{ flex: 1, minWidth: 130, height: 80, borderRadius: 12, background: "rgba(255,255,255,0.02)" }} />
+          <div style={{ flex: 1, minWidth: 130, height: 80, borderRadius: 12, background: "rgba(255,255,255,0.02)" }} />
+          <div style={{ flex: 1, minWidth: 130, height: 80, borderRadius: 12, background: "rgba(255,255,255,0.02)" }} />
+        </div>
+      </div>
+    );
+  }
+
+  /* ── Error ── */
+  if (error) {
+    return (
+      <div style={{ ...cardWrap, justifyContent: "center", alignItems: "center", minHeight: 120 }}>
+        <span style={{ color: "#f43f5e", fontSize: 13, fontWeight: 600 }}>⚠ {error}</span>
+        <button onClick={fetchStats} style={retryBtn}>Retry</button>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -313,173 +422,162 @@ export default function AirdropPoolCard({ API_URL }) {
         whileTap={{ scale: 0.99 }}
         onClick={() => setShowHistory(true)}
         style={{
-          position: "relative", overflow: "hidden",
-          borderRadius: 24, cursor: "pointer",
-          background: "linear-gradient(135deg, #080c14 0%, #0a1020 50%, #080c14 100%)",
-          border: `1px solid ${tierCfg ? `${tierCfg.color}30` : "rgba(105,240,174,0.15)"}`,
+          ...cardWrap,
+          border: `1px solid ${tierCfg ? `${tierCfg.color}44` : "rgba(105,240,174,0.2)"}`,
           boxShadow: tierCfg
-            ? `0 0 30px ${tierCfg.glow}, inset 0 0 30px rgba(0,0,0,0.5)`
-            : "0 0 20px rgba(0,0,0,0.4)",
-          padding: "24px",
-          minHeight: 200,
-          transition: "border-color 0.3s, box-shadow 0.3s"
+            ? `0 8px 32px ${tierCfg.glow}, 0 0 0 1px rgba(105,240,174,0.05)`
+            : "0 8px 32px rgba(105,240,174,0.06), 0 0 0 1px rgba(105,240,174,0.05)",
         }}
       >
-        {/* Animated background radial when tier active */}
-        {tierCfg && (
-          <div style={{
-            position: "absolute", top: -60, right: -60,
-            width: 200, height: 200, borderRadius: "50%",
-            background: `radial-gradient(circle, ${tierCfg.glow} 0%, transparent 70%)`,
-            pointerEvents: "none"
-          }} />
-        )}
-
-        {/* Top row: title + tier badge */}
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 20 }}>
-          <div>
-            <div style={{
-              fontSize: 9, fontWeight: 800, letterSpacing: 3,
-              color: "rgba(105,240,174,0.7)", textTransform: "uppercase", marginBottom: 6
-            }}>
-              🌐 P1–P9 NETWORK REWARDS
-            </div>
-            <h3 style={{ margin: 0, fontSize: 16, fontWeight: 900, color: "#fff", letterSpacing: 1 }}>
-              AIRDROP POOL
-            </h3>
-          </div>
-
-          {loading ? (
-            <div style={{ width: 60, height: 28, borderRadius: 8, background: "rgba(255,255,255,0.06)" }} />
-          ) : tier ? (
-            <motion.div
-              initial={{ scale: 0.8 }}
-              animate={{ scale: 1 }}
-              style={{
-                padding: "6px 14px", borderRadius: 10,
-                background: `${tierCfg.glow}`,
-                border: `1px solid ${tierCfg.color}66`,
-                boxShadow: `0 0 14px ${tierCfg.glow}`,
-                fontSize: 13, fontWeight: 900, color: tierCfg.color,
-                display: "flex", alignItems: "center", gap: 6
-              }}
-            >
-              <span style={{
-                width: 7, height: 7, borderRadius: "50%",
-                background: tierCfg.color,
-                boxShadow: `0 0 8px ${tierCfg.color}`,
-                animation: "pulseDot 1.5s ease-in-out infinite"
-              }} />
-              <style>{`@keyframes pulseDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.6;transform:scale(1.3)}}`}</style>
-              {tier}
-            </motion.div>
-          ) : (
-            <div style={{
-              padding: "6px 14px", borderRadius: 10,
-              background: "rgba(255,255,255,0.05)",
-              border: "1px solid rgba(255,255,255,0.1)",
-              fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.35)"
-            }}>
-              NOT QUALIFIED
-            </div>
-          )}
-        </div>
-
-        {/* Community Rewards Balance (primary metric) */}
-        {loading ? (
-          <div style={{ height: 44, background: "rgba(255,255,255,0.04)", borderRadius: 12, marginBottom: 16 }} />
-        ) : (
-          <div style={{ marginBottom: 20 }}>
-            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: "rgba(255,255,255,0.3)", marginBottom: 4 }}>
-              COMMUNITY REWARDS BALANCE
-            </div>
-            <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-              <span style={{
-                fontSize: 32, fontWeight: 900, letterSpacing: -1,
-                color: tierCfg?.color || "#69F0AE",
-                textShadow: tierCfg ? `0 0 20px ${tierCfg.glow}` : "none"
-              }}>
-                ${formatAmount(stats?.communityRewardsBalance, 4)}
-              </span>
-              <span style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.4)" }}>USDT</span>
-            </div>
-          </div>
-        )}
-
-        {/* Stats row */}
+        {/* ── Glow decoration ── */}
         <div style={{
-          display: "grid", gridTemplateColumns: "1fr 1fr 1fr",
-          gap: 8, marginBottom: 16
-        }}>
-          {[
-            { label: "LIFETIME", value: loading ? "—" : `$${formatAmount(stats?.lifetimeEarnings, 4)}` },
-            { label: "LAST 30D", value: loading ? "—" : `$${formatAmount(stats?.last30DayEarnings, 4)}` },
-            { label: "EVENTS", value: loading ? "—" : (stats?.rewardCount || 0) }
-          ].map(({ label, value }) => (
-            <div key={label} style={{
-              background: "rgba(255,255,255,0.03)",
-              border: "1px solid rgba(255,255,255,0.06)",
-              borderRadius: 12, padding: "10px 12px", textAlign: "center"
-            }}>
-              <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: 2, color: "rgba(255,255,255,0.3)", marginBottom: 4 }}>
-                {label}
+          position: "absolute", top: -60, right: -60,
+          width: 200, height: 200, borderRadius: "50%",
+          background: `radial-gradient(circle, ${tierCfg ? `${tierCfg.color}1e` : "rgba(105,240,174,0.12)"} 0%, transparent 70%)`,
+          pointerEvents: "none",
+        }} />
+
+        {/* ── Header ── */}
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 14, gap: 12 }}>
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
+              {/* Icon */}
+              <div style={{
+                width: 32, height: 32, borderRadius: 8,
+                background: `linear-gradient(135deg, ${tierCfg ? `${tierCfg.color}40` : "rgba(105,240,174,0.25)"}, rgba(127,255,76,0.2))`,
+                border: `1px solid ${tierCfg ? `${tierCfg.color}88` : "rgba(105,240,174,0.4)"}`,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: 16,
+              }}>
+                🌐
               </div>
-              <div style={{ fontSize: 13, fontWeight: 800, color: "#fff" }}>
-                {value}
-              </div>
+              <h2 style={{
+                margin: 0, fontSize: 15, fontWeight: 900, color: "#fff",
+                letterSpacing: -0.3,
+              }}>
+                Airdrop Pool
+              </h2>
             </div>
-          ))}
-        </div>
-
-        {/* Tier share info */}
-        {!loading && tier && stats?.tierSharePct != null && (
-          <div style={{
-            display: "flex", alignItems: "center", gap: 8,
-            padding: "8px 12px", borderRadius: 10, marginBottom: 14,
-            background: `${tierCfg.glow}`,
-            border: `1px solid ${tierCfg.color}33`
-          }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: tierCfg.color }}>
-              🎯 {stats.tierSharePct}% Pool Share
-            </span>
-            <span style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", flex: 1 }}>
-              · You receive {stats.tierSharePct}% of every 2% withdrawal fee
-            </span>
+            <p style={{ margin: 0, fontSize: 10, color: "rgba(255,255,255,0.35)", fontWeight: 600, letterSpacing: 0.4 }}>
+              P1–P9 Network Rewards
+            </p>
           </div>
-        )}
 
-        {/* No tier message */}
-        {!loading && !tier && (
-          <div style={{
-            padding: "10px 14px", borderRadius: 10, marginBottom: 14,
-            background: "rgba(255,255,255,0.03)",
-            border: "1px solid rgba(255,255,255,0.06)",
-            fontSize: 11, color: "rgba(255,255,255,0.35)"
-          }}>
-            💡 Qualify for P1–P9 by growing your personal & team mining power to earn from every network withdrawal.
-          </div>
-        )}
-
-        {/* View History button */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <span style={{ fontSize: 10, color: "rgba(255,255,255,0.25)" }}>Tap card to view full history</span>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+          {/* View History Button */}
+          <button
+            id="airdrop-view-history-btn"
             onClick={(e) => { e.stopPropagation(); setShowHistory(true); }}
             style={{
-              padding: "8px 16px", borderRadius: 10,
-              background: tierCfg ? `${tierCfg.glow}` : "rgba(105,240,174,0.08)",
-              border: `1px solid ${tierCfg ? `${tierCfg.color}44` : "rgba(105,240,174,0.2)"}`,
-              color: tierCfg?.color || "#69F0AE",
-              fontSize: 11, fontWeight: 800, cursor: "pointer",
-              letterSpacing: 1, display: "flex", alignItems: "center", gap: 6
+              ...viewBtn,
+              padding: "6px 12px",
+              fontSize: 11,
+              background: tierCfg ? `${tierCfg.color}1c` : "rgba(105,240,174,0.12)",
+              border: `1px solid ${tierCfg ? `${tierCfg.color}66` : "rgba(105,240,174,0.3)"}`,
+              color: tierCfg ? tierCfg.color : "#69f0ae",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = tierCfg ? `${tierCfg.color}35` : "rgba(105,240,174,0.25)";
+              e.currentTarget.style.borderColor = tierCfg ? tierCfg.color : "rgba(105,240,174,0.6)";
+              e.currentTarget.style.transform = "translateY(-1px)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = tierCfg ? `${tierCfg.color}1c` : "rgba(105,240,174,0.12)";
+              e.currentTarget.style.borderColor = tierCfg ? `${tierCfg.color}66` : "rgba(105,240,174,0.3)";
+              e.currentTarget.style.transform = "translateY(0)";
             }}
           >
-            VIEW HISTORY →
-          </motion.button>
+            History →
+          </button>
+        </div>
+
+        {/* ── Tier Badge ── */}
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
+          <TierBadge tier={tier} sharePct={stats?.tierSharePct || (tierCfg ? parseFloat(tierCfg.share) : 0)} />
+        </div>
+
+        {/* ── Stat Pills ── */}
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+          <StatPill
+            label="Today"
+            value={stats?.todayEarnings ?? 0}
+            accent="#a78bfa"
+            sub="USDT Earned"
+            isCurrency={true}
+          />
+          <StatPill
+            label="Lifetime"
+            value={stats?.lifetimeEarnings ?? 0}
+            accent={tierCfg ? tierCfg.color : "#69f0ae"}
+            sub={`${stats?.rewardCount || 0} event${(stats?.rewardCount || 0) !== 1 ? "s" : ""}`}
+            isCurrency={true}
+          />
+          <StatPill
+            label="Last 30D"
+            value={stats?.last30DayEarnings ?? 0}
+            accent="#38bdf8"
+            sub="USDT Earned"
+            isCurrency={true}
+          />
+          <StatPill
+            label="Vault Balance"
+            value={stats?.communityRewardsBalance ?? 0}
+            accent="#FFD700"
+            sub="USDT Balance"
+            isCurrency={true}
+          />
         </div>
       </motion.div>
     </>
   );
 }
+
+/* ── Styles ── */
+const cardWrap = {
+  position: "relative",
+  overflow: "hidden",
+  background: "#000",
+  borderRadius: 18,
+  border: "1px solid rgba(105,240,174,0.2)",
+  boxShadow: "0 8px 32px rgba(105,240,174,0.06), 0 0 0 1px rgba(105,240,174,0.05)",
+  padding: "16px 18px",
+  display: "flex",
+  flexDirection: "column",
+  maxWidth: "500px",
+  width: "100%",
+  cursor: "pointer",
+};
+
+const viewBtn = {
+  display: "flex",
+  alignItems: "center",
+  gap: 5,
+  padding: "6px 12px",
+  borderRadius: 8,
+  fontWeight: 800,
+  cursor: "pointer",
+  letterSpacing: 0.2,
+  transition: "all 0.2s ease",
+  whiteSpace: "nowrap",
+  flexShrink: 0,
+};
+
+const retryBtn = {
+  marginTop: 8,
+  padding: "5px 12px",
+  background: "rgba(255,215,0,0.12)",
+  border: "1px solid rgba(255,215,0,0.3)",
+  borderRadius: 6,
+  color: "#FFD700",
+  fontSize: 11,
+  fontWeight: 700,
+  cursor: "pointer",
+};
+
+const shimmerBar = (w = "100%", h = 18) => ({
+  width: w,
+  height: h,
+  borderRadius: 8,
+  background: "linear-gradient(90deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 100%)",
+  backgroundSize: "200% 100%",
+  animation: "shimmer 1.5s infinite",
+});

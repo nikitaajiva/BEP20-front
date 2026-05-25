@@ -1683,15 +1683,12 @@ export default function DashboardLayout({
                 <CommunityRewardsCardnew />
               </div>
             </div>
-            {/* Airdrop Pool Section (P1–P9 Node Tier Rewards) */}
+            {/* Airdrop & Referral Rewards Section */}
             <div className="row g-4" style={{ marginTop: 8 }}>
-              <div className="col-12">
+              <div className="col-12 col-xl-6 d-flex flex-column">
                 <AirdropPoolCard API_URL={API_URL} />
               </div>
-            </div>
-            {/* Referral Rewards Section */}
-            <div className="row g-4" style={{ marginTop: 8 }}>
-              <div className="col-12">
+              <div className="col-12 col-xl-6 d-flex flex-column">
                 <ReferralRewardsCard API_URL={API_URL} />
               </div>
             </div>
